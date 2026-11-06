@@ -13,6 +13,103 @@ import { useProject } from "../../state/project";
 /** Short name of the catalog's licence id, as the design shows it. */
 const licenceName = (id: string, fallback: string): string => (id === "OFL-1.1" ? fallback : id);
 
+type FontDownload = ReturnType<typeof useProject.getState>["fontDownloads"][string];
+
+/** The action at the right of a catalog row: installed mark, cancel, or download / try again. */
+function FontAction({
+  font: f,
+  download: d,
+  onCancel,
+  onStart,
+}: {
+  font: FontPack;
+  download: FontDownload | undefined;
+  onCancel: (id: string) => void;
+  onStart: (font: FontPack) => void;
+}) {
+  const { t } = useLingui();
+  if (f.installed) {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-success">
+        <Check size={16} aria-hidden />
+        {t`Installed`}
+      </span>
+    );
+  }
+  if (d?.status === "running") {
+    return (
+      <Button
+        size="sm"
+        disabled={d.cancelling}
+        onClick={() => onCancel(f.id)}
+        aria-label={t`Cancel the download of ${f.family}`}
+      >{t`Cancel`}</Button>
+    );
+  }
+  return (
+    <Button
+      size="sm"
+      aria-label={d ? t`Try again to download ${f.family}` : t`Download ${f.family}`}
+      onClick={() => onStart(f)}
+    >
+      {d ? t`Try again` : t`Download`}
+    </Button>
+  );
+}
+
+/** One family in the catalog, with its licence link, action and progress. */
+function FontRow({
+  font: f,
+  download: d,
+  onCancel,
+  onRetry,
+  onDownload,
+}: {
+  font: FontPack;
+  download: FontDownload | undefined;
+  onCancel: (id: string) => void;
+  /** Download again after a failure (clears the old error first). */
+  onRetry: (font: FontPack) => void;
+  onDownload: (font: FontPack) => void;
+}) {
+  const { t } = useLingui();
+  const size = formatMb(f.bytes);
+  const styleCount = f.styles.length;
+  return (
+    <li data-testid={`catalog-${f.id}`} className="flex flex-col gap-2 px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="font-book text-base font-semibold">{f.family}</span>
+          <span className="text-xs text-ink-muted">{t`${styleCount} styles · ${size} MB`}</span>
+          <button
+            type="button"
+            onClick={() => void bridge.openUrl(f.licenceUrl).catch(() => undefined)}
+            className="w-fit text-xs font-semibold text-accent hover:underline"
+          >
+            {licenceName(f.licence, t`SIL Open Font Licence 1.1`)}
+          </button>
+        </div>
+        <FontAction font={f} download={d} onCancel={onCancel} onStart={d ? onRetry : onDownload} />
+      </div>
+      {d?.status === "running" && (
+        <div className="flex flex-col gap-1">
+          <ProgressBar
+            label={t`Downloading ${f.family}`}
+            value={d.done}
+            max={d.total || f.bytes}
+            className="h-1.5 bg-border"
+          />
+          <span role="status" className="text-xs text-ink-muted">
+            {d.cancelling
+              ? t`Stopping…`
+              : t`Downloading… ${formatMb(d.done)} MB of ${formatMb(d.total || f.bytes)} MB`}
+          </span>
+        </div>
+      )}
+    </li>
+  );
+}
+
 /** The catalog of fonts that can be downloaded (open-licence families). Nothing is fetched until Download is clicked. */
 export function FontsCatalogDialog({
   open,
@@ -61,75 +158,19 @@ export function FontsCatalogDialog({
       <div className="flex flex-col gap-3">
         {(failure || loadError) && <Notice role="alert">{failure?.message ?? loadError}</Notice>}
         <ul className="flex max-h-[52dvh] flex-col divide-y divide-border overflow-y-auto rounded-lg border border-border">
-          {catalog.map((f) => {
-            const d = downloads[f.id];
-            const size = formatMb(f.bytes);
-            const styleCount = f.styles.length;
-            return (
-              <li
-                key={f.id}
-                data-testid={`catalog-${f.id}`}
-                className="flex flex-col gap-2 px-4 py-3"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="font-book text-base font-semibold">{f.family}</span>
-                    <span className="text-xs text-ink-muted">
-                      {t`${styleCount} styles · ${size} MB`}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => void bridge.openUrl(f.licenceUrl).catch(() => undefined)}
-                      className="w-fit text-xs font-semibold text-accent hover:underline"
-                    >
-                      {licenceName(f.licence, t`SIL Open Font Licence 1.1`)}
-                    </button>
-                  </div>
-                  {f.installed ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-success">
-                      <Check size={16} aria-hidden />
-                      {t`Installed`}
-                    </span>
-                  ) : d?.status === "running" ? (
-                    <Button
-                      size="sm"
-                      disabled={d.cancelling}
-                      onClick={() => cancel(f.id)}
-                      aria-label={t`Cancel the download of ${f.family}`}
-                    >{t`Cancel`}</Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      aria-label={
-                        d ? t`Try again to download ${f.family}` : t`Download ${f.family}`
-                      }
-                      onClick={() => {
-                        if (d) dismiss(f.id);
-                        void start(f);
-                      }}
-                    >
-                      {d ? t`Try again` : t`Download`}
-                    </Button>
-                  )}
-                </div>
-                {d?.status === "running" && (
-                  <div className="flex flex-col gap-1">
-                    <ProgressBar
-                      label={t`Downloading ${f.family}`}
-                      value={d.done}
-                      max={d.total || f.bytes}
-                      className="h-1.5 bg-border"
-                    />
-                    <span role="status" className="text-xs text-ink-muted">
-                      {d.cancelling
-                        ? t`Stopping…`
-                        : t`Downloading… ${formatMb(d.done)} MB of ${formatMb(d.total || f.bytes)} MB`}
-                    </span>
-                  </div>
-                )}
-              </li>
-            );
-          })}
+          {catalog.map((f) => (
+            <FontRow
+              key={f.id}
+              font={f}
+              download={downloads[f.id]}
+              onCancel={cancel}
+              onRetry={(font) => {
+                if (downloads[font.id]) dismiss(font.id);
+                void start(font);
+              }}
+              onDownload={(font) => void start(font)}
+            />
+          ))}
         </ul>
         <div className="flex justify-end">
           <Button onClick={() => onOpenChange(false)}>{t`Close`}</Button>

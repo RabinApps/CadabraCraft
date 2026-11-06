@@ -1,22 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { ChevronLeft, ChevronRight, Maximize2, PenLine, ZoomIn, ZoomOut } from "lucide-react";
+import { PenLine } from "lucide-react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { type PageBox } from "@cadabracraft/export-pdf";
 import { errText } from "../../lib/projectError";
 import { wordAtPoint, type WordClick } from "../../lib/export/pdfWords";
 import { spreadCount, spreadLabel, spreadPages } from "../../lib/export/previewSpreads";
-import {
-  clampZoom,
-  fitZoomFor,
-  pinchZoom,
-  stepZoom,
-  touchDistance,
-  wheelZoom,
-} from "../../lib/export/previewZoom";
-import { IconButton } from "../../ui/Button";
+import { fitZoomFor } from "../../lib/export/previewZoom";
 import { Notice } from "../../ui/feedback/Notice";
 import { usePaneWidth } from "../hooks/usePaneWidth";
+import { SpreadToolbar, useZoomGestures, type ZoomMode } from "./parts/SpreadControls";
 
 /** Screen size of one inch of paper in the preview at 100%. */
 const PX_PER_IN = 50;
@@ -213,7 +206,7 @@ export function TypstSpread({
   const { t } = useLingui();
   const { doc, error } = usePdfDocument(pdf, onPages);
   const [wanted, setIndex] = useState(0);
-  const [zoomMode, setZoomMode] = useState<number | "fit">(1);
+  const [zoomMode, setZoomMode] = useState<ZoomMode>(1);
   const scroller = useRef<HTMLDivElement>(null);
   const paneW = usePaneWidth(scroller);
   const total = doc?.numPages ?? 0;
@@ -229,61 +222,7 @@ export function TypstSpread({
   // The wheel and the fingers act on the zoom as it is now, even between renders.
   const now = useRef({ zoom, fit });
   now.current = { zoom, fit };
-  useEffect(() => {
-    const el = scroller.current;
-    if (!el) return;
-    const current = (mode: number | "fit") => (mode === "fit" ? now.current.fit : mode);
-    const onWheel = (e: WheelEvent) => {
-      if (!e.ctrlKey && !e.metaKey) return;
-      e.preventDefault();
-      setZoomMode((mode) => wheelZoom(current(mode), e.deltaY));
-    };
-    // Safari (and so the macOS webview) turns a pinch on the trackpad into gesture events, not a wheel with Ctrl.
-    let gesture = 1;
-    const onGestureStart = (e: Event) => {
-      e.preventDefault();
-      gesture = now.current.zoom;
-    };
-    const onGestureChange = (e: Event) => {
-      e.preventDefault();
-      setZoomMode(clampZoom(gesture * (e as unknown as { scale: number }).scale));
-    };
-    // Two fingers on a touch screen.
-    let pinch: { dist: number; zoom: number } | null = null;
-    const dist = (e: TouchEvent) =>
-      touchDistance(
-        { x: e.touches[0]!.clientX, y: e.touches[0]!.clientY },
-        { x: e.touches[1]!.clientX, y: e.touches[1]!.clientY },
-      );
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 2) pinch = { dist: dist(e), zoom: now.current.zoom };
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if (!pinch || e.touches.length !== 2) return;
-      e.preventDefault();
-      setZoomMode(pinchZoom(pinch.zoom, pinch.dist, dist(e)));
-    };
-    const onTouchEnd = (e: TouchEvent) => {
-      if (e.touches.length < 2) pinch = null;
-    };
-    const on = { passive: false } as const;
-    el.addEventListener("wheel", onWheel, on);
-    el.addEventListener("gesturestart", onGestureStart, on);
-    el.addEventListener("gesturechange", onGestureChange, on);
-    el.addEventListener("touchstart", onTouchStart, on);
-    el.addEventListener("touchmove", onTouchMove, on);
-    el.addEventListener("touchend", onTouchEnd);
-    el.addEventListener("touchcancel", onTouchEnd);
-    return () => {
-      el.removeEventListener("wheel", onWheel);
-      el.removeEventListener("gesturestart", onGestureStart);
-      el.removeEventListener("gesturechange", onGestureChange);
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
-      el.removeEventListener("touchend", onTouchEnd);
-      el.removeEventListener("touchcancel", onTouchEnd);
-    };
-  }, [doc]);
+  useZoomGestures(scroller, now, setZoomMode, doc);
   const m = box.margins;
   const outlineOf = (page: number) => {
     if (!showMargins || (hasCover && page <= 2)) return null;
@@ -299,67 +238,20 @@ export function TypstSpread({
     return <Notice role="alert" className="m-4">{t`Could not show the preview: ${error}`}</Notice>;
   const first = shown[0]!;
   const last = shown.at(-1)!;
-  const zoomIn = stepZoom(zoom, 1);
-  const zoomOut = stepZoom(zoom, -1);
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div
-        role="toolbar"
-        aria-label={t`Spread controls`}
-        className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-border bg-surface px-3 py-1.5"
-      >
-        <div className="flex items-center gap-1">
-          <IconButton
-            icon={ChevronLeft}
-            label={t`Previous pages`}
-            disabled={index <= 0}
-            onClick={() => setIndex(index - 1)}
-          />
-          <span
-            data-testid="spread-label"
-            className="min-w-32 text-center text-sm font-semibold sm:min-w-40"
-            aria-live="polite"
-          >
-            {!doc
-              ? "…"
-              : first === last
-                ? t`Page ${first} of ${total}`
-                : t`Pages ${first} and ${last} of ${total}`}
-          </span>
-          <IconButton
-            icon={ChevronRight}
-            label={t`Next pages`}
-            disabled={index >= spreads - 1}
-            onClick={() => setIndex(index + 1)}
-          />
-        </div>
-        <div className="flex items-center gap-1">
-          <IconButton
-            icon={ZoomOut}
-            label={t`Zoom out`}
-            disabled={zoomOut === null}
-            onClick={() => setZoomMode(zoomOut!)}
-          />
-          <span
-            data-testid="preview-zoom"
-            className="min-w-12 text-center text-sm font-semibold tabular-nums"
-          >
-            {Math.round(zoom * 100)}%
-          </span>
-          <IconButton
-            icon={ZoomIn}
-            label={t`Zoom in`}
-            disabled={zoomIn === null}
-            onClick={() => setZoomMode(zoomIn!)}
-          />
-          <IconButton
-            icon={Maximize2}
-            label={t`Fit to window`}
-            active={zoomMode === "fit"}
-            onClick={() => setZoomMode(zoomMode === "fit" ? 1 : "fit")}
-          />
-        </div>
-      </div>
+      <SpreadToolbar
+        loaded={!!doc}
+        first={first}
+        last={last}
+        total={total}
+        index={index}
+        spreads={spreads}
+        onIndex={setIndex}
+        zoom={zoom}
+        zoomMode={zoomMode}
+        onZoomMode={setZoomMode}
+      />
       <div
         ref={scroller}
         data-testid="spread-scroll"

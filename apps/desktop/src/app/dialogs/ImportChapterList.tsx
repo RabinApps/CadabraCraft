@@ -33,6 +33,113 @@ const wordsOf = (item: PlanItem, result: ImportResult) =>
 const scenesOf = (item: PlanItem, result: ImportResult) =>
   item.sources.reduce((n, s) => n + sceneCountOf(result.chapters[s]!.doc), 0);
 
+/** One chapter of the preview: include box, title, grip, move / merge / split buttons and the size. */
+function ChapterRow({
+  item,
+  index: i,
+  plan,
+  result,
+  outline,
+  drag,
+  describedBy,
+  onPatch,
+  onMove,
+  onChange,
+  onGrab,
+  onGripKey,
+}: {
+  item: PlanItem;
+  index: number;
+  plan: ImportPlan;
+  result: ImportResult;
+  outline: boolean;
+  drag: { key: string; at: number } | null;
+  describedBy: string | undefined;
+  onPatch: (p: Partial<PlanItem>) => void;
+  onMove: (delta: number, act: string) => void;
+  onChange: (plan: ImportPlan) => void;
+  onGrab: (e: PointerEvent<HTMLElement>) => void;
+  onGripKey: (e: KeyboardEvent) => void;
+}) {
+  const { t } = useLingui();
+  const key = keyOf(item);
+  const n = i + 1;
+  const merged = item.sources.length;
+  return (
+    <li
+      data-key={key}
+      className={cx("relative flex flex-col gap-1 rounded-md", drag?.key === key && "opacity-40")}
+    >
+      {drag && drag.at === i && <DropLine />}
+      {drag && drag.at === plan.length && i === plan.length - 1 && <DropLine below />}
+      <div className="flex items-center gap-2.5">
+        <label className="flex size-11 shrink-0 items-center justify-center md:size-6">
+          <input
+            type="checkbox"
+            aria-label={t`Include chapter ${i + 1}`}
+            checked={item.include}
+            onChange={(e) => onPatch({ include: e.target.checked })}
+            className="size-4 accent-accent"
+          />
+        </label>
+        <input
+          aria-label={t`Title of chapter ${i + 1}`}
+          value={item.title}
+          disabled={!item.include}
+          onChange={(e) => onPatch({ title: e.target.value })}
+          className="min-w-0 flex-1 rounded-md border border-border-strong bg-bg px-2.5 py-1.5 text-sm max-md:min-h-11 disabled:text-ink-muted"
+        />
+      </div>
+      <div className="flex flex-wrap items-center gap-x-1 md:ps-8.5">
+        <button
+          type="button"
+          data-act="grip"
+          aria-label={t`Reorder chapter ${n}`}
+          aria-keyshortcuts="ArrowUp ArrowDown"
+          aria-describedby={describedBy}
+          onPointerDown={onGrab}
+          onKeyDown={onGripKey}
+          className="flex size-11 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-ink-muted hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent md:size-9"
+        >
+          <GripVertical size={16} aria-hidden />
+        </button>
+        <IconButton
+          icon={ArrowUp}
+          data-act="up"
+          label={t`Move chapter ${n} up`}
+          disabled={i === 0}
+          onClick={() => onMove(-1, "up")}
+        />
+        <IconButton
+          icon={ArrowDown}
+          data-act="down"
+          label={t`Move chapter ${n} down`}
+          disabled={i === plan.length - 1}
+          onClick={() => onMove(1, "down")}
+        />
+        <IconButton
+          icon={Merge}
+          label={t`Merge chapter ${n} into the previous one`}
+          disabled={!canMergeUp(plan, i)}
+          onClick={() => onChange(mergePlanItemUp(plan, i))}
+        />
+        {canSplit(plan, i) && (
+          <IconButton
+            icon={Split}
+            label={t`Split chapter ${n} back into ${merged} chapters`}
+            onClick={() => onChange(splitPlanItem(plan, i, result))}
+          />
+        )}
+        <span className="ms-auto shrink-0 text-xs text-ink-muted">
+          {outline
+            ? plural(scenesOf(item, result), { one: "# scene", other: "# scenes" })
+            : plural(wordsOf(item, result), { one: "# word", other: "# words" })}
+        </span>
+      </div>
+    </li>
+  );
+}
+
 /**
  * The chapters of the import preview: include, rename, reorder (drag the grip, or focus it and press the arrow keys,
  * or use Move up and Move down), merge into the previous chapter and split a merged chapter again. Pure view over the
@@ -110,88 +217,23 @@ export function ImportChapterList({ result, plan, onChange, outline = false }: P
         aria-label={t`Chapters`}
         className="flex max-h-72 flex-col gap-2 overflow-y-auto rounded-md border border-border bg-surface p-3"
       >
-        {plan.map((item, i) => {
-          const key = keyOf(item);
-          const n = i + 1;
-          const merged = item.sources.length;
-          return (
-            <li
-              key={key}
-              data-key={key}
-              className={cx(
-                "relative flex flex-col gap-1 rounded-md",
-                drag?.key === key && "opacity-40",
-              )}
-            >
-              {drag && drag.at === i && <DropLine />}
-              {drag && drag.at === plan.length && i === plan.length - 1 && <DropLine below />}
-              <div className="flex items-center gap-2.5">
-                <label className="flex size-11 shrink-0 items-center justify-center md:size-6">
-                  <input
-                    type="checkbox"
-                    aria-label={t`Include chapter ${i + 1}`}
-                    checked={item.include}
-                    onChange={(e) => patch(i, { include: e.target.checked })}
-                    className="size-4 accent-accent"
-                  />
-                </label>
-                <input
-                  aria-label={t`Title of chapter ${i + 1}`}
-                  value={item.title}
-                  disabled={!item.include}
-                  onChange={(e) => patch(i, { title: e.target.value })}
-                  className="min-w-0 flex-1 rounded-md border border-border-strong bg-bg px-2.5 py-1.5 text-sm max-md:min-h-11 disabled:text-ink-muted"
-                />
-              </div>
-              <div className="flex flex-wrap items-center gap-x-1 md:ps-8.5">
-                <button
-                  type="button"
-                  data-act="grip"
-                  aria-label={t`Reorder chapter ${n}`}
-                  aria-keyshortcuts="ArrowUp ArrowDown"
-                  aria-describedby={grip.describedBy}
-                  onPointerDown={grab(key, i)}
-                  onKeyDown={gripKeys(i)}
-                  className="flex size-11 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-ink-muted hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent md:size-9"
-                >
-                  <GripVertical size={16} aria-hidden />
-                </button>
-                <IconButton
-                  icon={ArrowUp}
-                  data-act="up"
-                  label={t`Move chapter ${n} up`}
-                  disabled={i === 0}
-                  onClick={() => move(i, -1, "up")}
-                />
-                <IconButton
-                  icon={ArrowDown}
-                  data-act="down"
-                  label={t`Move chapter ${n} down`}
-                  disabled={i === plan.length - 1}
-                  onClick={() => move(i, 1, "down")}
-                />
-                <IconButton
-                  icon={Merge}
-                  label={t`Merge chapter ${n} into the previous one`}
-                  disabled={!canMergeUp(plan, i)}
-                  onClick={() => onChange(mergePlanItemUp(plan, i))}
-                />
-                {canSplit(plan, i) && (
-                  <IconButton
-                    icon={Split}
-                    label={t`Split chapter ${n} back into ${merged} chapters`}
-                    onClick={() => onChange(splitPlanItem(plan, i, result))}
-                  />
-                )}
-                <span className="ms-auto shrink-0 text-xs text-ink-muted">
-                  {outline
-                    ? plural(scenesOf(item, result), { one: "# scene", other: "# scenes" })
-                    : plural(wordsOf(item, result), { one: "# word", other: "# words" })}
-                </span>
-              </div>
-            </li>
-          );
-        })}
+        {plan.map((item, i) => (
+          <ChapterRow
+            key={keyOf(item)}
+            item={item}
+            index={i}
+            plan={plan}
+            result={result}
+            outline={outline}
+            drag={drag}
+            describedBy={grip.describedBy}
+            onPatch={(p) => patch(i, p)}
+            onMove={(delta, act) => move(i, delta, act)}
+            onChange={onChange}
+            onGrab={grab(keyOf(item), i)}
+            onGripKey={gripKeys(i)}
+          />
+        ))}
       </ul>
     </>
   );

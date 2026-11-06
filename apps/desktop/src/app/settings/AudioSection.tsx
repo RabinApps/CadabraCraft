@@ -11,6 +11,126 @@ import { Select } from "../../ui/forms/Select";
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import { Section, Row } from "./SettingsParts";
 
+/** The default voice picker row. */
+function VoiceRow({
+  installed,
+  voice,
+  onVoice,
+}: {
+  installed: VoiceInfo[];
+  voice: string;
+  onVoice: (id: string) => void;
+}) {
+  const { t } = useLingui();
+  const names = useAudioLabels();
+  return (
+    <Row
+      title={t`Default voice`}
+      hint={t`The voice the audiobook export starts with. Only installed voices can be picked.`}
+      control={
+        <div className="w-56 max-sm:w-full">
+          <Select
+            label={t`Default voice`}
+            hideLabel
+            className="py-2"
+            value={installed.some((v) => v.id === voice) ? voice : ""}
+            onChange={(e) => onVoice(e.target.value)}
+          >
+            <option value="">{t`Best installed voice`}</option>
+            {installed.map((v) => (
+              <option key={v.id} value={v.id}>
+                {names.voice(v.id)}
+              </option>
+            ))}
+          </Select>
+        </div>
+      }
+    />
+  );
+}
+
+/** The default formats row. */
+function FormatsRow({
+  formats,
+  onFormats,
+}: {
+  formats: AudioFormat[];
+  onFormats: (f: AudioFormat[]) => void;
+}) {
+  const { t } = useLingui();
+  const names = useAudioLabels();
+  return (
+    <Row
+      title={t`Default formats`}
+      hint={t`The audio formats ticked when you open the export.`}
+      control={
+        <fieldset className="flex gap-4">
+          <legend className="sr-only">{t`Default formats`}</legend>
+          {AUDIO_FORMATS.map((f) => (
+            <Checkbox
+              key={f}
+              label={names.format(f).label}
+              checked={formats.includes(f)}
+              onChange={(e) => {
+                const next = toggleAudioFormat(formats, f, e.target.checked);
+                if (next) onFormats(next);
+              }}
+            />
+          ))}
+        </fieldset>
+      }
+    />
+  );
+}
+
+/** The delete button of an installed pack, or its keep / delete confirmation. */
+function PackControl({
+  pack,
+  packName,
+  confirming,
+  hasError,
+  onCancel,
+  onRemove,
+  onAsk,
+}: {
+  pack: VoicePack;
+  packName: (p: VoicePack) => string;
+  confirming: boolean;
+  hasError: boolean;
+  onCancel: () => void;
+  onRemove: () => void;
+  onAsk: () => void;
+}) {
+  const { t } = useLingui();
+  if (!confirming) {
+    return (
+      <Button
+        id={`audio-delete-${pack.id}`}
+        aria-describedby={hasError ? "audio-error" : undefined}
+        onClick={onAsk}
+      >{t`Delete`}</Button>
+    );
+  }
+  return (
+    <div
+      role="group"
+      aria-label={t`Delete ${packName(pack)} from this computer?`}
+      className="flex gap-2"
+    >
+      <Button
+        id={`audio-keep-${pack.id}`}
+        onKeyDown={(e) => e.key === "Escape" && onCancel()}
+        onClick={onCancel}
+      >{t`Keep`}</Button>
+      <Button
+        variant="danger"
+        onKeyDown={(e) => e.key === "Escape" && onCancel()}
+        onClick={onRemove}
+      >{t`Delete voices`}</Button>
+    </div>
+  );
+}
+
 /** Audiobook preferences: the voice and formats the export starts with, and the downloaded voices with a way to remove them. */
 export function AudioSection({
   title,
@@ -26,7 +146,6 @@ export function AudioSection({
   onFormats: (f: AudioFormat[]) => void;
 }) {
   const { t } = useLingui();
-  const names = useAudioLabels();
   const [voices, setVoices] = useState<VoiceInfo[]>([]);
   const [packs, setPacks] = useState<VoicePack[]>([]);
   const [confirm, setConfirm] = useState<string | null>(null);
@@ -79,48 +198,8 @@ export function AudioSection({
   const installed = voices.filter((v) => v.installed);
   return (
     <Section id="audio" title={title}>
-      <Row
-        title={t`Default voice`}
-        hint={t`The voice the audiobook export starts with. Only installed voices can be picked.`}
-        control={
-          <div className="w-56 max-sm:w-full">
-            <Select
-              label={t`Default voice`}
-              hideLabel
-              className="py-2"
-              value={installed.some((v) => v.id === voice) ? voice : ""}
-              onChange={(e) => onVoice(e.target.value)}
-            >
-              <option value="">{t`Best installed voice`}</option>
-              {installed.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {names.voice(v.id)}
-                </option>
-              ))}
-            </Select>
-          </div>
-        }
-      />
-      <Row
-        title={t`Default formats`}
-        hint={t`The audio formats ticked when you open the export.`}
-        control={
-          <fieldset className="flex gap-4">
-            <legend className="sr-only">{t`Default formats`}</legend>
-            {AUDIO_FORMATS.map((f) => (
-              <Checkbox
-                key={f}
-                label={names.format(f).label}
-                checked={formats.includes(f)}
-                onChange={(e) => {
-                  const next = toggleAudioFormat(formats, f, e.target.checked);
-                  if (next) onFormats(next);
-                }}
-              />
-            ))}
-          </fieldset>
-        }
-      />
+      <VoiceRow installed={installed} voice={voice} onVoice={onVoice} />
+      <FormatsRow formats={formats} onFormats={onFormats} />
       {packs.map((p) => (
         <Row
           key={p.id}
@@ -132,33 +211,18 @@ export function AudioSection({
           }
           control={
             p.installed ? (
-              confirm === p.id ? (
-                <div
-                  role="group"
-                  aria-label={t`Delete ${packName(p)} from this computer?`}
-                  className="flex gap-2"
-                >
-                  <Button
-                    id={`audio-keep-${p.id}`}
-                    onKeyDown={(e) => e.key === "Escape" && cancel(p.id)}
-                    onClick={() => cancel(p.id)}
-                  >{t`Keep`}</Button>
-                  <Button
-                    variant="danger"
-                    onKeyDown={(e) => e.key === "Escape" && cancel(p.id)}
-                    onClick={() => void remove(p)}
-                  >{t`Delete voices`}</Button>
-                </div>
-              ) : (
-                <Button
-                  id={`audio-delete-${p.id}`}
-                  aria-describedby={error ? "audio-error" : undefined}
-                  onClick={() => {
-                    focusId.current = `audio-keep-${p.id}`;
-                    setConfirm(p.id);
-                  }}
-                >{t`Delete`}</Button>
-              )
+              <PackControl
+                pack={p}
+                packName={packName}
+                confirming={confirm === p.id}
+                hasError={error !== null}
+                onCancel={() => cancel(p.id)}
+                onRemove={() => void remove(p)}
+                onAsk={() => {
+                  focusId.current = `audio-keep-${p.id}`;
+                  setConfirm(p.id);
+                }}
+              />
             ) : null
           }
         />

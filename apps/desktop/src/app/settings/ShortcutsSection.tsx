@@ -7,7 +7,7 @@ import { captureKey, comboProblem, MODIFIER_KEYS } from "../../lib/shortcutCombo
 import { setCapturingKeys } from "../../state/app/commands";
 import { useSettings } from "../../state/view/editorPrefs";
 import { applyOverrides, findConflict, withBinding, withoutBinding } from "./shortcutBindings";
-import { buildShortcuts, groupRows, shortcutRows } from "./shortcutList";
+import { buildShortcuts, groupRows, shortcutRows, type ShortcutRow } from "./shortcutList";
 import { KeyCombo } from "./KeyCombo";
 
 /** While `active`, every key goes to `onKey` and nowhere else (not to the editor, not to the app's commands). */
@@ -27,6 +27,121 @@ function useKeyCapture(active: boolean, onKey: (e: KeyboardEvent) => void) {
       setCapturingKeys(false);
     };
   }, [active, onKey]);
+}
+
+/** One row of the list: the action, its keys, and the Change / Reset buttons for the ones that can be rebound. */
+function ShortcutItem({
+  row: r,
+  waiting,
+  problem,
+  overridden,
+  onChange,
+  onReset,
+}: {
+  row: ShortcutRow;
+  waiting: boolean;
+  problem: string | null;
+  overridden: boolean;
+  onChange: () => void;
+  onReset: () => void;
+}) {
+  const { t } = useLingui();
+  const action = r.action;
+  return (
+    <li className="flex flex-col gap-1 px-4 py-2.5 text-sm">
+      <div className="flex items-center justify-between gap-4">
+        <span className="min-w-0">{r.action}</span>
+        <span className="flex shrink-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
+          {waiting ? (
+            <span className="text-ink-muted">{t`Press the new keys…`}</span>
+          ) : r.combos.length === 0 ? (
+            <span className="text-ink-muted">{t`No key`}</span>
+          ) : (
+            r.combos.map((keys, i) => <KeyCombo key={i} keys={keys} />)
+          )}
+          {r.rebindable && (
+            <>
+              <Button
+                size="sm"
+                variant="ghost"
+                id={`shortcut-change-${r.id}`}
+                aria-label={t`Change shortcut for ${action}`}
+                aria-pressed={waiting}
+                aria-describedby={waiting && problem ? `shortcut-problem-${r.id}` : undefined}
+                onClick={onChange}
+              >
+                {t`Change`}
+              </Button>
+              {overridden && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  aria-label={t`Reset shortcut for ${action}`}
+                  onClick={onReset}
+                >
+                  {t`Reset`}
+                </Button>
+              )}
+            </>
+          )}
+        </span>
+      </div>
+      {waiting && problem && (
+        <p id={`shortcut-problem-${r.id}`} role="alert" className="text-xs text-danger">
+          {problem}
+        </p>
+      )}
+    </li>
+  );
+}
+
+/** The search box and the "Reset all" button above the list. */
+function ShortcutsToolbar({
+  query,
+  onQuery,
+  canReset,
+  onResetAll,
+}: {
+  query: string;
+  onQuery: (q: string) => void;
+  canReset: boolean;
+  onResetAll: () => void;
+}) {
+  const { t } = useLingui();
+  return (
+    <div className="flex items-end gap-3">
+      <div className="min-w-0 flex-1">
+        <Field
+          label={t`Search shortcuts`}
+          hideLabel
+          type="search"
+          placeholder={t`Search by action or key`}
+          value={query}
+          onChange={(e) => onQuery(e.target.value)}
+        />
+      </div>
+      <Button size="sm" disabled={!canReset} onClick={onResetAll}>
+        {t`Reset all`}
+      </Button>
+    </div>
+  );
+}
+
+/** The heading and the one-line help under it. */
+function ShortcutsIntro({ title, mac }: { title: string; mac: boolean }) {
+  const { t } = useLingui();
+  return (
+    <>
+      <h2 id="shortcuts-heading" className="font-book text-title font-semibold">
+        {title}
+      </h2>
+      <p className="text-xs text-ink-muted">
+        {mac
+          ? t`Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option.`
+          : t`Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control.`}
+      </p>
+    </>
+  );
 }
 
 /**
@@ -100,37 +215,17 @@ export function ShortcutsSection({ title }: { title: string }) {
         aria-labelledby="shortcuts-heading"
         className="flex scroll-mt-4 flex-col gap-3"
       >
-        <h2 id="shortcuts-heading" className="font-book text-title font-semibold">
-          {title}
-        </h2>
-        <p className="text-xs text-ink-muted">
-          {mac
-            ? t`Choose Change, then press the new keys. Esc cancels and Backspace removes the key. ⌘ is Command, ⌥ is Option.`
-            : t`Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control.`}
-        </p>
-        <div className="flex items-end gap-3">
-          <div className="min-w-0 flex-1">
-            <Field
-              label={t`Search shortcuts`}
-              hideLabel
-              type="search"
-              placeholder={t`Search by action or key`}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </div>
-          <Button
-            size="sm"
-            disabled={!changed}
-            onClick={() => {
-              stop();
-              set({ shortcutOverrides: {} });
-              setAnnouncement(t`All shortcuts reset to default`);
-            }}
-          >
-            {t`Reset all`}
-          </Button>
-        </div>
+        <ShortcutsIntro title={title} mac={mac} />
+        <ShortcutsToolbar
+          query={query}
+          onQuery={setQuery}
+          canReset={changed}
+          onResetAll={() => {
+            stop();
+            set({ shortcutOverrides: {} });
+            setAnnouncement(t`All shortcuts reset to default`);
+          }}
+        />
         {groups.length === 0 ? (
           <p
             role="status"
@@ -145,76 +240,33 @@ export function ShortcutsSection({ title }: { title: string }) {
                 {g.label}
               </h3>
               <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-surface">
-                {g.rows.map((r) => {
-                  const waiting = recording === r.id;
-                  const action = r.action;
-                  return (
-                    <li key={r.id} className="flex flex-col gap-1 px-4 py-2.5 text-sm">
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="min-w-0">{r.action}</span>
-                        <span className="flex shrink-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
-                          {waiting ? (
-                            <span className="text-ink-muted">{t`Press the new keys…`}</span>
-                          ) : r.combos.length === 0 ? (
-                            <span className="text-ink-muted">{t`No key`}</span>
-                          ) : (
-                            r.combos.map((keys, i) => <KeyCombo key={i} keys={keys} />)
-                          )}
-                          {r.rebindable && (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                id={`shortcut-change-${r.id}`}
-                                aria-label={t`Change shortcut for ${action}`}
-                                aria-pressed={waiting}
-                                aria-describedby={
-                                  waiting && problem ? `shortcut-problem-${r.id}` : undefined
-                                }
-                                onClick={() => {
-                                  setProblem(null);
-                                  setRecording(waiting ? null : r.id);
-                                  setAnnouncement(
-                                    waiting
-                                      ? t`Cancelled. Shortcut for ${action} unchanged.`
-                                      : t`Press the new keys for ${action}. Esc cancels.`,
-                                  );
-                                }}
-                              >
-                                {t`Change`}
-                              </Button>
-                              {Object.hasOwn(overrides, r.id) && (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  aria-label={t`Reset shortcut for ${action}`}
-                                  onClick={() => {
-                                    stop();
-                                    set({ shortcutOverrides: withoutBinding(overrides, r.id) });
-                                    setAnnouncement(t`Reset to default`);
-                                    // This button disappears once the key is back to default: keep focus on a stable one.
-                                    document.getElementById(`shortcut-change-${r.id}`)?.focus();
-                                  }}
-                                >
-                                  {t`Reset`}
-                                </Button>
-                              )}
-                            </>
-                          )}
-                        </span>
-                      </div>
-                      {waiting && problem && (
-                        <p
-                          id={`shortcut-problem-${r.id}`}
-                          role="alert"
-                          className="text-xs text-danger"
-                        >
-                          {problem}
-                        </p>
-                      )}
-                    </li>
-                  );
-                })}
+                {g.rows.map((r) => (
+                  <ShortcutItem
+                    key={r.id}
+                    row={r}
+                    waiting={recording === r.id}
+                    problem={problem}
+                    overridden={Object.hasOwn(overrides, r.id)}
+                    onChange={() => {
+                      const waiting = recording === r.id;
+                      const action = r.action;
+                      setProblem(null);
+                      setRecording(waiting ? null : r.id);
+                      setAnnouncement(
+                        waiting
+                          ? t`Cancelled. Shortcut for ${action} unchanged.`
+                          : t`Press the new keys for ${action}. Esc cancels.`,
+                      );
+                    }}
+                    onReset={() => {
+                      stop();
+                      set({ shortcutOverrides: withoutBinding(overrides, r.id) });
+                      setAnnouncement(t`Reset to default`);
+                      // This button disappears once the key is back to default: keep focus on a stable one.
+                      document.getElementById(`shortcut-change-${r.id}`)?.focus();
+                    }}
+                  />
+                ))}
               </ul>
             </div>
           ))
