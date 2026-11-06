@@ -20,6 +20,8 @@ export interface ImageDraft {
   error?: string;
 }
 
+const NO_IMAGE: ImageDraft = { src: "", alt: "", caption: "", decorative: false, editing: false };
+
 /** The dialog that asks for alt text (or a decorative flag) and a caption when an image is inserted or edited. */
 export function ImageDialog({
   image,
@@ -31,11 +33,12 @@ export function ImageDialog({
   onInsert: () => void;
 }) {
   const { t } = useLingui();
+  const d = image ?? NO_IMAGE;
   return (
     <Modal
       open={image !== null}
       onOpenChange={() => setImage(null)}
-      title={image?.editing ? t`Image details` : t`Add image`}
+      title={d.editing ? t`Image details` : t`Add image`}
     >
       <form
         className="flex flex-col gap-4"
@@ -44,40 +47,40 @@ export function ImageDialog({
           onInsert();
         }}
       >
-        <Field label={t`Image file`} value={image?.src ?? ""} readOnly />
+        <Field label={t`Image file`} value={d.src} readOnly />
         <Field
           label={t`Description (alt text)`}
-          value={image?.decorative ? "" : (image?.alt ?? "")}
-          disabled={image?.decorative ?? false}
+          value={d.decorative ? "" : d.alt}
+          disabled={d.decorative}
           onChange={(e) => setImage((i) => i && { ...i, alt: e.target.value, error: undefined })}
           hint={t`Read aloud by screen readers. Describe what the picture shows.`}
           id="image-alt"
-          errorId={image?.error ? "image-error" : undefined}
+          errorId={d.error ? "image-error" : undefined}
           autoFocus
         />
         <Checkbox
           label={t`This image is decorative`}
           hint={t`It adds nothing to the text, so screen readers skip it.`}
-          checked={image?.decorative ?? false}
+          checked={d.decorative}
           onChange={(e) =>
             setImage((i) => i && { ...i, decorative: e.target.checked, error: undefined })
           }
         />
         <Field
           label={t`Caption`}
-          value={image?.caption ?? ""}
+          value={d.caption}
           onChange={(e) => setImage((i) => i && { ...i, caption: e.target.value })}
           hint={t`Optional. Shown below the image.`}
         />
-        {image?.error && (
+        {d.error && (
           <Notice id="image-error" role="alert">
-            {image.error}
+            {d.error}
           </Notice>
         )}
         <div className="flex justify-end gap-2.5">
           <Button onClick={() => setImage(null)}>{t`Cancel`}</Button>
           <Button type="submit" variant="primary">
-            {image?.editing ? t`Save` : t`Insert`}
+            {d.editing ? t`Save` : t`Insert`}
           </Button>
         </div>
       </form>

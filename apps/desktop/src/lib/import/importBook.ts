@@ -350,9 +350,9 @@ async function writeBody(
   start: Manifest,
   result: ImportResult,
   images: LoadedImage[],
-  warnings: ImportWarning[],
-  written: { images: number; chapters: number },
+  sink: { warnings: ImportWarning[]; written: { images: number; chapters: number } },
 ): Promise<Manifest> {
+  const { warnings, written } = sink;
   let manifest = start;
   const map = new Map<string, string | null>();
   for (const a of result.assets) map.set(a.targetPath, null);
@@ -408,7 +408,7 @@ export async function writeImport(opts: {
       identifier: `urn:uuid:${crypto.randomUUID()}`,
     });
     await bridge.createProject(opts.root, serializeManifest(manifest));
-    const grown = await writeBody(opts.root, manifest, result, images, warnings, written);
+    const grown = await writeBody(opts.root, manifest, result, images, { warnings, written });
     await bridge.writeFile(opts.root, "cadabra.json", serializeManifest(grown), null);
   } catch (e) {
     throw new Error(`${errText(e)} ${wrote()}`, { cause: e });
@@ -447,7 +447,7 @@ export async function runImportInto(
   const written = { images: 0, chapters: 0 };
   let grown: Manifest;
   try {
-    grown = await writeBody(opts.root, opts.manifest, result, images, warnings, written);
+    grown = await writeBody(opts.root, opts.manifest, result, images, { warnings, written });
     await opts.saveManifest(grown);
   } catch (e) {
     throw new Error(

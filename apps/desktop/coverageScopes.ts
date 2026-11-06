@@ -7,7 +7,9 @@ const E2E_TS = [
   /\/use[A-Z][^/]*\.ts$/,
   /^src\/editor\/findHooks\.ts$/,
   // Page view pagination: the part that reads layout from the editor's DOM and the plugin that schedules it.
-  /^src\/editor\/pagination\/(dom|plugin|rows)\.ts$/,
+  /^src\/editor\/pagination\/(dom|plugin|rows|forced|runLayout)\.ts$/,
+  // Find bar and paste dialog behaviour: acts on the live editor and the project store, measured through the Playwright specs.
+  /^src\/editor\/(find\/findActions|paste\/pasteFlow)\.ts$/,
 ];
 
 /** True when the file is measured by the Playwright run (React components, hooks, the entry point). */

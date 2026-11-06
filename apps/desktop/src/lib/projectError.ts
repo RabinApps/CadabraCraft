@@ -78,70 +78,53 @@ export function isProjectError(e: unknown): e is ProjectError {
   return kind !== "not_found" || typeof (e as { path?: unknown }).path === "string";
 }
 
+type Messages = { [K in ProjectError["kind"]]: (e: Extract<ProjectError, { kind: K }>) => string };
+
+/** The localized sentence of each kind of failure. */
+const MESSAGES: Messages = {
+  unsafe_path: (e) => t`Unsafe project path: ${e.path}`,
+  path_escape: (e) =>
+    t`${e.path} leaves the project folder through a symbolic link. Move the real file into the book's folder and try again.`,
+  not_found: (e) =>
+    t`${e.path} does not exist. Choose another file, or restore it from History if it was removed.`,
+  already_exists: () => t`A project already exists in this folder`,
+  not_a_project: (e) => t`${e.path} is not a CadabraCraft project folder`,
+  not_utf8: (e) =>
+    t`${e.path} is not valid UTF-8 text. Choose another file, or save it as UTF-8 and try again.`,
+  icloud_pending: (e) => t`${e.path} is still downloading from iCloud; try again in a moment`,
+  too_large: (e) => t`${e.path} is larger than ${e.max_mb} MB. Choose a smaller file.`,
+  not_a_file: (e) => t`${e.path} is not a file`,
+  unsupported_image: (e) => t`Unsupported image type: ${e.name}`,
+  invalid_image: (e) => t`${e.name} is not a valid ${e.ext} image. Choose another image file.`,
+  unsupported_document: (e) =>
+    t`${e.name} is not a .docx, .md, .markdown, .html, .htm or .txt file`,
+  not_image_asset: (e) => t`Not an image in the assets folder: ${e.path}`,
+  unsupported_reference: (e) => t`${e.name} is a type of file that cannot be added as a reference`,
+  invalid_reference: (e) => t`${e.name} is not a valid ${e.ext} file`,
+  not_reference: (e) => t`Not a reference file: ${e.path}`,
+  not_trash_path: (e) => t`Not a page in the trash: ${e.path}`,
+  cannot_restore: (e) => t`Cannot restore ${e.path}`,
+  image_ref_not_allowed: (e) => t`This image path is not allowed: ${e.reference}`,
+  image_ref_not_found: (e) => t`Image not found: ${e.reference}`,
+  image_ref_outside: (e) => t`The image ${e.reference} is outside the document's folder`,
+  invalid_file_name: () => t`That file name is not valid`,
+  not_picked: (e) => t`${e.name} was not chosen in a file or folder dialog`,
+  permission_denied: (e) =>
+    t`CadabraCraft does not have permission to use ${e.path}. Check the file is not open elsewhere and that your account can change it, then try again.`,
+  disk_full: (e) =>
+    t`There is no space left on the disk to write ${e.path}. Free some space and try again.`,
+  image_dimensions: (e) => t`${e.name} is larger than ${e.max_megapixels} megapixels`,
+  invalid_manifest: () =>
+    t`The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups.`,
+  watch_failed: (e) =>
+    t`Cannot watch ${e.path} for changes made outside the app. Saving still works; reopen the book to try again.`,
+  import_docx: (e) => describeImportCode(e.code),
+  io: (e) => t`${e.message}. Try again, and check the file is not open in another program.`,
+};
+
 /** The localized sentence for a Rust file-command failure. `io` carries the operating system's own message. */
 export function projectErrorMessage(e: ProjectError): string {
-  switch (e.kind) {
-    case "unsafe_path":
-      return t`Unsafe project path: ${e.path}`;
-    case "path_escape":
-      return t`${e.path} leaves the project folder through a symbolic link. Move the real file into the book's folder and try again.`;
-    case "not_found":
-      return t`${e.path} does not exist. Choose another file, or restore it from History if it was removed.`;
-    case "already_exists":
-      return t`A project already exists in this folder`;
-    case "not_a_project":
-      return t`${e.path} is not a CadabraCraft project folder`;
-    case "not_utf8":
-      return t`${e.path} is not valid UTF-8 text. Choose another file, or save it as UTF-8 and try again.`;
-    case "icloud_pending":
-      return t`${e.path} is still downloading from iCloud; try again in a moment`;
-    case "too_large":
-      return t`${e.path} is larger than ${e.max_mb} MB. Choose a smaller file.`;
-    case "not_a_file":
-      return t`${e.path} is not a file`;
-    case "unsupported_image":
-      return t`Unsupported image type: ${e.name}`;
-    case "invalid_image":
-      return t`${e.name} is not a valid ${e.ext} image. Choose another image file.`;
-    case "unsupported_document":
-      return t`${e.name} is not a .docx, .md, .markdown, .html, .htm or .txt file`;
-    case "not_image_asset":
-      return t`Not an image in the assets folder: ${e.path}`;
-    case "unsupported_reference":
-      return t`${e.name} is a type of file that cannot be added as a reference`;
-    case "invalid_reference":
-      return t`${e.name} is not a valid ${e.ext} file`;
-    case "not_reference":
-      return t`Not a reference file: ${e.path}`;
-    case "not_trash_path":
-      return t`Not a page in the trash: ${e.path}`;
-    case "cannot_restore":
-      return t`Cannot restore ${e.path}`;
-    case "image_ref_not_allowed":
-      return t`This image path is not allowed: ${e.reference}`;
-    case "image_ref_not_found":
-      return t`Image not found: ${e.reference}`;
-    case "image_ref_outside":
-      return t`The image ${e.reference} is outside the document's folder`;
-    case "invalid_file_name":
-      return t`That file name is not valid`;
-    case "not_picked":
-      return t`${e.name} was not chosen in a file or folder dialog`;
-    case "permission_denied":
-      return t`CadabraCraft does not have permission to use ${e.path}. Check the file is not open elsewhere and that your account can change it, then try again.`;
-    case "disk_full":
-      return t`There is no space left on the disk to write ${e.path}. Free some space and try again.`;
-    case "image_dimensions":
-      return t`${e.name} is larger than ${e.max_megapixels} megapixels`;
-    case "invalid_manifest":
-      return t`The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups.`;
-    case "watch_failed":
-      return t`Cannot watch ${e.path} for changes made outside the app. Saving still works; reopen the book to try again.`;
-    case "import_docx":
-      return describeImportCode(e.code);
-    case "io":
-      return t`${e.message}. Try again, and check the file is not open in another program.`;
-  }
+  return (MESSAGES[e.kind] as (e: ProjectError) => string)(e);
 }
 
 /** What opening a folder without a cadabra.json fails with. Home compares against it to tell "folder gone" from other failures. */

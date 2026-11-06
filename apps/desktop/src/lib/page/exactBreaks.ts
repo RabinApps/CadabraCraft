@@ -69,10 +69,7 @@ export function exactBreaks(
   src: ExactSource,
   leaves: readonly (readonly ExactLeaf[])[],
 ): ExactBreak[] | null {
-  const { blocks, base } = src;
-  const out: ExactBreak[] = [];
-  let at = 0;
-  let page = 0;
+  const walk: Walk = { at: 0, page: 0, out: [] };
   for (let i = 0; i < leaves.length; i++) {
     const list = leaves[i]!;
     for (let j = 0; j < list.length; j++) {
@@ -81,44 +78,137 @@ export function exactBreaks(
         // The cells of one row: they all start on the row's page, and each runs on from there by itself.
         let end = j;
         while (end < list.length && list[end]!.cell?.row === leaf.cell.row) end++;
-        const row = rowBreaks(src, i, list, j, end, at, page);
-        if (!row) return null;
-        out.push(...row.breaks);
-        at = row.at;
-        page = row.page;
+        if (!addRow(src, walk, i, { list, from: j, end })) return null;
         j = end - 1;
         continue;
       }
       if (leaf.blank) continue;
-      const m = blocks[at++];
-      if (m?.block !== i || m.kind !== leaf.kind) return null;
-      const start = m.page - base;
-      if (at === 1 ? start !== 0 : start !== page && start !== page + 1) return null;
-      if (start === page + 1) {
-        out.push({ block: i, leaf: j, word: null });
-        page = start;
-      }
-      if (m.splits.length > 0 && !SPLITS.has(m.kind)) return null;
-      let prev = 0;
-      for (const s of m.splits) {
-        if (s.page - base !== page + 1 || s.word <= prev || s.word >= leaf.words) return null;
-        out.push({
-          block: i,
-          leaf: j,
-          word: s.word,
-          ...(s.char === undefined ? {} : { char: s.char }),
-        });
-        page++;
-        prev = s.word;
-      }
+      if (!addLeaf(src, walk, i, j, leaf)) return null;
     }
   }
-  if (at !== blocks.length) return null;
-  return src.end - base >= page ? out : null;
+  if (walk.at !== src.blocks.length) return null;
+  return src.end - src.base >= walk.page ? walk.out : null;
+}
+
+type Mark = BlockPages;
+
+/** Where the walk over the document is: the report's next unit, the page the last one is on, and the breaks found so far. */
+interface Walk {
+  at: number;
+  page: number;
+  out: ExactBreak[];
+}
+
+/** A page break the unit's splits make: the page it begins and the word (and character) it begins at. */
+interface SplitAt {
+  page: number;
+  word: number;
+  char?: number;
 }
 
 /**
- * The breaks inside one table row (`list[from..end)` are its leaves, `at` the report's next unit, `page` the page the table is on so
+ * The splits of a unit that starts on page `from` (relative to the chapter), each one page after the one before, at ascending words
+ * the leaf has; or null when the marks do not fit the leaf.
+ */
+function splitsOf(m: Mark, leaf: ExactLeaf, base: number, from: number): SplitAt[] | null {
+  if (m.splits.length > 0 && !SPLITS.has(m.kind)) return null;
+  const out: SplitAt[] = [];
+  let now = from;
+  let prev = 0;
+  for (const s of m.splits) {
+    if (s.page - base !== now + 1 || s.word <= prev || s.word >= leaf.words) return null;
+    now++;
+    out.push({ page: now, word: s.word, ...(s.char === undefined ? {} : { char: s.char }) });
+    prev = s.word;
+  }
+  return out;
+}
+
+/** The next unit of a leaf that is not in a table row: where it starts, and the pages its splits begin. False when the marks do not fit. */
+function addLeaf(src: ExactSource, walk: Walk, block: number, j: number, leaf: ExactLeaf): boolean {
+  const { base } = src;
+  const m = src.blocks[walk.at++];
+  if (m?.block !== block || m.kind !== leaf.kind) return false;
+  const start = m.page - base;
+  if (walk.at === 1 ? start !== 0 : start !== walk.page && start !== walk.page + 1) return false;
+  if (start === walk.page + 1) {
+    walk.out.push({ block, leaf: j, word: null });
+    walk.page = start;
+  }
+  const splits = splitsOf(m, leaf, base, walk.page);
+  if (!splits) return false;
+  for (const s of splits) {
+    walk.out.push({
+      block,
+      leaf: j,
+      word: s.word,
+      ...(s.char === undefined ? {} : { char: s.char }),
+    });
+    walk.page++;
+  }
+  return true;
+}
+
+/** The leaves of one table row: `list[from..end)`. */
+interface RowSpan {
+  list: readonly ExactLeaf[];
+  from: number;
+  end: number;
+}
+
+/** The breaks of one table row, added to the walk. False when the marks do not fit. */
+function addRow(src: ExactSource, walk: Walk, block: number, span: RowSpan): boolean {
+  const row = rowBreaks(src, block, span, walk.at, walk.page);
+  if (!row) return false;
+  walk.out.push(...row.breaks);
+  walk.at = row.at;
+  walk.page = row.page;
+  return true;
+}
+
+/** What is learned about the cells of the row being read: the page each cell's last paragraph has reached, and where the row's pages begin in each. */
+interface RowWalk {
+  at: number;
+  rowStart: number;
+  last: number;
+  cellPage: Map<number, number>;
+  cuts: Map<number, ExactCut[]>;
+}
+
+/** The next unit of a row's leaf; false when the marks do not fit. */
+function addCellLeaf(src: ExactSource, row: RowWalk, block: number, j: number, leaf: ExactLeaf) {
+  const { base } = src;
+  const m = src.blocks[row.at++];
+  if (m?.block !== block || m.kind !== leaf.kind) return false;
+  const cell = leaf.cell!.cell;
+  const start = m.page - base;
+  const known = row.cellPage.get(cell);
+  // The first paragraph of a cell is at the top of the row; a later one follows the one before it, on its last page or the next.
+  if (known === undefined ? start !== row.rowStart : start !== known && start !== known + 1)
+    return false;
+  let now = known ?? row.rowStart;
+  const add = (p: number, cut: ExactCut) => row.cuts.set(p, [...(row.cuts.get(p) ?? []), cut]);
+  if (start === now + 1) {
+    add(start, { leaf: j, word: null });
+    now = start;
+  }
+  const splits = splitsOf(m, leaf, base, now);
+  if (!splits) return false;
+  for (const s of splits) {
+    add(s.page, {
+      leaf: j,
+      word: s.word,
+      ...(s.char === undefined ? {} : { char: s.char }),
+    });
+    now++;
+  }
+  row.cellPage.set(cell, now);
+  row.last = Math.max(row.last, now);
+  return true;
+}
+
+/**
+ * The breaks inside one table row (`span` are its leaves, `at` the report's next unit, `page` the page the table is on so
  * far), or null. Typst starts every cell of a row on the row's page; a cell runs onto the next page where its own text reaches the foot
  * of this one, so each cell's paragraphs follow one another from the row's page, and a page that begins inside the row begins in every
  * cell that is still going, at its own place. The row has a break per page it runs onto, each with the cuts of those cells, and a break
@@ -127,13 +217,12 @@ export function exactBreaks(
 function rowBreaks(
   src: ExactSource,
   block: number,
-  list: readonly ExactLeaf[],
-  from: number,
-  end: number,
+  span: RowSpan,
   at: number,
   page: number,
 ): { breaks: ExactBreak[]; at: number; page: number } | null {
   const { blocks, base } = src;
+  const { list, from, end } = span;
   const breaks: ExactBreak[] = [];
   const first = list.findIndex((l, k) => k >= from && k < end && !l.blank);
   // A row of blank cells has no marks at all.
@@ -142,44 +231,15 @@ function rowBreaks(
   if (at === 0 ? rowStart !== 0 : rowStart !== page && rowStart !== page + 1) return null;
   if (rowStart === page + 1) breaks.push({ block, leaf: first, word: null, rowStart: true });
   // Per cell: the page its last paragraph has reached; per page the row runs onto: where it begins in each cell.
-  const cellPage = new Map<number, number>();
-  const cuts = new Map<number, ExactCut[]>();
-  const add = (p: number, cut: ExactCut) => cuts.set(p, [...(cuts.get(p) ?? []), cut]);
-  let last = rowStart;
+  const row: RowWalk = { at, rowStart, last: rowStart, cellPage: new Map(), cuts: new Map() };
   for (let j = from; j < end; j++) {
     const leaf = list[j]!;
     if (leaf.blank) continue;
-    const m = blocks[at++];
-    if (m?.block !== block || m.kind !== leaf.kind) return null;
-    const cell = leaf.cell!.cell;
-    const start = m.page - base;
-    const known = cellPage.get(cell);
-    // The first paragraph of a cell is at the top of the row; a later one follows the one before it, on its last page or the next.
-    if (known === undefined ? start !== rowStart : start !== known && start !== known + 1)
-      return null;
-    let now = known ?? rowStart;
-    if (start === now + 1) {
-      add(start, { leaf: j, word: null });
-      now = start;
-    }
-    if (m.splits.length > 0 && !SPLITS.has(m.kind)) return null;
-    let prev = 0;
-    for (const s of m.splits) {
-      if (s.page - base !== now + 1 || s.word <= prev || s.word >= leaf.words) return null;
-      add(s.page - base, {
-        leaf: j,
-        word: s.word,
-        ...(s.char === undefined ? {} : { char: s.char }),
-      });
-      now++;
-      prev = s.word;
-    }
-    cellPage.set(cell, now);
-    last = Math.max(last, now);
+    if (!addCellLeaf(src, row, block, j, leaf)) return null;
   }
-  for (let p = rowStart + 1; p <= last; p++) {
+  for (let p = rowStart + 1; p <= row.last; p++) {
     // Every page the row reaches has a cut: a cell gets to a page only through the one before it.
-    const here = cuts.get(p)!;
+    const here = row.cuts.get(p)!;
     const head = here[0]!;
     breaks.push({
       block,
@@ -190,5 +250,5 @@ function rowBreaks(
       row: list[from]!.cell!.row,
     });
   }
-  return { breaks, at, page: last };
+  return { breaks, at: row.at, page: row.last };
 }

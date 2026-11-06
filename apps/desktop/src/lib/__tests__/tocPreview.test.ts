@@ -21,7 +21,6 @@ const row = (
   level: number,
   text: string | null,
   extra: Partial<TocItem> = {},
-  estimated = false,
 ): TocRow => ({
   item: {
     key,
@@ -33,7 +32,7 @@ const row = (
     ...extra,
   } as TocItem,
   text,
-  estimated,
+  estimated: false,
 });
 
 describe("previewLines", () => {
@@ -75,7 +74,10 @@ describe("previewLines", () => {
     expect(previewLines(rows, false).every((l) => l.number === null)).toBe(true);
   });
   it("marks an estimate with ≈ and an unknown page with a dash", () => {
-    const lines = previewLines([row("a", "A", 0, "4", {}, true), row("b", "B", 0, null)], true);
+    const lines = previewLines(
+      [{ ...row("a", "A", 0, "4"), estimated: true }, row("b", "B", 0, null)],
+      true,
+    );
     expect(lines.map((l) => l.number)).toEqual(["≈4", "–"]);
     expect(numberText({ text: "4", estimated: false })).toBe("4");
   });

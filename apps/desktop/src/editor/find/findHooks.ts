@@ -4,7 +4,7 @@ import { TextSelection } from "@tiptap/pm/state";
 import { useProject } from "../../state/project/index";
 import { errText } from "../../lib/projectError";
 import { type PageCounts } from "../../lib/search/findHelpers";
-import { searchBook } from "../../lib/search/bookSearch";
+import { searchBook, type BookSearchOptions } from "../../lib/search/bookSearch";
 import { getSearchInfo, searchKey } from "../search/plugin";
 
 /**
@@ -13,12 +13,10 @@ import { getSearchInfo, searchKey } from "../search/plugin";
  */
 export function useBookCounts(
   on: boolean,
-  query: string,
-  matchCase: boolean,
-  wholeWord: boolean,
-  regex: boolean,
+  options: BookSearchOptions,
   editorTotal: number,
 ): PageCounts {
+  const { query, matchCase, wholeWord, regex } = options;
   const readPages = useProject((s) => s.actions.readPages);
   // A book-wide replace (or its undo) changes pages other than the open one, so it also triggers a recount.
   const history = useProject((s) => s.history);
@@ -67,12 +65,10 @@ export function useBookCounts(
  */
 export function useLanguageCounts(
   on: boolean,
-  query: string,
-  matchCase: boolean,
-  wholeWord: boolean,
-  regex: boolean,
+  options: BookSearchOptions,
   editorTotal: number,
 ): Record<string, number> {
+  const { query, matchCase, wholeWord, regex } = options;
   const readPages = useProject((s) => s.actions.readPages);
   const history = useProject((s) => s.history);
   const root = useProject((s) => s.root);

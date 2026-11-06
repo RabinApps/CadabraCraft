@@ -16,15 +16,13 @@ import type { PageConfig } from "./plugin";
  * (`last`: the final page of the row), or the lowest cut of the page before it.
  */
 export function rowBreak(
-  v: EditorView,
-  c: PageConfig,
-  doc: PMNode,
-  flow: FlowBlock,
+  env: { v: EditorView; c: PageConfig; doc: PMNode; flow: FlowBlock },
   leaves: DocLeaf[],
   cuts: ExactCut[],
   cellY: Map<number, number>,
   last: boolean,
 ): { at: NonNullable<PageBreak["at"]> } | null {
+  const { v, c, doc, flow } = env;
   const top = c.geometry.margins.top;
   const made: CellCut[] = [];
   for (const cut of cuts) {
@@ -49,7 +47,7 @@ export function rowBreak(
       )
         return null;
       pos = leaf.pos + 1 + offset + (cut.char ?? 0);
-      const at = splitY(v, flow, leaf.pos, pos, c.zoom, top);
+      const at = splitY(v, flow, leaf.pos, pos, { zoom: c.zoom, columnTop: top });
       if (at === null) return null;
       y = at;
     }

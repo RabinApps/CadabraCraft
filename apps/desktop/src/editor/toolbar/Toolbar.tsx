@@ -1,28 +1,7 @@
 import { useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
-import {
-  ALargeSmall,
-  Bold,
-  Heading1,
-  Heading2,
-  Heading3,
-  Image as ImageIcon,
-  Italic,
-  Link,
-  List,
-  ListOrdered,
-  Quote,
-  Redo2,
-  Superscript,
-  Underline,
-  Undo2,
-} from "lucide-react";
-import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
 import { IconButton } from "../../ui/Button";
-import { focusField } from "../../ui/forms/Input";
-import { useRegisterCommands } from "../../state/app/commands";
-import { attempt } from "../../state/attempt";
 import { useSettings } from "../../state/view/editorPrefs";
 import { effectiveCombo } from "../../app/settings/shortcutBindings";
 import { MoreFormatting, type MoreItem } from "./MoreFormatting";
@@ -32,10 +11,10 @@ import { TableCommands } from "./TableCommands";
 import { ImageDialog, LangDialog, LinkDialog } from "./ToolbarDialogs";
 import { useImageDialog } from "../useImageDialog";
 import { useLangDialog } from "../useLangDialog";
-import type { ToolbarItem } from "./types";
 import { useToolbarState } from "./useToolbarState";
 import { useMenuOnlyItems } from "./useMenuOnlyItems";
 import { useAlignItems } from "./useAlignItems";
+import { useLinkDialog, useRegisterToolbarCommands, useToolbarGroups } from "./useToolbarItems";
 
 const MORE = "more";
 const ALIGN = "align";
@@ -44,161 +23,17 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const { t } = useLingui();
   const s = useToolbarState(editor);
   const c = () => editor.chain().focus();
-  const [linkOpen, setLinkOpen] = useState(false);
-  const [href, setHref] = useState("");
-  const [linkError, setLinkError] = useState("");
-
   const { image, setImage, addImage, editImage, applyImage } = useImageDialog(editor, c);
   const lang = useLangDialog(editor, c);
 
-  const setLink = () => {
-    if (s.link) {
-      c().extendMarkRange("link").unsetLink().run();
-      return;
-    }
-    setHref("");
-    setLinkError("");
-    setLinkOpen(true);
-  };
-  const applyLink = () => {
-    const url = normalizeLinkUrl(href);
-    if (!url) {
-      setLinkError(t`That address can't be used as a link.`);
-      focusField("link-address");
-      return;
-    }
-    if (editor.state.selection.empty) {
-      setLinkError(t`Select the text you want to link first.`);
-      return;
-    }
-    setLinkOpen(false);
-    c().extendMarkRange("link").setLink({ href: url }).run();
-  };
-
-  const groups: ToolbarItem[][] = [
-    [
-      {
-        id: "undo",
-        label: t`Undo`,
-        icon: Undo2,
-        disabled: !s.canUndo,
-        run: () => c().undo().run(),
-      },
-      {
-        id: "redo",
-        label: t`Redo`,
-        icon: Redo2,
-        disabled: !s.canRedo,
-        run: () => c().redo().run(),
-      },
-    ],
-    [
-      { id: "bold", label: t`Bold`, icon: Bold, active: s.bold, run: () => c().toggleBold().run() },
-      {
-        id: "italic",
-        label: t`Italic`,
-        icon: Italic,
-        active: s.italic,
-        run: () => c().toggleItalic().run(),
-      },
-      {
-        id: "underline",
-        label: t`Underline`,
-        icon: Underline,
-        active: s.underline,
-        run: () => c().toggleUnderline().run(),
-      },
-      {
-        id: "smallCaps",
-        label: t`Small caps`,
-        icon: ALargeSmall,
-        active: s.smallCaps,
-        run: () => c().toggleMark("smallCaps").run(),
-      },
-      { id: "link", label: t`Link`, icon: Link, active: s.link, run: setLink },
-    ],
-    [
-      {
-        id: "h1",
-        label: t`Heading 1`,
-        icon: Heading1,
-        active: s.h1,
-        run: () => c().toggleHeading({ level: 1 }).run(),
-      },
-      {
-        id: "h2",
-        label: t`Heading 2`,
-        icon: Heading2,
-        active: s.h2,
-        run: () => c().toggleHeading({ level: 2 }).run(),
-      },
-      {
-        id: "h3",
-        label: t`Heading 3`,
-        icon: Heading3,
-        active: s.h3,
-        run: () => c().toggleHeading({ level: 3 }).run(),
-      },
-    ],
-    [
-      {
-        id: "quote",
-        label: t`Block quote`,
-        icon: Quote,
-        active: s.quote,
-        run: () => c().toggleBlockquote().run(),
-      },
-      {
-        id: "bullets",
-        label: t`Bulleted list`,
-        icon: List,
-        active: s.bullets,
-        run: () => c().toggleBulletList().run(),
-      },
-      {
-        id: "numbers",
-        label: t`Numbered list`,
-        icon: ListOrdered,
-        active: s.numbers,
-        run: () => c().toggleOrderedList().run(),
-      },
-    ],
-    [
-      { id: "image", label: t`Image`, icon: ImageIcon, run: () => attempt(addImage()) },
-      {
-        id: "footnote",
-        label: t`Footnote`,
-        icon: Superscript,
-        run: () =>
-          c()
-            .insertContent({ type: "footnote", content: [{ type: "text", text: t`Note` }] })
-            .run(),
-      },
-    ],
-  ];
+  const { linkOpen, setLinkOpen, href, setHref, linkError, setLinkError, setLink, applyLink } =
+    useLinkDialog(editor, c, s.link);
+  const groups = useToolbarGroups(s, c, { setLink, addImage });
 
   const menuOnly = useMenuOnlyItems(editor, s, c, lang, editImage);
   const { alignNow, alignItems } = useAlignItems(s, c);
 
-  // The same actions as menu commands (Insert and Format), available while the toolbar is shown. Undo and redo stay the system's.
-  useRegisterCommands(
-    Object.fromEntries([
-      ...[...groups.flat(), ...menuOnly]
-        .filter((b) => b.id !== "undo" && b.id !== "redo")
-        .map((b) => [
-          `editor.${b.id}`,
-          {
-            run: b.run,
-            enabled: !b.disabled,
-            ...(b.active === undefined ? {} : { checked: b.active }),
-          },
-        ]),
-      ...alignItems.map((b) => [
-        `editor.${b.id}`,
-        { run: b.run, enabled: true, checked: b.id === alignNow },
-      ]),
-    ]),
-  );
+  useRegisterToolbarCommands(groups.flat(), menuOnly, alignItems, alignNow);
 
   // One tab stop for the whole toolbar; arrow keys move between the buttons (the WAI-ARIA toolbar pattern).
   const barRef = useRef<HTMLDivElement>(null);

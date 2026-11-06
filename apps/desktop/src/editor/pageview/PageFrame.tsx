@@ -1,7 +1,6 @@
 import {
   memo,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -10,19 +9,16 @@ import {
 } from "react";
 import { useLingui } from "@lingui/react/macro";
 import type { Editor as TipTapEditor } from "@tiptap/react";
-import { readingOrder, sectionOf, sourceTitle } from "@cadabracraft/format";
+import { readingOrder, sectionOf, sourceTitle, type Manifest } from "@cadabracraft/format";
 import type { EntryKind } from "@cadabracraft/shared";
 import { usePageView } from "../../app/hooks/usePageView";
 import { usePaneWidth } from "../../app/hooks/usePaneWidth";
 import { useTypewriterSlack } from "../typewriter";
 import { useSectionScroll } from "../useSectionScroll";
 import { dirFor } from "../../i18n/locales";
-import { setEntryPages, setPageCount, usePageCount } from "../../state/pages/pageCount";
-import { breaksReport, usePageMeasure } from "../../state/pages/pageMeasure";
-import { useMeasuredChapter } from "../../app/hooks/useMeasuredChapter";
+import { usePageCount } from "../../state/pages/pageCount";
 import { useBookLayout } from "../../app/hooks/useBookLayout";
 import type { ExactSource } from "../../lib/page/exactBreaks";
-import { reportChapterMarks } from "../../lib/page/pageReport";
 import { folioText } from "@cadabracraft/shared";
 import { useProject } from "../../state/project/index";
 import { chapterStart } from "../../lib/page/pageNumbering";
@@ -38,18 +34,21 @@ import {
   useCentredColumn,
 } from "../centring";
 import {
-  PX_PER_INCH,
   fitZoom,
   pageCssVars,
   pageFillSlackPx,
+  type PageGeometry,
   sideMargins,
 } from "../../lib/page/pageLayout";
 import type { PageLayoutResult, PageSpec } from "../pagination/core";
 import { cssVarsStyle, runningHead } from "../pagination/frame";
 import type { PaginationController } from "../pagination/plugin";
-
-/** pt to CSS px. */
-const PX_PER_PT = PX_PER_INCH / 72;
+import {
+  useConfigureController,
+  useExactSource,
+  usePageReporting,
+  useStackVars,
+} from "./usePageFrame";
 
 interface CardProps {
   page: PageSpec;
@@ -78,6 +77,60 @@ const PageCard = memo(function PageCard({ page, head, verso, left, folio }: Card
     </div>
   );
 });
+
+/** The cards as the plugin laid them out; before the first measurement, one card. */
+function usePages(
+  layout: PageLayoutResult | null,
+  firstPage: number,
+  pageH: number,
+  isChapter: boolean,
+): PageSpec[] {
+  return useMemo(
+    () =>
+      layout?.pages ?? [
+        { index: 0, number: firstPage, top: 0, height: pageH, kind: isChapter ? "open" : "body" },
+      ],
+    [layout, firstPage, pageH, isChapter],
+  );
+}
+
+const controllerOf = (editor: TipTapEditor): PaginationController =>
+  (editor.storage as unknown as { pagination: { controller: PaginationController } }).pagination
+    .controller;
+
+/** The page edges, running heads and numbers behind the text column. */
+function PageCards(props: {
+  pages: PageSpec[];
+  g: PageGeometry;
+  rtl: boolean;
+  bookTitle: string;
+  chapterTitle: string;
+  headsOn: boolean;
+  firstTextCard: number;
+  folioFor: (physical: number) => string;
+}) {
+  const { g, rtl } = props;
+  return (
+    <div className="page-cards pointer-events-none absolute inset-0" aria-hidden="true">
+      {props.pages.map((p, i) => (
+        <PageCard
+          key={p.index}
+          page={p}
+          head={runningHead(
+            p.kind,
+            p.number,
+            props.bookTitle,
+            props.chapterTitle,
+            props.headsOn && i !== props.firstTextCard,
+          )}
+          verso={p.number % 2 === 0}
+          left={sideMargins(g, p.number, rtl).left}
+          folio={props.folioFor(p.number)}
+        />
+      ))}
+    </div>
+  );
+}
 
 export { chapterNumberOf, usePageLook, type PageLook } from "./usePageLook";
 import { chapterNumberOf, usePageLook, type PageLook } from "./usePageLook";
@@ -146,26 +199,12 @@ export function PageStack({
 
   // Pages as the plugin lays them out; until the first measurement, one card.
   const [layout, setLayout] = useState<PageLayoutResult | null>(null);
-  const pages: PageSpec[] = useMemo(
-    () =>
-      layout?.pages ?? [
-        {
-          index: 0,
-          number: firstPage,
-          top: 0,
-          height: g.page.h,
-          kind: isChapter ? "open" : "body",
-        },
-      ],
-    [layout, firstPage, g.page.h, isChapter],
-  );
+  const pages = usePages(layout, firstPage, g.page.h, isChapter);
   const stackH = Math.max(g.page.h, layout?.height ?? 0);
   const startsOn = chapterStart(book);
   const slackPx = pageFillSlackPx(book);
   const layoutKey = `${book.template}|${trim}|${fontStack}|${family ?? ""}|${String(dropCap)}`;
-  const controller = (
-    editor.storage as unknown as { pagination: { controller: PaginationController } }
-  ).pagination.controller;
+  const controller = controllerOf(editor);
 
   // A short page is centred between its margins; one that needs more than a page is not (it fills them anyway). The blank verso the
   // book puts before a dedication is a card here but not a page of the entry, so it does not count (see `centredPage`), and the
@@ -188,54 +227,31 @@ export function PageStack({
   const headsOn = isChapter || matterHeadsOn(verticalCenter, section, kind);
   const firstTextCard = pages.findIndex((p) => p.kind !== "blank");
 
-  useEffect(() => {
-    controller.configure({
-      on: true,
-      geometry: g,
-      slackPx,
-      firstPage,
-      startsOn,
-      opensChapter: isChapter,
-      blankBefore,
-      zoom,
-      layoutKey,
-      exact,
-      exactKey,
-      onLayout: (l) => {
-        setLayout(l);
-        callbacks.current.onLayout?.(l);
-      },
-      onCursorPage: (p) => callbacks.current.onCursorPage?.(p),
-    });
-  }, [
+  useConfigureController({
     controller,
     g,
     slackPx,
     firstPage,
-    blankBefore,
     startsOn,
     isChapter,
+    blankBefore,
     zoom,
     layoutKey,
     exact,
     exactKey,
-  ]);
-  useEffect(() => () => controller.configure(null), [controller]);
+    setLayout,
+    callbacks,
+  });
 
-  const vars = useMemo(
-    () => ({
-      ...cssVarsStyle(pageCssVars(book, chapterNumber, dropCap)),
-      "--page-mt": `${g.margins.top}px`,
-      "--page-mb": `${g.margins.bottom}px`,
-      // A right-to-left book is bound on the right: its inside margin is the right one, and the verso shifts the other way.
-      "--page-ml": `${rtl ? g.margins.outside : g.margins.inside}px`,
-      "--page-mr": `${rtl ? g.margins.inside : g.margins.outside}px`,
-      "--page-verso-shift": `${(g.margins.outside - g.margins.inside) * (rtl ? -1 : 1)}px`,
-      "--page-head-size": `${print.runningText.sizePt * PX_PER_PT}px`,
-      "--page-font": fontStack,
-    }),
-    [book, chapterNumber, dropCap, g, print.runningText.sizePt, fontStack, rtl],
-  ) as CSSProperties;
+  const vars = useStackVars({
+    book,
+    chapterNumber,
+    dropCap,
+    g,
+    runningSizePt: print.runningText.sizePt,
+    fontStack,
+    rtl,
+  });
 
   return (
     <div className="page-sizer mx-auto" style={{ width: g.page.w * zoom, height: stackH * zoom }}>
@@ -250,24 +266,16 @@ export function PageStack({
           transformOrigin: "top left",
         }}
       >
-        <div className="page-cards pointer-events-none absolute inset-0" aria-hidden="true">
-          {pages.map((p, i) => (
-            <PageCard
-              key={p.index}
-              page={p}
-              head={runningHead(
-                p.kind,
-                p.number,
-                bookTitle,
-                chapterTitle,
-                headsOn && i !== firstTextCard,
-              )}
-              verso={p.number % 2 === 0}
-              left={sideMargins(g, p.number, rtl).left}
-              folio={folioFor(p.number)}
-            />
-          ))}
-        </div>
+        <PageCards
+          pages={pages}
+          g={g}
+          rtl={rtl}
+          bookTitle={bookTitle}
+          chapterTitle={chapterTitle}
+          headsOn={headsOn}
+          firstTextCard={firstTextCard}
+          folioFor={folioFor}
+        />
         <div
           ref={column}
           className={cx(
@@ -292,15 +300,41 @@ interface Props {
   children: ReactNode;
 }
 
-/** Page view of the open page in Write mode: the page stack in a scroller, with the caption chip. */
-export function PageFrame({ editor, children }: Props) {
+/** The caption above the page: the trim size and whether the breaks are the PDF's, with the note for screen readers. */
+function PageChip({
+  trim,
+  family,
+}: {
+  trim: Parameters<typeof trimLabel>[0];
+  family: string | null | undefined;
+}) {
   const { t } = useLingui();
-  const { zoom: zoomPref } = usePageView();
-  const manifest = useProject((s) => s.manifest)!;
-  const currentId = useProject((s) => s.currentId);
-  const look = usePageLook();
-  const { book, g, trim, family, fontStack, language } = look;
+  const size = trimLabel(trim);
+  const exactBreaks = usePageCount((s) => s.exact);
+  const fontNote = family
+    ? t`Text is set in ${family}, the font the PDF uses for this template.`
+    : t`The template's print font is not installed here, so the bundled serif is used.`;
+  return (
+    <div className="flex shrink-0 justify-center px-4 pb-1 pt-3">
+      <span
+        className="page-chip rounded-full border border-border bg-surface px-3 py-1 text-xs text-ink-muted"
+        aria-describedby="page-chip-note"
+      >
+        {exactBreaks ? t`${size} · breaks as in the PDF` : t`${size} · approximate`}
+      </span>
+      <span id="page-chip-note" data-testid="page-chip-note" className="sr-only">
+        {`${fontNote} ${
+          exactBreaks
+            ? t`Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little.`
+            : t`Page breaks are approximate: the PDF is the reference.`
+        }`}
+      </span>
+    </div>
+  );
+}
 
+/** What the open page is: its section, entry, number and title, and where the book's layout starts it (and what it prints there). */
+function usePageEntry(manifest: Manifest, currentId: string | null, language: string) {
   const section = (currentId ? sectionOf(manifest, currentId) : null) ?? "front";
   const entry = readingOrder(manifest).find((e) => e.id === currentId);
   const chapterNumber = chapterNumberOf(manifest, currentId);
@@ -317,18 +351,23 @@ export function PageFrame({ editor, children }: Props) {
     (physical: number) => (bookPages ? folioText(bookPages, physical) : ""),
     [bookPages],
   );
-  // Typst's breaks inside this page entry, from the newest report that has it (the chapter's own measure comes much sooner than the
-  // book's). The plugin checks they still fit the text, so a stale report is only used while the edits left the blocks as they were.
-  useMeasuredChapter(true, currentId);
-  const breaksFrom = usePageMeasure(
-    (s) => (currentId ? breaksReport(s, currentId)?.report : null) ?? null,
+  return { section, entry, chapterNumber, chapterTitle, placed, firstPage, folioFor };
+}
+
+/** Page view of the open page in Write mode: the page stack in a scroller, with the caption chip. */
+export function PageFrame({ editor, children }: Props) {
+  const { zoom: zoomPref } = usePageView();
+  const manifest = useProject((s) => s.manifest)!;
+  const currentId = useProject((s) => s.currentId);
+  const look = usePageLook();
+  const { book, g, trim, family, fontStack, language } = look;
+
+  const { section, entry, chapterNumber, chapterTitle, placed, firstPage, folioFor } = usePageEntry(
+    manifest,
+    currentId,
+    language,
   );
-  const breaksAt = usePageMeasure((s) => (currentId ? breaksReport(s, currentId)?.at : 0) ?? 0);
-  const exact = useMemo(
-    () => (currentId && breaksFrom ? reportChapterMarks(breaksFrom, currentId) : null),
-    [currentId, breaksFrom],
-  );
-  const exactKey = `${currentId ?? ""}:${breaksAt}`;
+  const { exact, exactKey } = useExactSource(currentId);
 
   // Zoom: a fixed factor, or the one that fits the pane's width.
   const scroller = useRef<HTMLDivElement>(null);
@@ -338,54 +377,17 @@ export function PageFrame({ editor, children }: Props) {
   // Scrolling on past the last page opens the next section; above the first page, the previous one.
   const { onWheel } = useSectionScroll(scroller);
 
-  // The pages this entry really takes (a blank verso before it not counted): later entries' starts follow it, so the numbers of
-  // the whole book stay right while the author works through a chapter.
   const measureKey = `${book.template}|${trim}|${fontStack}|${family ?? ""}`;
-  const onLayout = useCallback(
-    (l: PageLayoutResult) => {
-      setPageCount(l.pages.length, undefined, l.exact);
-      if (currentId)
-        setEntryPages(
-          currentId,
-          entry?.kind === "blank" ? 1 : l.pages.filter((p) => p.kind !== "blank").length,
-          measureKey,
-        );
-    },
-    [currentId, measureKey],
-  );
-  const onCursor = useCallback(
-    (p: number) => setPageCount(usePageCount.getState().count, p + 1),
-    [],
-  );
-  useEffect(() => () => setPageCount(0), []);
+  const { onLayout, onCursor } = usePageReporting(currentId, entry?.kind === "blank", measureKey);
 
   // A blank page between two chapters is not a chapter opening: it is laid out, and prints, like a page of the matter.
   // A blank page or a part divider is drawn as its own page, not as a chapter opening: no sink, ornament, running head or drop cap.
   const pageSection = entry?.kind === "blank" || entry?.kind === "part" ? "front" : section;
   const centredNow = pageIsCentred(look, pageSection, entry?.kind, entry ?? {});
-  const size = trimLabel(trim);
-  const exactBreaks = usePageCount((s) => s.exact);
-  const fontNote = family
-    ? t`Text is set in ${family}, the font the PDF uses for this template.`
-    : t`The template's print font is not installed here, so the bundled serif is used.`;
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col bg-bg">
-      <div className="flex shrink-0 justify-center px-4 pb-1 pt-3">
-        <span
-          className="page-chip rounded-full border border-border bg-surface px-3 py-1 text-xs text-ink-muted"
-          aria-describedby="page-chip-note"
-        >
-          {exactBreaks ? t`${size} · breaks as in the PDF` : t`${size} · approximate`}
-        </span>
-        <span id="page-chip-note" data-testid="page-chip-note" className="sr-only">
-          {`${fontNote} ${
-            exactBreaks
-              ? t`Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little.`
-              : t`Page breaks are approximate: the PDF is the reference.`
-          }`}
-        </span>
-      </div>
+      <PageChip trim={trim} family={family} />
       <div
         ref={scroller}
         data-testid="page-scroll"
