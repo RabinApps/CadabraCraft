@@ -44,113 +44,79 @@ interface Props {
 
 const statuses: SceneStatus[] = ["", ...SCENE_STATUSES];
 
-/** One scene of the board: grip, title, synopsis (click to edit), POV, status and words against the target. */
-export function SceneCard({
-  scene,
-  chapterTitle,
+function CardMenu({
+  title,
   moves,
-  povNames,
-  dragging,
-  onGrab,
-  onPatch,
   onOpen,
-  gripHelpId,
-}: Props) {
+}: {
+  title: string;
+  moves: CardMoves;
+  onOpen: () => void;
+}) {
   const { t } = useLingui();
-  const title = scene.title || t`Untitled scene`;
-  const [editing, setEditing] = useState(false);
-  const povList = useId();
-  const progress = sceneProgress(scene);
-  const gripKeys = (e: KeyboardEvent) => {
-    // The columns run the other way in a right-to-left interface, so the arrows do too.
-    const flip = getComputedStyle(e.currentTarget).direction === "rtl" ? -1 : 1;
-    const keys: Record<string, () => void> = {
-      ArrowUp: () => moves.step(-1),
-      ArrowDown: () => moves.step(1),
-      ArrowLeft: () => moves.beside(-flip as -1 | 1),
-      ArrowRight: () => moves.beside(flip),
-    };
-    const run = keys[e.key];
-    if (!run) return;
-    e.preventDefault();
-    run();
-  };
   return (
-    <li
-      data-scene-card
-      data-scene-id={scene.id}
-      className={cx(
-        "relative flex flex-col gap-2 rounded-lg border border-border bg-surface p-3",
-        dragging && "opacity-40",
-      )}
-    >
-      <div className="flex items-start gap-1">
-        <button
-          type="button"
-          data-grip
-          data-grip-for={scene.id}
-          aria-label={t`Reorder ${title}`}
-          aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
-          aria-describedby={gripHelpId}
-          onPointerDown={onGrab}
-          onKeyDown={gripKeys}
-          className="-ms-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
-        >
-          <GripVertical size={16} aria-hidden />
-        </button>
-        <h3 className="min-w-0 flex-1 pt-0.5 text-sm font-semibold break-words">{title}</h3>
-        <M.Root>
-          <M.Trigger asChild>
-            <IconButton
-              icon={Ellipsis}
-              label={t`Actions for ${title}`}
-              className="shrink-0 md:size-7"
-            />
-          </M.Trigger>
-          <M.Portal>
-            <M.Content align="end" className={menuContentClass("min-w-48")}>
-              <M.Item
-                className={menuItemClass()}
-                disabled={moves.index === 0}
-                onSelect={() => moves.step(-1)}
-              >
-                <ArrowUp size={14} aria-hidden />
-                {t`Move earlier`}
-              </M.Item>
-              <M.Item
-                className={menuItemClass()}
-                disabled={moves.index === moves.count - 1}
-                onSelect={() => moves.step(1)}
-              >
-                <ArrowDown size={14} aria-hidden />
-                {t`Move later`}
-              </M.Item>
-              {moves.chapters.length > 0 && (
-                <>
-                  <M.Separator className="my-1 h-px bg-border" />
-                  <M.Label className={menuLabelClass} aria-hidden>
-                    {t`Move to chapter`}
-                  </M.Label>
-                  {moves.chapters.map((c) => (
-                    <M.Item
-                      key={c.id}
-                      className={menuItemClass()}
-                      onSelect={() => moves.toChapter(c.id)}
-                    >
-                      {c.title}
-                    </M.Item>
-                  ))}
-                </>
-              )}
+    <M.Root>
+      <M.Trigger asChild>
+        <IconButton
+          icon={Ellipsis}
+          label={t`Actions for ${title}`}
+          className="shrink-0 md:size-7"
+        />
+      </M.Trigger>
+      <M.Portal>
+        <M.Content align="end" className={menuContentClass("min-w-48")}>
+          <M.Item
+            className={menuItemClass()}
+            disabled={moves.index === 0}
+            onSelect={() => moves.step(-1)}
+          >
+            <ArrowUp size={14} aria-hidden />
+            {t`Move earlier`}
+          </M.Item>
+          <M.Item
+            className={menuItemClass()}
+            disabled={moves.index === moves.count - 1}
+            onSelect={() => moves.step(1)}
+          >
+            <ArrowDown size={14} aria-hidden />
+            {t`Move later`}
+          </M.Item>
+          {moves.chapters.length > 0 && (
+            <>
               <M.Separator className="my-1 h-px bg-border" />
-              <M.Item className={menuItemClass()} onSelect={onOpen}>
-                <PenLine size={14} aria-hidden />
-                {t`Open scene`}
-              </M.Item>
-            </M.Content>
-          </M.Portal>
-        </M.Root>
-      </div>
+              <M.Label className={menuLabelClass} aria-hidden>
+                {t`Move to chapter`}
+              </M.Label>
+              {moves.chapters.map((c) => (
+                <M.Item
+                  key={c.id}
+                  className={menuItemClass()}
+                  onSelect={() => moves.toChapter(c.id)}
+                >
+                  {c.title}
+                </M.Item>
+              ))}
+            </>
+          )}
+          <M.Separator className="my-1 h-px bg-border" />
+          <M.Item className={menuItemClass()} onSelect={onOpen}>
+            <PenLine size={14} aria-hidden />
+            {t`Open scene`}
+          </M.Item>
+        </M.Content>
+      </M.Portal>
+    </M.Root>
+  );
+}
+
+type Patch = Props["onPatch"];
+
+/** The synopsis as a button that turns into a text field when clicked. */
+function Synopsis({ scene, title, onPatch }: { scene: SceneRow; title: string; onPatch: Patch }) {
+  const { t } = useLingui();
+  const [editing, setEditing] = useState(false);
+  return (
+    <>
       {editing ? (
         <textarea
           autoFocus
@@ -190,50 +156,128 @@ export function SceneCard({
           {scene.synopsis || t`Add a synopsis`}
         </button>
       )}
-      <div className="flex gap-2">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <label htmlFor={`${povList}-pov`} className="text-micro font-semibold text-ink-muted">
-            {t`Point of view`}
-          </label>
-          <input
-            id={`${povList}-pov`}
-            list={povList}
-            // The suggestions are only suggestions: a book with no codex, or a POV the codex does not know, takes any text.
-            defaultValue={scene.pov}
-            key={`pov-${scene.pov}`}
-            maxLength={MAX_SCENE_POV}
-            aria-label={t`Point of view of ${title}`}
-            onBlur={(e) => {
-              const value = e.target.value.trim();
-              if (value !== scene.pov) onPatch({ pov: value });
-            }}
-            className="w-full rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent max-md:min-h-11"
-          />
-          <datalist id={povList}>
-            {povNames.map((n) => (
-              <option key={n} value={n} />
-            ))}
-          </datalist>
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <label htmlFor={`${povList}-status`} className="text-micro font-semibold text-ink-muted">
-            {t`Status`}
-          </label>
-          <select
-            id={`${povList}-status`}
-            aria-label={t`Status of ${title}`}
-            value={scene.status}
-            onChange={(e) => onPatch({ status: e.target.value as SceneStatus })}
-            className="w-full rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent max-md:min-h-11"
-          >
-            {statuses.map((s) => (
-              <option key={s} value={s}>
-                {sceneStatusWord(s)}
-              </option>
-            ))}
-          </select>
-        </div>
+    </>
+  );
+}
+
+function PovAndStatus({
+  scene,
+  title,
+  povNames,
+  onPatch,
+}: {
+  scene: SceneRow;
+  title: string;
+  povNames: string[];
+  onPatch: Patch;
+}) {
+  const { t } = useLingui();
+  const povList = useId();
+  return (
+    <div className="flex gap-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <label htmlFor={`${povList}-pov`} className="text-micro font-semibold text-ink-muted">
+          {t`Point of view`}
+        </label>
+        <input
+          id={`${povList}-pov`}
+          list={povList}
+          // The suggestions are only suggestions: a book with no codex, or a POV the codex does not know, takes any text.
+          defaultValue={scene.pov}
+          key={`pov-${scene.pov}`}
+          maxLength={MAX_SCENE_POV}
+          aria-label={t`Point of view of ${title}`}
+          onBlur={(e) => {
+            const value = e.target.value.trim();
+            if (value !== scene.pov) onPatch({ pov: value });
+          }}
+          className="w-full rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent max-md:min-h-11"
+        />
+        <datalist id={povList}>
+          {povNames.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
       </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <label htmlFor={`${povList}-status`} className="text-micro font-semibold text-ink-muted">
+          {t`Status`}
+        </label>
+        <select
+          id={`${povList}-status`}
+          aria-label={t`Status of ${title}`}
+          value={scene.status}
+          onChange={(e) => onPatch({ status: e.target.value as SceneStatus })}
+          className="w-full rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent max-md:min-h-11"
+        >
+          {statuses.map((s) => (
+            <option key={s} value={s}>
+              {sceneStatusWord(s)}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
+
+/** One scene of the board: grip, title, synopsis (click to edit), POV, status and words against the target. */
+export function SceneCard({
+  scene,
+  chapterTitle,
+  moves,
+  povNames,
+  dragging,
+  onGrab,
+  onPatch,
+  onOpen,
+  gripHelpId,
+}: Props) {
+  const { t } = useLingui();
+  const title = scene.title || t`Untitled scene`;
+  const progress = sceneProgress(scene);
+  const gripKeys = (e: KeyboardEvent) => {
+    // The columns run the other way in a right-to-left interface, so the arrows do too.
+    const flip = getComputedStyle(e.currentTarget).direction === "rtl" ? -1 : 1;
+    const keys: Record<string, () => void> = {
+      ArrowUp: () => moves.step(-1),
+      ArrowDown: () => moves.step(1),
+      ArrowLeft: () => moves.beside(-flip as -1 | 1),
+      ArrowRight: () => moves.beside(flip),
+    };
+    const run = keys[e.key];
+    if (!run) return;
+    e.preventDefault();
+    run();
+  };
+  return (
+    <li
+      data-scene-card
+      data-scene-id={scene.id}
+      className={cx(
+        "relative flex flex-col gap-2 rounded-lg border border-border bg-surface p-3",
+        dragging && "opacity-40",
+      )}
+    >
+      <div className="flex items-start gap-1">
+        <button
+          type="button"
+          data-grip
+          data-grip-for={scene.id}
+          aria-label={t`Reorder ${title}`}
+          aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
+          aria-describedby={gripHelpId}
+          onPointerDown={onGrab}
+          onKeyDown={gripKeys}
+          className="-ms-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
+        >
+          <GripVertical size={16} aria-hidden />
+        </button>
+        <h3 className="min-w-0 flex-1 pt-0.5 text-sm font-semibold break-words">{title}</h3>
+        <CardMenu title={title} moves={moves} onOpen={onOpen} />
+      </div>
+      <Synopsis scene={scene} title={title} onPatch={onPatch} />
+      <PovAndStatus scene={scene} title={title} povNames={povNames} onPatch={onPatch} />
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between gap-2 text-caption text-ink-muted">
           <span>{t`${sceneWordsLabel(scene)} words`}</span>

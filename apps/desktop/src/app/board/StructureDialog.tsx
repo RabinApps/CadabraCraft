@@ -25,8 +25,67 @@ interface Props {
   onAdded: (message: string) => void;
 }
 
+type Structure = NonNullable<ReturnType<typeof getStructure>>;
+
 const option =
   "flex cursor-pointer gap-3 rounded-md border px-3 py-2.5 text-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent";
+
+function StructureChoices({ current, onPick }: { current: string; onPick: (id: string) => void }) {
+  const { t } = useLingui();
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="mb-1.5 text-xs font-semibold text-ink-muted">{t`Structure`}</legend>
+      {STORY_STRUCTURES.map((s) => {
+        const n = beatCount(s);
+        const { name } = s;
+        const note = `${t`${n} scenes`}. ${s.summary}`;
+        return (
+          <label
+            key={s.id}
+            className={cx(
+              option,
+              s.id === current ? "border-accent bg-accent-soft" : "border-border-strong bg-surface",
+            )}
+          >
+            <input
+              type="radio"
+              name="story-structure"
+              value={s.id}
+              checked={s.id === current}
+              onChange={() => onPick(s.id)}
+              className="mt-1 accent-accent"
+            />
+            <span className="flex flex-col gap-0.5">
+              <span className="font-semibold text-ink">{name}</span>
+              <span className="text-xs text-ink-muted">{note}</span>
+            </span>
+          </label>
+        );
+      })}
+    </fieldset>
+  );
+}
+
+function StructurePreview({ structure }: { structure: Structure }) {
+  const { t } = useLingui();
+  return (
+    <section aria-labelledby="structure-preview" className="rounded-md bg-bg p-3">
+      <h3 id="structure-preview" className="mb-1.5 text-xs font-semibold text-ink-muted">
+        {t`What will be added`}
+      </h3>
+      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+        {structure.stages.map((stage) => (
+          <li key={stage.id} className="flex flex-col gap-0.5">
+            <span className="text-sm font-semibold">{stage.name}</span>
+            <span className="text-xs text-ink-muted">
+              {stage.beats.map((b) => b.title).join(", ")}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 /**
  * Adds a story structure (Three-act, Hero's Journey, ...) to a chapter as scene placeholders: a scene per beat, with its title and
@@ -95,38 +154,7 @@ export function StructureDialog({
           void add();
         }}
       >
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1.5 text-xs font-semibold text-ink-muted">{t`Structure`}</legend>
-          {STORY_STRUCTURES.map((s) => {
-            const n = beatCount(s);
-            const { name } = s;
-            const note = `${t`${n} scenes`}. ${s.summary}`;
-            return (
-              <label
-                key={s.id}
-                className={cx(
-                  option,
-                  s.id === structure.id
-                    ? "border-accent bg-accent-soft"
-                    : "border-border-strong bg-surface",
-                )}
-              >
-                <input
-                  type="radio"
-                  name="story-structure"
-                  value={s.id}
-                  checked={s.id === structure.id}
-                  onChange={() => setStructureId(s.id)}
-                  className="mt-1 accent-accent"
-                />
-                <span className="flex flex-col gap-0.5">
-                  <span className="font-semibold text-ink">{name}</span>
-                  <span className="text-xs text-ink-muted">{note}</span>
-                </span>
-              </label>
-            );
-          })}
-        </fieldset>
+        <StructureChoices current={structure.id} onPick={setStructureId} />
         <Select
           label={t`Add to chapter`}
           value={chapter?.id ?? ""}
@@ -138,21 +166,7 @@ export function StructureDialog({
             </option>
           ))}
         </Select>
-        <section aria-labelledby="structure-preview" className="rounded-md bg-bg p-3">
-          <h3 id="structure-preview" className="mb-1.5 text-xs font-semibold text-ink-muted">
-            {t`What will be added`}
-          </h3>
-          <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
-            {structure.stages.map((stage) => (
-              <li key={stage.id} className="flex flex-col gap-0.5">
-                <span className="text-sm font-semibold">{stage.name}</span>
-                <span className="text-xs text-ink-muted">
-                  {stage.beats.map((b) => b.title).join(", ")}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <StructurePreview structure={structure} />
         {error && (
           <p role="alert" className="text-sm text-danger">
             {error}

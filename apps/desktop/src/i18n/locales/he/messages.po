@@ -38,8 +38,8 @@ msgstr "(משוער)"
 msgid "{0, plural, one {# book} other {# books}}"
 msgstr "{0, plural, one {ספר #} other {# ספרים}}"
 
-#. placeholder {0}: counts.get(c.id) ?? 0
-#: src/app/shell/EntryList.tsx
+#. placeholder {0}: count ?? 0
+#: src/app/shell/entries/EntryRow.tsx
 msgid "{0, plural, one {# chapter} other {# chapters}}"
 msgstr "{0, plural, one {פרק #} other {# פרקים}}"
 
@@ -265,7 +265,7 @@ msgstr "{0} מתוך {1} מילים"
 
 #. placeholder {0}: c.rows.length
 #. placeholder {1}: boardWords(c).toLocaleString()
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "{0} scenes · {1} words"
 msgstr "{0} סצנות · {1} מילים"
 
@@ -307,7 +307,7 @@ msgid "{0} words"
 msgstr "{0} מילים"
 
 #. placeholder {0}: c.unsortedWords.toLocaleString()
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "{0} words sit outside every scene."
 msgstr "{0} מילים נמצאות מחוץ לכל סצנה."
 
@@ -478,15 +478,15 @@ msgid "{title} is already first"
 msgstr "{title} כבר ראשון"
 
 #. placeholder {0}: c.title
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already first in {0}"
 msgstr "{title} כבר ראשונה ב{0}"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already in the first chapter"
 msgstr "{title} כבר בפרק הראשון"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already in the last chapter"
 msgstr "{title} כבר בפרק האחרון"
 
@@ -495,7 +495,7 @@ msgid "{title} is already last"
 msgstr "{title} כבר אחרון"
 
 #. placeholder {0}: c.title
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already last in {0}"
 msgstr "{title} כבר אחרונה ב{0}"
 
@@ -551,15 +551,15 @@ msgstr "{words, plural, one {מילה # בפרק זה} other {# מילים בפ�
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr "{words, plural, one {מילה # בעמוד זה} other {# מילים בעמוד זה}}"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "+H1"
 msgstr "+H1"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "+H1-H2"
 msgstr "+H1-H2"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "+H1-H3"
 msgstr "+H1-H3"
 
@@ -687,7 +687,7 @@ msgstr "הוספת תגית"
 msgid "Add bleed (0.125 in)"
 msgstr "הוספת שולי חיתוך (0.125 אינץ׳)"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Add chapter"
 msgstr "הוספת פרק"
@@ -705,7 +705,7 @@ msgid "Add contents entry"
 msgstr "הוספת פריט לתוכן העניינים"
 
 #: src/app/toc/AddEntryDialog.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Add custom entry"
 msgstr "הוספת פריט מותאם אישית"
 
@@ -1129,7 +1129,7 @@ msgstr "CadabraCraft חינמית וקוד המקור שלה זמין, והספ�
 msgid "CadabraCraft is source-available. These are its license and the licenses of the software that ships with it."
 msgstr "הקוד של CadabraCraft זמין לעיון. כאן הרישיון שלה והרישיונות של התוכנות שמגיעות איתה."
 
-#: src/app/hooks/useAppMenu.ts
+#: src/app/hooks/appMenuCommands.ts
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft מעודכנת."
 
@@ -1251,7 +1251,7 @@ msgstr "שינוי המיקום האנכי של {0}"
 msgid "Changes made outside the app may not be noticed. Saving still works."
 msgstr "ייתכן ששינויים שנעשים מחוץ לאפליקציה לא יזוהו. השמירה עדיין עובדת."
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Changes that no longer match"
 msgstr "שינויים שכבר אינם תואמים"
 
@@ -1263,8 +1263,8 @@ msgstr "פרק"
 #. placeholder {0}: chapters.length + 1
 #. placeholder {0}: chaptersOf(manifest!).length + 1
 #. placeholder {0}: chaptersOf(manifest).length + 1
-#: src/app/hooks/useAppMenu.ts
-#: src/app/shell/App.tsx
+#: src/app/hooks/appMenuCommands.ts
+#: src/app/shell/screens/BookScreen.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Chapter {0}"
 msgstr "פרק {0}"
@@ -1317,7 +1317,7 @@ msgstr "כותרת הפרק"
 #: src/app/shell/Details.tsx
 #: src/app/shell/Drawers.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Chapters"
 msgstr "פרקים"
 
@@ -1357,7 +1357,7 @@ msgstr "בדיקות"
 msgid "Choose a .docx, .md, .markdown, .html, .opml or .csv file."
 msgstr "בחר קובץ ‎.docx, ‎.md, ‎.markdown, ‎.html, ‎.opml או ‎.csv."
 
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 msgid "Choose a chapter to start."
 msgstr "בחר פרק כדי להתחיל."
 
@@ -1546,16 +1546,17 @@ msgstr "מצפן"
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
 #: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 #: src/app/toc/useContentsView.ts
 msgid "Contents"
 msgstr "תוכן העניינים"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 #: src/editor/reading/ReadingContents.tsx
 msgid "Contents entries"
 msgstr "פריטי תוכן העניינים"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Contents view"
 msgstr "תצוגת תוכן העניינים"
 
@@ -2080,7 +2081,7 @@ msgstr "גרסאות קודמות של עמוד זה. בחר אחת כדי לה�
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Edit"
 msgstr "עריכה"
 
@@ -2194,7 +2195,7 @@ msgstr "כל השפות כבר נמצאות בספר זה."
 msgid "Exact pages from Typst"
 msgstr "עמודים מדויקים מ־Typst"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 msgid "Exit focus mode"
 msgstr "יציאה ממצב מיקוד"
 
@@ -2505,7 +2506,7 @@ msgstr "כותרת 3"
 msgid "Heading font"
 msgstr "גופן הכותרות"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Headings to list"
 msgstr "כותרות להצגה ברשימה"
 
@@ -2531,7 +2532,7 @@ msgid "Hide CadabraCraft"
 msgstr "הסתרת CadabraCraft"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Hide chapters of {0}"
 msgstr "הסתר פרקים של {0}"
 
@@ -2548,7 +2549,7 @@ msgid "Hide Others"
 msgstr "הסתרת האחרות"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Hide scenes of {0}"
 msgstr "הסתרת הסצנות של {0}"
 
@@ -2716,7 +2717,7 @@ msgstr "בשימוש"
 msgid "Include chapter {0}"
 msgstr "לכלול את פרק {0}"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Include parts"
 msgstr "כלול חלקים"
 
@@ -2992,7 +2993,7 @@ msgid "Links (one per line)"
 msgstr "קישורים (אחד בכל שורה)"
 
 #: src/app/library/Library.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "List"
 msgstr "רשימה"
 
@@ -3244,7 +3245,7 @@ msgstr "{title} הוזז למטה לחלק {partNo} מתוך {0}"
 msgid "Moved {title} down to position {place} of {0}"
 msgstr "{title} הוזז למטה למקום {place} מתוך {0}"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "Moved {title} to position {place} of {count} in {chapterTitle}"
 msgstr "{title} הועברה למקום {place} מתוך {count} ב{chapterTitle}"
 
@@ -3356,7 +3357,7 @@ msgstr "עדיין אין ספרים. הוסיפו תיקיית ספרים או 
 msgid "No cadabra.json in that folder"
 msgstr "אין cadabra.json בתיקייה זו"
 
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "No chapters yet"
 msgstr "אין פרקים עדיין"
 
@@ -3441,7 +3442,7 @@ msgstr "אין תוצאות"
 msgid "No scene names it yet."
 msgstr "עדיין אין סצנה שמזכירה אותו."
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "No scenes yet."
 msgstr "עדיין אין סצנות."
 
@@ -3504,7 +3505,7 @@ msgstr "לא מותקן. הורד אותו מייצוא ספר השמע."
 msgid "Not opened yet"
 msgstr "עוד לא נפתח"
 
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Not translated yet"
 msgstr "עדיין לא תורגם"
 
@@ -3551,7 +3552,7 @@ msgstr "שום דבר לא נשלח לשום מקום אלא אם תלחץ על 
 msgid "Nothing removed"
 msgstr "דבר לא הוסר"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr "אין עדיין מה להציג. הוסף פרק והוא יופיע כאן."
 
@@ -3770,7 +3771,7 @@ msgstr "מעברי העמוד משוערים: ה־PDF הוא הקובע."
 msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
 msgstr "מעברי העמוד הם של ה־PDF: כל עמוד מכיל את הטקסט שהוא מכיל שם. שבירת השורות בתוך עמוד יכולה להיות שונה מעט."
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Page numbers"
 msgstr "מספרי עמודים"
 
@@ -3933,7 +3934,7 @@ msgstr "לחץ על המקשים החדשים עבור {action}. Esc מבטל."
 msgid "Press the new keys…"
 msgstr "לחצו על המקשים החדשים…"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 #: src/app/toc/TocPreview.tsx
 msgid "Preview"
 msgstr "תצוגה מקדימה"
@@ -4059,7 +4060,7 @@ msgstr "זמן קריאה"
 msgid "Reading your chapters…"
 msgstr "קורא את הפרקים שלך…"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/timeline/Timeline.tsx
 msgid "Reading…"
@@ -4139,7 +4140,7 @@ msgstr "טעינה מחדש"
 msgid "Remember my choice"
 msgstr "זכור את הבחירה שלי"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Remove"
 msgstr "הסרה"
 
@@ -4164,7 +4165,7 @@ msgstr "הסרת {0} מצוות הדמויות"
 msgid "Remove {title} from the Library"
 msgstr "הסרת {title} מהספרייה"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Remove change for {label}"
 msgstr "הסרת השינוי של {label}"
 
@@ -4236,7 +4237,7 @@ msgstr "פתיחה מחדש"
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
 msgstr "סידור מחדש של {0}"
@@ -4324,6 +4325,7 @@ msgid "Reset to default"
 msgstr "איפוס לברירת המחדל"
 
 #: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Reset to outline"
 msgstr "איפוס למבנה"
 
@@ -4539,7 +4541,7 @@ msgid "Scenes are ordered by story date. A scene without a date stays behind the
 msgstr "הסצנות מסודרות לפי תאריך הסיפור. סצנה ללא תאריך נשארת אחרי הסצנה שלפניה בספר."
 
 #. placeholder {0}: c.title
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "Scenes in {0}"
 msgstr "סצנות ב{0}"
 
@@ -4695,7 +4697,7 @@ msgid "Show chapters"
 msgstr "הצגת הפרקים"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Show chapters of {0}"
 msgstr "הצג פרקים של {0}"
 
@@ -4712,7 +4714,7 @@ msgid "Show margins"
 msgstr "הצגת שוליים"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Show scenes of {0}"
 msgstr "הצגת הסצנות של {0}"
 
@@ -5240,7 +5242,7 @@ msgstr "המזהה לא יכול להיות ריק."
 msgid "The image {0} is outside the document's folder"
 msgstr "התמונה {0} נמצאת מחוץ לתיקיית המסמך"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
 msgstr "הרשימה עוקבת אחר הפרקים שלך. שנה שמות של פריטים, הסתר אותם, סדר אותם מחדש או הוסף פריטים כאן; הייצוא ותצוגת ההדפסה המקדימה משתמשים ברשימה זו."
 
@@ -5369,7 +5371,7 @@ msgstr "אין מה להקריא, ולכן אין ספר שמע ליצור."
 msgid "These are routine adjustments; nothing was lost."
 msgstr "אלה התאמות שגרתיות; דבר לא אבד."
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "These changes belong to a chapter or heading that is gone or was edited. They are kept until you remove them."
 msgstr "שינויים אלה שייכים לפרק או לכותרת שנמחקו או נערכו. הם נשמרים עד שתסיר אותם."
 
@@ -5387,7 +5389,7 @@ msgid "This book has no {language} edition."
 msgstr "אין לספר זה מהדורה ב{language}."
 
 #: src/app/board/SceneBoard.tsx
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 #: src/lib/export/exportChecks.ts
 msgid "This book has no chapters yet."
 msgstr "אין עדיין פרקים בספר זה."
@@ -5669,7 +5671,7 @@ msgstr "נתיב פרויקט לא בטוח: {0}"
 msgid "Unsaved"
 msgstr "לא נשמר"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "Unsorted"
 msgstr "לא ממוין"
 
@@ -5689,8 +5691,8 @@ msgstr "ללא כותרת"
 msgid "Untitled entry"
 msgstr "רשומה ללא כותרת"
 
-#: src/app/board/SceneBoard.tsx
 #: src/app/board/SceneCard.tsx
+#: src/app/board/useSceneMoves.ts
 #: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
@@ -5871,7 +5873,7 @@ msgstr "מילים"
 msgid "Words to write each time you open a book. 0 turns it off."
 msgstr "מילים לכתוב בכל פעם שאתה פותח ספר. 0 מכבה זאת."
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "Wrap into a scene"
 msgstr "עטיפה בסצנה"
 
@@ -5961,7 +5963,7 @@ msgstr "לא ניתן היה לשמור את השינויים האחרונים �
 msgid "Your last changes were saved if possible. Choose Reload to open the app again. If this keeps happening, restart CadabraCraft; your books are in their folders, and earlier versions are in History."
 msgstr "השינויים האחרונים שלכם נשמרו אם היה אפשר. בחרו \"טעינה מחדש\" כדי לפתוח את האפליקציה שוב. אם זה ממשיך, הפעילו מחדש את CadabraCraft; הספרים שלכם בתיקיות שלהם, וגרסאות קודמות בהיסטוריה."
 
-#: src/app/hooks/useAppMenu.ts
+#: src/app/hooks/appMenuCommands.ts
 msgid "Your package manager updates this copy of CadabraCraft."
 msgstr "מנהל החבילות שלך מעדכן עותק זה של CadabraCraft."
 
