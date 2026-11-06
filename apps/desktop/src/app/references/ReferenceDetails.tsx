@@ -41,10 +41,9 @@ export function ReferenceDetails({
         }
       />
       <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="reference-note"
-          className="text-xs font-semibold text-ink-muted"
-        >{t`Note`}</label>
+        <label htmlFor="reference-note" className="text-xs font-semibold text-ink-muted">
+          {reference.kind === "note" ? t`Comment` : t`Note`}
+        </label>
         <textarea
           id="reference-note"
           rows={4}

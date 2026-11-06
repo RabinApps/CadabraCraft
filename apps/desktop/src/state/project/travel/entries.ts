@@ -54,7 +54,8 @@ const referenceTravel = (ctx: Ctx) => {
     let moved: string | undefined;
     if (undoing) {
       // The file first, then the list: the manifest never names a missing file. Comes back under another name when its own was taken since.
-      item = { ...item, file: await bridge.restoreTrash(root, trashPath!) };
+      if (item.kind === "file")
+        item = { ...item, file: await bridge.restoreTrash(root, trashPath!) };
       if (manifest.references.some((r) => r.id === item.id))
         item = { ...item, id: nextReferenceId(manifest) };
       const list = [...manifest.references];
@@ -64,7 +65,7 @@ const referenceTravel = (ctx: Ctx) => {
       after = removeReference(manifest, item.id).manifest;
     }
     await saveManifest(after);
-    if (!undoing) {
+    if (!undoing && item.kind === "file") {
       forgetReference(root, item.file);
       moved = await bridge.trashReference(root, item.file);
     }

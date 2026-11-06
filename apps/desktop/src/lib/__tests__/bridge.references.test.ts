@@ -57,16 +57,30 @@ describe("reference commands", () => {
     expect([...(await bridge.readReference("/p", "references/a.bin", 3, 2))]).toEqual([4, 5]);
   });
 
-  it("reports dropped files and ignores every other drag event", async () => {
+  it("opens an address in the browser", async () => {
+    await bridge.openReferenceUrl("https://example.org/");
+    expect(invoke).toHaveBeenLastCalledWith("open_reference_url", { url: "https://example.org/" });
+  });
+
+  it("follows files over the window and reports the paths of a drop", async () => {
     const unlisten = vi.fn();
     onDragDropEvent.mockImplementation(async (h: (e: unknown) => void) => {
-      h({ payload: { type: "over", position: { x: 0, y: 0 } } });
-      h({ payload: { type: "drop", paths: ["/a.pdf", "/b.png"], position: { x: 0, y: 0 } } });
+      for (const payload of [
+        { type: "enter", paths: ["/a.pdf"], position: { x: 0, y: 0 } },
+        { type: "over", position: { x: 0, y: 0 } },
+        { type: "leave" },
+        { type: "enter", paths: ["/a.pdf"], position: { x: 0, y: 0 } },
+        { type: "drop", paths: ["/a.pdf", "/b.png"], position: { x: 0, y: 0 } },
+      ])
+        h({ payload });
       return unlisten;
     });
-    const seen: string[][] = [];
-    const un = await bridge.onFilesDropped((p) => seen.push(p));
-    expect(seen).toEqual([["/a.pdf", "/b.png"]]);
+    const seen: (boolean | string[])[] = [];
+    const un = await bridge.onFileDrag({
+      active: (over) => seen.push(over),
+      drop: (p) => seen.push(p),
+    });
+    expect(seen).toEqual([true, true, false, true, false, ["/a.pdf", "/b.png"]]);
     un();
     expect(unlisten).toHaveBeenCalled();
   });

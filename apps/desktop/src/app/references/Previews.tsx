@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { File } from "lucide-react";
-import type { ReferenceKind } from "../../lib/references/referenceKinds";
+import type { FileKind } from "../../lib/references/referenceKinds";
 import { errText } from "../../lib/projectError";
 import { readReferenceBytes, referenceUrl } from "../../lib/references/references";
 import { Notice } from "../../ui/feedback/Notice";
@@ -12,7 +12,7 @@ interface Props {
   root: string;
   file: string;
   title: string;
-  kind: ReferenceKind;
+  kind: FileKind;
 }
 
 /** Loads a value once per file (the viewer is remounted for each reference) and keeps a failure's message. */

@@ -44,6 +44,14 @@ pub async fn open_reference<R: tauri::Runtime>(app: tauri::AppHandle<R>, root: S
     app.opener().open_path(file.to_string_lossy(), None::<&str>).map_err(|e| ProjectError::Io { message: e.to_string() })
 }
 
+/// Opens a link reference in the default browser. Only an `http` or `https` address (`checked_web_url`); the app never
+/// fetches it and never opens it except when the author clicks it.
+#[tauri::command]
+pub async fn open_reference_url<R: tauri::Runtime>(app: tauri::AppHandle<R>, url: String) -> Result<(), ProjectError> {
+    project::checked_web_url(&url)?;
+    app.opener().open_url(&url, None::<&str>).map_err(|e| ProjectError::Io { message: e.to_string() })
+}
+
 #[cfg(test)]
 mod tests {
     use super::super::testutil::{project, raw, root, run};

@@ -1,7 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 import { fakeImportSources } from "./fakeImport";
 import { answer, covBackend, failOn } from "./cov";
-import { newProject } from "./helpers";
+import { addReference, newProject } from "./helpers";
 import {
   toolbar,
   dialogOf,
@@ -28,7 +28,7 @@ const withReference = async (page: Page) => {
     window.__refFiles = { "/tmp/notes.pdf": contents };
   }, pdf);
   await page.getByRole("button", { name: "References", exact: true }).first().click();
-  await page.getByRole("button", { name: "Add files" }).click();
+  await addReference(page, "Add files");
   await shown(page.getByRole("region", { name: "References" }).locator("[data-open]").first());
 };
 const PIXEL =
@@ -309,11 +309,68 @@ export const moreScreens: Screen[] = [
       );
       const panel = p.getByRole("region", { name: "References" });
       await p.getByRole("button", { name: "References", exact: true }).first().click();
-      await p.getByRole("button", { name: "Add files" }).click();
+      await addReference(p, "Add files");
       await panel.getByRole("button", { name: "Actions for one" }).click();
       await p.getByRole("menuitem", { name: "Remove from book" }).click();
       await panel.getByRole("button", { name: "Removed references (1)" }).click();
       await shown(dialogOf(p, "Removed references"));
+    },
+  },
+  {
+    name: "References add menu",
+    open: async (p) => {
+      await newProject(p);
+      await p.getByRole("button", { name: "References", exact: true }).first().click();
+      await p
+        .getByRole("region", { name: "References" })
+        .getByRole("button", { name: "Add", exact: true })
+        .click();
+      await shown(p.getByRole("menuitem", { name: "Add link" }));
+    },
+  },
+  {
+    name: "References add link dialog",
+    open: async (p) => {
+      await newProject(p);
+      await p.getByRole("button", { name: "References", exact: true }).first().click();
+      await addReference(p.getByRole("region", { name: "References" }), "Add link");
+      await shown(dialogOf(p, "Add link"));
+    },
+  },
+  {
+    name: "References add link dialog with an error",
+    open: async (p) => {
+      await newProject(p);
+      await p.getByRole("button", { name: "References", exact: true }).first().click();
+      await addReference(p.getByRole("region", { name: "References" }), "Add link");
+      const dialog = dialogOf(p, "Add link");
+      await dialog.getByLabel("Address").fill("javascript:alert(1)");
+      await dialog.getByRole("button", { name: "Add link" }).click();
+      await shown(dialog.getByText("Enter an address that starts with http:// or https://."));
+    },
+  },
+  {
+    name: "References add note dialog",
+    open: async (p) => {
+      await newProject(p);
+      await p.getByRole("button", { name: "References", exact: true }).first().click();
+      await addReference(p.getByRole("region", { name: "References" }), "Add note");
+      await shown(dialogOf(p, "Add note"));
+    },
+  },
+  {
+    name: "References panel taking a drop",
+    open: async (p) => {
+      await newProject(p);
+      await p.getByRole("button", { name: "References", exact: true }).first().click();
+      await p.evaluate(() =>
+        window.__emit!("tauri://drag-enter", { paths: ["/a.pdf"], position: { x: 0, y: 0 } }),
+      );
+      await shown(
+        p
+          .getByRole("region", { name: "References" })
+          .getByRole("button", { name: "Release to add files, links or text" }),
+      );
     },
   },
   {

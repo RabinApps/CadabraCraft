@@ -35,7 +35,7 @@ describe("drop cap settings", () => {
     const back = reopen(JSON.parse(serializeManifest(m)));
     expect(back.dropCap).toBe(true);
     expect(back.chapters[0]!.dropCap).toBe(false);
-    expect(back.formatVersion).toBe(11);
+    expect(back.formatVersion).toBe(12);
   });
   it("refuses a value that is not true or false, and a chapter setting on matter", () => {
     const m = book();

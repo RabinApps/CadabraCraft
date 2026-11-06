@@ -649,6 +649,10 @@ msgstr ""
 msgid "Actions for {title}"
 msgstr ""
 
+#: src/app/references/add/AddMenu.tsx
+msgid "Add"
+msgstr ""
+
 #: src/app/board/StructureDialog.tsx
 msgid "Add {count} scenes"
 msgstr ""
@@ -711,7 +715,7 @@ msgstr ""
 msgid "Add entry"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/add/AddMenu.tsx
 msgid "Add files"
 msgstr ""
 
@@ -719,8 +723,8 @@ msgstr ""
 msgid "Add image"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
-msgid "Add images, videos, PDFs, audio and notes you want to look at while you write. They stay in the book folder."
+#: src/app/references/panel/PanelParts.tsx
+msgid "Add images, videos, PDFs, audio, links and notes you want to look at while you write. They stay in the book."
 msgstr ""
 
 #: src/app/dialogs/AddLanguageDialog.tsx
@@ -728,8 +732,15 @@ msgstr ""
 msgid "Add language"
 msgstr ""
 
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/add/AddMenu.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Add link"
+msgstr ""
+
+#: src/app/references/add/AddMenu.tsx
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Add note"
 msgstr ""
 
 #: src/app/shell/sidebar/Sidebar.tsx
@@ -769,7 +780,7 @@ msgid "Added as the first page, with a blank page behind it, unless you turn it 
 msgstr ""
 
 #. placeholder {0}: importing.name
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/PanelParts.tsx
 msgid "Adding {0}"
 msgstr ""
 
@@ -777,8 +788,14 @@ msgstr ""
 msgid "Adding…"
 msgstr ""
 
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/TextReferenceViews.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Address"
+msgstr ""
+
+#: src/app/references/TextReferenceViews.tsx
+msgid "Address copied."
 msgstr ""
 
 #: src/app/dialogs/ImportDialogs.tsx
@@ -810,7 +827,7 @@ msgid "Alignment"
 msgstr ""
 
 #: src/app/codex/CodexDialog.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "All"
 msgstr ""
 
@@ -893,8 +910,8 @@ msgstr ""
 msgid "at {size}"
 msgstr ""
 
+#: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
 #: src/app/settings/Settings.tsx
 msgid "Audio"
 msgstr ""
@@ -1140,6 +1157,8 @@ msgstr ""
 #: src/app/export/AudioFooter.tsx
 #: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/home/Home.tsx
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/add/AddNoteDialog.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/app/toc/AddEntryDialog.tsx
 #: src/editor/toolbar/TableCommands.tsx
@@ -1520,6 +1539,10 @@ msgstr ""
 msgid "Command Palette…"
 msgstr ""
 
+#: src/app/references/ReferenceDetails.tsx
+msgid "Comment"
+msgstr ""
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Comment on the selection"
 msgstr ""
@@ -1584,6 +1607,10 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
+#: src/app/references/TextReferenceViews.tsx
+msgid "Copy address"
+msgstr ""
+
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copy report"
 msgstr ""
@@ -1610,6 +1637,16 @@ msgstr ""
 msgid "Could not add the language: {why}. Choose another language, or try again."
 msgstr ""
 
+#. placeholder {0}: whyText(e)
+#: src/state/project/referencesWeb.ts
+msgid "Could not add the link: {0}. Try again."
+msgstr ""
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/referencesWeb.ts
+msgid "Could not add the note: {0}. Try again."
+msgstr ""
+
 #: src/app/board/StructureDialog.tsx
 msgid "Could not add the scenes: {why}. Nothing was changed."
 msgstr ""
@@ -1632,6 +1669,10 @@ msgstr ""
 
 #: src/editor/paste/pasteFlow.ts
 msgid "Could not convert the HTML, so it was pasted as text"
+msgstr ""
+
+#: src/app/references/TextReferenceViews.tsx
+msgid "Could not copy the address."
 msgstr ""
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
@@ -1740,6 +1781,11 @@ msgstr ""
 #. placeholder {0}: causeText(e)
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
+msgstr ""
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/referencesWeb.ts
+msgid "Could not save the address: {0}. Try again."
 msgstr ""
 
 #. placeholder {0}: whyText(e)
@@ -1948,7 +1994,7 @@ msgstr ""
 msgid "Details Panel"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/PanelParts.tsx
 msgid "Dismiss"
 msgstr ""
 
@@ -1961,7 +2007,7 @@ msgstr ""
 msgid "Document"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Documents"
 msgstr ""
 
@@ -2050,8 +2096,8 @@ msgstr ""
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
-msgid "Drop files here to add them"
+#: src/app/references/panel/PanelParts.tsx
+msgid "Drop files, links or text here"
 msgstr ""
 
 #: src/app/board/StructureDialog.tsx
@@ -2133,6 +2179,10 @@ msgstr ""
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Enter a real date."
+msgstr ""
+
+#: src/state/project/referencesWeb.ts
+msgid "Enter an address that starts with http:// or https://."
 msgstr ""
 
 #: src/app/shell/native/menuModel.ts
@@ -2289,11 +2339,11 @@ msgstr ""
 msgid "Filter by kind"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Filter by tag"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Filter by type"
 msgstr ""
 
@@ -2641,7 +2691,7 @@ msgstr ""
 msgid "Image…"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Images"
 msgstr ""
 
@@ -2809,8 +2859,16 @@ msgstr ""
 msgid "JavaScript libraries"
 msgstr ""
 
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Jot something down next to your research."
+msgstr ""
+
 #: src/app/settings/AudioSection.tsx
 msgid "Keep"
+msgstr ""
+
+#: src/app/references/add/AddLinkDialog.tsx
+msgid "Keep a web page with your research. It opens in your browser when you choose Open."
 msgstr ""
 
 #: src/app/settings/SettingsSections.tsx
@@ -2838,8 +2896,13 @@ msgstr ""
 msgid "Keep working"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/PanelParts.tsx
 msgid "Keep your research close"
+msgstr ""
+
+#: src/app/references/add/AddNoteDialog.tsx
+#: src/app/references/TextReferenceViews.tsx
+msgid "Kept in the book, never exported."
 msgstr ""
 
 #: src/lib/useIconChoices.ts
@@ -2847,7 +2910,7 @@ msgid "Key"
 msgstr ""
 
 #: src/app/codex/CodexDialog.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Kind"
 msgstr ""
 
@@ -2915,6 +2978,10 @@ msgstr ""
 msgid "Leaf"
 msgstr ""
 
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Leave empty to use the first line."
+msgstr ""
+
 #: src/app/settings/shortcutList.ts
 msgid "Leave Focus Mode"
 msgstr ""
@@ -2960,6 +3027,7 @@ msgstr ""
 msgid "Line spacing"
 msgstr ""
 
+#: src/app/references/ReferenceRow.tsx
 #: src/editor/toolbar/useToolbarItems.ts
 msgid "Link"
 msgstr ""
@@ -2986,6 +3054,10 @@ msgstr ""
 
 #: src/app/references/ReferenceDetails.tsx
 msgid "Linked chapters"
+msgstr ""
+
+#: src/app/references/panel/ReferenceFilters.tsx
+msgid "Links"
 msgstr ""
 
 #: src/app/codex/CodexDialog.tsx
@@ -3062,7 +3134,7 @@ msgstr ""
 msgid "Making the preview…"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Manual order"
 msgstr ""
 
@@ -3297,7 +3369,7 @@ msgstr ""
 msgid "New project"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Newest first"
 msgstr ""
 
@@ -3524,8 +3596,12 @@ msgid "Not translated yet in {language}: {names}. Translate them or skip them."
 msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/references/add/AddNoteDialog.tsx
 #: src/app/references/ReferenceDetails.tsx
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/TextReferenceViews.tsx
 #: src/editor/toolbar/useToolbarItems.ts
+#: src/state/project/referencesWeb.ts
 msgid "Note"
 msgstr ""
 
@@ -3534,6 +3610,7 @@ msgid "Note:"
 msgstr ""
 
 #: src/app/codex/CodexDialog.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Notes"
 msgstr ""
 
@@ -3599,7 +3676,7 @@ msgstr ""
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Oldest first"
 msgstr ""
 
@@ -3617,6 +3694,10 @@ msgstr ""
 
 #: src/app/export/OutlinePanel.tsx
 msgid "One row per scene, for a spreadsheet."
+msgstr ""
+
+#: src/app/references/TextReferenceViews.tsx
+msgid "Only http and https addresses. Nothing is fetched from it."
 msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
@@ -3649,6 +3730,12 @@ msgstr ""
 
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Open Fonts"
+msgstr ""
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferenceViewer.tsx
+#: src/app/references/TextReferenceViews.tsx
+msgid "Open in browser"
 msgstr ""
 
 #: src/app/references/ReferenceViewer.tsx
@@ -3702,7 +3789,7 @@ msgstr ""
 msgid "Order"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Other"
 msgstr ""
 
@@ -3841,8 +3928,8 @@ msgstr ""
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr ""
 
+#: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
 msgid "PDF"
 msgstr ""
 
@@ -4132,6 +4219,10 @@ msgstr ""
 msgid "Regex"
 msgstr ""
 
+#: src/app/references/panel/PanelParts.tsx
+msgid "Release to add files, links or text"
+msgstr ""
+
 #: src/app/shell/ErrorBoundary.tsx
 msgid "Reload"
 msgstr ""
@@ -4145,7 +4236,7 @@ msgid "Remove"
 msgstr ""
 
 #. placeholder {0}: deleting?.title ?? ""
-#. placeholder {0}: ref.title
+#. placeholder {0}: r.ref.title
 #: src/app/shell/sidebar/Sidebar.tsx
 #: src/state/project/references.ts
 msgid "Remove {0}"
@@ -4726,6 +4817,10 @@ msgstr ""
 msgid "Shown beside the title in the chapter list. It is not part of the exported book."
 msgstr ""
 
+#: src/app/references/add/AddLinkDialog.tsx
+msgid "Shown in the list. Leave empty to use the address."
+msgstr ""
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr ""
@@ -4796,7 +4891,7 @@ msgstr ""
 msgid "Sort by"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Sort references"
 msgstr ""
 
@@ -5076,6 +5171,10 @@ msgstr ""
 
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "That page is not in the book."
+msgstr ""
+
+#: src/state/project/referencesWeb.ts
+msgid "That text is too long for a note, so it was not added."
 msgstr ""
 
 #: src/app/settings/AudioSection.tsx
@@ -5382,6 +5481,10 @@ msgstr ""
 msgid "This .docx file has no document body. It may be damaged or not a Word document. Choose another file."
 msgstr ""
 
+#: src/state/project/referencesWeb.ts
+msgid "This address is already in this book."
+msgstr ""
+
 #: src/state/project/editions.ts
 #: src/state/project/output/narration/pick.ts
 msgid "This book has no {language} edition."
@@ -5507,7 +5610,12 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Title (optional)"
+msgstr ""
+
+#: src/app/references/panel/SortMenu.tsx
 msgid "Title A-Z"
 msgstr ""
 
@@ -5521,7 +5629,7 @@ msgstr ""
 msgid "Title page"
 msgstr ""
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Title Z-A"
 msgstr ""
 
@@ -5727,6 +5835,10 @@ msgstr ""
 msgid "Use at most {0} subjects."
 msgstr ""
 
+#: src/app/references/add/AddLinkDialog.tsx
+msgid "Use http or https. The link opens in your browser; nothing is fetched."
+msgstr ""
+
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Use http, https or mailto."
 msgstr ""
@@ -5752,8 +5864,8 @@ msgstr ""
 msgid "Vertical position"
 msgstr ""
 
+#: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
 msgid "Video"
 msgstr ""
 
@@ -5884,6 +5996,10 @@ msgstr ""
 
 #: src/app/shell/header/AppHeader.tsx
 msgid "Write or read"
+msgstr ""
+
+#: src/state/project/referencesWeb.ts
+msgid "Write something in the note first."
 msgstr ""
 
 #: src/app/onboarding/Onboarding.tsx

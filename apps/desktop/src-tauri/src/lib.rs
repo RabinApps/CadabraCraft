@@ -51,6 +51,7 @@ macro_rules! app_handlers {
             commands::read_reference,
             commands::trash_reference,
             commands::open_reference,
+            commands::open_reference_url,
             commands::reference_stream_url,
             commands::watch_project,
             commands::unwatch_project,

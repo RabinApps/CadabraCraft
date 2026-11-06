@@ -9,7 +9,7 @@ export async function editingSteps(ctx: Context) {
 }
 
 async function editingPart1(ctx: Context) {
-  const { app, book, shot, menuState, step } = ctx;
+  const { app, book, shot, menuState, runMenu, step } = ctx;
   await step("start screen shows New project, Open folder, Import", async () => {
     // The sponsor dialog after an export would cover the page in every export step; it has its own Playwright tests.
     await app.js("location.reload()").catch(() => {});
@@ -78,8 +78,9 @@ async function editingPart1(ctx: Context) {
     );
     await app.click("Bold");
     await app.js(`document.execCommand('insertText', false, 'Bold part.')`);
-    await app.click("Scene break");
-    await app.click("Footnote");
+    // Scene break and Footnote are menu-only (Insert menu), not toolbar buttons.
+    await runMenu("editor.sceneBreak");
+    await runMenu("editor.footnote");
     const html = await app.js<string>(`document.querySelector('.ProseMirror').innerHTML`);
     for (const needle of [
       "Typed by an agent.",

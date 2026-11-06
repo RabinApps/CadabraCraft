@@ -1,11 +1,13 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
+import { linkAndNoteSteps } from "./references-links.ts";
 
 const PDF =
   "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R 4 0 R]/Count 2>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 100]>>endobj\n4 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 100]>>endobj\ntrailer<</Root 1 0 R/Size 5>>\n%%EOF";
 
-export async function referencesSteps({ app, book, src, shot, step }: Context) {
+export async function referencesSteps(ctx: Context) {
+  const { app, book, src, shot, step } = ctx;
   const manifest = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
   const pdf = join(src, "Lighthouse history.pdf");
   const exe = join(src, "setup.exe");
@@ -17,6 +19,17 @@ export async function referencesSteps({ app, book, src, shot, step }: Context) {
       if (!b) throw new Error("no button: ${label}"); b.click(); return "clicked"; })()`,
     );
 
+  /** The Add button is a menu (Radix opens it on pointer down): open it, then choose Add files. */
+  const addFiles = async () => {
+    await app.js(
+      `document.querySelector('section[aria-label="References"] button[aria-haspopup="menu"]')?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, bubbles: true }))`,
+    );
+    await app.sleep(300);
+    await app.js(
+      `(() => { const i = [...document.querySelectorAll('[role=menuitem]')].find((i) => i.textContent.trim() === "Add files"); if (!i) throw new Error("no Add files item"); i.click(); return "clicked"; })()`,
+    );
+  };
+
   await step("references: import a PDF through the real Rust commands and list it", async () => {
     // The panel stays open between runs (it is an app preference), so only open it when it is closed.
     const shown = await app.js<boolean>(
@@ -25,7 +38,7 @@ export async function referencesSteps({ app, book, src, shot, step }: Context) {
     if (!shown) await clickLabelled("References");
     await app.sleep(500);
     await app.queueDialogs([pdf]);
-    await clickLabelled("Add files");
+    await addFiles();
     await app.sleep(1500);
     assert(existsSync(join(book, "references/Lighthouse-history.pdf")), "the PDF was not copied");
     assert(
@@ -42,7 +55,7 @@ export async function referencesSteps({ app, book, src, shot, step }: Context) {
 
   await step("references: a program is refused and nothing is left behind", async () => {
     await app.queueDialogs([exe]);
-    await clickLabelled("Add files");
+    await addFiles();
     await app.sleep(1000);
     const text = await app.js<string>(
       `document.querySelector('section[aria-label="References"]')?.textContent ?? ""`,
@@ -91,4 +104,5 @@ export async function referencesSteps({ app, book, src, shot, step }: Context) {
       return trashed[0];
     },
   );
+  await linkAndNoteSteps(ctx);
 }

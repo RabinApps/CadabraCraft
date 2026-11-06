@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "../support/coverage";
 import { fakeTauri } from "../support/fakeTauri";
 import { fakeImportSources } from "../support/fakeImport";
-import { addPage, newProject, seedChapters } from "../support/helpers";
+import { addPage, addReference, newProject, seedChapters } from "../support/helpers";
 
 // WCAG 2.2 criterion 2.5.7 (Dragging Movements): everything that can be done by dragging can also be done with a
 // single pointer or the keyboard. Each test below never moves the pointer with a button held down.
@@ -13,7 +13,7 @@ import { addPage, newProject, seedChapters } from "../support/helpers";
 //   2b. Contents entry reorder (grip, TocRow)              -> row menu "Move up" / "Move down", grip arrow keys
 //   2c. Sidebar chapter reorder (grip, EntryList)          -> row menu "Move up" / "Move down", grip arrow keys
 //   2d. Scene board card reorder (grip, SceneCard)         -> card menu "Move earlier" / "Move later" / "Move to chapter", grip arrow keys
-//   3. Dropping files on the window to add references       -> "Add files" button (file picker)
+//   3. Dropping files, addresses or text on the References panel -> Add menu: "Add files" (file picker), "Add link", "Add note" (dialogs)
 //   4. Native textarea resize handle (`resize-y`)           -> user-agent control, exempt from 2.5.7; no test
 //   5. Sidebar width (separator, SidebarResizeHandle)       -> arrow keys, Home and End on the separator
 
@@ -49,7 +49,7 @@ async function withReferences(page: Page) {
     [Object.keys(files), files] as const,
   );
   await page.getByRole("button", { name: "References", exact: true }).first().click();
-  await page.getByRole("button", { name: "Add files" }).click();
+  await addReference(page, "Add files");
   await expect(panel(page).getByRole("listitem")).toHaveCount(3);
   await expect.poll(() => refTitles(page)).toEqual(["one", "two", "three"]);
 }
@@ -124,7 +124,7 @@ test("2.5.7 references: files that can be dropped on the window can also be adde
   );
   await page.getByRole("button", { name: "References", exact: true }).first().click();
   await expect(panel(page).getByRole("listitem")).toHaveCount(0);
-  await page.getByRole("button", { name: "Add files" }).click();
+  await addReference(page, "Add files");
   await expect(panel(page).getByRole("listitem")).toHaveCount(1);
   await expect.poll(() => refTitles(page)).toEqual(["one"]);
 });
@@ -289,4 +289,33 @@ test("2.5.7 scene board: the card menu and the grip arrow keys move scenes witho
   await page.getByRole("button", { name: "Actions for Alpha" }).click();
   await page.getByRole("menuitem", { name: "Chapter One" }).click();
   await expect.poll(() => titles("Chapter One")).toEqual(["Bravo", "Alpha"]);
+});
+
+test("2.5.7 references: links and notes can be added without dragging anything", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "References", exact: true }).first().click();
+  await addReference(panel(page), "Add link");
+  const link = page.getByRole("dialog", { name: "Add link" });
+  await link.getByLabel("Address").fill("https://a.example.org/");
+  await link.getByRole("button", { name: "Add link" }).click();
+  await addReference(panel(page), "Add note");
+  const note = page.getByRole("dialog", { name: "Add note" });
+  await note.getByLabel("Note", { exact: true }).fill("Body");
+  await note.getByRole("button", { name: "Add note" }).click();
+  await expect.poll(() => refTitles(page)).toEqual(["a.example.org", "Body"]);
+});
+
+test("references: Escape cancels a pointer drag and nothing moves", async ({ page }) => {
+  await withReferences(page);
+  const g = (await panel(page).locator("[data-grip]").first().boundingBox())!;
+  const l = (await panel(page).getByRole("listitem").last().boundingBox())!;
+  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(g.x + 4, l.y + l.height + 4, { steps: 4 });
+  await expect(panel(page).locator("[data-drop-line]")).toHaveCount(1);
+  await page.keyboard.press("Escape");
+  await page.mouse.up();
+  await expect.poll(() => refTitles(page)).toEqual(["one", "two", "three"]);
 });

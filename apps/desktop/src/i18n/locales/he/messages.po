@@ -651,6 +651,10 @@ msgstr "פעולות עבור {0}"
 msgid "Actions for {title}"
 msgstr "פעולות עבור {title}"
 
+#: src/app/references/add/AddMenu.tsx
+msgid "Add"
+msgstr "הוספה"
+
 #: src/app/board/StructureDialog.tsx
 msgid "Add {count} scenes"
 msgstr "הוספת {count} סצנות"
@@ -713,7 +717,7 @@ msgstr "הוספת פריט מותאם אישית"
 msgid "Add entry"
 msgstr "הוספת פריט"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/add/AddMenu.tsx
 msgid "Add files"
 msgstr "הוספת קבצים"
 
@@ -721,18 +725,25 @@ msgstr "הוספת קבצים"
 msgid "Add image"
 msgstr "הוספת תמונה"
 
-#: src/app/references/ReferencesPanel.tsx
-msgid "Add images, videos, PDFs, audio and notes you want to look at while you write. They stay in the book folder."
-msgstr "הוסף תמונות, סרטונים, קובצי PDF, שמע והערות שברצונך לעיין בהם בזמן הכתיבה. הם נשארים בתיקיית הספר."
+#: src/app/references/panel/PanelParts.tsx
+msgid "Add images, videos, PDFs, audio, links and notes you want to look at while you write. They stay in the book."
+msgstr "הוסיפו תמונות, סרטונים, קובצי PDF, שמע, קישורים והערות שתרצו לעיין בהם בזמן הכתיבה. הם נשארים בתוך הספר."
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/shell/header/EditionSwitcher.tsx
 msgid "Add language"
 msgstr "הוספת שפה"
 
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/add/AddMenu.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Add link"
 msgstr "הוספת קישור"
+
+#: src/app/references/add/AddMenu.tsx
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Add note"
+msgstr "הוספת הערה"
 
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Add page"
@@ -771,7 +782,7 @@ msgid "Added as the first page, with a blank page behind it, unless you turn it 
 msgstr "נוסף כעמוד הראשון, עם עמוד ריק מאחוריו, אלא אם תכבה זאת בחלון הייצוא. מספר העמודים למעלה אינו כולל אותם."
 
 #. placeholder {0}: importing.name
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/PanelParts.tsx
 msgid "Adding {0}"
 msgstr "מוסיף את {0}"
 
@@ -779,9 +790,15 @@ msgstr "מוסיף את {0}"
 msgid "Adding…"
 msgstr "מוסיף…"
 
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/TextReferenceViews.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Address"
 msgstr "כתובת"
+
+#: src/app/references/TextReferenceViews.tsx
+msgid "Address copied."
+msgstr "הכתובת הועתקה."
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file."
@@ -812,7 +829,7 @@ msgid "Alignment"
 msgstr "יישור"
 
 #: src/app/codex/CodexDialog.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "All"
 msgstr "הכול"
 
@@ -895,8 +912,8 @@ msgstr "לשאול בכל פעם"
 msgid "at {size}"
 msgstr "ב־{size}"
 
+#: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
 #: src/app/settings/Settings.tsx
 msgid "Audio"
 msgstr "שמע"
@@ -1142,6 +1159,8 @@ msgstr "CadabraCraft מעודכנת."
 #: src/app/export/AudioFooter.tsx
 #: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/home/Home.tsx
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/add/AddNoteDialog.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/app/toc/AddEntryDialog.tsx
 #: src/editor/toolbar/TableCommands.tsx
@@ -1522,6 +1541,10 @@ msgstr "לוח פקודות"
 msgid "Command Palette…"
 msgstr "לוח פקודות…"
 
+#: src/app/references/ReferenceDetails.tsx
+msgid "Comment"
+msgstr "תגובה"
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Comment on the selection"
 msgstr "הערה על הבחירה"
@@ -1586,6 +1609,10 @@ msgstr "הועתק"
 msgid "Copy"
 msgstr "העתקה"
 
+#: src/app/references/TextReferenceViews.tsx
+msgid "Copy address"
+msgstr "העתקת הכתובת"
+
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copy report"
 msgstr "העתקת הדוח"
@@ -1612,6 +1639,16 @@ msgstr "לא ניתן היה להוסיף את התמונה: {why}. בחרו ת�
 msgid "Could not add the language: {why}. Choose another language, or try again."
 msgstr "לא ניתן היה להוסיף את השפה: {why}. בחרו שפה אחרת או נסו שוב."
 
+#. placeholder {0}: whyText(e)
+#: src/state/project/referencesWeb.ts
+msgid "Could not add the link: {0}. Try again."
+msgstr "לא ניתן להוסיף את הקישור: {0}. נסו שוב."
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/referencesWeb.ts
+msgid "Could not add the note: {0}. Try again."
+msgstr "לא ניתן להוסיף את ההערה: {0}. נסו שוב."
+
 #: src/app/board/StructureDialog.tsx
 msgid "Could not add the scenes: {why}. Nothing was changed."
 msgstr "לא ניתן להוסיף את הסצנות: {why}. דבר לא שונה."
@@ -1635,6 +1672,10 @@ msgstr "לא ניתן היה להמיר את ה־HTML שבבחירה"
 #: src/editor/paste/pasteFlow.ts
 msgid "Could not convert the HTML, so it was pasted as text"
 msgstr "לא ניתן היה להמיר את ה־HTML ולכן הוא הודבק כטקסט"
+
+#: src/app/references/TextReferenceViews.tsx
+msgid "Could not copy the address."
+msgstr "לא ניתן להעתיק את הכתובת."
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Could not delete the snapshot ({reason}). It is still in the list. Try again."
@@ -1743,6 +1784,11 @@ msgstr "לא ניתן היה לשחזר את העמוד הזה ({reason}). הט�
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
 msgstr "לא ניתן היה לשחזר גרסה זו ({0}). הטקסט הנוכחי שלך לא השתנה. נסה שוב, או בחר גרסה אחרת."
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/referencesWeb.ts
+msgid "Could not save the address: {0}. Try again."
+msgstr "לא ניתן לשמור את הכתובת: {0}. נסו שוב."
 
 #. placeholder {0}: whyText(e)
 #: src/state/project/comments.ts
@@ -1950,7 +1996,7 @@ msgstr "פרטים"
 msgid "Details Panel"
 msgstr "חלונית פרטים"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/PanelParts.tsx
 msgid "Dismiss"
 msgstr "סגירה"
 
@@ -1963,7 +2009,7 @@ msgstr "סגירת ההודעה"
 msgid "Document"
 msgstr "מסמך"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Documents"
 msgstr "מסמכים"
 
@@ -2052,9 +2098,9 @@ msgstr "גרור, או לחץ על מקשי החצים למעלה ולמטה"
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
 msgstr "מצייר סימני חיתוך מחוץ לשולי החיתוך ומגדיל את העמוד מכל צד. Amazon KDP אינה מקבלת אותם."
 
-#: src/app/references/ReferencesPanel.tsx
-msgid "Drop files here to add them"
-msgstr "שחרר קבצים כאן כדי להוסיף אותם"
+#: src/app/references/panel/PanelParts.tsx
+msgid "Drop files, links or text here"
+msgstr "גררו לכאן קבצים, קישורים או טקסט"
 
 #: src/app/board/StructureDialog.tsx
 msgid "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed."
@@ -2136,6 +2182,10 @@ msgstr "נהנה מ־CadabraCraft?"
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Enter a real date."
 msgstr "הזן תאריך אמיתי."
+
+#: src/state/project/referencesWeb.ts
+msgid "Enter an address that starts with http:// or https://."
+msgstr "הזינו כתובת שמתחילה ב-http:// או ב-https://."
 
 #: src/app/shell/native/menuModel.ts
 msgid "Enter Full Screen"
@@ -2291,11 +2341,11 @@ msgstr "סוג קובץ"
 msgid "Filter by kind"
 msgstr "סינון לפי סוג"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Filter by tag"
 msgstr "סינון לפי תגית"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Filter by type"
 msgstr "סינון לפי סוג"
 
@@ -2643,7 +2693,7 @@ msgstr "זום תמונה"
 msgid "Image…"
 msgstr "תמונה…"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Images"
 msgstr "תמונות"
 
@@ -2811,9 +2861,17 @@ msgstr "מספר העמוד שלו מוצג. בחר “ללא” לפריט בל
 msgid "JavaScript libraries"
 msgstr "ספריות JavaScript"
 
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Jot something down next to your research."
+msgstr "רשמו משהו לצד המחקר שלכם."
+
 #: src/app/settings/AudioSection.tsx
 msgid "Keep"
 msgstr "שמירה"
+
+#: src/app/references/add/AddLinkDialog.tsx
+msgid "Keep a web page with your research. It opens in your browser when you choose Open."
+msgstr "שמרו דף אינטרנט יחד עם המחקר. הוא ייפתח בדפדפן כשתבחרו פתיחה."
 
 #: src/app/settings/SettingsSections.tsx
 #: src/editor/paste/PasteDialog.tsx
@@ -2840,16 +2898,21 @@ msgstr "שמירת קו תחתון וקטנות"
 msgid "Keep working"
 msgstr "להמשיך לעבוד"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/PanelParts.tsx
 msgid "Keep your research close"
 msgstr "שמור את המחקר שלך קרוב"
+
+#: src/app/references/add/AddNoteDialog.tsx
+#: src/app/references/TextReferenceViews.tsx
+msgid "Kept in the book, never exported."
+msgstr "נשמר בספר ולעולם לא מיוצא."
 
 #: src/lib/useIconChoices.ts
 msgid "Key"
 msgstr "מפתח"
 
 #: src/app/codex/CodexDialog.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Kind"
 msgstr "סוג"
 
@@ -2917,6 +2980,10 @@ msgstr "פריסה"
 msgid "Leaf"
 msgstr "עלה"
 
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Leave empty to use the first line."
+msgstr "השאירו ריק כדי להשתמש בשורה הראשונה."
+
 #: src/app/settings/shortcutList.ts
 msgid "Leave Focus Mode"
 msgstr "יציאה ממצב מיקוד"
@@ -2962,6 +3029,7 @@ msgstr "מעבר שורה"
 msgid "Line spacing"
 msgstr "מרווח שורות"
 
+#: src/app/references/ReferenceRow.tsx
 #: src/editor/toolbar/useToolbarItems.ts
 msgid "Link"
 msgstr "קישור"
@@ -2989,6 +3057,10 @@ msgstr "קישור…"
 #: src/app/references/ReferenceDetails.tsx
 msgid "Linked chapters"
 msgstr "פרקים מקושרים"
+
+#: src/app/references/panel/ReferenceFilters.tsx
+msgid "Links"
+msgstr "קישורים"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Links (one per line)"
@@ -3064,7 +3136,7 @@ msgstr "יוצר דוגמה… (עצירה)"
 msgid "Making the preview…"
 msgstr "יוצר את התצוגה המקדימה…"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Manual order"
 msgstr "סדר ידני"
 
@@ -3299,7 +3371,7 @@ msgstr "רשומה חדשה"
 msgid "New project"
 msgstr "פרויקט חדש"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Newest first"
 msgstr "החדשים תחילה"
 
@@ -3526,8 +3598,12 @@ msgid "Not translated yet in {language}: {names}. Translate them or skip them."
 msgstr "עדיין לא תורגמו ל{language}: {names}. תרגם אותם או דלג עליהם."
 
 #: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/references/add/AddNoteDialog.tsx
 #: src/app/references/ReferenceDetails.tsx
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/TextReferenceViews.tsx
 #: src/editor/toolbar/useToolbarItems.ts
+#: src/state/project/referencesWeb.ts
 msgid "Note"
 msgstr "הערה"
 
@@ -3536,6 +3612,7 @@ msgid "Note:"
 msgstr "הערה:"
 
 #: src/app/codex/CodexDialog.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Notes"
 msgstr "הערות"
 
@@ -3601,7 +3678,7 @@ msgstr "כבוי"
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr "תצלומי מצב ישנים יותר מוסרים, אך כל מה שמ־30 הימים האחרונים נשאר."
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Oldest first"
 msgstr "הישנים תחילה"
 
@@ -3620,6 +3697,10 @@ msgstr "אחד בכל שורה: קודי BISAC כמו FIC014000, או מילות
 #: src/app/export/OutlinePanel.tsx
 msgid "One row per scene, for a spreadsheet."
 msgstr "שורה אחת לכל סצנה, לגיליון אלקטרוני."
+
+#: src/app/references/TextReferenceViews.tsx
+msgid "Only http and https addresses. Nothing is fetched from it."
+msgstr "כתובות http ו-https בלבד. שום דבר לא נטען ממנה."
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Only in the current text"
@@ -3652,6 +3733,12 @@ msgstr "פתיחת תיקייה"
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Open Fonts"
 msgstr "פתיחת גופנים"
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferenceViewer.tsx
+#: src/app/references/TextReferenceViews.tsx
+msgid "Open in browser"
+msgstr "פתיחה בדפדפן"
 
 #: src/app/references/ReferenceViewer.tsx
 msgid "Open in default app"
@@ -3704,7 +3791,7 @@ msgstr "Opus"
 msgid "Order"
 msgstr "סדר"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Other"
 msgstr "אחר"
 
@@ -3843,8 +3930,8 @@ msgstr "להדביק כטקסט מעוצב?"
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr "תמונות שהודבקו הושמטו. השתמש בהוספה, תמונה כדי להוסיף תמונה לספר."
 
+#: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
 msgid "PDF"
 msgstr "PDF"
 
@@ -4134,6 +4221,10 @@ msgstr "הפניות שתסיר מהספר מופיעות כאן, כדי שתו�
 msgid "Regex"
 msgstr "Regex"
 
+#: src/app/references/panel/PanelParts.tsx
+msgid "Release to add files, links or text"
+msgstr "שחררו כדי להוסיף קבצים, קישורים או טקסט"
+
 #: src/app/shell/ErrorBoundary.tsx
 msgid "Reload"
 msgstr "טעינה מחדש"
@@ -4147,7 +4238,7 @@ msgid "Remove"
 msgstr "הסרה"
 
 #. placeholder {0}: deleting?.title ?? ""
-#. placeholder {0}: ref.title
+#. placeholder {0}: r.ref.title
 #: src/app/shell/sidebar/Sidebar.tsx
 #: src/state/project/references.ts
 msgid "Remove {0}"
@@ -4728,6 +4819,10 @@ msgstr "מוצגת פריסה משוערת, כי לא ניתן היה לסדר �
 msgid "Shown beside the title in the chapter list. It is not part of the exported book."
 msgstr "מוצג ליד הכותרת ברשימת הפרקים. אינו חלק מהספר המיוצא."
 
+#: src/app/references/add/AddLinkDialog.tsx
+msgid "Shown in the list. Leave empty to use the address."
+msgstr "מוצג ברשימה. השאירו ריק כדי להשתמש בכתובת."
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr "רישיון SIL Open Font 1.1"
@@ -4798,7 +4893,7 @@ msgstr "משהו השתבש: {why}. נסו שוב או הפעילו מחדש א�
 msgid "Sort by"
 msgstr "מיון לפי"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Sort references"
 msgstr "מיון הפניות"
 
@@ -5079,6 +5174,10 @@ msgstr "אי אפשר להשתמש במקש הזה. לחצו על מקש אחר.
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "That page is not in the book."
 msgstr "העמוד הזה אינו בספר."
+
+#: src/state/project/referencesWeb.ts
+msgid "That text is too long for a note, so it was not added."
+msgstr "הטקסט ארוך מדי להערה ולכן לא נוסף."
 
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
@@ -5386,6 +5485,10 @@ msgstr "הגופנים האלה מגיעים מ־Google Fonts וחופשיים �
 msgid "This .docx file has no document body. It may be damaged or not a Word document. Choose another file."
 msgstr "לקובץ ה-docx הזה אין גוף מסמך. ייתכן שהוא פגום או שאינו מסמך Word. בחרו קובץ אחר."
 
+#: src/state/project/referencesWeb.ts
+msgid "This address is already in this book."
+msgstr "כתובת זו כבר נמצאת בספר הזה."
+
 #: src/state/project/editions.ts
 #: src/state/project/output/narration/pick.ts
 msgid "This book has no {language} edition."
@@ -5511,7 +5614,12 @@ msgstr "Times New Roman 12 נקודות הוא מה שרוב הסוכנים וה
 msgid "Title"
 msgstr "כותרת"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Title (optional)"
+msgstr "כותרת (אופציונלי)"
+
+#: src/app/references/panel/SortMenu.tsx
 msgid "Title A-Z"
 msgstr "כותרת א׳–ת׳"
 
@@ -5525,7 +5633,7 @@ msgstr "כותרת פרק {0}"
 msgid "Title page"
 msgstr "עמוד שער"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Title Z-A"
 msgstr "כותרת ת׳–א׳"
 
@@ -5733,6 +5841,10 @@ msgstr "השתמש בעד {0} תווים."
 msgid "Use at most {0} subjects."
 msgstr "השתמש בעד {0} נושאים."
 
+#: src/app/references/add/AddLinkDialog.tsx
+msgid "Use http or https. The link opens in your browser; nothing is fetched."
+msgstr "השתמשו ב-http או ב-https. הקישור נפתח בדפדפן; שום דבר לא נטען."
+
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Use http, https or mailto."
 msgstr "השתמש ב־http,‏ https או mailto."
@@ -5758,8 +5870,8 @@ msgstr "גרסה {0} זמינה"
 msgid "Vertical position"
 msgstr "מיקום אנכי"
 
+#: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
 msgid "Video"
 msgstr "וידאו"
 
@@ -5891,6 +6003,10 @@ msgstr "כתיבה"
 #: src/app/shell/header/AppHeader.tsx
 msgid "Write or read"
 msgstr "כתיבה או קריאה"
+
+#: src/state/project/referencesWeb.ts
+msgid "Write something in the note first."
+msgstr "כתבו קודם משהו בהערה."
 
 #: src/app/onboarding/Onboarding.tsx
 msgid "Write the whole book"

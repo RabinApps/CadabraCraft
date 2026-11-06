@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { kinded } from "./kinded";
 import {
   FormatError,
   addBackMatter,
@@ -70,7 +71,7 @@ describe("verticalCenter in the manifest", () => {
     const back = reopen(JSON.parse(serializeManifest(m)));
     expect(back.frontMatter.find((e) => e.kind === "dedication")!.verticalCenter).toBe(false);
     expect(back.backMatter[0]!.verticalCenter).toBe(true);
-    expect(back.formatVersion).toBe(11);
+    expect(back.formatVersion).toBe(12);
   });
 
   it("refuses a value that is not true or false", () => {
@@ -124,8 +125,8 @@ describe("migration v8 -> current", () => {
     const expected = JSON.parse(json);
     for (const e of expected.frontMatter) if (e.toc) e.toc.parts = true;
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
-      ...expected,
-      formatVersion: 11,
+      ...kinded(expected),
+      formatVersion: 12,
     });
   });
 });

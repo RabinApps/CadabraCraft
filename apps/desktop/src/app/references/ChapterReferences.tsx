@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { referencesFor } from "@cadabracraft/format";
-import { referenceKind } from "../../lib/references/referenceKinds";
+import { kindOf } from "../../lib/references/referenceKinds";
 import { attempt } from "../../state/attempt";
 import { useProject } from "../../state/project/index";
 import { SectionHeading } from "../../ui/SectionHeading";
@@ -21,7 +21,7 @@ export function ChapterReferences({ onOpen }: { onOpen: (id: string) => void }) 
       <SectionHeading id="details-references">{t`References`}</SectionHeading>
       <ul className="mb-2 flex flex-col gap-1.5">
         {linked.map((r) => {
-          const Icon = kindIcon(referenceKind(r.file));
+          const Icon = kindIcon(kindOf(r));
           return (
             <li key={r.id}>
               <button

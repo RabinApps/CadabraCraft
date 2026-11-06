@@ -160,7 +160,7 @@ export const projectValidate = defineTool({
     const files = readingOrder(manifest).flatMap((e) => Object.values(e.files).map((file) => ({ e, file })));
     for (const { e, file } of files) checkChapterFile({ root, checkedAssets, add }, e.id, file);
     for (const r of manifest.references)
-      if (!existsSync(join(root, r.file))) add("warning", "reference_missing", r.id, `${r.file} does not exist`);
+      if (r.kind === "file" && !existsSync(join(root, r.file))) add("warning", "reference_missing", r.id, `${r.file} does not exist`);
     for (const l of danglingLinks(manifest))
       add("warning", "reference_link_dangling", l.reference, `linked to ${l.chapter}, which is not in the book`);
     return report(issues);

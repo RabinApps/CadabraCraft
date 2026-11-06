@@ -259,6 +259,9 @@ fn reference_commands_work_through_the_ipc() {
     assert_eq!(raw_of(call(&w, "read_reference", json!({ "root": r, "path": "references/notes.md", "offset": 2, "length": 99 }))), b"Notes");
     assert_eq!(kind_of(call(&w, "import_reference", json!({ "root": r, "source": exe }))), "unsupported_reference");
     assert_eq!(kind_of(call(&w, "open_reference", json!({ "root": r, "path": "assets/a.png" }))), "not_reference");
+    for bad in ["javascript:alert(1)", "file:///etc/passwd", "example.org", "https://"] {
+        assert_eq!(kind_of(call(&w, "open_reference_url", json!({ "url": bad }))), "unsupported_reference", "{bad}");
+    }
     assert!(json_of(call(&w, "trash_reference", json!({ "root": r, "path": "references/notes.md" }))).as_str().unwrap().starts_with(".cadabra/trash/"));
     assert_eq!(kind_of(call(&w, "stat_reference", json!({ "root": r, "path": "references/notes.md" }))), "not_found");
 }
@@ -421,6 +424,7 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("read_reference", json!({ "root": "/r", "path": "p", "offset": 0, "length": 1 })),
         ("trash_reference", json!({ "root": "/r", "path": "p" })),
         ("open_reference", json!({ "root": "/r", "path": "p" })),
+        ("open_reference_url", json!({ "url": "https://example.org/" })),
         ("reference_stream_url", json!({ "root": "/r", "path": "p" })),
         ("read_import_source", json!({ "path": "/p" })),
         ("read_import_image", json!({ "sourceFile": "/p", "reference": "r" })),

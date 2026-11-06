@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 /**
  * The keys that move focus to the next and previous control. Playwright's WebKit on macOS follows Safari's default of
@@ -218,4 +218,14 @@ export async function clippedText(page: Page) {
     }
     return out;
   });
+}
+
+/** Opens the References panel's Add menu (the button is inside `scope`, the menu opens on the page) and chooses one of its items. */
+export async function addReference(
+  scope: Page | Locator,
+  item: "Add files" | "Add link" | "Add note",
+) {
+  const page = "page" in scope && typeof scope.page === "function" ? scope.page() : (scope as Page);
+  await scope.getByRole("button", { name: "Add", exact: true }).click();
+  await page.getByRole("menuitem", { name: item }).click();
 }

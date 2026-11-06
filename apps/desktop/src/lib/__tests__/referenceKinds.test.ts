@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Reference } from "@cadabracraft/format";
+import type { FileReference, LinkReference, NoteReference, Reference } from "@cadabracraft/format";
 import {
   NO_FILTER,
   removedReferences,
@@ -12,12 +12,15 @@ import {
   allTags,
   filterReferences,
   formatSize,
+  kindOf,
   referenceKind,
   referenceMediaType,
+  searchBodyOf,
 } from "../references/referenceKinds";
 
-const ref = (over: Partial<Reference>): Reference => ({
+const ref = (over: Partial<FileReference> = {}): Reference => ({
   id: "ref-1",
+  kind: "file",
   file: "references/a.pdf",
   title: "A",
   note: "",
@@ -42,6 +45,56 @@ describe("kinds and media types", () => {
   ])("%s is %s", (file, kind, type) => {
     expect(referenceKind(file)).toBe(kind);
     expect(referenceMediaType(file)).toBe(type);
+  });
+});
+
+const base = { title: "T", note: "", tags: [], chapters: [], addedAt: "2026-10-28T09:30:00.000Z" };
+const link = (over: Partial<LinkReference> = {}): Reference => ({
+  ...base,
+  id: "ref-l",
+  kind: "link",
+  url: "https://saltmarsh.example.org/guide",
+  ...over,
+});
+const note = (over: Partial<NoteReference> = {}): Reference => ({
+  ...base,
+  id: "ref-n",
+  kind: "note",
+  text: "The wall is older than the gate.",
+  ...over,
+});
+
+describe("links and notes among the kinds", () => {
+  it("kindOf names a file by its extension and a link or a note by itself", () => {
+    expect(kindOf(ref())).toBe("pdf");
+    expect(kindOf(ref({ file: "references/a.png" }))).toBe("image");
+    expect(kindOf(link())).toBe("link");
+    expect(kindOf(note())).toBe("note");
+  });
+  it("searchBodyOf is the file name, the address or the text", () => {
+    expect(searchBodyOf(ref())).toBe("references/a.pdf");
+    expect(searchBodyOf(link())).toBe("https://saltmarsh.example.org/guide");
+    expect(searchBodyOf(note())).toBe("The wall is older than the gate.");
+  });
+  it("filters and searches links and notes", () => {
+    const list = [ref(), link(), note()];
+    const ids = (f: Partial<typeof NO_FILTER>) =>
+      filterReferences(list, { ...NO_FILTER, ...f }).map((r) => r.id);
+    expect(ids({ kind: "link" })).toEqual(["ref-l"]);
+    expect(ids({ kind: "note" })).toEqual(["ref-n"]);
+    expect(ids({ query: "saltmarsh" })).toEqual(["ref-l"]);
+    expect(ids({ query: "older than" })).toEqual(["ref-n"]);
+    expect(ids({ query: "a.pdf" })).toEqual(["ref-1"]);
+  });
+  it("sorts by kind with links and notes after text and before other files", () => {
+    const list = [
+      note({ id: "n" }),
+      ref({ id: "o", file: "references/x.xlsx" }),
+      link({ id: "l" }),
+      ref({ id: "t", file: "references/t.txt" }),
+      ref({ id: "i", file: "references/i.png" }),
+    ];
+    expect(sortReferences(list, "kind").map((r) => r.id)).toEqual(["i", "t", "l", "n", "o"]);
   });
 });
 

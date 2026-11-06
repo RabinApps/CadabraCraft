@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { manifestOf, newProject } from "./support/helpers";
+import { addReference, manifestOf, newProject } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -43,7 +43,7 @@ async function withReferences(page: Page, files: Record<string, number[]>) {
     [Object.keys(files), files] as const,
   );
   await page.getByRole("button", { name: "References", exact: true }).first().click();
-  await page.getByRole("button", { name: "Add files" }).click();
+  await addReference(page, "Add files");
   await expect(panel(page).getByRole("list").getByRole("listitem")).toHaveCount(
     Object.keys(files).length,
   );
@@ -69,12 +69,12 @@ test.describe("reference files", () => {
     await page.evaluate(() => {
       window.__pickedRefs = ["/refs/Harbour at dusk.mp4", "/refs/notes.md", "/refs/map.png"];
     });
-    await page.getByRole("button", { name: "Add files" }).click();
+    await addReference(page, "Add files");
     await expect(row(page, "Harbour at dusk")).toBeVisible();
     await expect(row(page, "notes")).toContainText("Document");
     await expect(row(page, "map")).toContainText("Image");
     const m = await manifestOf(page);
-    expect(m.formatVersion).toBe(10);
+    expect(m.formatVersion).toBe(12);
     expect(m.references.map((r: { id: string; file: string }) => [r.id, r.file])).toEqual([
       ["ref-1", "references/Harbour-at-dusk.mp4"],
       ["ref-2", "references/notes.md"],
@@ -88,7 +88,7 @@ test.describe("reference files", () => {
   test("does nothing when the picker is cancelled", async ({ page }) => {
     await newProject(page);
     await page.getByRole("button", { name: "References", exact: true }).first().click();
-    await page.getByRole("button", { name: "Add files" }).click();
+    await addReference(page, "Add files");
     await expect(panel(page).getByText("Keep your research close")).toBeVisible();
   });
 
@@ -355,13 +355,13 @@ test.describe("reference files", () => {
       window.__pickedRefs = ["/refs/notes.md", "/refs/setup.exe"];
     });
     await page.getByRole("button", { name: "References", exact: true }).first().click();
-    await page.getByRole("button", { name: "Add files" }).click();
+    await addReference(page, "Add files");
     await expect(panel(page).getByRole("alert")).toContainText(
       "Could not add setup.exe: setup.exe is a type of file that cannot be added as a reference",
     );
     await expect(row(page, "notes")).toBeVisible();
     await page.evaluate(() => (window.__pickedRefs = ["/refs/notes.md"]));
-    await page.getByRole("button", { name: "Add files" }).click();
+    await addReference(page, "Add files");
     await expect(panel(page).getByRole("status")).toContainText("notes.md is already in this book");
     await panel(page).getByRole("button", { name: "Dismiss" }).click();
     await expect(panel(page).getByRole("status")).toHaveCount(0);
@@ -550,7 +550,7 @@ test.describe("reference files", () => {
     const box = (await drawer.boundingBox())!;
     expect(box.width).toBeLessThan(500);
     expect(box.x + box.width).toBeGreaterThan(800);
-    await expect(drawer.getByRole("button", { name: "Add files" })).toBeVisible();
+    await expect(drawer.getByRole("button", { name: "Add", exact: true })).toBeVisible();
     await drawer.getByRole("button", { name: "Close references" }).click();
     await expect(drawer).toBeHidden();
   });
@@ -563,7 +563,7 @@ test.describe("reference files", () => {
     await page.evaluate(() => (window.__pickedRefs = ["/refs/notes.md"]));
     await page.getByRole("button", { name: "References", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: "References" });
-    await sheet.getByRole("button", { name: "Add files" }).click();
+    await addReference(sheet, "Add files");
     await sheet.getByRole("button", { name: /^notes/ }).click();
     await expect(page.getByRole("dialog", { name: "notes" })).toBeVisible();
     await expect(page.getByRole("dialog", { name: "References" })).toHaveCount(0);

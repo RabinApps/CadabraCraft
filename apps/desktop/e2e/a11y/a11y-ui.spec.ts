@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "../support/coverage";
 import { fakeTauri } from "../support/fakeTauri";
-import { newProject, TAB } from "../support/helpers";
+import { addReference, newProject, TAB } from "../support/helpers";
 import { audit } from "../support/audit";
 
 test.beforeEach(async ({ page }) => {
@@ -32,7 +32,7 @@ async function withThreeReferences(page: Page) {
     ] as const,
   );
   await page.getByRole("button", { name: "References", exact: true }).first().click();
-  await page.getByRole("button", { name: "Add files" }).click();
+  await addReference(page, "Add files");
   await expect(panel(page).getByRole("listitem")).toHaveCount(3);
 }
 

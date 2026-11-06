@@ -27,7 +27,7 @@ const INSTRUCTIONS = `Tools to create, edit, import and export CadabraCraft book
 All paths are relative to the workspace root (or absolute inside it); anything outside is refused.
 Typical flow: cadabra_project_create or cadabra_import_file, then cadabra_chapter_add / cadabra_chapter_write_markdown, cadabra_project_validate, cadabra_export_epub / cadabra_export_pdf / cadabra_export_markdown / cadabra_export_outline / cadabra_export_docx / cadabra_export_rtf.
 Editions: cadabra_edition_add adds a translation (copy or empty); write it with the chapter write tools and their language argument.
-Reference files (research kept in references/, never exported): cadabra_reference_list, cadabra_reference_add (copies a workspace file in), cadabra_reference_update.
+References: files in references/, web links and text notes (never exported): cadabra_reference_list, cadabra_reference_add (copies a workspace file in, or keeps an http/https link or a text note), cadabra_reference_update.
 Contents page (generated list of chapters and headings, with overrides): cadabra_toc_get, cadabra_toc_update (add_page, set_depth, rename, hide, move, ...).
 Nothing is deleted for good: removed chapters go to .cadabra/trash/, replaced chapter text is kept in .cadabra/backups/, exports go to exports/.
 Read cadabra://docs/file-format and cadabra://docs/import for the format and the Markdown mappings. Errors are tool errors with a stable code.`;

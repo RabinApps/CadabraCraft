@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { kinded } from "./kinded";
 import {
   CURRENT_FORMAT_VERSION,
   FormatError,
@@ -109,15 +110,15 @@ describe("migration v9 -> v10", () => {
     const r = parseManifest(json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(9);
-    expect(CURRENT_FORMAT_VERSION).toBe(11);
+    expect(CURRENT_FORMAT_VERSION).toBe(12);
     expect(r.manifest.frontMatter.some((e) => e.startOnNext !== undefined)).toBe(false);
     // What v9 added is still there.
     expect(r.manifest.frontMatter.find((e) => e.kind === "dedication")!.verticalCenter).toBe(true);
     const expected = JSON.parse(json);
     for (const e of expected.frontMatter) if (e.toc) e.toc.parts = true;
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
-      ...expected,
-      formatVersion: 11,
+      ...kinded(expected),
+      formatVersion: 12,
     });
   });
 });

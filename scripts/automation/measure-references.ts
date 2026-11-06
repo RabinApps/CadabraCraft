@@ -99,7 +99,7 @@ const clickLabelled = (a: App, label: string) =>
     if (!b) throw new Error("no button: " + want + " in " + (document.querySelector('section[aria-label="References"]')?.textContent ?? "(no panel)").slice(0, 400));
     b.click(); return "clicked"; })()`);
 
-/** Imports `file` through the real "Add files" button and times it. */
+/** Imports `file` through the real Add menu's "Add files" item and times it. */
 async function importMeasured(file: string, name: string) {
   const before = manifest().references?.length ?? 0;
   const srcHash = sha256(file);
@@ -109,7 +109,14 @@ async function importMeasured(file: string, name: string) {
   const stopProbe = probe(app);
   await app.queueDialogs([file]);
   const t0 = performance.now();
-  await clickLabelled(app, "Add files");
+  // The Add button is a menu (Radix opens it on pointer down): open it, then choose Add files.
+  await app.js(
+    `document.querySelector('section[aria-label="References"] button[aria-haspopup="menu"]')?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, bubbles: true }))`,
+  );
+  await sleep(300);
+  await app.js(
+    `(() => { const i = [...document.querySelectorAll('[role=menuitem]')].find((i) => i.textContent.trim() === "Add files"); if (!i) throw new Error("no Add files item"); i.click(); return "clicked"; })()`,
+  );
   let progressSeen = false;
   let progressText = "";
   let tmpPeak = 0;

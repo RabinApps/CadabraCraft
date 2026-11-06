@@ -30,7 +30,7 @@ pub(crate) use fsio::{icloud_pending, open_error, read_regular};
 pub use layout::{backup_manifest, create_project, MANIFEST};
 pub use library::{scan_library, stat_asset, AssetStat, LibraryScan};
 pub(crate) use pages::write_file_with;
-pub use references::{import_reference, read_reference_range, reference_open_path, stat_reference, trash_reference, ImportedReference, ReferenceStat};
+pub use references::{checked_web_url, import_reference, read_reference_range, reference_open_path, stat_reference, trash_reference, ImportedReference, ReferenceStat};
 pub use media::{media_path, read_media, MediaRead};
 pub use pages::{read_file, write_file, FileRead, WriteResult};
 pub(crate) use paths::free_copy_name;

@@ -651,6 +651,10 @@ msgstr "إجراءات لـ {0}"
 msgid "Actions for {title}"
 msgstr "إجراءات لـ {title}"
 
+#: src/app/references/add/AddMenu.tsx
+msgid "Add"
+msgstr "إضافة"
+
 #: src/app/board/StructureDialog.tsx
 msgid "Add {count} scenes"
 msgstr "إضافة {count} مشاهد"
@@ -713,7 +717,7 @@ msgstr "إضافة إدخال مخصّص"
 msgid "Add entry"
 msgstr "إضافة إدخال"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/add/AddMenu.tsx
 msgid "Add files"
 msgstr "إضافة ملفات"
 
@@ -721,18 +725,25 @@ msgstr "إضافة ملفات"
 msgid "Add image"
 msgstr "إضافة صورة"
 
-#: src/app/references/ReferencesPanel.tsx
-msgid "Add images, videos, PDFs, audio and notes you want to look at while you write. They stay in the book folder."
-msgstr "أضف الصور ومقاطع الفيديو وملفات PDF والصوتيات والملاحظات التي تريد الاطلاع عليها أثناء الكتابة. تبقى في مجلد الكتاب."
+#: src/app/references/panel/PanelParts.tsx
+msgid "Add images, videos, PDFs, audio, links and notes you want to look at while you write. They stay in the book."
+msgstr "أضف الصور ومقاطع الفيديو وملفات PDF والصوت والروابط والملاحظات التي تريد الرجوع إليها أثناء الكتابة. تبقى داخل الكتاب."
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/shell/header/EditionSwitcher.tsx
 msgid "Add language"
 msgstr "إضافة لغة"
 
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/add/AddMenu.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Add link"
 msgstr "إضافة رابط"
+
+#: src/app/references/add/AddMenu.tsx
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Add note"
+msgstr "إضافة ملاحظة"
 
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Add page"
@@ -771,7 +782,7 @@ msgid "Added as the first page, with a blank page behind it, unless you turn it 
 msgstr "تُضاف كأول صفحة، وخلفها صفحة فارغة، ما لم تعطّل ذلك في نافذة التصدير. عدد الصفحات أعلاه لا يشملهما."
 
 #. placeholder {0}: importing.name
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/PanelParts.tsx
 msgid "Adding {0}"
 msgstr "جارٍ إضافة {0}"
 
@@ -779,9 +790,15 @@ msgstr "جارٍ إضافة {0}"
 msgid "Adding…"
 msgstr "جارٍ الإضافة…"
 
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/TextReferenceViews.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Address"
 msgstr "العنوان"
+
+#: src/app/references/TextReferenceViews.tsx
+msgid "Address copied."
+msgstr "تم نسخ العنوان."
 
 #: src/app/dialogs/ImportDialogs.tsx
 msgid "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file."
@@ -812,7 +829,7 @@ msgid "Alignment"
 msgstr "محاذاة"
 
 #: src/app/codex/CodexDialog.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "All"
 msgstr "الكل"
 
@@ -895,8 +912,8 @@ msgstr "اسأل كل مرة"
 msgid "at {size}"
 msgstr "عند {size}"
 
+#: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
 #: src/app/settings/Settings.tsx
 msgid "Audio"
 msgstr "الصوت"
@@ -1142,6 +1159,8 @@ msgstr "CadabraCraft محدّث."
 #: src/app/export/AudioFooter.tsx
 #: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/home/Home.tsx
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/add/AddNoteDialog.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/app/toc/AddEntryDialog.tsx
 #: src/editor/toolbar/TableCommands.tsx
@@ -1522,6 +1541,10 @@ msgstr "لوحة الأوامر"
 msgid "Command Palette…"
 msgstr "لوحة الأوامر…"
 
+#: src/app/references/ReferenceDetails.tsx
+msgid "Comment"
+msgstr "تعليق"
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "Comment on the selection"
 msgstr "التعليق على التحديد"
@@ -1586,6 +1609,10 @@ msgstr "نُسخ"
 msgid "Copy"
 msgstr "نسخ"
 
+#: src/app/references/TextReferenceViews.tsx
+msgid "Copy address"
+msgstr "نسخ العنوان"
+
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copy report"
 msgstr "نسخ التقرير"
@@ -1612,6 +1639,16 @@ msgstr "تعذّرت إضافة الصورة: {why}. اختر صورة أخرى 
 msgid "Could not add the language: {why}. Choose another language, or try again."
 msgstr "تعذّرت إضافة اللغة: {why}. اختر لغة أخرى أو حاول مرة أخرى."
 
+#. placeholder {0}: whyText(e)
+#: src/state/project/referencesWeb.ts
+msgid "Could not add the link: {0}. Try again."
+msgstr "تعذّرت إضافة الرابط: {0}. حاول مرة أخرى."
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/referencesWeb.ts
+msgid "Could not add the note: {0}. Try again."
+msgstr "تعذّرت إضافة الملاحظة: {0}. حاول مرة أخرى."
+
 #: src/app/board/StructureDialog.tsx
 msgid "Could not add the scenes: {why}. Nothing was changed."
 msgstr "تعذّرت إضافة المشاهد: {why}. لم يتغير شيء."
@@ -1635,6 +1672,10 @@ msgstr "تعذّر تحويل HTML في التحديد"
 #: src/editor/paste/pasteFlow.ts
 msgid "Could not convert the HTML, so it was pasted as text"
 msgstr "تعذّر تحويل HTML، لذلك لُصق كنص"
+
+#: src/app/references/TextReferenceViews.tsx
+msgid "Could not copy the address."
+msgstr "تعذّر نسخ العنوان."
 
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Could not delete the snapshot ({reason}). It is still in the list. Try again."
@@ -1743,6 +1784,11 @@ msgstr "تعذّرت استعادة هذه الصفحة ({reason}). لم يتغ�
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Could not restore this version ({0}). Your current text was not changed. Try again, or pick another version."
 msgstr "تعذّرت استعادة هذا الإصدار ({0}). لم يتغيّر نصك الحالي. حاول مرة أخرى، أو اختر إصدارًا آخر."
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/referencesWeb.ts
+msgid "Could not save the address: {0}. Try again."
+msgstr "تعذّر حفظ العنوان: {0}. حاول مرة أخرى."
 
 #. placeholder {0}: whyText(e)
 #: src/state/project/comments.ts
@@ -1950,7 +1996,7 @@ msgstr "التفاصيل"
 msgid "Details Panel"
 msgstr "لوحة التفاصيل"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/PanelParts.tsx
 msgid "Dismiss"
 msgstr "تجاهل"
 
@@ -1963,7 +2009,7 @@ msgstr "تجاهل الرسالة"
 msgid "Document"
 msgstr "مستند"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Documents"
 msgstr "المستندات"
 
@@ -2052,9 +2098,9 @@ msgstr "اسحب، أو اضغط على مفتاحي السهم لأعلى ول�
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
 msgstr "ترسم علامات القص خارج حافة القص وتجعل الصفحة أكبر من كل الجهات. لا يقبلها Amazon KDP."
 
-#: src/app/references/ReferencesPanel.tsx
-msgid "Drop files here to add them"
-msgstr "أفلت الملفات هنا لإضافتها"
+#: src/app/references/panel/PanelParts.tsx
+msgid "Drop files, links or text here"
+msgstr "أفلت الملفات أو الروابط أو النص هنا"
 
 #: src/app/board/StructureDialog.tsx
 msgid "Each beat becomes a scene with a title and a synopsis, ready to write. Scenes are only added after what the chapter already holds; nothing is changed or removed."
@@ -2136,6 +2182,10 @@ msgstr "هل يعجبك CadabraCraft؟"
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Enter a real date."
 msgstr "أدخل تاريخًا حقيقيًا."
+
+#: src/state/project/referencesWeb.ts
+msgid "Enter an address that starts with http:// or https://."
+msgstr "أدخل عنوانًا يبدأ بـ http:// أو https://."
 
 #: src/app/shell/native/menuModel.ts
 msgid "Enter Full Screen"
@@ -2291,11 +2341,11 @@ msgstr "نوع الملف"
 msgid "Filter by kind"
 msgstr "التصفية حسب النوع"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Filter by tag"
 msgstr "التصفية حسب الوسم"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Filter by type"
 msgstr "التصفية حسب النوع"
 
@@ -2643,7 +2693,7 @@ msgstr "تكبير الصورة"
 msgid "Image…"
 msgstr "صورة…"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Images"
 msgstr "الصور"
 
@@ -2811,9 +2861,17 @@ msgstr "يظهر رقم صفحته. اختر “لا شيء” لإدخال بل
 msgid "JavaScript libraries"
 msgstr "مكتبات JavaScript"
 
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Jot something down next to your research."
+msgstr "دوّن شيئًا بجانب أبحاثك."
+
 #: src/app/settings/AudioSection.tsx
 msgid "Keep"
 msgstr "إبقاء"
+
+#: src/app/references/add/AddLinkDialog.tsx
+msgid "Keep a web page with your research. It opens in your browser when you choose Open."
+msgstr "احتفظ بصفحة ويب مع أبحاثك. تُفتح في متصفحك عند اختيار فتح."
 
 #: src/app/settings/SettingsSections.tsx
 #: src/editor/paste/PasteDialog.tsx
@@ -2840,16 +2898,21 @@ msgstr "إبقاء التسطير والأحرف الكبيرة الصغيرة"
 msgid "Keep working"
 msgstr "متابعة العمل"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/PanelParts.tsx
 msgid "Keep your research close"
 msgstr "أبقِ أبحاثك قريبة منك"
+
+#: src/app/references/add/AddNoteDialog.tsx
+#: src/app/references/TextReferenceViews.tsx
+msgid "Kept in the book, never exported."
+msgstr "تبقى داخل الكتاب ولا تُصدَّر أبدًا."
 
 #: src/lib/useIconChoices.ts
 msgid "Key"
 msgstr "مفتاح"
 
 #: src/app/codex/CodexDialog.tsx
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Kind"
 msgstr "النوع"
 
@@ -2917,6 +2980,10 @@ msgstr "التخطيط"
 msgid "Leaf"
 msgstr "ورقة شجر"
 
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Leave empty to use the first line."
+msgstr "اتركه فارغًا لاستخدام السطر الأول."
+
 #: src/app/settings/shortcutList.ts
 msgid "Leave Focus Mode"
 msgstr "الخروج من وضع التركيز"
@@ -2962,6 +3029,7 @@ msgstr "فاصل سطر"
 msgid "Line spacing"
 msgstr "تباعد الأسطر"
 
+#: src/app/references/ReferenceRow.tsx
 #: src/editor/toolbar/useToolbarItems.ts
 msgid "Link"
 msgstr "رابط"
@@ -2989,6 +3057,10 @@ msgstr "رابط…"
 #: src/app/references/ReferenceDetails.tsx
 msgid "Linked chapters"
 msgstr "الفصول المرتبطة"
+
+#: src/app/references/panel/ReferenceFilters.tsx
+msgid "Links"
+msgstr "روابط"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Links (one per line)"
@@ -3064,7 +3136,7 @@ msgstr "جارٍ إنشاء العيّنة… (إيقاف)"
 msgid "Making the preview…"
 msgstr "جارٍ إنشاء المعاينة…"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Manual order"
 msgstr "ترتيب يدوي"
 
@@ -3299,7 +3371,7 @@ msgstr "إدخال جديد"
 msgid "New project"
 msgstr "مشروع جديد"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Newest first"
 msgstr "الأحدث أولًا"
 
@@ -3526,8 +3598,12 @@ msgid "Not translated yet in {language}: {names}. Translate them or skip them."
 msgstr "لم تُترجم بعد إلى {language}: {names}. ترجمها أو تخطَّها."
 
 #: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/references/add/AddNoteDialog.tsx
 #: src/app/references/ReferenceDetails.tsx
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/TextReferenceViews.tsx
 #: src/editor/toolbar/useToolbarItems.ts
+#: src/state/project/referencesWeb.ts
 msgid "Note"
 msgstr "ملاحظة"
 
@@ -3536,6 +3612,7 @@ msgid "Note:"
 msgstr "ملاحظة:"
 
 #: src/app/codex/CodexDialog.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Notes"
 msgstr "ملاحظات"
 
@@ -3601,7 +3678,7 @@ msgstr "إيقاف"
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr "تُزال اللقطات الأقدم، لكن كل ما يعود إلى آخر 30 يومًا يبقى."
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Oldest first"
 msgstr "الأقدم أولًا"
 
@@ -3620,6 +3697,10 @@ msgstr "واحد في كل سطر: رموز BISAC مثل FIC014000، أو كلم
 #: src/app/export/OutlinePanel.tsx
 msgid "One row per scene, for a spreadsheet."
 msgstr "صف واحد لكل مشهد، لجدول بيانات."
+
+#: src/app/references/TextReferenceViews.tsx
+msgid "Only http and https addresses. Nothing is fetched from it."
+msgstr "عناوين http وhttps فقط. لا يُجلب أي شيء منه."
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Only in the current text"
@@ -3652,6 +3733,12 @@ msgstr "فتح مجلد"
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Open Fonts"
 msgstr "فتح الخطوط"
+
+#: src/app/references/ReferenceRow.tsx
+#: src/app/references/ReferenceViewer.tsx
+#: src/app/references/TextReferenceViews.tsx
+msgid "Open in browser"
+msgstr "فتح في المتصفح"
 
 #: src/app/references/ReferenceViewer.tsx
 msgid "Open in default app"
@@ -3704,7 +3791,7 @@ msgstr "Opus"
 msgid "Order"
 msgstr "الترتيب"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/ReferenceFilters.tsx
 msgid "Other"
 msgstr "أخرى"
 
@@ -3843,8 +3930,8 @@ msgstr "هل تلصق كنص منسّق؟"
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr "تُركت الصور الملصوقة. استخدم إدراج ثم صورة لإضافة صورة إلى الكتاب."
 
+#: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
 msgid "PDF"
 msgstr "PDF"
 
@@ -4134,6 +4221,10 @@ msgstr "تظهر هنا المراجع التي تزيلها من الكتاب،
 msgid "Regex"
 msgstr "Regex"
 
+#: src/app/references/panel/PanelParts.tsx
+msgid "Release to add files, links or text"
+msgstr "أفلت لإضافة الملفات أو الروابط أو النص"
+
 #: src/app/shell/ErrorBoundary.tsx
 msgid "Reload"
 msgstr "إعادة التحميل"
@@ -4147,7 +4238,7 @@ msgid "Remove"
 msgstr "إزالة"
 
 #. placeholder {0}: deleting?.title ?? ""
-#. placeholder {0}: ref.title
+#. placeholder {0}: r.ref.title
 #: src/app/shell/sidebar/Sidebar.tsx
 #: src/state/project/references.ts
 msgid "Remove {0}"
@@ -4728,6 +4819,10 @@ msgstr "يُعرض تخطيط تقريبي لأن التخطيط الفعلي ت
 msgid "Shown beside the title in the chapter list. It is not part of the exported book."
 msgstr "تظهر بجانب العنوان في قائمة الفصول. وهي ليست جزءًا من الكتاب المُصدَّر."
 
+#: src/app/references/add/AddLinkDialog.tsx
+msgid "Shown in the list. Leave empty to use the address."
+msgstr "يظهر في القائمة. اتركه فارغًا لاستخدام العنوان."
+
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "SIL Open Font Licence 1.1"
 msgstr "ترخيص SIL Open Font 1.1"
@@ -4798,7 +4893,7 @@ msgstr "حدث خطأ ما: {why}. حاول مرة أخرى أو أعد تشغي
 msgid "Sort by"
 msgstr "ترتيب حسب"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Sort references"
 msgstr "فرز المراجع"
 
@@ -5079,6 +5174,10 @@ msgstr "لا يمكن استخدام هذا المفتاح. اضغط مفتاح�
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "That page is not in the book."
 msgstr "هذه الصفحة غير موجودة في الكتاب."
+
+#: src/state/project/referencesWeb.ts
+msgid "That text is too long for a note, so it was not added."
+msgstr "هذا النص أطول من أن يكون ملاحظة، لذا لم تتم إضافته."
 
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
@@ -5386,6 +5485,10 @@ msgstr "تأتي هذه الخطوط من Google Fonts وهي حرة الاست�
 msgid "This .docx file has no document body. It may be damaged or not a Word document. Choose another file."
 msgstr "لا يحتوي ملف ‎.docx هذا على متن مستند. قد يكون تالفًا أو ليس مستند Word. اختر ملفًا آخر."
 
+#: src/state/project/referencesWeb.ts
+msgid "This address is already in this book."
+msgstr "هذا العنوان موجود بالفعل في هذا الكتاب."
+
 #: src/state/project/editions.ts
 #: src/state/project/output/narration/pick.ts
 msgid "This book has no {language} edition."
@@ -5511,7 +5614,12 @@ msgstr "تطلب معظم الوكالات والمحررين خط Times New Rom
 msgid "Title"
 msgstr "العنوان"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/add/AddLinkDialog.tsx
+#: src/app/references/add/AddNoteDialog.tsx
+msgid "Title (optional)"
+msgstr "العنوان (اختياري)"
+
+#: src/app/references/panel/SortMenu.tsx
 msgid "Title A-Z"
 msgstr "العنوان من أ إلى ي"
 
@@ -5525,7 +5633,7 @@ msgstr "عنوان الفصل {0}"
 msgid "Title page"
 msgstr "صفحة العنوان"
 
-#: src/app/references/ReferencesPanel.tsx
+#: src/app/references/panel/SortMenu.tsx
 msgid "Title Z-A"
 msgstr "العنوان من ي إلى أ"
 
@@ -5733,6 +5841,10 @@ msgstr "استخدم {0} حرفًا على الأكثر."
 msgid "Use at most {0} subjects."
 msgstr "استخدم {0} موضوعًا على الأكثر."
 
+#: src/app/references/add/AddLinkDialog.tsx
+msgid "Use http or https. The link opens in your browser; nothing is fetched."
+msgstr "استخدم http أو https. يُفتح الرابط في متصفحك ولا يُجلب أي شيء."
+
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Use http, https or mailto."
 msgstr "استخدم http أو https أو mailto."
@@ -5758,8 +5870,8 @@ msgstr "الإصدار {0} متاح"
 msgid "Vertical position"
 msgstr "الموضع العمودي"
 
+#: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
-#: src/app/references/ReferencesPanel.tsx
 msgid "Video"
 msgstr "فيديو"
 
@@ -5891,6 +6003,10 @@ msgstr "كتابة"
 #: src/app/shell/header/AppHeader.tsx
 msgid "Write or read"
 msgstr "كتابة أو قراءة"
+
+#: src/state/project/referencesWeb.ts
+msgid "Write something in the note first."
+msgstr "اكتب شيئًا في الملاحظة أولًا."
 
 #: src/app/onboarding/Onboarding.tsx
 msgid "Write the whole book"

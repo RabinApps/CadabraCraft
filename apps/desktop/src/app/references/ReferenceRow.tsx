@@ -3,6 +3,7 @@ import {
   FileText,
   GripVertical,
   Image,
+  Link as LinkIcon,
   MoreHorizontal,
   Music,
   StickyNote,
@@ -13,7 +14,8 @@ import * as M from "@radix-ui/react-dropdown-menu";
 import { useId, type KeyboardEvent, type PointerEvent } from "react";
 import type { Reference } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
-import { referenceKind, type ReferenceKind } from "../../lib/references/referenceKinds";
+import { kindOf, type ReferenceKind } from "../../lib/references/referenceKinds";
+import { linkTitle, noteTitle } from "../../lib/references/dropped";
 import { cx } from "../../ui/cx";
 import { useGripHint } from "../../ui/GripHint";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";
@@ -23,7 +25,9 @@ const ICONS: Record<ReferenceKind, LucideIcon> = {
   video: Video,
   audio: Music,
   pdf: FileText,
-  text: StickyNote,
+  text: FileText,
+  link: LinkIcon,
+  note: StickyNote,
   other: File,
 };
 
@@ -39,6 +43,8 @@ export function useKindLabel(): (kind: ReferenceKind) => string {
       audio: t`Audio`,
       pdf: t`PDF`,
       text: t`Document`,
+      link: t`Link`,
+      note: t`Note`,
       other: t`File`,
     })[kind];
 }
@@ -56,12 +62,25 @@ interface Props {
     dragging: boolean;
   };
   onRemove: () => void;
+  /** Links only: opens the address in the browser. */
+  onOpenLink?: (url: string) => void;
 }
 
+/** What follows the kind on the second line: a link's host, a note's first line. Nothing for a file. */
+const detailOf = (r: Reference): string =>
+  r.kind === "link" ? linkTitle(r.url) : r.kind === "note" ? noteTitle(r.text, "") : "";
+
 /** One reference in the list: a type icon, the title, and the kind with its tags. Opens the viewer; its menu moves or removes it. */
-export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }: Props) {
+export function ReferenceRow({
+  reference,
+  selected,
+  onOpen,
+  reorder,
+  onRemove,
+  onOpenLink,
+}: Props) {
   const { t } = useLingui();
-  const kind = referenceKind(reference.file);
+  const kind = kindOf(reference);
   const Icon = kindIcon(kind);
   const label = useKindLabel();
   const id = useId();
@@ -118,7 +137,7 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
             {reference.title}
           </span>{" "}
           <span id={`${id}-kind`} className="block truncate text-xs text-ink-muted">
-            {[label(kind), ...reference.tags].join(" · ")}
+            {[label(kind), detailOf(reference), ...reference.tags].filter(Boolean).join(" · ")}
           </span>
         </span>
       </button>
@@ -135,6 +154,12 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
         <M.Portal>
           <M.Content align="end" className={menuContentClass("min-w-52")}>
             <M.Item className={menuItemClass()} onSelect={onOpen}>{t`Open`}</M.Item>
+            {reference.kind === "link" && onOpenLink && (
+              <M.Item
+                className={menuItemClass()}
+                onSelect={() => onOpenLink((reference as { url: string }).url)}
+              >{t`Open in browser`}</M.Item>
+            )}
             <M.Item
               className={menuItemClass()}
               disabled={!reorder || reorder.first}

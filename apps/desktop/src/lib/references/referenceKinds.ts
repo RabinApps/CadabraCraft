@@ -1,9 +1,13 @@
 import type { Reference } from "@cadabracraft/format";
 
-/** What a reference file is, which decides how it is shown (mirrors `ReferenceKind` in src-tauri/src/project/references.rs). */
-export type ReferenceKind = "image" | "video" | "audio" | "pdf" | "text" | "other";
+/**
+ * What a reference is, which decides how it is shown. The file kinds mirror `ReferenceKind` in
+ * src-tauri/src/project/references.rs; a web link and a text note are not files and have a kind of their own.
+ */
+export type FileKind = "image" | "video" | "audio" | "pdf" | "text" | "other";
+export type ReferenceKind = FileKind | "link" | "note";
 
-const BY_EXT: Record<string, ReferenceKind> = {
+const BY_EXT: Record<string, FileKind> = {
   png: "image",
   jpg: "image",
   jpeg: "image",
@@ -54,7 +58,16 @@ const extOf = (file: string): string => {
   return dot < 0 || file.indexOf("/", dot) >= 0 ? "" : file.slice(dot + 1).toLowerCase();
 };
 
-export const referenceKind = (file: string): ReferenceKind => BY_EXT[extOf(file)] ?? "other";
+/** The kind of a file from its name. */
+export const referenceKind = (file: string): FileKind => BY_EXT[extOf(file)] ?? "other";
+
+/** The kind of any reference: a file's from its name, otherwise `link` or `note`. */
+export const kindOf = (r: Reference): ReferenceKind =>
+  r.kind === "file" ? referenceKind(r.file) : r.kind;
+
+/** What a reference is searched for besides its title, note and tags: a file's name, a link's address, a note's text. */
+export const searchBodyOf = (r: Reference): string =>
+  r.kind === "file" ? r.file : r.kind === "link" ? r.url : r.text;
 
 export const referenceMediaType = (file: string): string =>
   MEDIA_TYPES[extOf(file)] ?? "application/octet-stream";
@@ -82,10 +95,12 @@ export function filterReferences(refs: Reference[], f: ReferenceFilter): Referen
   const q = f.query.trim().toLowerCase();
   return refs.filter(
     (r) =>
-      (f.kind === "all" || referenceKind(r.file) === f.kind) &&
+      (f.kind === "all" || kindOf(r) === f.kind) &&
       (f.tag === null || r.tags.includes(f.tag)) &&
       (q === "" ||
-        [r.title, r.note, r.file, ...r.tags].some((text) => text.toLowerCase().includes(q))),
+        [r.title, r.note, searchBodyOf(r), ...r.tags].some((text) =>
+          text.toLowerCase().includes(q),
+        )),
   );
 }
 
@@ -107,7 +122,16 @@ export const dropPosition = (from: number, at: number): number => (at > from ? a
 /** How the list is shown. "manual" is the saved order (the one reordering changes); the others are views and never change it. */
 export type SortKey = "manual" | "title-asc" | "title-desc" | "newest" | "oldest" | "kind";
 
-const KIND_ORDER: ReferenceKind[] = ["image", "video", "pdf", "audio", "text", "other"];
+const KIND_ORDER: ReferenceKind[] = [
+  "image",
+  "video",
+  "pdf",
+  "audio",
+  "text",
+  "link",
+  "note",
+  "other",
+];
 const byTitle = (a: Reference, b: Reference) =>
   a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: "base" });
 
@@ -119,9 +143,7 @@ export function sortReferences(list: Reference[], key: SortKey): Reference[] {
     "title-desc": (a, b) => byTitle(b, a),
     newest: (a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt),
     oldest: (a, b) => Date.parse(a.addedAt) - Date.parse(b.addedAt),
-    kind: (a, b) =>
-      KIND_ORDER.indexOf(referenceKind(a.file)) - KIND_ORDER.indexOf(referenceKind(b.file)) ||
-      byTitle(a, b),
+    kind: (a, b) => KIND_ORDER.indexOf(kindOf(a)) - KIND_ORDER.indexOf(kindOf(b)) || byTitle(a, b),
   };
   return [...list].sort(cmp[key]);
 }

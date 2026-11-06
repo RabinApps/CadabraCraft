@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { kinded } from "./kinded";
 import {
   CURRENT_FORMAT_VERSION,
   FormatError,
@@ -120,8 +121,8 @@ describe("migration v6 -> v7", () => {
     const { m } = book();
     return { ...JSON.parse(JSON.stringify(m)), formatVersion: 6 };
   };
-  it("is registered after v5 -> v6 and the current version is 9", () => {
-    expect(CURRENT_FORMAT_VERSION).toBe(11);
+  it("is registered after v5 -> v6 and the current version is 12", () => {
+    expect(CURRENT_FORMAT_VERSION).toBe(12);
     expect(MIGRATIONS.find((x) => x.from === 6)?.up).toBe(migrateV6ToV7);
   });
   it("copies the manifest without changing any key", () => {
@@ -137,7 +138,10 @@ describe("migration v6 -> v7", () => {
     const r = parseManifest(JSON.stringify(raw));
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(6);
-    expect(JSON.parse(serializeManifest(r.manifest))).toEqual({ ...raw, formatVersion: 11 });
+    expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
+      ...kinded(raw),
+      formatVersion: 12,
+    });
     expect(entryOf(r.manifest, "fm-2").toc).toBeUndefined();
   });
   it("refuses a manifest from a newer version", () => {

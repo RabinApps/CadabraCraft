@@ -19,6 +19,7 @@ import type { ManuscriptFont } from "@cadabracraft/export-docx";
 import type { AudioUiError } from "../../lib/audio/audioErrors";
 import type { FontUiError } from "../../lib/font/fontErrors";
 import type { RemovedReference } from "../../lib/references/referenceKinds";
+import type { DroppedItem } from "../../lib/references/dropped";
 import type { PreviewTarget } from "../../lib/export/previewTarget";
 
 export interface PdfExportOptions extends ExportScope {
@@ -267,16 +268,27 @@ export interface ProjectState {
 export interface ReferenceActions {
   /** Imports files into `references/` and lists them in the book. Without `paths` it asks the author to pick files. Duplicates and refused files become `referenceNotices`; nothing throws. */
   addReferences: (paths?: string[]) => Promise<void>;
-  /** Changes a reference's title, note, tags or linked pages. Failures set `notice`. */
+  /** Adds a web link; returns a message when it cannot be added (not an http or https address, or already in the book), otherwise null. */
+  addLink: (url: string, title?: string) => Promise<string | null>;
+  /** Changes a link's address; returns a message when it is not an http or https address or cannot be saved, otherwise null. */
+  updateLink: (id: string, url: string) => Promise<string | null>;
+  /** Adds a text note; returns a message when it cannot be added, otherwise null. */
+  addNote: (text: string, title?: string) => Promise<string | null>;
+  /** Adds what was dropped on the panel (links and a note); problems come back as `referenceNotices`. */
+  addDropped: (items: DroppedItem[], tooLong?: boolean) => Promise<void>;
   /** Reads the project trash for removed reference files. Failures leave the list as it was. */
   refreshRemovedReferences: () => Promise<void>;
   /** Moves a removed reference file back and lists it again, titled from its file name. Returns the error text to show, or null when it worked. */
   restoreReference: (trashPath: string) => Promise<string | null>;
   /** Puts a reference at position `to` of the list and saves. */
   moveReference: (id: string, to: number) => Promise<void>;
+  /** Changes a reference's title, note, tags or linked pages (a link's address, a note's text). Failures set `notice`. */
   updateReference: (
     id: string,
-    patch: Partial<Pick<Reference, "title" | "note" | "tags" | "chapters">>,
+    patch: Partial<Pick<Reference, "title" | "note" | "tags" | "chapters">> & {
+      url?: string;
+      text?: string;
+    },
   ) => Promise<void>;
   /** Takes a reference out of the book and moves its file to the project trash. */
   removeReference: (id: string) => Promise<void>;

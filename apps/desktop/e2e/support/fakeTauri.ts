@@ -229,6 +229,12 @@ export async function fakeTauri(page: Page) {
             if (window.__refErrors?.open) throw window.__refErrors.open;
             (window.__opened ??= []).push(`reference:${a.path}`);
             return null;
+          case "open_reference_url":
+            if (window.__refErrors?.open) throw window.__refErrors.open;
+            if (!/^https?:\/\/[^\s/]/i.test(String(a.url)))
+              throw { kind: "unsupported_reference", name: a.url };
+            (window.__opened ??= []).push(`url:${a.url}`);
+            return null;
           case "typst_list_fonts":
             if (window.__typstError) throw window.__typstError;
             return [

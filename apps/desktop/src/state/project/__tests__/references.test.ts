@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Reference } from "@cadabracraft/format";
 import { disk, trashMethods } from "../../../test/fakeBridge";
 
 const files = new Map<string, number>();
@@ -46,6 +47,7 @@ import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();
+const fileOf = (r: Reference) => (r.kind === "file" ? r.file : r.kind);
 const onDisk = () => JSON.parse(disk.get("cadabra.json")!);
 
 beforeEach(async () => {
@@ -70,7 +72,7 @@ describe("reference actions", () => {
   it("imports picked files, lists them in the manifest and saves", async () => {
     pickResult = ["/x/Map.png", "/x/notes.md"];
     await a().addReferences();
-    expect(s().manifest!.references.map((r) => [r.id, r.file, r.title])).toEqual([
+    expect(s().manifest!.references.map((r) => [r.id, fileOf(r), r.title])).toEqual([
       ["ref-1", "references/Map.png", "Map"],
       ["ref-2", "references/notes.md", "notes"],
     ]);
@@ -88,7 +90,7 @@ describe("reference actions", () => {
 
   it("takes paths from a drop without asking", async () => {
     await a().addReferences(["/dropped/a.pdf"]);
-    expect(s().manifest!.references.map((r) => r.file)).toEqual(["references/a.pdf"]);
+    expect(s().manifest!.references.map(fileOf)).toEqual(["references/a.pdf"]);
   });
 
   it("warns about a file that is already listed and keeps one entry", async () => {
@@ -102,7 +104,7 @@ describe("reference actions", () => {
 
   it("reports a refused file and still adds the others", async () => {
     await a().addReferences(["/x/bad.exe", "/x/ok.pdf"]);
-    expect(s().manifest!.references.map((r) => r.file)).toEqual(["references/ok.pdf"]);
+    expect(s().manifest!.references.map(fileOf)).toEqual(["references/ok.pdf"]);
     expect(s().referenceNotices).toHaveLength(1);
     expect(s().referenceNotices[0]).toMatchObject({ tone: "danger" });
     expect(s().referenceNotices[0]!.text).toMatch(/Could not add bad\.exe: .*cannot be added/);
@@ -251,7 +253,7 @@ describe("reference actions", () => {
       "references/old-map.png",
     ]);
     expect(await a().restoreReference(".cadabra/trash/x-references/old-map.png")).toBeNull();
-    expect(s().manifest!.references.map((r) => [r.file, r.title])).toEqual([
+    expect(s().manifest!.references.map((r) => [fileOf(r), r.title])).toEqual([
       ["references/old-map.png", "old-map"],
     ]);
     expect(s().removedReferences.map((r) => r.original)).toEqual(["references/gone.pdf"]);

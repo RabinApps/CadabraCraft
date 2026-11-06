@@ -13,7 +13,7 @@ import { validatePublishing, type Publishing } from "./publishing";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 11;
+export const CURRENT_FORMAT_VERSION = 12;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -83,19 +83,41 @@ export interface EditionEntry {
   toc?: TocSettings;
 }
 
-/** A research file kept beside the book (formatVersion 5). The file lives in `references/`. */
-export interface Reference {
+/** The kinds of reference (formatVersion 12). Before that every reference was a file. */
+export type ReferenceType = "file" | "link" | "note";
+
+interface ReferenceBase {
   id: string;
-  /** Relative `references/<name>` path. */
-  file: string;
   title: string;
+  /** The author's own comment on the reference. For a text note the note itself is `text`. */
   note: string;
   tags: string[];
   /** Ids of the chapters or matter pages this reference is linked to. */
   chapters: string[];
-  /** ISO 8601 date and time of the import. */
+  /** ISO 8601 date and time it was added. */
   addedAt: string;
 }
+
+/** A research file kept beside the book (formatVersion 5). The file lives in `references/`. */
+export interface FileReference extends ReferenceBase {
+  kind: "file";
+  /** Relative `references/<name>` path. */
+  file: string;
+}
+
+/** A web address (formatVersion 12). Only http and https; nothing is fetched. */
+export interface LinkReference extends ReferenceBase {
+  kind: "link";
+  url: string;
+}
+
+/** A piece of text kept in the manifest (formatVersion 12); no file. */
+export interface NoteReference extends ReferenceBase {
+  kind: "note";
+  text: string;
+}
+
+export type Reference = FileReference | LinkReference | NoteReference;
 
 /** Font family names the author picked; each is a family name, not a file. */
 export interface BookFonts {

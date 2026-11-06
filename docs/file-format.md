@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 11)
+# CadabraCraft project file format (formatVersion 12)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -20,7 +20,7 @@ MyBook/
 
 ```json
 {
-  "formatVersion": 11,
+  "formatVersion": 12,
   "template": "novel",
   "trimSize": "5.5x8.5",
   "dropCap": true,
@@ -94,6 +94,7 @@ MyBook/
   "references": [
     {
       "id": "ref-1",
+      "kind": "file",
       "file": "references/lighthouse-history.pdf",
       "title": "Lighthouse history",
       "note": "Dates for the keeper dispute.",
@@ -200,16 +201,17 @@ Plain TipTap/ProseMirror JSON (`{"type":"doc","content":[...]}`) using the v1 sc
 - Image node attrs: `src` (required), `alt` (text for screen readers), `title` (shown as the caption), `decorative` (optional boolean, default `false`: the image conveys nothing, so `alt` is empty on purpose and every exporter ignores `alt`; any other type is refused). `decorative` was added without a `formatVersion` bump, like other chapter additions: an older app drops it on save and the image then counts as "no alt text". EPUB export copies referenced images to `OEBPS/assets/`.
 - The app never deletes assets; unreferenced ones are simply left in the folder.
 
-## References (formatVersion 5)
+## References (formatVersion 5, links and notes in 12)
 
 Research files the author keeps next to the book to look at while writing: images, video, audio, PDFs, text and other files. They are never part of an export. The design is in [architecture.md](architecture.md), "Reference files".
 
 - Files live in `references/` (one level, no subfolders) and are always copies inside the project, never links to the original. Names contain only `A-Z a-z 0-9 _ -` and one lowercase extension. An import never overwrites: identical bytes reuse the existing file, different bytes get a `-2`, `-3`... suffix.
-- `references` is a list in the manifest, in the order the author sees it. Each item has `id` (starts with a letter, letters, digits, `-` and `_`, unique among references), `file` (`references/<name>`, unique), `title` (non-empty, free text), `note` (free text, may be empty), `tags` (list of unique non-empty strings), `chapters` (ids of chapters or matter pages the reference is linked to) and `addedAt` (ISO 8601 date and time).
+- `references` is a list in the manifest, in the order the author sees it. Each item has `id` (starts with a letter, letters, digits, `-` and `_`, unique among references), `kind` (`file`, `link` or `note`, formatVersion 12; before that every reference was a file) and one body field that matches it and no other: `file` (`references/<name>`, unique) for a file, `url` for a link, `text` for a note, `title` (non-empty, free text), `note` (free text, may be empty), `tags` (list of unique non-empty strings), `chapters` (ids of chapters or matter pages the reference is linked to) and `addedAt` (ISO 8601 date and time).
+- A `link` has a `url` that is exactly what the web would read: `http` or `https` with a host, at most 2048 characters, no spaces or control characters (any other scheme, such as `javascript:` or `file:`, is refused). Nothing is ever fetched from it, and the app opens it in the default browser only when the author clicks it. A `note` has `text` of at most 20000 characters, kept in the manifest, with no file in `references/`. For both, `title` is the name in the list and `note` stays the author's comment. A `file`, `link` or `note` that carries another kind's body field is refused.
 - A chapter id in `chapters` that no longer exists is ignored by the app and reported by `cadabra_project_validate`; the manifest still opens. Removing a chapter or matter page removes its links.
 - The app never deletes a reference file for good: removing a reference takes it out of the list and moves the file to `.cadabra/trash`. A file in `references/` that is not listed is simply left alone.
 - Allowed types and size limits are enforced when importing, by the app and by the MCP tool `cadabra_reference_add` alike (see architecture.md); the manifest does not store them. Reading a reference never changes the file.
-- Why a version bump: an older app would rewrite the manifest without `references` and silently lose the list, so version 4 apps refuse a version 5 project.
+- Why a version bump: an older app would rewrite the manifest without `references` and silently lose the list, so version 4 apps refuse a version 5 project. Version 12 bumps it again: a version 11 app would fail on a list item with no `file`.
 
 ## Writes and conflicts
 
@@ -242,6 +244,7 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 ## Versioning
 
 - Version 10 -> 11: a chapter entry may carry `kind: "part"` (see [Parts](#parts-formatversion-11)), and a contents page's `toc` may carry `parts` (default `true`). The migration changes nothing: no book has a part until the author adds one, no file moves, and existing contents pages list no parts because none exist. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 10 app refuses a version 11 project rather than dropping the divider on its next save. Contract fixture: `fixtures/contract/manifest-v10.json`.
+- Version 11 -> 12: every item in `references` gets `kind: "file"` (an existing key is kept); `link` and `note` are new kinds with `url` and `text`. Nothing else changes and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 11 app refuses a version 12 project rather than dropping or mangling the links and notes on its next save. Contract fixture: `fixtures/contract/manifest-v11.json`.
 - Version 8 -> 9: front and back matter entries may carry `verticalCenter` (see above). The migration changes nothing: no page has it until the author sets it, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 8 app refuses a version 9 project instead of dropping the per-page choice on its next save, which is why this bumps the version. Contract fixture: `fixtures/contract/manifest-v8.json`.
 - Version 7 -> 8: the manifest may carry `dropCap` and an entry may carry `icon` and (chapters only) `dropCap` (see above). The migration changes nothing: no book has them until the author sets them, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 7 app refuses a version 8 project instead of dropping the per-chapter settings and icons on its next save, which is why this bumps the version (`trimSize` and `fonts` did not: they are book-wide and cosmetic).
 - Version 6 -> 7: adds the `contents` front matter kind and the optional `toc` on a contents entry (see above). The migration changes nothing: no book has a contents page until the author adds one, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 6 app refuses a version 7 project instead of failing on the unknown kind.

@@ -85,7 +85,7 @@ test("Contents is a single-use front-matter page; selecting it shows the list in
   await expect(contents(page)).toBeVisible();
   await expect(page.locator(".ProseMirror")).toHaveCount(0);
   const m = await manifestOf(page);
-  expect(m.formatVersion).toBe(10);
+  expect(m.formatVersion).toBe(12);
   expect(m.frontMatter.map((e: { kind: string }) => e.kind)).toEqual(["contents"]);
   expect(await entryTitles(page)).toEqual(["Arrival", "Storm", "Calm"]);
   // A second one cannot be added.
@@ -331,7 +331,14 @@ test("Reset to outline asks first; cancel keeps the changes, confirm clears them
   await reset.click();
   await confirm.getByRole("button", { name: "Reset to outline" }).click();
   const toc = (await tocOf(page)).toc;
-  expect(toc).toEqual({ depth: 1, pageNumbers: false, hidden: [], titles: {}, custom: [] });
+  expect(toc).toEqual({
+    depth: 1,
+    pageNumbers: false,
+    parts: true,
+    hidden: [],
+    titles: {},
+    custom: [],
+  });
   expect(await entryTitles(page)).toEqual(["Arrival", "Arrival", "Storm", "Storm", "Calm", "Calm"]);
 });
 

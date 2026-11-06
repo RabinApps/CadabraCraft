@@ -371,5 +371,8 @@ pub fn reference_open_path(root: &Path, rel: &str) -> Result<PathBuf> {
     Ok(path)
 }
 
+mod link;
+pub use link::checked_web_url;
+
 #[cfg(test)]
 mod tests;

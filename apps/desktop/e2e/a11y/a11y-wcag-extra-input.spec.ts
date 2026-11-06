@@ -177,7 +177,8 @@ test.describe("2.5.2 pointer cancellation", () => {
       "src/app/board/SceneCard.tsx",
       "src/app/dialogs/ImportChapterList.tsx",
       "src/app/references/ReferenceRow.tsx",
-      "src/app/shell/EntryList.tsx",
+      "src/app/shell/entries/EntryRow.tsx",
+      "src/app/shell/sidebar/SidebarResizeHandle.tsx",
       "src/app/toc/TocRow.tsx",
     ]);
   });
