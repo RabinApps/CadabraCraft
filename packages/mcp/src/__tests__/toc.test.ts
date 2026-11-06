@@ -389,6 +389,17 @@ describe("cadabra_toc_update actions", () => {
     expect(on.settings).toMatchObject({ parts: true });
   });
 
+  it("keeps a part's overrides dormant, not stale, while parts are off", async () => {
+    await book();
+    const m = manifest();
+    m.chapters[0].kind = "part";
+    writeFileSync(manifestPath(), JSON.stringify(m, null, 2));
+    await update({ action: "set_parts", parts: false });
+    expect((await get()).stale).toEqual([]);
+    await update({ action: "hide", key: m.chapters[1].id });
+    expect((await get()).stale).toEqual([]);
+  });
+
   it("hides and shows items", async () => {
     await book();
     const h = await update({ action: "hide", key: "ch-3" });

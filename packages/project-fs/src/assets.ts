@@ -51,65 +51,87 @@ export function looksLike(ext: string, b: Uint8Array): boolean {
   }
 }
 
+type Size = [number, number] | null;
+
+/** Bounds-checked big/little endian readers over `b`: they answer null instead of reading past the end. */
+function headerReaders(b: Uint8Array) {
+  // v8 ignore next -- every caller checks the length before reading, so the fallback never applies
+  const u = (i: number): number => b[i] ?? 0;
+  return {
+    u,
+    be16: (i: number): number | null => (i + 2 <= b.length ? (u(i) << 8) | u(i + 1) : null),
+    le16: (i: number): number | null => (i + 2 <= b.length ? u(i) | (u(i + 1) << 8) : null),
+    be32: (i: number): number | null =>
+      i + 4 <= b.length
+        ? ((u(i) << 24) | (u(i + 1) << 16) | (u(i + 2) << 8) | u(i + 3)) >>> 0
+        : null,
+    le24: (i: number): number | null =>
+      i + 3 <= b.length ? u(i) | (u(i + 1) << 8) | (u(i + 2) << 16) : null,
+    tag: (i: number, s: string): boolean =>
+      i + s.length <= b.length && startsWith(b.subarray(i), ascii(s)),
+  };
+}
+type Readers = ReturnType<typeof headerReaders>;
+
+const pair = (w: number | null, h: number | null): Size =>
+  w === null || h === null ? null : [w, h];
+
+function jpegSize(b: Uint8Array, r: Readers): Size {
+  const { u, be16 } = r;
+  let i = 2;
+  while (i + 4 <= b.length) {
+    if (u(i) !== 0xff) return null;
+    const m = u(i + 1);
+    if (m === 0xff)
+      i += 1; // fill byte
+    else if (m === 0x01 || (m >= 0xd0 && m <= 0xd8)) i += 2;
+    else if (m === 0xd9 || m === 0xda)
+      return null; // end of image / start of scan: no frame header seen
+    else if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc)
+      return pair(be16(i + 7), be16(i + 5));
+    else {
+      i += 2 + ((u(i + 2) << 8) | u(i + 3)); // the loop guard (i + 4 <= length) keeps both bytes in range
+    }
+  }
+  return null;
+}
+
+function webpSize(b: Uint8Array, r: Readers): Size {
+  const { u, le16, le24, tag } = r;
+  if (tag(12, "VP8X")) {
+    const w = le24(24);
+    const h = le24(27);
+    return w === null || h === null ? null : [w + 1, h + 1];
+  }
+  if (tag(12, "VP8 ")) {
+    const w = le16(26);
+    const h = le16(28);
+    return w === null || h === null ? null : [w & 0x3fff, h & 0x3fff];
+  }
+  if (tag(12, "VP8L")) {
+    if (b.length < 25) return null;
+    const bits = (u(21) | (u(22) << 8) | (u(23) << 16) | (u(24) << 24)) >>> 0;
+    return [(bits & 0x3fff) + 1, ((bits >>> 14) & 0x3fff) + 1];
+  }
+  return null;
+}
+
 /**
  * Width and height from the image header (PNG, GIF, JPEG, WebP), without decoding. Null when the header is cut short,
  * unknown or the type has no pixel size (SVG). Same rules as `image_size` in the Rust layer (fixtures/contract/image-dimensions.json).
  */
 export function imageSize(ext: string, b: Uint8Array): [number, number] | null {
-  // v8 ignore next -- every caller checks the length before reading, so the fallback never applies
-  const u = (i: number): number => b[i] ?? 0;
-  const be16 = (i: number): number | null => (i + 2 <= b.length ? (u(i) << 8) | u(i + 1) : null);
-  const le16 = (i: number): number | null => (i + 2 <= b.length ? u(i) | (u(i + 1) << 8) : null);
-  const be32 = (i: number): number | null =>
-    i + 4 <= b.length ? ((u(i) << 24) | (u(i + 1) << 16) | (u(i + 2) << 8) | u(i + 3)) >>> 0 : null;
-  const le24 = (i: number): number | null =>
-    i + 3 <= b.length ? u(i) | (u(i + 1) << 8) | (u(i + 2) << 16) : null;
-  const tag = (i: number, s: string): boolean =>
-    i + s.length <= b.length && startsWith(b.subarray(i), ascii(s));
-  const pair = (w: number | null, h: number | null): [number, number] | null =>
-    w === null || h === null ? null : [w, h];
+  const r = headerReaders(b);
   switch (ext) {
     case "png":
-      return tag(12, "IHDR") ? pair(be32(16), be32(20)) : null;
+      return r.tag(12, "IHDR") ? pair(r.be32(16), r.be32(20)) : null;
     case "gif":
-      return pair(le16(6), le16(8));
+      return pair(r.le16(6), r.le16(8));
     case "jpg":
-    case "jpeg": {
-      let i = 2;
-      while (i + 4 <= b.length) {
-        if (u(i) !== 0xff) return null;
-        const m = u(i + 1);
-        if (m === 0xff)
-          i += 1; // fill byte
-        else if (m === 0x01 || (m >= 0xd0 && m <= 0xd8)) i += 2;
-        else if (m === 0xd9 || m === 0xda)
-          return null; // end of image / start of scan: no frame header seen
-        else if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc)
-          return pair(be16(i + 7), be16(i + 5));
-        else {
-          i += 2 + ((u(i + 2) << 8) | u(i + 3)); // the loop guard (i + 4 <= length) keeps both bytes in range
-        }
-      }
-      return null;
-    }
-    case "webp": {
-      if (tag(12, "VP8X")) {
-        const w = le24(24);
-        const h = le24(27);
-        return w === null || h === null ? null : [w + 1, h + 1];
-      }
-      if (tag(12, "VP8 ")) {
-        const w = le16(26);
-        const h = le16(28);
-        return w === null || h === null ? null : [w & 0x3fff, h & 0x3fff];
-      }
-      if (tag(12, "VP8L")) {
-        if (b.length < 25) return null;
-        const bits = (u(21) | (u(22) << 8) | (u(23) << 16) | (u(24) << 24)) >>> 0;
-        return [(bits & 0x3fff) + 1, ((bits >>> 14) & 0x3fff) + 1];
-      }
-      return null;
-    }
+    case "jpeg":
+      return jpegSize(b, r);
+    case "webp":
+      return webpSize(b, r);
     default:
       return null;
   }

@@ -32,6 +32,47 @@ function checkSummary(label, total, floor) {
   return failed;
 }
 
+const newRecord = () => ({
+  functions: new Map(),
+  functionLines: new Map(),
+  lines: new Map(),
+  branches: new Map(),
+});
+
+const addTo = (map, key, count) => map.set(key, (map.get(key) ?? 0) + count);
+
+// One reader per lcov line kind: it matches the line and folds it into the record.
+const lcovReaders = [
+  [
+    "FN:",
+    (record, line) => {
+      const [, at, name] = line.match(/^FN:(\d+),(.*)$/) ?? [];
+      if (name) record.functionLines.set(name, at);
+    },
+  ],
+  [
+    "FNDA:",
+    (record, line) => {
+      const [, count, name] = line.match(/^FNDA:(\d+),(.*)$/) ?? [];
+      if (name) addTo(record.functions, name, Number(count));
+    },
+  ],
+  [
+    "DA:",
+    (record, line) => {
+      const [, at, count] = line.match(/^DA:(\d+),(\d+)/) ?? [];
+      if (at) addTo(record.lines, at, Number(count));
+    },
+  ],
+  [
+    "BRDA:",
+    (record, line) => {
+      const [, at, block, branch, count] = line.match(/^BRDA:([^,]+),([^,]+),([^,]+),(.+)$/) ?? [];
+      if (at && count !== "-") addTo(record.branches, `${at},${block},${branch}`, Number(count));
+    },
+  ],
+];
+
 function parseLcov(text) {
   const records = new Map();
   for (const raw of text.split("end_of_record")) {
@@ -40,30 +81,10 @@ function parseLcov(text) {
     if (!rawSource) continue;
     const source = rawSource.replace(/^.*\/src\//, "src/");
     if (!source.startsWith("src/")) continue;
-    const record = records.get(source) ?? {
-      functions: new Map(),
-      functionLines: new Map(),
-      lines: new Map(),
-      branches: new Map(),
-    };
+    const record = records.get(source) ?? newRecord();
     for (const line of lines) {
-      if (line.startsWith("FN:")) {
-        const [, at, name] = line.match(/^FN:(\d+),(.*)$/) ?? [];
-        if (name) record.functionLines.set(name, at);
-      } else if (line.startsWith("FNDA:")) {
-        const [, count, name] = line.match(/^FNDA:(\d+),(.*)$/) ?? [];
-        if (name) record.functions.set(name, (record.functions.get(name) ?? 0) + Number(count));
-      } else if (line.startsWith("DA:")) {
-        const [, at, count] = line.match(/^DA:(\d+),(\d+)/) ?? [];
-        if (at) record.lines.set(at, (record.lines.get(at) ?? 0) + Number(count));
-      } else if (line.startsWith("BRDA:")) {
-        const [, at, block, branch, count] =
-          line.match(/^BRDA:([^,]+),([^,]+),([^,]+),(.+)$/) ?? [];
-        if (at && count !== "-") {
-          const key = `${at},${block},${branch}`;
-          record.branches.set(key, (record.branches.get(key) ?? 0) + Number(count));
-        }
-      }
+      const reader = lcovReaders.find(([prefix]) => line.startsWith(prefix));
+      if (reader) reader[1](record, line);
     }
     records.set(source, record);
   }

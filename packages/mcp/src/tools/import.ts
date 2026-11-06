@@ -78,6 +78,53 @@ function checkDestination(dest: string): void {
   if (readdirSync(dest).length > 0) throw notEmpty();
 }
 
+function readSourceChecked(sourcePath: string, outline = false): Uint8Array {
+  try {
+    return readSource(sourcePath, outline);
+  } catch (e) {
+    if (e instanceof ProjectFsError && e.code !== "not_found") throw new ToolError("source_invalid", e.message);
+    throw e;
+  }
+}
+
+function parseManuscript(sourcePath: string, bytes: Uint8Array): ImportResult {
+  const isDocx = /\.docx$/i.test(sourcePath);
+  const isHtml = /\.html?$/i.test(sourcePath);
+  const text = isDocx ? "" : decodeSourceText(bytes, fileBaseName(sourcePath));
+  try {
+    return isDocx ? importDocx(bytes) : isHtml ? importHtml(text) : importMarkdown(text);
+  } catch (e) {
+    if (e instanceof ImportError) throw new ToolError("import_failed", `${e.message} (${e.code})`, { importCode: e.code });
+    throw e;
+  }
+}
+
+/** The bytes of one image, read from the manuscript's folder; throws the last read error when no candidate path works. */
+function readImageData(sourcePath: string, ref: string): Uint8Array {
+  let last: unknown;
+  for (const candidate of imageCandidates(ref)) {
+    try {
+      return readRelativeImage(sourcePath, candidate);
+    } catch (e) {
+      last = e;
+    }
+  }
+  throw last;
+}
+
+function loadImages(assets: ImportResult["assets"], sourcePath: string, warnings: ImportWarning[]): { target: string; name: string; bytes: Uint8Array }[] {
+  const images: { target: string; name: string; bytes: Uint8Array }[] = [];
+  for (const a of assets) {
+    try {
+      const data = a.bytes ?? readImageData(sourcePath, a.sourcePath);
+      images.push({ target: a.targetPath, name: fileBaseName(a.targetPath), bytes: data });
+    } catch (e) {
+      warnings.push({ code: "image-not-imported", severity: "warning", message: `Image ${a.sourcePath} could not be imported: ${errMsg(e)}`, examples: [a.sourcePath] });
+    }
+  }
+  return images;
+}
+
 export const importFile = defineTool({
   name: "cadabra_import_file",
   title: "Import manuscript",
@@ -95,44 +142,13 @@ export const importFile = defineTool({
     checkDestination(dest);
 
     // 1. Read and parse. Nothing is created when this fails.
-    let bytes: Uint8Array;
-    try {
-      bytes = readSource(sourcePath);
-    } catch (e) {
-      if (e instanceof ProjectFsError && e.code !== "not_found") throw new ToolError("source_invalid", e.message);
-      throw e;
-    }
-    const isDocx = /\.docx$/i.test(sourcePath);
-    const isHtml = /\.html?$/i.test(sourcePath);
-    const text = isDocx ? "" : decodeSourceText(bytes, fileBaseName(sourcePath));
-    let result: ImportResult;
-    try {
-      result = isDocx ? importDocx(bytes) : isHtml ? importHtml(text) : importMarkdown(text);
-    } catch (e) {
-      if (e instanceof ImportError) throw new ToolError("import_failed", `${e.message} (${e.code})`, { importCode: e.code });
-      throw e;
-    }
+    const bytes = readSourceChecked(sourcePath);
+    const result = parseManuscript(sourcePath, bytes);
     if (result.chapters.length === 0) throw new ToolError("empty_input", "there is no text to import in this file", { warnings: groupWarnings(result.warnings) });
 
     // 2. Load images into memory (still no writes). An unreadable or refused image is a warning, not a failure.
     const warnings: ImportWarning[] = [...result.warnings];
-    const images: { target: string; name: string; bytes: Uint8Array }[] = [];
-    for (const a of result.assets) {
-      let data = a.bytes ?? null;
-      let why = "";
-      if (!data) {
-        for (const candidate of imageCandidates(a.sourcePath)) {
-          try {
-            data = readRelativeImage(sourcePath, candidate);
-            break;
-          } catch (e) {
-            why = errMsg(e);
-          }
-        }
-      }
-      if (data) images.push({ target: a.targetPath, name: fileBaseName(a.targetPath), bytes: data });
-      else warnings.push({ code: "image-not-imported", severity: "warning", message: `Image ${a.sourcePath} could not be imported: ${why}`, examples: [a.sourcePath] });
-    }
+    const images = loadImages(result.assets, sourcePath, warnings);
 
     // 3. Write. The manifest goes last with the chapter list, so an interrupted import never lists missing files.
     const written = { images: 0, chapters: 0 };
@@ -185,13 +201,7 @@ export const importOutline = defineTool({
     withLock(projectRoot(ctx, path), () => {
       const sourcePath = resolveInWorkspace(ctx.ws, source);
       // 1. Read and parse; nothing is written when this fails.
-      let bytes: Uint8Array;
-      try {
-        bytes = readSource(sourcePath, true);
-      } catch (e) {
-        if (e instanceof ProjectFsError && e.code !== "not_found") throw new ToolError("source_invalid", e.message);
-        throw e;
-      }
+      const bytes = readSourceChecked(sourcePath, true);
       // The extension passed the outline list, so it names a format (`format` overrides it).
       const kind: OutlineImportFormat = format ?? outlineFormatOfFile(sourcePath)!;
       const text = decodeSourceText(bytes, fileBaseName(sourcePath));

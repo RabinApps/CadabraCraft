@@ -3,17 +3,16 @@ import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
-export async function pdfAndDetailsSteps({
-  app,
-  out,
-  book,
-  dlg,
-  exportVia,
-  status,
-  menuState,
-  runMenu,
-  step,
-}: Context) {
+export async function pdfAndDetailsSteps(ctx: Context) {
+  await pdfAndDetailsPart1(ctx);
+  await pdfAndDetailsPart2(ctx);
+  await pdfAndDetailsPart3(ctx);
+  await pdfAndDetailsPart4(ctx);
+  await pdfAndDetailsPart5(ctx);
+}
+
+async function pdfAndDetailsPart1(ctx: Context) {
+  const { app, book, dlg, step } = ctx;
   await step("PDF export with the Modern Memoir template embeds the bundled Inter", async () => {
     await app.click("Export");
     await app.sleep(800);
@@ -45,7 +44,10 @@ export async function pdfAndDetailsSteps({
       throw e;
     }
   });
+}
 
+async function pdfAndDetailsPart2(ctx: Context) {
+  const { app, book, menuState, runMenu, step } = ctx;
   await step(
     "menu commands act on the real app: Read, New Chapter and its Undo, Book Details, Settings, Close Project, Open Recent, New Project",
     async () => {
@@ -122,7 +124,10 @@ export async function pdfAndDetailsSteps({
       return "Read/Write, New Chapter and Undo, Book Details, Settings, Close Project, Open Recent and New Project all acted on the real window";
     },
   );
+}
 
+async function pdfAndDetailsPart3(ctx: Context) {
+  const { app, book, runMenu, step } = ctx;
   await step(
     "find and replace: menu opens the bar, counts matches, replaces all; the book word count shows in the status bar",
     async () => {
@@ -220,7 +225,10 @@ export async function pdfAndDetailsSteps({
       return `Replace all changed ${before} page(s) on disk; Undo put them back`;
     },
   );
+}
 
+async function pdfAndDetailsPart4(ctx: Context) {
+  const { app, runMenu, step } = ctx;
   await step(
     "find and replace with Regex: capture groups in the replacement, an invalid pattern is refused",
     async () => {
@@ -279,7 +287,10 @@ export async function pdfAndDetailsSteps({
     );
     return "dialog shown, Convert produced strong and em nodes";
   });
+}
 
+async function pdfAndDetailsPart5(ctx: Context) {
+  const { app, out, book, exportVia, status, step } = ctx;
   await step("commands refuse a root that is not an existing project", async () => {
     const outcome = (cmd: string, args: unknown) =>
       app.js<string>(

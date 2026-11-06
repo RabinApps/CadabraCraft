@@ -3,19 +3,15 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
-export async function exportSteps({
-  app,
-  repo,
-  book,
-  png,
-  shot,
-  openMenu,
-  pickItem,
-  dlg,
-  exportVia,
-  status,
-  step,
-}: Context) {
+export async function exportSteps(ctx: Context) {
+  await exportPart1(ctx);
+  await exportPart2(ctx);
+  await exportPart3(ctx);
+  await exportPart4(ctx);
+}
+
+async function exportPart1(ctx: Context) {
+  const { app, repo, book, shot, openMenu, pickItem, exportVia, status, step } = ctx;
   await step("add a title page and a back-matter page through the Add page menu", async () => {
     await openMenu("Add page");
     await app.sleep(400);
@@ -80,7 +76,10 @@ export async function exportSteps({
     assert(o.includes("No errors or warnings detected"), o.slice(-300));
     return "EPUBCheck: 0 errors, 0 warnings";
   });
+}
 
+async function exportPart2(ctx: Context) {
+  const { app, book, exportVia, status, step } = ctx;
   await step(
     "PDF export produces a 5.5x8.5 PDF (the default template's trim) with embedded fonts",
     async () => {
@@ -167,7 +166,10 @@ export async function exportSteps({
       }
     },
   );
+}
 
+async function exportPart3(ctx: Context) {
+  const { app, book, png, shot, dlg, step } = ctx;
   await step(
     "Read mode: the whole book scrolls continuously as trim-size pages in the real webview",
     async () => {
@@ -245,7 +247,10 @@ export async function exportSteps({
       return "cover assets/pixel.png, ISBN saved";
     },
   );
+}
 
+async function exportPart4(ctx: Context) {
+  const { app, repo, book, dlg, exportVia, status, step } = ctx;
   await step(
     "EPUB export with a cover: cover page first, cover-image item, EPUBCheck clean",
     async () => {
