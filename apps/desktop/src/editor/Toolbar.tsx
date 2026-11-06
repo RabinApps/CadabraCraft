@@ -1,39 +1,24 @@
 import { useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
-import { useEditorState } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
 import {
   ALargeSmall,
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
-  Asterisk,
   Bold,
-  Code,
-  Code2,
   Heading1,
   Heading2,
   Heading3,
   Image as ImageIcon,
-  Pilcrow,
-  SquarePen,
   Italic,
-  Languages,
   Link,
   List,
   ListOrdered,
-  ListTodo,
   Quote,
-  SeparatorHorizontal,
   Redo2,
-  Strikethrough,
-  Subscript,
   Superscript,
   Underline,
   Undo2,
-  type LucideIcon,
 } from "lucide-react";
-import { normalizeLinkUrl, textAlignAt } from "@cadabracraft/editor-schema";
+import { normalizeLinkUrl } from "@cadabracraft/editor-schema";
 import { IconButton } from "../ui/Button";
 import { focusField } from "../ui/Input";
 import { useRegisterCommands } from "../state/commands";
@@ -41,57 +26,23 @@ import { attempt } from "../state/attempt";
 import { useSettings } from "../state/editorPrefs";
 import { effectiveCombo } from "../app/settings/shortcutBindings";
 import { MoreFormatting, type MoreItem } from "./MoreFormatting";
-import { AlignmentMenu, type AlignItem } from "./AlignmentMenu";
+import { AlignmentMenu } from "./AlignmentMenu";
 import { moveInToolbar } from "./toolbarKeys";
 import { TableCommands } from "./TableCommands";
 import { ImageDialog, LangDialog, LinkDialog } from "./ToolbarDialogs";
 import { useImageDialog } from "./useImageDialog";
-import { insertDefinitionList } from "./insertDefinitionList";
 import { useLangDialog } from "./useLangDialog";
+import type { ToolbarItem } from "./toolbar/types";
+import { useToolbarState } from "./toolbar/useToolbarState";
+import { useMenuOnlyItems } from "./toolbar/useMenuOnlyItems";
+import { useAlignItems } from "./toolbar/useAlignItems";
 
 const MORE = "more";
 const ALIGN = "align";
 
-interface Item {
-  id: string;
-  label: string;
-  icon: LucideIcon;
-  active?: boolean;
-  disabled?: boolean;
-  run: () => void;
-}
-
 export function Toolbar({ editor }: { editor: Editor }) {
   const { t } = useLingui();
-  // Re-render only when the toolbar-relevant state changes.
-  const s = useEditorState({
-    editor,
-    selector: ({ editor: e }) => ({
-      bold: e.isActive("bold"),
-      italic: e.isActive("italic"),
-      underline: e.isActive("underline"),
-      smallCaps: e.isActive("smallCaps"),
-      strike: e.isActive("strike"),
-      code: e.isActive("code"),
-      superscript: e.isActive("superscript"),
-      subscript: e.isActive("subscript"),
-      codeBlock: e.isActive("codeBlock"),
-      link: e.isActive("link"),
-      lang: e.isActive("lang"),
-      h1: e.isActive("heading", { level: 1 }),
-      h2: e.isActive("heading", { level: 2 }),
-      h3: e.isActive("heading", { level: 3 }),
-      quote: e.isActive("blockquote"),
-      bullets: e.isActive("bulletList"),
-      numbers: e.isActive("orderedList"),
-      taskList: e.isActive("taskList"),
-      definitionList: e.isActive("definitionList"),
-      image: e.isActive("image"),
-      align: textAlignAt(e),
-      canUndo: e.can().undo(),
-      canRedo: e.can().redo(),
-    }),
-  });
+  const s = useToolbarState(editor);
   const c = () => editor.chain().focus();
   const [linkOpen, setLinkOpen] = useState(false);
   const [href, setHref] = useState("");
@@ -124,7 +75,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
     c().extendMarkRange("link").setLink({ href: url }).run();
   };
 
-  const groups: Item[][] = [
+  const groups: ToolbarItem[][] = [
     [
       {
         id: "undo",
@@ -226,143 +177,8 @@ export function Toolbar({ editor }: { editor: Editor }) {
     ],
   ];
 
-  // Less common marks and blocks sit in the More formatting menu at the end of the bar (and in the Format and Insert menus).
-  const menuOnly: Item[] = [
-    {
-      id: "imageDetails",
-      label: t`Image details`,
-      icon: SquarePen,
-      disabled: !s.image,
-      run: editImage,
-    },
-    {
-      // Off the bar like Image details: the alignment button is the eighteenth one it could not hold (see docs/architecture.md,
-      // "Toolbar overflow menu"). It stays in the Format menu and on the palette.
-      id: "sceneBreak",
-      label: t`Scene break`,
-      icon: Asterisk,
-      run: () =>
-        c()
-          .insertContent([{ type: "sceneBreak" }, { type: "paragraph" }])
-          .run(),
-    },
-    {
-      // Prints nothing of its own: the block after it starts on a new page, so two in a row leave an empty page.
-      id: "pageBreak",
-      label: t`Page break`,
-      icon: SeparatorHorizontal,
-      run: () =>
-        c()
-          .insertContent([{ type: "pageBreak" }])
-          .run(),
-    },
-    {
-      id: "taskList",
-      label: t`Task list`,
-      icon: ListTodo,
-      active: s.taskList,
-      run: () =>
-        s.taskList
-          ? c().liftListItem("taskItem").run()
-          : c().toggleList("taskList", "taskItem").run(),
-    },
-    {
-      id: "definitionList",
-      label: t`Definition list`,
-      icon: List,
-      active: s.definitionList,
-      run: () => insertDefinitionList(editor),
-    },
-    {
-      id: "strike",
-      label: t`Strikethrough`,
-      icon: Strikethrough,
-      active: s.strike,
-      run: () => c().toggleStrike().run(),
-    },
-    {
-      id: "code",
-      label: t`Code`,
-      icon: Code,
-      active: s.code,
-      run: () => c().toggleCode().run(),
-    },
-    {
-      id: "superscript",
-      label: t`Superscript`,
-      icon: Superscript,
-      active: s.superscript,
-      run: () => c().toggleMark("superscript").run(),
-    },
-    {
-      id: "subscript",
-      label: t`Subscript`,
-      icon: Subscript,
-      active: s.subscript,
-      run: () => c().toggleMark("subscript").run(),
-    },
-    {
-      id: "lang",
-      label: t`Language of selection…`,
-      icon: Languages,
-      active: s.lang,
-      run: lang.openLang,
-    },
-    {
-      id: "clearLang",
-      label: t`Clear language`,
-      icon: Languages,
-      disabled: !s.lang,
-      run: lang.clearLang,
-    },
-    {
-      id: "codeBlock",
-      label: t`Code Block`,
-      icon: Code2,
-      active: s.codeBlock,
-      run: () => c().toggleCodeBlock().run(),
-    },
-  ];
-
-  // Text alignment: the blocks the author aligned say how (start, centre, end); the rest follow the template.
-  const alignNow: AlignItem["id"] =
-    s.align === "start"
-      ? "alignLeft"
-      : s.align === "center"
-        ? "alignCenter"
-        : s.align === "end"
-          ? "alignRight"
-          : "alignDefault";
-  const alignItems: AlignItem[] = [
-    {
-      id: "alignLeft",
-      label: t`Align to Start`,
-      icon: AlignLeft,
-      combo: null,
-      run: () => c().setTextAlign("start").run(),
-    },
-    {
-      id: "alignCenter",
-      label: t`Centre`,
-      icon: AlignCenter,
-      combo: null,
-      run: () => c().setTextAlign("center").run(),
-    },
-    {
-      id: "alignRight",
-      label: t`Align to End`,
-      icon: AlignRight,
-      combo: null,
-      run: () => c().setTextAlign("end").run(),
-    },
-    {
-      id: "alignDefault",
-      label: t`Template Default`,
-      icon: Pilcrow,
-      combo: null,
-      run: () => c().setTextAlign(null).run(),
-    },
-  ];
+  const menuOnly = useMenuOnlyItems(editor, s, c, lang, editImage);
+  const { alignNow, alignItems } = useAlignItems(s, c);
 
   // The same actions as menu commands (Insert and Format), available while the toolbar is shown. Undo and redo stay the system's.
   useRegisterCommands(

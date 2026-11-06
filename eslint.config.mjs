@@ -119,16 +119,6 @@ export default tseslint.config(
     },
   },
   {
-    // Temporary baseline: files still over the cap, being split (Phase 2 of the structure plan).
-    // Remove each entry as its file drops under 400 lines; never add one.
-    files: [
-      "apps/desktop/src/app/shell/App.tsx",
-      "apps/desktop/src/app/shell/EntryList.tsx",
-      "apps/desktop/src/editor/Toolbar.tsx",
-    ],
-    rules: { "max-lines": "off" },
-  },
-  {
     // Tests may be longer, but not unbounded (scripts/check-size.mjs also enforces 800).
     files: ["**/__tests__/**", "**/*.test.ts", "**/*.spec.ts", "**/e2e/**"],
     rules: {
