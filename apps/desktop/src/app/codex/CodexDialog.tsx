@@ -23,6 +23,206 @@ import { Field } from "../../ui/forms/Input";
 
 type Filter = "all" | CodexKind;
 
+/** The kinds of entry, each with its translated name. */
+function useKinds() {
+  const { t } = useLingui();
+  const kinds: [CodexKind, string][] = [
+    ["character", t`Character`],
+    ["place", t`Place`],
+    ["item", t`Item`],
+    ["lore", t`Lore`],
+  ];
+  const word = (kind: CodexKind) => kinds.find(([k]) => k === kind)?.[1] ?? kind;
+  return { kinds, word };
+}
+
+/** The filter chips, the entries that pass them and the New entry button. */
+function EntryList({
+  hidden,
+  filter,
+  onFilter,
+  shown,
+  selectedId,
+  onSelect,
+  onAdd,
+}: {
+  hidden: boolean;
+  filter: Filter;
+  onFilter: (filter: Filter) => void;
+  shown: CodexEntry[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  onAdd: () => void;
+}) {
+  const { t } = useLingui();
+  const { kinds, word } = useKinds();
+  return (
+    <div
+      className={cx(
+        "flex w-full flex-col gap-2 border-border p-4 md:w-72 md:shrink-0 md:border-e md:overflow-y-auto",
+        hidden ? "max-md:hidden" : "",
+      )}
+    >
+      <div role="group" aria-label={t`Filter by kind`} className="flex flex-wrap gap-1.5">
+        <Chip pressed={filter === "all"} onClick={() => onFilter("all")}>
+          {t`All`}
+        </Chip>
+        {kinds.map(([kind, label]) => (
+          <Chip key={kind} pressed={filter === kind} onClick={() => onFilter(kind)}>
+            {label}
+          </Chip>
+        ))}
+      </div>
+      {shown.length === 0 ? (
+        <p className="py-4 text-sm text-ink-muted">{t`Nothing here yet.`}</p>
+      ) : (
+        <ul aria-label={t`Codex entries`} className="m-0 flex list-none flex-col gap-0.5 p-0">
+          {shown.map((e) => (
+            <li key={e.id}>
+              <button
+                type="button"
+                aria-current={selectedId === e.id ? "true" : undefined}
+                onClick={() => onSelect(e.id)}
+                className={cx(
+                  "flex w-full flex-col rounded-md px-2 py-1.5 text-start hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent",
+                  selectedId === e.id && "bg-raised",
+                )}
+              >
+                <span className="truncate text-sm font-medium">{e.name}</span>
+                <span className="truncate text-micro text-ink-muted">
+                  {word(e.kind)}
+                  {e.summary ? ` · ${e.summary}` : ""}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Button variant="ghost" icon={Plus} className="justify-start" onClick={onAdd}>
+        {t`New entry`}
+      </Button>
+    </div>
+  );
+}
+
+/** The selected entry's fields, saved when each is left, and the scenes that name it. */
+function EntryEditor({
+  selected,
+  chapters,
+  onBack,
+  onDelete,
+  onUpdate,
+}: {
+  selected: CodexEntry;
+  chapters: ChapterScenes[];
+  onBack: () => void;
+  onDelete: () => void;
+  onUpdate: (patch: Partial<CodexEntry>) => void;
+}) {
+  const { t } = useLingui();
+  const { kinds } = useKinds();
+  const update = onUpdate;
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center gap-1 rounded-md px-1 py-1.5 text-sm font-medium text-accent focus-visible:outline-2 focus-visible:outline-accent md:hidden"
+        >
+          <ChevronLeft size={14} aria-hidden />
+          {t`Back to entries`}
+        </button>
+        <IconButton icon={Trash2} label={t`Delete ${selected.name}`} onClick={onDelete} />
+      </div>
+      <Field
+        key={`name-${selected.id}`}
+        label={t`Name`}
+        defaultValue={selected.name}
+        maxLength={MAX_CODEX_NAME}
+        onBlur={(e) => {
+          const name = e.target.value.trim();
+          if (name && name !== selected.name) update({ name });
+        }}
+      />
+      <div role="group" aria-label={t`Kind`} className="flex flex-wrap gap-1.5">
+        {kinds.map(([kind, label]) => (
+          <Chip key={kind} pressed={selected.kind === kind} onClick={() => update({ kind })}>
+            {label}
+          </Chip>
+        ))}
+      </div>
+      <Field
+        key={`summary-${selected.id}`}
+        label={t`Summary`}
+        defaultValue={selected.summary}
+        maxLength={MAX_CODEX_SUMMARY}
+        onBlur={(e) => update({ summary: e.target.value.trim() })}
+      />
+      <Field
+        key={`aliases-${selected.id}`}
+        label={t`Aliases (one per line)`}
+        defaultValue={selected.aliases.join("\n")}
+        maxLength={MAX_CODEX_ALIAS * 20}
+        onBlur={(e) =>
+          update({
+            aliases: e.target.value
+              .split("\n")
+              .map((a) => a.trim())
+              .filter(Boolean)
+              .slice(0, 50),
+          })
+        }
+      />
+      <Field
+        key={`links-${selected.id}`}
+        label={t`Links (one per line)`}
+        defaultValue={selected.links.join("\n")}
+        onBlur={(e) =>
+          update({
+            links: e.target.value
+              .split("\n")
+              .map((l) => l.trim())
+              .filter(Boolean)
+              .slice(0, 50),
+          })
+        }
+      />
+      <div className="flex flex-col gap-1.5">
+        <label
+          htmlFor={`codex-body-${selected.id}`}
+          className="text-xs font-semibold text-ink-muted"
+        >
+          {t`Notes`}
+        </label>
+        <textarea
+          id={`codex-body-${selected.id}`}
+          key={`body-${selected.id}`}
+          defaultValue={selected.body}
+          maxLength={MAX_CODEX_BODY}
+          rows={6}
+          onBlur={(e) => update({ body: e.target.value.trim() })}
+          className="min-h-28 w-full resize-y rounded-md border border-border-strong bg-surface px-3 py-2 font-book text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
+        />
+      </div>
+      <section aria-label={t`Appears in`} className="flex flex-col gap-1">
+        <h3 className="text-xs font-semibold text-ink-muted">{t`Appears in`}</h3>
+        {appearsIn(selected, chapters).length === 0 ? (
+          <p className="text-sm text-ink-muted">{t`No scene names it yet.`}</p>
+        ) : (
+          <ul className="m-0 flex list-none flex-col gap-1 p-0">
+            {appearsIn(selected, chapters).map((a) => (
+              <li key={`${a.chapterId}:${a.sceneId}`} className="text-sm">
+                {`${a.chapter} · ${a.scene || t`Untitled scene`}`}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
 /**
  * The codex: the book's people, places, things and lore. A list on the left, the selected entry's notes on the right (the
  * list alone on a phone, with a back link), and the scenes that name the entry under them.
@@ -45,13 +245,6 @@ export function CodexDialog({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [back, setBack] = useState(false);
   const selected = entries.find((e) => e.id === selectedId) ?? null;
-  const kinds: [CodexKind, string][] = [
-    ["character", t`Character`],
-    ["place", t`Place`],
-    ["item", t`Item`],
-    ["lore", t`Lore`],
-  ];
-  const word = (kind: CodexKind) => kinds.find(([k]) => k === kind)?.[1] ?? kind;
 
   useEffect(() => {
     if (open && root) void useCodex.getState().load(root);
@@ -122,166 +315,29 @@ export function CodexDialog({
             </p>
           )}
           <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-            <div
-              className={cx(
-                "flex w-full flex-col gap-2 border-border p-4 md:w-72 md:shrink-0 md:border-e md:overflow-y-auto",
-                selected && !back ? "max-md:hidden" : "",
-              )}
-            >
-              <div role="group" aria-label={t`Filter by kind`} className="flex flex-wrap gap-1.5">
-                <Chip pressed={filter === "all"} onClick={() => setFilter("all")}>
-                  {t`All`}
-                </Chip>
-                {kinds.map(([kind, label]) => (
-                  <Chip key={kind} pressed={filter === kind} onClick={() => setFilter(kind)}>
-                    {label}
-                  </Chip>
-                ))}
-              </div>
-              {shown.length === 0 ? (
-                <p className="py-4 text-sm text-ink-muted">{t`Nothing here yet.`}</p>
-              ) : (
-                <ul
-                  aria-label={t`Codex entries`}
-                  className="m-0 flex list-none flex-col gap-0.5 p-0"
-                >
-                  {shown.map((e) => (
-                    <li key={e.id}>
-                      <button
-                        type="button"
-                        aria-current={selectedId === e.id ? "true" : undefined}
-                        onClick={() => {
-                          setSelectedId(e.id);
-                          setBack(false);
-                        }}
-                        className={cx(
-                          "flex w-full flex-col rounded-md px-2 py-1.5 text-start hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent",
-                          selectedId === e.id && "bg-raised",
-                        )}
-                      >
-                        <span className="truncate text-sm font-medium">{e.name}</span>
-                        <span className="truncate text-micro text-ink-muted">
-                          {word(e.kind)}
-                          {e.summary ? ` · ${e.summary}` : ""}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <Button variant="ghost" icon={Plus} className="justify-start" onClick={add}>
-                {t`New entry`}
-              </Button>
-            </div>
+            <EntryList
+              hidden={!!selected && !back}
+              filter={filter}
+              onFilter={setFilter}
+              shown={shown}
+              selectedId={selectedId}
+              onSelect={(id) => {
+                setSelectedId(id);
+                setBack(false);
+              }}
+              onAdd={add}
+            />
             {selected ? (
-              <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
-                <div className="flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setBack(true)}
-                    className="flex items-center gap-1 rounded-md px-1 py-1.5 text-sm font-medium text-accent focus-visible:outline-2 focus-visible:outline-accent md:hidden"
-                  >
-                    <ChevronLeft size={14} aria-hidden />
-                    {t`Back to entries`}
-                  </button>
-                  <IconButton
-                    icon={Trash2}
-                    label={t`Delete ${selected.name}`}
-                    onClick={() => {
-                      save(entries.filter((e) => e.id !== selected.id));
-                      setSelectedId(null);
-                    }}
-                  />
-                </div>
-                <Field
-                  key={`name-${selected.id}`}
-                  label={t`Name`}
-                  defaultValue={selected.name}
-                  maxLength={MAX_CODEX_NAME}
-                  onBlur={(e) => {
-                    const name = e.target.value.trim();
-                    if (name && name !== selected.name) update({ name });
-                  }}
-                />
-                <div role="group" aria-label={t`Kind`} className="flex flex-wrap gap-1.5">
-                  {kinds.map(([kind, label]) => (
-                    <Chip
-                      key={kind}
-                      pressed={selected.kind === kind}
-                      onClick={() => update({ kind })}
-                    >
-                      {label}
-                    </Chip>
-                  ))}
-                </div>
-                <Field
-                  key={`summary-${selected.id}`}
-                  label={t`Summary`}
-                  defaultValue={selected.summary}
-                  maxLength={MAX_CODEX_SUMMARY}
-                  onBlur={(e) => update({ summary: e.target.value.trim() })}
-                />
-                <Field
-                  key={`aliases-${selected.id}`}
-                  label={t`Aliases (one per line)`}
-                  defaultValue={selected.aliases.join("\n")}
-                  maxLength={MAX_CODEX_ALIAS * 20}
-                  onBlur={(e) =>
-                    update({
-                      aliases: e.target.value
-                        .split("\n")
-                        .map((a) => a.trim())
-                        .filter(Boolean)
-                        .slice(0, 50),
-                    })
-                  }
-                />
-                <Field
-                  key={`links-${selected.id}`}
-                  label={t`Links (one per line)`}
-                  defaultValue={selected.links.join("\n")}
-                  onBlur={(e) =>
-                    update({
-                      links: e.target.value
-                        .split("\n")
-                        .map((l) => l.trim())
-                        .filter(Boolean)
-                        .slice(0, 50),
-                    })
-                  }
-                />
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor={`codex-body-${selected.id}`}
-                    className="text-xs font-semibold text-ink-muted"
-                  >
-                    {t`Notes`}
-                  </label>
-                  <textarea
-                    id={`codex-body-${selected.id}`}
-                    key={`body-${selected.id}`}
-                    defaultValue={selected.body}
-                    maxLength={MAX_CODEX_BODY}
-                    rows={6}
-                    onBlur={(e) => update({ body: e.target.value.trim() })}
-                    className="min-h-28 w-full resize-y rounded-md border border-border-strong bg-surface px-3 py-2 font-book text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
-                  />
-                </div>
-                <section aria-label={t`Appears in`} className="flex flex-col gap-1">
-                  <h3 className="text-xs font-semibold text-ink-muted">{t`Appears in`}</h3>
-                  {appearsIn(selected, chapters).length === 0 ? (
-                    <p className="text-sm text-ink-muted">{t`No scene names it yet.`}</p>
-                  ) : (
-                    <ul className="m-0 flex list-none flex-col gap-1 p-0">
-                      {appearsIn(selected, chapters).map((a) => (
-                        <li key={`${a.chapterId}:${a.sceneId}`} className="text-sm">
-                          {`${a.chapter} · ${a.scene || t`Untitled scene`}`}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </section>
-              </div>
+              <EntryEditor
+                selected={selected}
+                chapters={chapters}
+                onBack={() => setBack(true)}
+                onDelete={() => {
+                  save(entries.filter((e) => e.id !== selected.id));
+                  setSelectedId(null);
+                }}
+                onUpdate={update}
+              />
             ) : (
               <div className="hidden min-h-0 flex-1 flex-col items-center justify-center gap-2 p-6 text-center md:flex">
                 <p className="text-sm text-ink-muted">{t`Choose an entry, or add one.`}</p>

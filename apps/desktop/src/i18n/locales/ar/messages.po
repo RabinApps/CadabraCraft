@@ -38,8 +38,8 @@ msgstr "(تقديرية)"
 msgid "{0, plural, one {# book} other {# books}}"
 msgstr "{0, plural, zero {لا كتب} one {كتاب واحد} two {كتابان} few {# كتب} many {# كتابًا} other {# كتاب}}"
 
-#. placeholder {0}: counts.get(c.id) ?? 0
-#: src/app/shell/EntryList.tsx
+#. placeholder {0}: count ?? 0
+#: src/app/shell/entries/EntryRow.tsx
 msgid "{0, plural, one {# chapter} other {# chapters}}"
 msgstr "{0, plural, zero {لا فصول} one {فصل واحد} two {فصلان} few {# فصول} many {# فصلًا} other {# فصل}}"
 
@@ -265,7 +265,7 @@ msgstr "{0} من {1} كلمة"
 
 #. placeholder {0}: c.rows.length
 #. placeholder {1}: boardWords(c).toLocaleString()
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "{0} scenes · {1} words"
 msgstr "{0} مشاهد · {1} كلمة"
 
@@ -307,7 +307,7 @@ msgid "{0} words"
 msgstr "{0} كلمة"
 
 #. placeholder {0}: c.unsortedWords.toLocaleString()
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "{0} words sit outside every scene."
 msgstr "{0} كلمة خارج كل المشاهد."
 
@@ -478,15 +478,15 @@ msgid "{title} is already first"
 msgstr "{title} هو الأول بالفعل"
 
 #. placeholder {0}: c.title
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already first in {0}"
 msgstr "{title} هو الأول بالفعل في {0}"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already in the first chapter"
 msgstr "{title} موجود بالفعل في الفصل الأول"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already in the last chapter"
 msgstr "{title} موجود بالفعل في الفصل الأخير"
 
@@ -495,7 +495,7 @@ msgid "{title} is already last"
 msgstr "{title} هو الأخير بالفعل"
 
 #. placeholder {0}: c.title
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already last in {0}"
 msgstr "{title} هو الأخير بالفعل في {0}"
 
@@ -551,15 +551,15 @@ msgstr "{words, plural, one {كلمة واحدة في هذا الفصل} two {ك
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr "{words, plural, one {كلمة واحدة في هذه الصفحة} two {كلمتان في هذه الصفحة} few {# كلمات في هذه الصفحة} many {# كلمة في هذه الصفحة} other {# كلمة في هذه الصفحة}}"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "+H1"
 msgstr "+H1"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "+H1-H2"
 msgstr "+H1-H2"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "+H1-H3"
 msgstr "+H1-H3"
 
@@ -687,7 +687,7 @@ msgstr "إضافة وسم"
 msgid "Add bleed (0.125 in)"
 msgstr "إضافة حافة القص (0.125 بوصة)"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Add chapter"
 msgstr "إضافة فصل"
@@ -705,7 +705,7 @@ msgid "Add contents entry"
 msgstr "إضافة إدخال إلى المحتويات"
 
 #: src/app/toc/AddEntryDialog.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Add custom entry"
 msgstr "إضافة إدخال مخصّص"
 
@@ -1129,7 +1129,7 @@ msgstr "CadabraCraft مجاني ومصدره متاح، وكتابك يبقى ع
 msgid "CadabraCraft is source-available. These are its license and the licenses of the software that ships with it."
 msgstr "شيفرة CadabraCraft المصدرية متاحة للاطلاع. هنا ترخيصها وتراخيص البرامج المرفقة معها."
 
-#: src/app/hooks/useAppMenu.ts
+#: src/app/hooks/appMenuCommands.ts
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft محدّث."
 
@@ -1251,7 +1251,7 @@ msgstr "تغيير الموضع العمودي لـ {0}"
 msgid "Changes made outside the app may not be noticed. Saving still works."
 msgstr "قد لا تُلاحَظ التغييرات التي تُجرى خارج التطبيق. يظل الحفظ يعمل."
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Changes that no longer match"
 msgstr "تغييرات لم تعد مطابقة"
 
@@ -1263,8 +1263,8 @@ msgstr "الفصل"
 #. placeholder {0}: chapters.length + 1
 #. placeholder {0}: chaptersOf(manifest!).length + 1
 #. placeholder {0}: chaptersOf(manifest).length + 1
-#: src/app/hooks/useAppMenu.ts
-#: src/app/shell/App.tsx
+#: src/app/hooks/appMenuCommands.ts
+#: src/app/shell/screens/BookScreen.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Chapter {0}"
 msgstr "الفصل {0}"
@@ -1317,7 +1317,7 @@ msgstr "عنوان الفصل"
 #: src/app/shell/Details.tsx
 #: src/app/shell/Drawers.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Chapters"
 msgstr "الفصول"
 
@@ -1357,7 +1357,7 @@ msgstr "الفحوصات"
 msgid "Choose a .docx, .md, .markdown, .html, .opml or .csv file."
 msgstr "اختر ملف ‎.docx أو ‎.md أو ‎.markdown أو ‎.html أو ‎.opml أو ‎.csv."
 
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 msgid "Choose a chapter to start."
 msgstr "اختر فصلًا للبدء."
 
@@ -1546,16 +1546,17 @@ msgstr "بوصلة"
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
 #: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 #: src/app/toc/useContentsView.ts
 msgid "Contents"
 msgstr "المحتويات"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 #: src/editor/reading/ReadingContents.tsx
 msgid "Contents entries"
 msgstr "إدخالات المحتويات"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Contents view"
 msgstr "عرض المحتويات"
 
@@ -2080,7 +2081,7 @@ msgstr "إصدارات سابقة من هذه الصفحة. اختر واحدً�
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Edit"
 msgstr "تحرير"
 
@@ -2194,7 +2195,7 @@ msgstr "كل اللغات موجودة بالفعل في هذا الكتاب."
 msgid "Exact pages from Typst"
 msgstr "صفحات دقيقة من Typst"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 msgid "Exit focus mode"
 msgstr "الخروج من وضع التركيز"
 
@@ -2505,7 +2506,7 @@ msgstr "عنوان 3"
 msgid "Heading font"
 msgstr "خط العناوين"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Headings to list"
 msgstr "العناوين المراد إدراجها"
 
@@ -2531,7 +2532,7 @@ msgid "Hide CadabraCraft"
 msgstr "إخفاء CadabraCraft"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Hide chapters of {0}"
 msgstr "إخفاء فصول {0}"
 
@@ -2548,7 +2549,7 @@ msgid "Hide Others"
 msgstr "إخفاء الآخرين"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Hide scenes of {0}"
 msgstr "إخفاء مشاهد {0}"
 
@@ -2716,7 +2717,7 @@ msgstr "قيد الاستخدام"
 msgid "Include chapter {0}"
 msgstr "تضمين الفصل {0}"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Include parts"
 msgstr "تضمين الأجزاء"
 
@@ -2992,7 +2993,7 @@ msgid "Links (one per line)"
 msgstr "الروابط (واحد في كل سطر)"
 
 #: src/app/library/Library.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "List"
 msgstr "قائمة"
 
@@ -3244,7 +3245,7 @@ msgstr "تم نقل {title} لأسفل إلى الجزء {partNo} من {0}"
 msgid "Moved {title} down to position {place} of {0}"
 msgstr "تم نقل {title} لأسفل إلى الموضع {place} من {0}"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "Moved {title} to position {place} of {count} in {chapterTitle}"
 msgstr "نُقل {title} إلى الموضع {place} من {count} في {chapterTitle}"
 
@@ -3356,7 +3357,7 @@ msgstr "لا توجد كتب بعد. أضف مجلد كتب، أو ابدأ كت
 msgid "No cadabra.json in that folder"
 msgstr "لا يوجد cadabra.json في هذا المجلد"
 
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "No chapters yet"
 msgstr "لا توجد فصول بعد"
 
@@ -3441,7 +3442,7 @@ msgstr "لا نتائج"
 msgid "No scene names it yet."
 msgstr "لا يذكره أي مشهد بعد."
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "No scenes yet."
 msgstr "لا توجد مشاهد بعد."
 
@@ -3504,7 +3505,7 @@ msgstr "غير مثبّت. نزّله من تصدير الكتاب الصوتي.
 msgid "Not opened yet"
 msgstr "لم يُفتح بعد"
 
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Not translated yet"
 msgstr "لم يُترجم بعد"
 
@@ -3551,7 +3552,7 @@ msgstr "لا يُرسل شيء إلى أي مكان إلا إذا ضغطت عل�
 msgid "Nothing removed"
 msgstr "لم يُزَل شيء"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr "لا شيء لإدراجه بعد. أضف فصلًا وسيظهر هنا."
 
@@ -3770,7 +3771,7 @@ msgstr "فواصل الصفحات تقريبية: ملف PDF هو المرجع."
 msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
 msgstr "فواصل الصفحات هي نفسها في ملف PDF: تحتوي كل صفحة على النص الذي تحتوي عليه هناك. قد يختلف التفاف الأسطر داخل الصفحة قليلًا."
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Page numbers"
 msgstr "أرقام الصفحات"
 
@@ -3933,7 +3934,7 @@ msgstr "اضغط المفاتيح الجديدة لـ{action}. يلغي Esc ال
 msgid "Press the new keys…"
 msgstr "اضغط المفاتيح الجديدة…"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 #: src/app/toc/TocPreview.tsx
 msgid "Preview"
 msgstr "معاينة"
@@ -4059,7 +4060,7 @@ msgstr "زمن القراءة"
 msgid "Reading your chapters…"
 msgstr "جارٍ قراءة فصولك…"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/timeline/Timeline.tsx
 msgid "Reading…"
@@ -4139,7 +4140,7 @@ msgstr "إعادة التحميل"
 msgid "Remember my choice"
 msgstr "تذكّر اختياري"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Remove"
 msgstr "إزالة"
 
@@ -4164,7 +4165,7 @@ msgstr "إزالة {0} من الشخصيات"
 msgid "Remove {title} from the Library"
 msgstr "إزالة {title} من المكتبة"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Remove change for {label}"
 msgstr "إزالة التغيير الخاص بـ{label}"
 
@@ -4236,7 +4237,7 @@ msgstr "إعادة فتح"
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
 msgstr "إعادة ترتيب {0}"
@@ -4324,6 +4325,7 @@ msgid "Reset to default"
 msgstr "إعادة التعيين إلى الافتراضي"
 
 #: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Reset to outline"
 msgstr "إعادة التعيين إلى المخطط"
 
@@ -4539,7 +4541,7 @@ msgid "Scenes are ordered by story date. A scene without a date stays behind the
 msgstr "المشاهد مرتبة بحسب تاريخ القصة. يبقى المشهد بلا تاريخ بعد المشهد الذي يسبقه في الكتاب."
 
 #. placeholder {0}: c.title
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "Scenes in {0}"
 msgstr "مشاهد {0}"
 
@@ -4695,7 +4697,7 @@ msgid "Show chapters"
 msgstr "إظهار الفصول"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Show chapters of {0}"
 msgstr "إظهار فصول {0}"
 
@@ -4712,7 +4714,7 @@ msgid "Show margins"
 msgstr "إظهار الهوامش"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Show scenes of {0}"
 msgstr "عرض مشاهد {0}"
 
@@ -5240,7 +5242,7 @@ msgstr "لا يمكن أن يكون المعرّف فارغًا."
 msgid "The image {0} is outside the document's folder"
 msgstr "الصورة {0} خارج مجلد المستند"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
 msgstr "تتبع القائمة فصولك. أعد تسمية الإدخالات أو أخفها أو غيّر ترتيبها أو أضف إدخالات هنا؛ تستخدم عمليات التصدير ومعاينة الطباعة هذه القائمة."
 
@@ -5369,7 +5371,7 @@ msgstr "لا يوجد ما يُقرأ بصوت عالٍ، لذلك لا يوجد
 msgid "These are routine adjustments; nothing was lost."
 msgstr "هذه تعديلات روتينية؛ لم يضع شيء."
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "These changes belong to a chapter or heading that is gone or was edited. They are kept until you remove them."
 msgstr "تخص هذه التغييرات فصلًا أو عنوانًا لم يعد موجودًا أو عُدّل. تبقى إلى أن تزيلها."
 
@@ -5387,7 +5389,7 @@ msgid "This book has no {language} edition."
 msgstr "لا توجد لهذا الكتاب طبعة بلغة {language}."
 
 #: src/app/board/SceneBoard.tsx
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 #: src/lib/export/exportChecks.ts
 msgid "This book has no chapters yet."
 msgstr "لا فصول في هذا الكتاب بعد."
@@ -5669,7 +5671,7 @@ msgstr "مسار مشروع غير آمن: {0}"
 msgid "Unsaved"
 msgstr "غير محفوظ"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "Unsorted"
 msgstr "غير مصنّف"
 
@@ -5689,8 +5691,8 @@ msgstr "بلا عنوان"
 msgid "Untitled entry"
 msgstr "إدخال بلا عنوان"
 
-#: src/app/board/SceneBoard.tsx
 #: src/app/board/SceneCard.tsx
+#: src/app/board/useSceneMoves.ts
 #: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
@@ -5871,7 +5873,7 @@ msgstr "الكلمات"
 msgid "Words to write each time you open a book. 0 turns it off."
 msgstr "كلمات تكتبها في كل مرة تفتح فيها كتابًا. 0 يعطّل ذلك."
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "Wrap into a scene"
 msgstr "تغليف في مشهد"
 
@@ -5961,7 +5963,7 @@ msgstr "تعذّر حفظ آخر تغييراتك ({message}). أغلق النا
 msgid "Your last changes were saved if possible. Choose Reload to open the app again. If this keeps happening, restart CadabraCraft; your books are in their folders, and earlier versions are in History."
 msgstr "حُفظت آخر تغييراتك إن أمكن. اختر «إعادة التحميل» لفتح التطبيق من جديد. إذا استمر ذلك فأعد تشغيل CadabraCraft؛ كتبك في مجلداتها ونسخها السابقة في السجل."
 
-#: src/app/hooks/useAppMenu.ts
+#: src/app/hooks/appMenuCommands.ts
 msgid "Your package manager updates this copy of CadabraCraft."
 msgstr "يحدّث مدير الحزم لديك هذه النسخة من CadabraCraft."
 

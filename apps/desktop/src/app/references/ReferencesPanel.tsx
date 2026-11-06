@@ -21,6 +21,7 @@ import {
   insertionIndex,
   NO_FILTER,
   sortReferences,
+  type ReferenceFilter,
   type ReferenceKind,
   type SortKey,
 } from "../../lib/references/referenceKinds";
@@ -61,24 +62,9 @@ function DropLine({ below }: { below?: boolean }) {
   );
 }
 
-/** The author's reference library: search, filter by kind and tag, add files, and open one in the viewer. */
-export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
-  const { t } = useLingui();
-  const references = useProject((s) => s.manifest!.references);
-  const notices = useProject((s) => s.referenceNotices);
-  const importing = useProject((s) => s.referenceImport);
+/** Drag-to-reorder state: the row being dragged, the insertion point under the pointer, and the focus hand-off after keyboard moves. */
+function useRowDrag(references: { id: string }[]) {
   const actions = useProject((s) => s.actions);
-  const [filter, setFilter] = useState(NO_FILTER);
-  const [grid, setGrid] = useState(false);
-  useReferenceDrop();
-  const [sort, setSort] = useState<SortKey>("manual");
-  const [removedOpen, setRemovedOpen] = useState(false);
-  const removedCount = useProject((s) => s.removedReferences.length);
-  useEffect(() => {
-    void actions.refreshRemovedReferences();
-  }, [actions]);
-  const manual = sort === "manual";
-  const reorderable = canReorder(filter) && !grid && manual;
   /** The row being dragged and the insertion point (0 = before the first row) under the pointer. */
   const [drag, setDrag] = useState<{ id: string; at: number } | null>(null);
   const at = useRef(0);
@@ -124,19 +110,106 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
     at.current = index;
     setDrag({ id, at: index });
   };
-  const tags = useMemo(() => allTags(references), [references]);
-  const shown = useMemo(
-    () => sortReferences(filterReferences(references, filter), sort),
-    [references, filter, sort],
+  return { drag, list, grab, refocus };
+}
+
+const SORT_KEYS: SortKey[] = ["manual", "title-asc", "title-desc", "newest", "oldest", "kind"];
+
+function SortMenu({ sort, onChange }: { sort: SortKey; onChange: (sort: SortKey) => void }) {
+  const { t } = useLingui();
+  const labels: Record<SortKey, string> = {
+    manual: t`Manual order`,
+    "title-asc": t`Title A-Z`,
+    "title-desc": t`Title Z-A`,
+    newest: t`Newest first`,
+    oldest: t`Oldest first`,
+    kind: t`Kind`,
+  };
+  const sorts = SORT_KEYS.map((k): [SortKey, string] => [k, labels[k]]);
+  return (
+    <M.Root>
+      <M.Trigger asChild>
+        <button
+          type="button"
+          className="flex h-8 items-center gap-1.5 rounded-md border border-border-strong px-2.5 text-xs font-semibold text-ink data-[state=open]:border-accent data-[state=open]:bg-accent-soft data-[state=open]:text-accent focus-visible:outline-2 focus-visible:outline-accent"
+        >
+          <ArrowUpDown size={14} aria-hidden />
+          <span className="sr-only">{t`Sort references`} </span>
+          {sorts.find(([k]) => k === sort)![1]}
+          <ChevronDown size={14} aria-hidden />
+        </button>
+      </M.Trigger>
+      <M.Portal>
+        <M.Content align="start" className={menuContentClass("min-w-52")}>
+          <M.RadioGroup value={sort} onValueChange={(v) => onChange(v as SortKey)}>
+            {sorts.map(([key, text]) => (
+              <Fragment key={key}>
+                {key === "title-asc" && <M.Separator className="my-1 h-px bg-border" />}
+                <M.RadioItem value={key} className={menuItemClass()}>
+                  <span className="flex size-3.5 items-center justify-center text-accent">
+                    <M.ItemIndicator>
+                      <Check size={14} aria-hidden />
+                    </M.ItemIndicator>
+                  </span>
+                  <span className={key === sort ? "font-semibold" : ""}>{text}</span>
+                </M.RadioItem>
+              </Fragment>
+            ))}
+          </M.RadioGroup>
+        </M.Content>
+      </M.Portal>
+    </M.Root>
   );
-  const sorts: [SortKey, string][] = [
-    ["manual", t`Manual order`],
-    ["title-asc", t`Title A-Z`],
-    ["title-desc", t`Title Z-A`],
-    ["newest", t`Newest first`],
-    ["oldest", t`Oldest first`],
-    ["kind", t`Kind`],
-  ];
+}
+
+type Importing = NonNullable<ReturnType<typeof useProject.getState>["referenceImport"]>;
+
+function ImportProgress({ importing }: { importing: Importing }) {
+  const { t } = useLingui();
+  return (
+    <div
+      className="flex flex-col gap-2 rounded-md border border-border bg-surface p-3"
+      role="status"
+    >
+      <div className="flex justify-between gap-2 text-sm font-semibold">
+        <span className="min-w-0 truncate">{importing.name}</span>
+        <span className="text-xs text-ink-muted">{`${importing.index} / ${importing.total}`}</span>
+      </div>
+      <ProgressBar
+        label={t`Adding ${importing.name}`}
+        value={importing.index - 1}
+        max={importing.total}
+        className="h-2 bg-border"
+      />
+    </div>
+  );
+}
+
+function EmptyReferences() {
+  const { t } = useLingui();
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 px-2 text-center">
+      <span className="flex size-14 items-center justify-center rounded-full bg-accent-soft text-accent">
+        <Upload size={26} aria-hidden />
+      </span>
+      <h3 className="text-lead font-semibold">{t`Keep your research close`}</h3>
+      <p className="max-w-60 text-sm text-ink-muted">
+        {t`Add images, videos, PDFs, audio and notes you want to look at while you write. They stay in the book folder.`}
+      </p>
+    </div>
+  );
+}
+
+function Filters({
+  filter,
+  onChange,
+  tags,
+}: {
+  filter: ReferenceFilter;
+  onChange: (filter: ReferenceFilter) => void;
+  tags: string[];
+}) {
+  const { t } = useLingui();
   const kinds: [ReferenceKind | "all", string][] = [
     ["all", t`All`],
     ["image", t`Images`],
@@ -146,6 +219,78 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
     ["text", t`Documents`],
     ["other", t`Other`],
   ];
+  return (
+    <>
+      <div role="group" aria-label={t`Filter by type`} className="flex flex-wrap gap-1.5">
+        {kinds.map(([kind, label]) => (
+          <Chip
+            key={kind}
+            pressed={filter.kind === kind}
+            onClick={() => onChange({ ...filter, kind })}
+          >
+            {label}
+          </Chip>
+        ))}
+      </div>
+      {tags.length > 0 && (
+        <div role="group" aria-label={t`Filter by tag`} className="flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <Chip
+              key={tag}
+              pressed={filter.tag === tag}
+              onClick={() => onChange({ ...filter, tag: filter.tag === tag ? null : tag })}
+            >
+              {`#${tag}`}
+            </Chip>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+type RefNotices = ReturnType<typeof useProject.getState>["referenceNotices"];
+
+function Notices({ notices }: { notices: RefNotices }) {
+  const { t } = useLingui();
+  const actions = useProject((s) => s.actions);
+  if (notices.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-2">
+      {notices.map((n, i) => (
+        <Notice key={i} tone={n.tone} role={n.tone === "danger" ? "alert" : "status"}>
+          {n.text}
+        </Notice>
+      ))}
+      <Button size="sm" icon={X} onClick={actions.dismissReferenceNotices}>{t`Dismiss`}</Button>
+    </div>
+  );
+}
+
+/** The author's reference library: search, filter by kind and tag, add files, and open one in the viewer. */
+export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
+  const { t } = useLingui();
+  const references = useProject((s) => s.manifest!.references);
+  const notices = useProject((s) => s.referenceNotices);
+  const importing = useProject((s) => s.referenceImport);
+  const actions = useProject((s) => s.actions);
+  const [filter, setFilter] = useState(NO_FILTER);
+  const [grid, setGrid] = useState(false);
+  useReferenceDrop();
+  const [sort, setSort] = useState<SortKey>("manual");
+  const [removedOpen, setRemovedOpen] = useState(false);
+  const removedCount = useProject((s) => s.removedReferences.length);
+  useEffect(() => {
+    void actions.refreshRemovedReferences();
+  }, [actions]);
+  const manual = sort === "manual";
+  const reorderable = canReorder(filter) && !grid && manual;
+  const { drag, list, grab, refocus } = useRowDrag(references);
+  const tags = useMemo(() => allTags(references), [references]);
+  const shown = useMemo(
+    () => sortReferences(filterReferences(references, filter), sort),
+    [references, filter, sort],
+  );
   const add = () => attempt(actions.addReferences());
   return (
     <section aria-label={t`References`} className="flex h-full min-h-0 flex-col gap-3 p-4">
@@ -174,38 +319,7 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
         />
       </div>
       <div className="flex items-center justify-between gap-2">
-        <M.Root>
-          <M.Trigger asChild>
-            <button
-              type="button"
-              className="flex h-8 items-center gap-1.5 rounded-md border border-border-strong px-2.5 text-xs font-semibold text-ink data-[state=open]:border-accent data-[state=open]:bg-accent-soft data-[state=open]:text-accent focus-visible:outline-2 focus-visible:outline-accent"
-            >
-              <ArrowUpDown size={14} aria-hidden />
-              <span className="sr-only">{t`Sort references`} </span>
-              {sorts.find(([k]) => k === sort)![1]}
-              <ChevronDown size={14} aria-hidden />
-            </button>
-          </M.Trigger>
-          <M.Portal>
-            <M.Content align="start" className={menuContentClass("min-w-52")}>
-              <M.RadioGroup value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-                {sorts.map(([key, text]) => (
-                  <Fragment key={key}>
-                    {key === "title-asc" && <M.Separator className="my-1 h-px bg-border" />}
-                    <M.RadioItem value={key} className={menuItemClass()}>
-                      <span className="flex size-3.5 items-center justify-center text-accent">
-                        <M.ItemIndicator>
-                          <Check size={14} aria-hidden />
-                        </M.ItemIndicator>
-                      </span>
-                      <span className={key === sort ? "font-semibold" : ""}>{text}</span>
-                    </M.RadioItem>
-                  </Fragment>
-                ))}
-              </M.RadioGroup>
-            </M.Content>
-          </M.Portal>
-        </M.Root>
+        <SortMenu sort={sort} onChange={setSort} />
         <span className="text-xs text-ink-muted">
           {plural(shown.length, { one: "# reference", other: "# references" })}
         </span>
@@ -216,68 +330,12 @@ export function ReferencesPanel({ openId, onOpen, onClose }: Props) {
           {manual ? t`Clear search and filters to reorder` : t`Switch to Manual order to reorder`}
         </p>
       )}
-      <div role="group" aria-label={t`Filter by type`} className="flex flex-wrap gap-1.5">
-        {kinds.map(([kind, label]) => (
-          <Chip
-            key={kind}
-            pressed={filter.kind === kind}
-            onClick={() => setFilter({ ...filter, kind })}
-          >
-            {label}
-          </Chip>
-        ))}
-      </div>
-      {tags.length > 0 && (
-        <div role="group" aria-label={t`Filter by tag`} className="flex flex-wrap gap-1.5">
-          {tags.map((tag) => (
-            <Chip
-              key={tag}
-              pressed={filter.tag === tag}
-              onClick={() => setFilter({ ...filter, tag: filter.tag === tag ? null : tag })}
-            >
-              {`#${tag}`}
-            </Chip>
-          ))}
-        </div>
-      )}
-      {importing && (
-        <div
-          className="flex flex-col gap-2 rounded-md border border-border bg-surface p-3"
-          role="status"
-        >
-          <div className="flex justify-between gap-2 text-sm font-semibold">
-            <span className="min-w-0 truncate">{importing.name}</span>
-            <span className="text-xs text-ink-muted">{`${importing.index} / ${importing.total}`}</span>
-          </div>
-          <ProgressBar
-            label={t`Adding ${importing.name}`}
-            value={importing.index - 1}
-            max={importing.total}
-            className="h-2 bg-border"
-          />
-        </div>
-      )}
-      {notices.length > 0 && (
-        <div className="flex flex-col gap-2">
-          {notices.map((n, i) => (
-            <Notice key={i} tone={n.tone} role={n.tone === "danger" ? "alert" : "status"}>
-              {n.text}
-            </Notice>
-          ))}
-          <Button size="sm" icon={X} onClick={actions.dismissReferenceNotices}>{t`Dismiss`}</Button>
-        </div>
-      )}
+      <Filters filter={filter} onChange={setFilter} tags={tags} />
+      {importing && <ImportProgress importing={importing} />}
+      <Notices notices={notices} />
       <div className="min-h-0 flex-1 overflow-y-auto">
         {references.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-3 px-2 text-center">
-            <span className="flex size-14 items-center justify-center rounded-full bg-accent-soft text-accent">
-              <Upload size={26} aria-hidden />
-            </span>
-            <h3 className="text-lead font-semibold">{t`Keep your research close`}</h3>
-            <p className="max-w-60 text-sm text-ink-muted">
-              {t`Add images, videos, PDFs, audio and notes you want to look at while you write. They stay in the book folder.`}
-            </p>
-          </div>
+          <EmptyReferences />
         ) : shown.length === 0 ? (
           <p className="py-6 text-center text-sm text-ink-muted">{t`No references match.`}</p>
         ) : (

@@ -38,8 +38,8 @@ msgstr "(estimada)"
 msgid "{0, plural, one {# book} other {# books}}"
 msgstr "{0, plural, one {# libro} other {# libros}}"
 
-#. placeholder {0}: counts.get(c.id) ?? 0
-#: src/app/shell/EntryList.tsx
+#. placeholder {0}: count ?? 0
+#: src/app/shell/entries/EntryRow.tsx
 msgid "{0, plural, one {# chapter} other {# chapters}}"
 msgstr "{0, plural, one {# capítulo} other {# capítulos}}"
 
@@ -265,7 +265,7 @@ msgstr "{0} de {1} palabras"
 
 #. placeholder {0}: c.rows.length
 #. placeholder {1}: boardWords(c).toLocaleString()
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "{0} scenes · {1} words"
 msgstr "{0} escenas · {1} palabras"
 
@@ -307,7 +307,7 @@ msgid "{0} words"
 msgstr "{0} palabras"
 
 #. placeholder {0}: c.unsortedWords.toLocaleString()
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "{0} words sit outside every scene."
 msgstr "{0} palabras quedan fuera de todas las escenas."
 
@@ -478,15 +478,15 @@ msgid "{title} is already first"
 msgstr "{title} ya es el primero"
 
 #. placeholder {0}: c.title
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already first in {0}"
 msgstr "{title} ya es la primera en {0}"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already in the first chapter"
 msgstr "{title} ya está en el primer capítulo"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already in the last chapter"
 msgstr "{title} ya está en el último capítulo"
 
@@ -495,7 +495,7 @@ msgid "{title} is already last"
 msgstr "{title} ya es el último"
 
 #. placeholder {0}: c.title
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "{title} is already last in {0}"
 msgstr "{title} ya es la última en {0}"
 
@@ -551,15 +551,15 @@ msgstr "{words, plural, one {# palabra en este capítulo} other {# palabras en e
 msgid "{words, plural, one {# word on this page} other {# words on this page}}"
 msgstr "{words, plural, one {# palabra en esta página} other {# palabras en esta página}}"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "+H1"
 msgstr "+H1"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "+H1-H2"
 msgstr "+H1-H2"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "+H1-H3"
 msgstr "+H1-H3"
 
@@ -687,7 +687,7 @@ msgstr "Añadir una etiqueta"
 msgid "Add bleed (0.125 in)"
 msgstr "Añadir sangrado (0,125 in)"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Add chapter"
 msgstr "Añadir capítulo"
@@ -705,7 +705,7 @@ msgid "Add contents entry"
 msgstr "Añadir entrada del contenido"
 
 #: src/app/toc/AddEntryDialog.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Add custom entry"
 msgstr "Añadir entrada personalizada"
 
@@ -1129,7 +1129,7 @@ msgstr "CadabraCraft es gratuito y de código disponible, y tu libro se queda en
 msgid "CadabraCraft is source-available. These are its license and the licenses of the software that ships with it."
 msgstr "CadabraCraft es de código disponible. Esta es su licencia y las licencias del software que se incluye con ella."
 
-#: src/app/hooks/useAppMenu.ts
+#: src/app/hooks/appMenuCommands.ts
 msgid "CadabraCraft is up to date."
 msgstr "CadabraCraft está actualizado."
 
@@ -1251,7 +1251,7 @@ msgstr "Cambiar la posición vertical de {0}"
 msgid "Changes made outside the app may not be noticed. Saving still works."
 msgstr "Puede que no se detecten los cambios hechos fuera de la aplicación. Guardar sigue funcionando."
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Changes that no longer match"
 msgstr "Cambios que ya no coinciden"
 
@@ -1263,8 +1263,8 @@ msgstr "Capítulo"
 #. placeholder {0}: chapters.length + 1
 #. placeholder {0}: chaptersOf(manifest!).length + 1
 #. placeholder {0}: chaptersOf(manifest).length + 1
-#: src/app/hooks/useAppMenu.ts
-#: src/app/shell/App.tsx
+#: src/app/hooks/appMenuCommands.ts
+#: src/app/shell/screens/BookScreen.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Chapter {0}"
 msgstr "Capítulo {0}"
@@ -1317,7 +1317,7 @@ msgstr "Título del capítulo"
 #: src/app/shell/Details.tsx
 #: src/app/shell/Drawers.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Chapters"
 msgstr "Capítulos"
 
@@ -1357,7 +1357,7 @@ msgstr "Comprobaciones"
 msgid "Choose a .docx, .md, .markdown, .html, .opml or .csv file."
 msgstr "Elige un archivo .docx, .md, .markdown, .html, .opml o .csv."
 
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 msgid "Choose a chapter to start."
 msgstr "Elige un capítulo para empezar."
 
@@ -1546,16 +1546,17 @@ msgstr "Brújula"
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
 #: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 #: src/app/toc/useContentsView.ts
 msgid "Contents"
 msgstr "Contenido"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 #: src/editor/reading/ReadingContents.tsx
 msgid "Contents entries"
 msgstr "Entradas del contenido"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Contents view"
 msgstr "Vista del contenido"
 
@@ -2080,7 +2081,7 @@ msgstr "Versiones anteriores de esta página. Elige una para compararla con el t
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Edit"
 msgstr "Edición"
 
@@ -2194,7 +2195,7 @@ msgstr "Todos los idiomas ya están en este libro."
 msgid "Exact pages from Typst"
 msgstr "Páginas exactas de Typst"
 
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 msgid "Exit focus mode"
 msgstr "Salir del modo de concentración"
 
@@ -2505,7 +2506,7 @@ msgstr "Título 3"
 msgid "Heading font"
 msgstr "Fuente de los títulos"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Headings to list"
 msgstr "Títulos que incluir"
 
@@ -2531,7 +2532,7 @@ msgid "Hide CadabraCraft"
 msgstr "Ocultar CadabraCraft"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Hide chapters of {0}"
 msgstr "Ocultar capítulos de {0}"
 
@@ -2548,7 +2549,7 @@ msgid "Hide Others"
 msgstr "Ocultar otros"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Hide scenes of {0}"
 msgstr "Ocultar las escenas de {0}"
 
@@ -2716,7 +2717,7 @@ msgstr "En uso"
 msgid "Include chapter {0}"
 msgstr "Incluir el capítulo {0}"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Include parts"
 msgstr "Incluir partes"
 
@@ -2992,7 +2993,7 @@ msgid "Links (one per line)"
 msgstr "Enlaces (uno por línea)"
 
 #: src/app/library/Library.tsx
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "List"
 msgstr "Incluir"
 
@@ -3244,7 +3245,7 @@ msgstr "{title} se movió abajo a la parte {partNo} de {0}"
 msgid "Moved {title} down to position {place} of {0}"
 msgstr "{title} movido hacia abajo a la posición {place} de {0}"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/useSceneMoves.ts
 msgid "Moved {title} to position {place} of {count} in {chapterTitle}"
 msgstr "{title} movida a la posición {place} de {count} en {chapterTitle}"
 
@@ -3356,7 +3357,7 @@ msgstr "Aún no hay libros. Añade una carpeta de libros o empieza uno nuevo des
 msgid "No cadabra.json in that folder"
 msgstr "No hay cadabra.json en esa carpeta"
 
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "No chapters yet"
 msgstr "Aún no hay capítulos"
 
@@ -3441,7 +3442,7 @@ msgstr "Sin resultados"
 msgid "No scene names it yet."
 msgstr "Ninguna escena lo menciona todavía."
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "No scenes yet."
 msgstr "Todavía no hay escenas."
 
@@ -3504,7 +3505,7 @@ msgstr "No instalada. Descárgala desde la exportación de audiolibro."
 msgid "Not opened yet"
 msgstr "Aún sin abrir"
 
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Not translated yet"
 msgstr "Sin traducir todavía"
 
@@ -3551,7 +3552,7 @@ msgstr "No se envía nada a ninguna parte a menos que pulses Patrocinar, que abr
 msgid "Nothing removed"
 msgstr "Nada eliminado"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr "Todavía no hay nada que incluir. Añade un capítulo y aparecerá aquí."
 
@@ -3770,7 +3771,7 @@ msgstr "Los saltos de página son aproximados: el PDF es la referencia."
 msgid "Page breaks are the PDF's: each page holds the text it holds there. Line wrapping inside a page can differ a little."
 msgstr "Los saltos de página son los del PDF: cada página contiene el texto que contiene allí. El ajuste de líneas dentro de una página puede variar un poco."
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Page numbers"
 msgstr "Números de página"
 
@@ -3933,7 +3934,7 @@ msgstr "Pulsa las teclas nuevas para {action}. Esc cancela."
 msgid "Press the new keys…"
 msgstr "Pulsa las teclas nuevas…"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 #: src/app/toc/TocPreview.tsx
 msgid "Preview"
 msgstr "Vista previa"
@@ -4059,7 +4060,7 @@ msgstr "Tiempo de lectura"
 msgid "Reading your chapters…"
 msgstr "Leyendo tus capítulos…"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 #: src/app/dialogs/ImportDialogs.tsx
 #: src/app/timeline/Timeline.tsx
 msgid "Reading…"
@@ -4139,7 +4140,7 @@ msgstr "Recargar"
 msgid "Remember my choice"
 msgstr "Recordar mi elección"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Remove"
 msgstr "Quitar"
 
@@ -4164,7 +4165,7 @@ msgstr "Quitar a {0} del reparto"
 msgid "Remove {title} from the Library"
 msgstr "Quitar {title} de la Biblioteca"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Remove change for {label}"
 msgstr "Quitar el cambio de {label}"
 
@@ -4236,7 +4237,7 @@ msgstr "Reabrir"
 #. placeholder {0}: item.title
 #. placeholder {0}: reference.title
 #: src/app/references/ReferenceRow.tsx
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Reorder {0}"
 msgstr "Reordenar {0}"
@@ -4324,6 +4325,7 @@ msgid "Reset to default"
 msgstr "Restablecer valores predeterminados"
 
 #: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "Reset to outline"
 msgstr "Restablecer al esquema"
 
@@ -4539,7 +4541,7 @@ msgid "Scenes are ordered by story date. A scene without a date stays behind the
 msgstr "Las escenas se ordenan por fecha de la historia. Una escena sin fecha se queda detrás de la escena que la precede en el libro."
 
 #. placeholder {0}: c.title
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "Scenes in {0}"
 msgstr "Escenas de {0}"
 
@@ -4695,7 +4697,7 @@ msgid "Show chapters"
 msgstr "Mostrar capítulos"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Show chapters of {0}"
 msgstr "Mostrar capítulos de {0}"
 
@@ -4712,7 +4714,7 @@ msgid "Show margins"
 msgstr "Mostrar márgenes"
 
 #. placeholder {0}: c.title
-#: src/app/shell/EntryList.tsx
+#: src/app/shell/entries/EntryRow.tsx
 msgid "Show scenes of {0}"
 msgstr "Mostrar las escenas de {0}"
 
@@ -5240,7 +5242,7 @@ msgstr "El identificador no puede estar vacío."
 msgid "The image {0} is outside the document's folder"
 msgstr "La imagen {0} está fuera de la carpeta del documento"
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
 msgstr "La lista sigue tus capítulos. Renombra, oculta, reordena o añade entradas aquí; las exportaciones y la vista previa de impresión usan esta lista."
 
@@ -5369,7 +5371,7 @@ msgstr "No hay nada que leer en voz alta, así que no hay audiolibro que crear."
 msgid "These are routine adjustments; nothing was lost."
 msgstr "Son ajustes rutinarios; no se perdió nada."
 
-#: src/app/toc/TocEditor.tsx
+#: src/app/toc/TocEditorParts.tsx
 msgid "These changes belong to a chapter or heading that is gone or was edited. They are kept until you remove them."
 msgstr "Estos cambios pertenecen a un capítulo o título que ya no existe o que se editó. Se conservan hasta que los quites."
 
@@ -5387,7 +5389,7 @@ msgid "This book has no {language} edition."
 msgstr "Este libro no tiene una edición en {language}."
 
 #: src/app/board/SceneBoard.tsx
-#: src/app/shell/App.tsx
+#: src/app/shell/screens/BookScreen.tsx
 #: src/lib/export/exportChecks.ts
 msgid "This book has no chapters yet."
 msgstr "Este libro todavía no tiene capítulos."
@@ -5669,7 +5671,7 @@ msgstr "Ruta de proyecto no segura: {0}"
 msgid "Unsaved"
 msgstr "Sin guardar"
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "Unsorted"
 msgstr "Sin clasificar"
 
@@ -5689,8 +5691,8 @@ msgstr "Sin título"
 msgid "Untitled entry"
 msgstr "Entrada sin título"
 
-#: src/app/board/SceneBoard.tsx
 #: src/app/board/SceneCard.tsx
+#: src/app/board/useSceneMoves.ts
 #: src/app/codex/CodexDialog.tsx
 #: src/app/scenes/SceneList.tsx
 #: src/app/scenes/SceneRail.tsx
@@ -5871,7 +5873,7 @@ msgstr "Palabras"
 msgid "Words to write each time you open a book. 0 turns it off."
 msgstr "Palabras que escribir cada vez que abres un libro. 0 lo desactiva."
 
-#: src/app/board/SceneBoard.tsx
+#: src/app/board/BoardColumn.tsx
 msgid "Wrap into a scene"
 msgstr "Agrupar en una escena"
 
@@ -5961,7 +5963,7 @@ msgstr "No se pudieron guardar tus últimos cambios ({message}). Cierra la venta
 msgid "Your last changes were saved if possible. Choose Reload to open the app again. If this keeps happening, restart CadabraCraft; your books are in their folders, and earlier versions are in History."
 msgstr "Tus últimos cambios se guardaron si fue posible. Elige Recargar para abrir la aplicación de nuevo. Si sigue pasando, reinicia CadabraCraft; tus libros están en sus carpetas y las versiones anteriores en el Historial."
 
-#: src/app/hooks/useAppMenu.ts
+#: src/app/hooks/appMenuCommands.ts
 msgid "Your package manager updates this copy of CadabraCraft."
 msgstr "Tu gestor de paquetes actualiza esta copia de CadabraCraft."
 

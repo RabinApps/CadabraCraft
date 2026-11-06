@@ -56,6 +56,188 @@ interface Props {
   run: (f: () => Promise<void>) => () => void;
 }
 
+function HeaderNotice() {
+  const { t } = useLingui();
+  const notice = useProject((s) => s.notice);
+  const isAlert = useProject(noticeIsAlert);
+  return (
+    <div className="flex min-w-0 flex-1 items-start gap-1 text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:has-[[role=status]:empty+[role=alert]:empty]:hidden">
+      {/* A failure is assertive (role alert), everything else polite (role status). Both stay in the accessibility tree even when empty (sr-only, never display:none), or a message put into a hidden region may not be announced. */}
+      <span role="status" className="min-w-0 break-words empty:sr-only">
+        {isAlert ? "" : notice}
+      </span>
+      <span role="alert" className="min-w-0 break-words font-semibold text-danger empty:sr-only">
+        {isAlert ? notice : ""}
+      </span>
+      {notice && (
+        <button
+          type="button"
+          aria-label={t`Dismiss message`}
+          onClick={() => useProject.setState({ notice: "" })}
+          className="flex size-6 max-md:size-11 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent"
+        >
+          <X size={14} aria-hidden />
+        </button>
+      )}
+    </div>
+  );
+}
+
+interface ToolsProps {
+  onBoard: () => void;
+  onTimeline: () => void;
+  onSave: () => void;
+}
+
+/** The buttons that only make sense while writing: outline, focus, side panels, scenes, board, timeline and save. */
+function WriteTools({
+  onReferences,
+  onComments,
+  onScenes,
+  onBoard,
+  onTimeline,
+  onSave,
+}: ToolsProps & Pick<Props, "onReferences" | "onComments" | "onScenes">) {
+  const { t } = useLingui();
+  const { details, references, comments, set: setLayout } = useLayout();
+  const showQuickNav = useQuickNav((s) => s.show);
+  return (
+    <>
+      <IconButton
+        icon={ListTree}
+        label={t`Outline`}
+        className="max-sm:hidden"
+        onClick={() => showQuickNav("outline")}
+      />
+      <IconButton
+        icon={Maximize2}
+        label={t`Focus mode`}
+        className="max-sm:hidden"
+        onClick={() => setLayout({ focus: true })}
+      />
+      <IconButton
+        icon={Library}
+        label={t`References`}
+        active={references}
+        className="max-xl:hidden"
+        onClick={() => setLayout({ references: !references })}
+      />
+      <IconButton
+        icon={Library}
+        label={t`References`}
+        className="xl:hidden"
+        onClick={onReferences}
+      />
+      <IconButton
+        icon={MessageSquareText}
+        label={t`Comments`}
+        active={comments}
+        className="max-xl:hidden"
+        onClick={() => setLayout({ comments: !comments, references: false })}
+      />
+      <IconButton
+        icon={MessageSquareText}
+        label={t`Comments`}
+        className="xl:hidden"
+        onClick={onComments}
+      />
+      <IconButton icon={Layers} label={t`Scenes`} className="lg:hidden" onClick={onScenes} />
+      <IconButton
+        icon={LayoutGrid}
+        label={t`Scene board`}
+        className="max-sm:hidden"
+        onClick={onBoard}
+      />
+      <IconButton
+        icon={CalendarRange}
+        label={t`Timeline`}
+        className="max-sm:hidden"
+        onClick={onTimeline}
+      />
+      <IconButton
+        icon={PanelRight}
+        label={t`Details`}
+        active={details && !references}
+        className="max-xl:hidden"
+        onClick={() => setLayout({ details: references ? true : !details, references: false })}
+      />
+      <Button icon={Save} className="max-sm:hidden" onClick={onSave}>{t`Save`}</Button>
+    </>
+  );
+}
+
+/** The "More actions" menu: what the header hides on a narrow window, plus the rest. */
+function MoreMenu({
+  reader,
+  run,
+  onDetails,
+  onSettings,
+  onBoard,
+  onTimeline,
+  onSave,
+  onExport,
+}: ToolsProps &
+  Pick<Props, "run" | "onDetails" | "onSettings"> & { reader: boolean; onExport: () => void }) {
+  const { t } = useLingui();
+  const actions = useProject((s) => s.actions);
+  const setLayout = useLayout((l) => l.set);
+  const showQuickNav = useQuickNav((s) => s.show);
+  const setImportingInto = useStartDialogs((s) => s.setImportingInto);
+  return (
+    <HeaderMenu
+      label={t`More actions`}
+      items={[
+        { label: t`Command palette`, icon: Search, onSelect: () => showQuickNav("palette") },
+        ...(reader
+          ? []
+          : [
+              { label: t`Outline`, icon: ListTree, onSelect: () => showQuickNav("outline") },
+              { label: t`Scene board`, icon: LayoutGrid, onSelect: onBoard },
+              { label: t`Timeline`, icon: CalendarRange, onSelect: onTimeline },
+              { label: t`Save`, icon: Save, onSelect: onSave },
+              {
+                label: t`Focus mode`,
+                icon: Maximize2,
+                onSelect: () => setLayout({ focus: true }),
+              },
+            ]),
+        { label: t`Export`, icon: Download, onSelect: onExport },
+        ...(reader
+          ? []
+          : [
+              {
+                label: t`Import into this book`,
+                icon: FileUp,
+                onSelect: run(async () => {
+                  await actions.flush();
+                  setImportingInto(true);
+                }),
+              },
+            ]),
+        { label: t`Book details`, icon: BookText, onSelect: onDetails },
+        { label: t`Settings`, icon: SettingsIcon, onSelect: onSettings },
+      ]}
+    />
+  );
+}
+
+/** While an audiobook renders, the button that opens its progress. */
+function AudioPill({ onAudio }: Pick<Props, "onAudio">) {
+  const { t } = useLingui();
+  const audio = useProject((s) => s.audio);
+  if (audio?.status !== "running") return null;
+  return (
+    <button
+      type="button"
+      onClick={onAudio}
+      className="flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-sm font-semibold text-accent focus-visible:outline-2 focus-visible:outline-accent"
+    >
+      <LoaderCircle size={14} className="animate-spin motion-reduce:animate-none" aria-hidden />
+      {t`Audiobook ${Math.round(audio.overall * 100)}%`}
+    </button>
+  );
+}
+
 /** The top bar of an open book: title, save state, write/read switch and the main actions. */
 export function AppHeader({
   mode,
@@ -82,14 +264,9 @@ export function AppHeader({
       : undefined,
   );
   const unsaved = useProject((s) => s.draft !== null);
-  const notice = useProject((s) => s.notice);
-  const isAlert = useProject(noticeIsAlert);
-  const audio = useProject((s) => s.audio);
   const actions = useProject((s) => s.actions);
-  const { details, references, comments, set: setLayout } = useLayout();
   const showQuickNav = useQuickNav((s) => s.show);
   const reader = mode === "read";
-  const setImportingInto = useStartDialogs((s) => s.setImportingInto);
   const save = run(actions.flush);
   // Saving first means the export and the reader show what was typed.
   const exportBook = run(async () => {
@@ -120,25 +297,7 @@ export function AppHeader({
       <EditionSwitcher />
       <Badge tone={unsaved ? "warn" : "success"}>{unsaved ? t`Unsaved` : t`Saved`}</Badge>
       {/* The live region stays mounted so a new notice is announced; the text wraps, nothing is cut off for readers. */}
-      <div className="flex min-w-0 flex-1 items-start gap-1 text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:has-[[role=status]:empty+[role=alert]:empty]:hidden">
-        {/* A failure is assertive (role alert), everything else polite (role status). Both stay in the accessibility tree even when empty (sr-only, never display:none), or a message put into a hidden region may not be announced. */}
-        <span role="status" className="min-w-0 break-words empty:sr-only">
-          {isAlert ? "" : notice}
-        </span>
-        <span role="alert" className="min-w-0 break-words font-semibold text-danger empty:sr-only">
-          {isAlert ? notice : ""}
-        </span>
-        {notice && (
-          <button
-            type="button"
-            aria-label={t`Dismiss message`}
-            onClick={() => useProject.setState({ notice: "" })}
-            className="flex size-6 max-md:size-11 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent"
-          >
-            <X size={14} aria-hidden />
-          </button>
-        )}
-      </div>
+      <HeaderNotice />
       <Segmented
         label={t`Write or read`}
         value={mode}
@@ -149,20 +308,7 @@ export function AppHeader({
         ]}
       />
       <div className="ms-auto flex flex-wrap items-center justify-end gap-2">
-        {audio?.status === "running" && (
-          <button
-            type="button"
-            onClick={onAudio}
-            className="flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-sm font-semibold text-accent focus-visible:outline-2 focus-visible:outline-accent"
-          >
-            <LoaderCircle
-              size={14}
-              className="animate-spin motion-reduce:animate-none"
-              aria-hidden
-            />
-            {t`Audiobook ${Math.round(audio.overall * 100)}%`}
-          </button>
-        )}
+        <AudioPill onAudio={onAudio} />
         {reader && <ReadingSettings />}
         <IconButton
           icon={Search}
@@ -171,84 +317,15 @@ export function AppHeader({
           onClick={() => showQuickNav("palette")}
         />
         {!reader && (
-          <IconButton
-            icon={ListTree}
-            label={t`Outline`}
-            className="max-sm:hidden"
-            onClick={() => showQuickNav("outline")}
+          <WriteTools
+            onReferences={onReferences}
+            onComments={onComments}
+            onScenes={onScenes}
+            onBoard={toBoard}
+            onTimeline={toTimeline}
+            onSave={save}
           />
         )}
-        {!reader && (
-          <IconButton
-            icon={Maximize2}
-            label={t`Focus mode`}
-            className="max-sm:hidden"
-            onClick={() => setLayout({ focus: true })}
-          />
-        )}
-        {!reader && (
-          <IconButton
-            icon={Library}
-            label={t`References`}
-            active={references}
-            className="max-xl:hidden"
-            onClick={() => setLayout({ references: !references })}
-          />
-        )}
-        {!reader && (
-          <IconButton
-            icon={Library}
-            label={t`References`}
-            className="xl:hidden"
-            onClick={onReferences}
-          />
-        )}
-        {!reader && (
-          <IconButton
-            icon={MessageSquareText}
-            label={t`Comments`}
-            active={comments}
-            className="max-xl:hidden"
-            onClick={() => setLayout({ comments: !comments, references: false })}
-          />
-        )}
-        {!reader && (
-          <IconButton
-            icon={MessageSquareText}
-            label={t`Comments`}
-            className="xl:hidden"
-            onClick={onComments}
-          />
-        )}
-        {!reader && (
-          <IconButton icon={Layers} label={t`Scenes`} className="lg:hidden" onClick={onScenes} />
-        )}
-        {!reader && (
-          <IconButton
-            icon={LayoutGrid}
-            label={t`Scene board`}
-            className="max-sm:hidden"
-            onClick={toBoard}
-          />
-        )}
-        {!reader && (
-          <IconButton
-            icon={CalendarRange}
-            label={t`Timeline`}
-            className="max-sm:hidden"
-            onClick={toTimeline}
-          />
-        )}
-        {!reader && (
-          <IconButton
-            icon={PanelRight}
-            label={t`Details`}
-            active={details && !references}
-            className="max-xl:hidden"
-            onClick={() => setLayout({ details: references ? true : !details, references: false })}
-          />
-        )}
-        {!reader && <Button icon={Save} className="max-sm:hidden" onClick={save}>{t`Save`}</Button>}
         <Button
           variant="primary"
           icon={Download}
@@ -267,39 +344,15 @@ export function AppHeader({
           className="max-sm:hidden"
           onClick={onSettings}
         />
-        <HeaderMenu
-          label={t`More actions`}
-          items={[
-            { label: t`Command palette`, icon: Search, onSelect: () => showQuickNav("palette") },
-            ...(reader
-              ? []
-              : [
-                  { label: t`Outline`, icon: ListTree, onSelect: () => showQuickNav("outline") },
-                  { label: t`Scene board`, icon: LayoutGrid, onSelect: toBoard },
-                  { label: t`Timeline`, icon: CalendarRange, onSelect: toTimeline },
-                  { label: t`Save`, icon: Save, onSelect: save },
-                  {
-                    label: t`Focus mode`,
-                    icon: Maximize2,
-                    onSelect: () => setLayout({ focus: true }),
-                  },
-                ]),
-            { label: t`Export`, icon: Download, onSelect: exportBook },
-            ...(reader
-              ? []
-              : [
-                  {
-                    label: t`Import into this book`,
-                    icon: FileUp,
-                    onSelect: run(async () => {
-                      await actions.flush();
-                      setImportingInto(true);
-                    }),
-                  },
-                ]),
-            { label: t`Book details`, icon: BookText, onSelect: onDetails },
-            { label: t`Settings`, icon: SettingsIcon, onSelect: onSettings },
-          ]}
+        <MoreMenu
+          reader={reader}
+          run={run}
+          onDetails={onDetails}
+          onSettings={onSettings}
+          onBoard={toBoard}
+          onTimeline={toTimeline}
+          onSave={save}
+          onExport={exportBook}
         />
       </div>
     </header>

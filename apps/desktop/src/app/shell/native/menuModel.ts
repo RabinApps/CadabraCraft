@@ -129,12 +129,15 @@ export const BACK_PRESET_IDS = BACK.map((k) => `insert.back.${k}`);
 /** Maximum recent projects listed in File > Open Recent. */
 export const MENU_RECENTS = 8;
 
-/**
- * The menu for the current context. The structure is fixed; what changes is which items are usable (a command that is not
- * registered, or registered as disabled, is greyed out), which toggles are ticked, and the labels that carry a name (Undo
- * says what it will undo, Open Recent lists the recent books).
- */
-export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
+interface Builder {
+  cmd: (id: string, text: string, defaultKey?: string, arg?: string) => MenuEntry;
+  sep: MenuEntry;
+  pre: (item: PredefinedKind, text: string) => MenuEntry;
+  sub: (text: string, items: MenuEntry[]) => MenuEntry;
+}
+
+/** The small constructors the menus are written with, bound to the current commands and the author's key changes. */
+function menuBuilder(ctx: MenuContext): Builder {
   const { commands } = ctx;
   const overrides = ctx.shortcuts ?? {};
   const usable = (id: string) => commands[id] !== undefined && commands[id]!.enabled !== false;
@@ -168,20 +171,13 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     text,
   });
   const sub = (text: string, items: MenuEntry[]): MenuEntry => ({ kind: "submenu", text, items });
+  return { cmd, sep, pre, sub };
+}
 
+function appMenu(b: Builder, _ctx: MenuContext): MenuEntry {
+  const { cmd, sep, pre, sub } = b;
   const settings = cmd("app.settings", t`Settings…`, "CmdOrCtrl+,");
-
-  const recent: MenuEntry[] = ctx.recents
-    .slice(0, MENU_RECENTS)
-    .map((r) => ({ ...cmd("file.openRecent", r.title || r.root, undefined, r.root) }));
-  const openRecent = sub(
-    t`Open Recent`,
-    recent.length
-      ? [...recent, sep, cmd("file.clearRecents", t`Clear Menu`)]
-      : [{ kind: "command", id: "file.none", text: t`No Recent Projects`, enabled: false }],
-  );
-
-  const app: MenuEntry = sub("CadabraCraft", [
+  return sub("CadabraCraft", [
     pre("About", t`About CadabraCraft`),
     sep,
     settings,
@@ -194,8 +190,22 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     sep,
     cmd("app.quit", t`Quit CadabraCraft`, "CmdOrCtrl+Q"),
   ]);
+}
 
-  const file = sub(t`File`, [
+function fileMenu(b: Builder, ctx: MenuContext): MenuEntry {
+  const { cmd, sep, sub } = b;
+  const settings = cmd("app.settings", t`Settings…`, "CmdOrCtrl+,");
+  const recent: MenuEntry[] = ctx.recents
+    .slice(0, MENU_RECENTS)
+    .map((r) => ({ ...cmd("file.openRecent", r.title || r.root, undefined, r.root) }));
+  const openRecent = sub(
+    t`Open Recent`,
+    recent.length
+      ? [...recent, sep, cmd("file.clearRecents", t`Clear Menu`)]
+      : [{ kind: "command", id: "file.none", text: t`No Recent Projects`, enabled: false }],
+  );
+
+  return sub(t`File`, [
     cmd("file.new", t`New project`, "CmdOrCtrl+N"),
     cmd("file.open", t`Open folder`, "CmdOrCtrl+O"),
     openRecent,
@@ -220,8 +230,11 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("file.close", t`Close Project`, "CmdOrCtrl+Shift+W"),
     ...(ctx.mac ? [] : [sep, settings, sep, cmd("app.quit", t`Quit`, "CmdOrCtrl+Q")]),
   ]);
+}
 
-  const edit = sub(t`Edit`, [
+function editMenu(b: Builder, ctx: MenuContext): MenuEntry {
+  const { cmd, sep, pre, sub } = b;
+  return sub(t`Edit`, [
     pre("Undo", t`Undo`),
     pre("Redo", t`Redo`),
     sep,
@@ -238,8 +251,11 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("edit.bookUndo", ctx.undoLabel ? t`Undo ${ctx.undoLabel}` : t`Undo Chapter Change`),
     cmd("edit.bookRedo", ctx.redoLabel ? t`Redo ${ctx.redoLabel}` : t`Redo Chapter Change`),
   ]);
+}
 
-  const insert = sub(t`Insert`, [
+function insertMenu(b: Builder, _ctx: MenuContext): MenuEntry {
+  const { cmd, sep, sub } = b;
+  return sub(t`Insert`, [
     cmd("insert.chapter", t`New Chapter`, "CmdOrCtrl+Shift+N"),
     cmd("insert.blank", t`Blank page`),
     sub(
@@ -259,8 +275,11 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("editor.codeBlock", t`Code Block`),
     cmd("editor.table", t`Table…`),
   ]);
+}
 
-  const format = sub(t`Format`, [
+function formatMenu(b: Builder, _ctx: MenuContext): MenuEntry {
+  const { cmd, sep, sub } = b;
+  return sub(t`Format`, [
     cmd("editor.bold", t`Bold`),
     cmd("editor.italic", t`Italic`),
     cmd("editor.underline", t`Underline`),
@@ -301,8 +320,11 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
       cmd("editor.tableDelete", t`Delete Table`),
     ]),
   ]);
+}
 
-  const view = sub(t`View`, [
+function viewMenu(b: Builder, _ctx: MenuContext): MenuEntry {
+  const { cmd, sep, pre, sub } = b;
+  return sub(t`View`, [
     cmd("view.write", t`Write`),
     cmd("view.read", t`Read`),
     sep,
@@ -321,16 +343,22 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     sep,
     pre("Fullscreen", t`Enter Full Screen`),
   ]);
+}
 
-  const windowMenu = sub(t`Window`, [
+function windowMenu(b: Builder, ctx: MenuContext): MenuEntry {
+  const { sep, pre, sub } = b;
+  return sub(t`Window`, [
     pre("Minimize", t`Minimize`),
     pre("Maximize", t`Zoom`),
     ...(ctx.mac ? [sep, pre("BringAllToFront", t`Bring All to Front`)] : []),
     sep,
     pre("CloseWindow", t`Close Window`),
   ]);
+}
 
-  const help = sub(t`Help`, [
+function helpMenu(b: Builder, _ctx: MenuContext): MenuEntry {
+  const { cmd, sep, sub } = b;
+  return sub(t`Help`, [
     cmd("help.welcome", t`Welcome to CadabraCraft…`),
     sep,
     cmd("help.updates", t`Check for Updates…`),
@@ -338,8 +366,25 @@ export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
     cmd("help.sponsor", t`Sponsor CadabraCraft…`),
     cmd("help.licenses", t`Licenses…`),
   ]);
+}
 
-  return [...(ctx.mac ? [app] : []), file, edit, insert, format, view, windowMenu, help];
+/**
+ * The menu for the current context. The structure is fixed; what changes is which items are usable (a command that is not
+ * registered, or registered as disabled, is greyed out), which toggles are ticked, and the labels that carry a name (Undo
+ * says what it will undo, Open Recent lists the recent books).
+ */
+export function buildMenuModel(ctx: MenuContext): MenuEntry[] {
+  const b = menuBuilder(ctx);
+  return [
+    ...(ctx.mac ? [appMenu(b, ctx)] : []),
+    fileMenu(b, ctx),
+    editMenu(b, ctx),
+    insertMenu(b, ctx),
+    formatMenu(b, ctx),
+    viewMenu(b, ctx),
+    windowMenu(b, ctx),
+    helpMenu(b, ctx),
+  ];
 }
 
 /** Every command id the model refers to, in order. Used by tests to check that the structure and the registrations agree. */

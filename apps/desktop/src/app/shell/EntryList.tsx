@@ -1,11 +1,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { plural } from "@lingui/core/macro";
-import { ChevronDown, ChevronRight, GripVertical, Layers } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import type { LanguageRow } from "@cadabracraft/format";
-import { Badge } from "../../ui/feedback/Badge";
-import { cx } from "../../ui/cx";
-import { DropLine } from "../../ui/DropLine";
 import { useDragReorder } from "../../ui/useDragReorder";
 import { SectionHeading } from "../../ui/SectionHeading";
 import { dropPosition, insertionIndex } from "../../lib/references/referenceKinds";
@@ -13,13 +9,11 @@ import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import type { HistoryPage } from "../dialogs/HistoryDialog";
 import type { IconPage } from "../dialogs/IconDialog";
-import { iconComponent } from "../../lib/chapterIcons";
-import { RenameField } from "./entries/RenameField";
-import { RowMenu } from "./entries/RowMenu";
+import { EntryRow } from "./entries/EntryRow";
 
 export type Editing = { id: string } | null;
 
-interface ListProps {
+export interface ListProps {
   entries: LanguageRow[];
   heading: string;
   titleLabel: string;
@@ -46,80 +40,14 @@ interface ListProps {
   collapsible?: boolean;
 }
 
-/** One section of the book (front matter, chapters or back matter): the same row, rename, reorder and trash actions in each. */
-export function EntryList({
-  entries,
-  heading,
-  titleLabel,
-  chapters,
-  currentId,
-  editing,
-  setEditing,
-  setDeleting,
-  setHistory,
-  setIcon,
-  onNavigate,
-  underRow,
-  openRows,
-  onToggleRow,
-  collapsedParts,
-  onTogglePart,
-  collapsible,
-}: ListProps) {
+/** Moving a page one place by key or menu: says where it went, or that it cannot go further. */
+function useEntryMoves(entries: LanguageRow[], partIndexes: number[]) {
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
-  const [headingOpen, setHeadingOpen] = useState(true);
   const last = entries.length - 1;
-  // A part divider is a row of the chapters list: the entries after it belong to it until the next divider. Parts are not dragged
-  // (that would move the divider alone and regroup its chapters): their menu moves the whole group with `actions.movePart`.
-  const partIndexes = entries.flatMap((e, i) => (e.kind === "part" ? [i] : []));
-  const counts = new Map<string, number>();
-  let group: string | undefined;
-  entries.forEach((e) => {
-    if (e.kind === "part") {
-      group = e.id;
-      counts.set(e.id, 0);
-    } else if (group !== undefined && e.kind !== "blank") {
-      counts.set(group, (counts.get(group) ?? 0) + 1);
-    }
-  });
-  let grouped = false;
-  const depth = entries.map((e) => {
-    if (e.kind === "part") {
-      grouped = true;
-      return 0;
-    }
-    return grouped ? 1 : 0;
-  });
-  // A collapsed part hides every row after it until the next divider, without changing the manifest order.
-  const hidden = new Set<string>();
-  let hiddenPart = false;
-  entries.forEach((e) => {
-    if (e.kind === "part") hiddenPart = collapsedParts?.has(e.id) ?? false;
-    else if (hiddenPart) hidden.add(e.id);
-  });
-  /** Rename, History and Trash run once the menu has closed, so the field or dialog they open can take focus; after any other item focus returns to the menu button. */
-  const afterClose = useRef<(() => void) | null>(null);
-  const list = useRef<HTMLUListElement>(null);
-  const { drag, grab } = useDragReorder<number>({
-    locate: (_x, y) =>
-      insertionIndex(
-        [...list.current!.children].map((li) => {
-          const r = li.getBoundingClientRect();
-          return r.top + r.height / 2;
-        }),
-        y,
-      ),
-    onDrop: (id, at) => {
-      const from = entries.findIndex((c) => c.id === id);
-      const to = dropPosition(from, at);
-      if (to !== from) attempt(actions.move(id, to - from));
-    },
-  });
   /** A moved page is announced (the grip keeps focus and its name does not change, so nothing else would say it moved). */
   const [said, setSaid] = useState("");
   const gripHelp = useId();
-  const listId = useId();
   useEffect(() => {
     if (!said) return;
     const timer = setTimeout(() => setSaid(""), 4000);
@@ -157,6 +85,107 @@ export function EntryList({
     e.preventDefault();
     step(i, e.key === "ArrowUp" ? -1 : 1);
   };
+  return { said, setSaid, step, gripKeys, gripHelp };
+}
+
+/**
+ * A part divider is a row of the chapters list: the entries after it belong to it until the next divider. Parts are not dragged
+ * (that would move the divider alone and regroup its chapters): their menu moves the whole group with `actions.movePart`.
+ * A collapsed part hides every row after it until the next divider, without changing the manifest order.
+ */
+function partLayout(entries: LanguageRow[], collapsedParts: Set<string> | undefined) {
+  const partIndexes = entries.flatMap((e, i) => (e.kind === "part" ? [i] : []));
+  const counts = new Map<string, number>();
+  let group: string | undefined;
+  entries.forEach((e) => {
+    if (e.kind === "part") {
+      group = e.id;
+      counts.set(e.id, 0);
+    } else if (group !== undefined && e.kind !== "blank") {
+      counts.set(group, (counts.get(group) ?? 0) + 1);
+    }
+  });
+  let grouped = false;
+  const depth = entries.map((e) => {
+    if (e.kind === "part") {
+      grouped = true;
+      return 0;
+    }
+    return grouped ? 1 : 0;
+  });
+  const hidden = new Set<string>();
+  let hiddenPart = false;
+  entries.forEach((e) => {
+    if (e.kind === "part") hiddenPart = collapsedParts?.has(e.id) ?? false;
+    else if (hiddenPart) hidden.add(e.id);
+  });
+  return { partIndexes, counts, depth, hidden };
+}
+
+/** Dragging a page to a new place in its list. */
+function useEntryDrag(entries: LanguageRow[]) {
+  const actions = useProject((s) => s.actions);
+  const list = useRef<HTMLUListElement>(null);
+  const { drag, grab } = useDragReorder<number>({
+    locate: (_x, y) =>
+      insertionIndex(
+        [...list.current!.children].map((li) => {
+          const r = li.getBoundingClientRect();
+          return r.top + r.height / 2;
+        }),
+        y,
+      ),
+    onDrop: (id, at) => {
+      const from = entries.findIndex((c) => c.id === id);
+      const to = dropPosition(from, at);
+      if (to !== from) attempt(actions.move(id, to - from));
+    },
+  });
+  return { list, drag, grab };
+}
+
+/** One section of the book (front matter, chapters or back matter): the same row, rename, reorder and trash actions in each. */
+export function EntryList({
+  entries,
+  heading,
+  titleLabel,
+  chapters,
+  currentId,
+  editing,
+  setEditing,
+  setDeleting,
+  setHistory,
+  setIcon,
+  onNavigate,
+  underRow,
+  openRows,
+  onToggleRow,
+  collapsedParts,
+  onTogglePart,
+  collapsible,
+}: ListProps) {
+  const { t } = useLingui();
+  const [headingOpen, setHeadingOpen] = useState(true);
+  const { partIndexes, counts, depth, hidden } = partLayout(entries, collapsedParts);
+  /** Rename, History and Trash run once the menu has closed, so the field or dialog they open can take focus; after any other item focus returns to the menu button. */
+  const afterClose = useRef<(() => void) | null>(null);
+  const { list, drag, grab } = useEntryDrag(entries);
+  const shared = {
+    chapters,
+    titleLabel,
+    editing,
+    setEditing,
+    setDeleting,
+    setHistory,
+    setIcon,
+    onNavigate,
+    underRow,
+    onToggleRow,
+    onTogglePart,
+    openRows,
+  };
+  const { said, setSaid, step, gripKeys, gripHelp } = useEntryMoves(entries, partIndexes);
+  const listId = useId();
   return (
     <section aria-label={heading} className="flex flex-col gap-0.5">
       {collapsible ? (
@@ -186,126 +215,33 @@ export function EntryList({
         className="m-0 flex list-none flex-col gap-0.5 p-0"
         style={collapsible && !headingOpen ? { display: "none" } : undefined}
       >
-        {entries.map((c, i) => {
-          if (hidden.has(c.id)) return null;
-          const current = c.id === currentId;
-          const Icon = iconComponent(c.icon);
-          const open =
-            c.kind === "part"
-              ? !(collapsedParts?.has(c.id) ?? false)
-              : (openRows?.has(c.id) ?? false);
-          return (
-            <li
+        {entries.map((c, i) =>
+          hidden.has(c.id) ? null : (
+            <EntryRow
               key={c.id}
-              className={cx(
-                "group relative flex flex-col rounded-md",
-                current && "bg-accent-soft",
-                drag?.id === c.id && "opacity-40",
-                c.kind === "part" && "mt-2 border-t border-border pt-1",
-              )}
-            >
-              {drag && drag.at === i && <DropLine />}
-              {drag && drag.at === entries.length && i === last && <DropLine below />}{" "}
-              <div
-                className="flex items-center gap-1 ps-1"
-                style={depth[i] ? { paddingInlineStart: "1.25rem" } : undefined}
-              >
-                {((c.kind === "part" && onTogglePart) || (c.kind !== "part" && onToggleRow)) && (
-                  <button
-                    type="button"
-                    aria-expanded={open}
-                    aria-label={
-                      c.kind === "part"
-                        ? open
-                          ? t`Hide chapters of ${c.title}`
-                          : t`Show chapters of ${c.title}`
-                        : open
-                          ? t`Hide scenes of ${c.title}`
-                          : t`Show scenes of ${c.title}`
-                    }
-                    onClick={() => (c.kind === "part" ? onTogglePart?.(c.id) : onToggleRow?.(c.id))}
-                    className="flex size-5 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-raised focus-visible:outline-2 focus-visible:outline-accent max-md:size-11"
-                  >
-                    {open ? (
-                      <ChevronDown size={14} aria-hidden />
-                    ) : (
-                      <ChevronRight size={14} aria-hidden />
-                    )}
-                  </button>
-                )}
-                {c.kind === "part" ? (
-                  <span
-                    aria-hidden
-                    className="flex size-6 shrink-0 items-center justify-center text-ink-muted"
-                  >
-                    <Layers size={15} />
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    data-grip
-                    aria-label={t`Reorder ${c.title}`}
-                    aria-keyshortcuts="ArrowUp ArrowDown"
-                    aria-describedby={gripHelp}
-                    onPointerDown={grab(c.id, i)}
-                    onKeyDown={gripKeys(i)}
-                    className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
-                  >
-                    <GripVertical size={16} aria-hidden />
-                  </button>
-                )}
-                {editing?.id === c.id ? (
-                  <RenameField row={c} titleLabel={titleLabel} setEditing={setEditing} />
-                ) : (
-                  <button
-                    type="button"
-                    aria-current={current ? "true" : undefined}
-                    className={cx(
-                      "min-w-0 flex-1 truncate rounded-md px-2 py-2.5 text-start text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent md:py-2",
-                      (current || c.kind === "part") && "font-semibold",
-                    )}
-                    onClick={() => {
-                      attempt(actions.selectChapter(c.id));
-                      onNavigate?.();
-                    }}
-                  >
-                    {Icon && (
-                      <Icon size={14} aria-hidden className="me-2 inline shrink-0 align-[-2px]" />
-                    )}
-                    {c.title}
-                    {c.kind === "part" && (counts.get(c.id) ?? 0) > 0 && (
-                      <span className="ms-2 text-xs font-normal text-ink-muted">
-                        {plural(counts.get(c.id) ?? 0, {
-                          one: "# chapter",
-                          other: "# chapters",
-                        })}
-                      </span>
-                    )}
-                  </button>
-                )}
-                {!c.translated && <Badge tone="warn">{t`Not translated yet`}</Badge>}
-                <RowMenu
-                  row={c}
-                  index={i}
-                  last={last}
-                  chapters={chapters}
-                  partIndexes={partIndexes}
-                  afterClose={afterClose}
-                  step={step}
-                  say={setSaid}
-                  setEditing={setEditing}
-                  setDeleting={setDeleting}
-                  setHistory={setHistory}
-                  setIcon={setIcon}
-                />
-              </div>
-              {c.kind === "part" && counts.get(c.id) === 0 && (
-                <p className="m-0 px-2 pb-1.5 ps-9 text-xs text-ink-muted">{t`No chapters yet`}</p>
-              )}
-              {c.kind !== "part" && underRow && openRows?.has(c.id) && underRow(c.id)}
-            </li>
-          );
-        })}
+              row={c}
+              index={i}
+              total={entries.length}
+              current={c.id === currentId}
+              open={
+                c.kind === "part"
+                  ? !(collapsedParts?.has(c.id) ?? false)
+                  : (openRows?.has(c.id) ?? false)
+              }
+              indented={depth[i] === 1}
+              count={counts.get(c.id)}
+              drag={drag}
+              partIndexes={partIndexes}
+              afterClose={afterClose}
+              gripHelp={gripHelp}
+              onGrab={grab(c.id, i)}
+              onGripKeys={gripKeys(i)}
+              step={step}
+              say={setSaid}
+              shared={shared}
+            />
+          ),
+        )}
       </ul>
       <p id={gripHelp} className="sr-only">
         {t`Drag to move, or press the up and down arrow keys. Escape cancels a drag.`}

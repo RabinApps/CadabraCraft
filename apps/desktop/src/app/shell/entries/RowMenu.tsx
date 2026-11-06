@@ -36,6 +36,136 @@ interface RowMenuProps {
   setIcon: (p: IconPage) => void;
 }
 
+/** Runs the action waiting for the menu to close (Rename, History, Trash), and gives focus back to the menu button first. */
+function runAfterClose(afterClose: MutableRefObject<(() => void) | null>, e: Event) {
+  const next = afterClose.current;
+  afterClose.current = null;
+  if (next) {
+    e.preventDefault();
+    // The dialog that `next` opens remembers where focus is, to give it back when it closes.
+    const trigger = (e.target as HTMLElement).getAttribute("aria-labelledby");
+    document.getElementById(trigger ?? "")?.focus();
+  }
+  next?.();
+}
+
+interface ChoiceProps {
+  row: LanguageRow;
+  say: (message: string) => void;
+}
+
+function DropCapChoice({ row: c, say }: ChoiceProps) {
+  const { t } = useLingui();
+  const actions = useProject((s) => s.actions);
+  const title = c.title;
+  return (
+    <ChoiceGroup
+      label={t`First letter`}
+      value={c.dropCap === undefined ? "default" : c.dropCap ? "big" : "normal"}
+      choices={[
+        ["default", t`Default`],
+        ["big", t`Big`],
+        ["normal", t`Normal`],
+      ]}
+      onValueChange={(v) => {
+        attempt(actions.setChapterDropCap(c.id, v === "default" ? null : v === "big"));
+        say(
+          v === "default"
+            ? t`${title}: first letter follows the book`
+            : v === "big"
+              ? t`${title}: big first letter`
+              : t`${title}: normal first letter`,
+        );
+      }}
+    />
+  );
+}
+
+function VerticalChoice({ row: c, say }: ChoiceProps) {
+  const { t } = useLingui();
+  const actions = useProject((s) => s.actions);
+  const title = c.title;
+  return (
+    <ChoiceGroup
+      label={t`Vertical position`}
+      value={c.verticalCenter === undefined ? "default" : c.verticalCenter ? "centred" : "top"}
+      choices={[
+        ["default", t`Default`],
+        ["centred", t`Centred`],
+        ["top", t`Top`],
+      ]}
+      onValueChange={(v) => {
+        attempt(actions.setVerticalCenter(c.id, v === "default" ? null : v === "centred"));
+        say(
+          v === "default"
+            ? t`${title}: vertical position follows the template`
+            : v === "centred"
+              ? t`${title}: centred on the page`
+              : t`${title}: at the top of the page`,
+        );
+      }}
+    />
+  );
+}
+
+function PageStartChoice({ row: c, say }: ChoiceProps) {
+  const { t } = useLingui();
+  const actions = useProject((s) => s.actions);
+  return (
+    <ChoiceGroup
+      label={t`Page start`}
+      value={c.startOnNext === undefined ? "book" : c.startOnNext ? "next" : "recto"}
+      choices={[
+        ["book", t`Follows the book`],
+        ["next", t`Start on the next page`],
+        ["recto", t`Start on a right-hand page`],
+      ]}
+      onValueChange={(v) => {
+        attempt(actions.setStartOnNext(c.id, v === "book" ? null : v === "next"));
+        say(
+          v === "book"
+            ? t`${c.title}: page start follows the book`
+            : v === "next"
+              ? t`${c.title}: starts on the next page`
+              : t`${c.title}: starts on a right-hand page`,
+        );
+      }}
+    />
+  );
+}
+
+function MoveItems({
+  row: c,
+  index: i,
+  last,
+  partIndexes,
+  step,
+}: Pick<RowMenuProps, "row" | "index" | "last" | "partIndexes" | "step">) {
+  const { t } = useLingui();
+  return (
+    <>
+      <M.Item
+        className={menuItemClass()}
+        disabled={c.kind === "part" ? partIndexes.indexOf(i) <= 0 : i === 0}
+        onSelect={() => step(i, -1)}
+      >
+        <ArrowUp size={14} aria-hidden />
+        {c.kind === "part" ? t`Move part up` : t`Move up`}
+      </M.Item>
+      <M.Item
+        className={menuItemClass()}
+        disabled={
+          c.kind === "part" ? partIndexes.indexOf(i) === partIndexes.length - 1 : i === last
+        }
+        onSelect={() => step(i, 1)}
+      >
+        <ArrowDown size={14} aria-hidden />
+        {c.kind === "part" ? t`Move part down` : t`Move down`}
+      </M.Item>
+    </>
+  );
+}
+
 /** The "..." menu of one row: rename, icon, part, move, first letter, vertical position, page start, history and trash. */
 export function RowMenu({
   row: c,
@@ -54,7 +184,6 @@ export function RowMenu({
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
   const moveFocus = (f: () => void) => () => void (afterClose.current = f);
-  const title = c.title;
   return (
     <M.Root>
       <M.Trigger asChild>
@@ -67,17 +196,7 @@ export function RowMenu({
       <M.Portal>
         <M.Content
           align="end"
-          onCloseAutoFocus={(e) => {
-            const next = afterClose.current;
-            afterClose.current = null;
-            if (next) {
-              e.preventDefault();
-              // The dialog that `next` opens remembers where focus is, to give it back when it closes.
-              const trigger = (e.target as HTMLElement).getAttribute("aria-labelledby");
-              document.getElementById(trigger ?? "")?.focus();
-            }
-            next?.();
-          }}
+          onCloseAutoFocus={(e) => runAfterClose(afterClose, e)}
           className={menuContentClass("min-w-44")}
         >
           {/* A blank page holds no text: there is no title to change, no text to give an icon to, no headings to list, and
@@ -109,75 +228,18 @@ export function RowMenu({
               {t`Start part here`}
             </M.Item>
           )}
-          <M.Item
-            className={menuItemClass()}
-            disabled={c.kind === "part" ? partIndexes.indexOf(i) <= 0 : i === 0}
-            onSelect={() => step(i, -1)}
-          >
-            <ArrowUp size={14} aria-hidden />
-            {c.kind === "part" ? t`Move part up` : t`Move up`}
-          </M.Item>
-          <M.Item
-            className={menuItemClass()}
-            disabled={
-              c.kind === "part" ? partIndexes.indexOf(i) === partIndexes.length - 1 : i === last
-            }
-            onSelect={() => step(i, 1)}
-          >
-            <ArrowDown size={14} aria-hidden />
-            {c.kind === "part" ? t`Move part down` : t`Move down`}
-          </M.Item>
+          <MoveItems row={c} index={i} last={last} partIndexes={partIndexes} step={step} />
           {chapters && c.kind !== "part" && (
             <>
               <M.Separator className="my-1 h-px bg-border" />
-              <ChoiceGroup
-                label={t`First letter`}
-                value={c.dropCap === undefined ? "default" : c.dropCap ? "big" : "normal"}
-                choices={[
-                  ["default", t`Default`],
-                  ["big", t`Big`],
-                  ["normal", t`Normal`],
-                ]}
-                onValueChange={(v) => {
-                  attempt(actions.setChapterDropCap(c.id, v === "default" ? null : v === "big"));
-                  say(
-                    v === "default"
-                      ? t`${title}: first letter follows the book`
-                      : v === "big"
-                        ? t`${title}: big first letter`
-                        : t`${title}: normal first letter`,
-                  );
-                }}
-              />
+              <DropCapChoice row={c} say={say} />
               <M.Separator className="my-1 h-px bg-border" />
             </>
           )}
           {!chapters && c.kind !== "contents" && c.kind !== "copyright" && c.kind !== "blank" && (
             <>
               <M.Separator className="my-1 h-px bg-border" />
-              <ChoiceGroup
-                label={t`Vertical position`}
-                value={
-                  c.verticalCenter === undefined ? "default" : c.verticalCenter ? "centred" : "top"
-                }
-                choices={[
-                  ["default", t`Default`],
-                  ["centred", t`Centred`],
-                  ["top", t`Top`],
-                ]}
-                onValueChange={(v) => {
-                  attempt(
-                    actions.setVerticalCenter(c.id, v === "default" ? null : v === "centred"),
-                  );
-                  say(
-                    v === "default"
-                      ? t`${title}: vertical position follows the template`
-                      : v === "centred"
-                        ? t`${title}: centred on the page`
-                        : t`${title}: at the top of the page`,
-                  );
-                }}
-              />
+              <VerticalChoice row={c} say={say} />
             </>
           )}
           {/* Where the page numbering puts a matter page: the book's rules (a dedication, epigraph or title page opens on a
@@ -187,25 +249,7 @@ export function RowMenu({
           {!chapters && c.kind !== "blank" && (
             <>
               <M.Separator className="my-1 h-px bg-border" />
-              <ChoiceGroup
-                label={t`Page start`}
-                value={c.startOnNext === undefined ? "book" : c.startOnNext ? "next" : "recto"}
-                choices={[
-                  ["book", t`Follows the book`],
-                  ["next", t`Start on the next page`],
-                  ["recto", t`Start on a right-hand page`],
-                ]}
-                onValueChange={(v) => {
-                  attempt(actions.setStartOnNext(c.id, v === "book" ? null : v === "next"));
-                  say(
-                    v === "book"
-                      ? t`${c.title}: page start follows the book`
-                      : v === "next"
-                        ? t`${c.title}: starts on the next page`
-                        : t`${c.title}: starts on a right-hand page`,
-                  );
-                }}
-              />
+              <PageStartChoice row={c} say={say} />
               <M.Separator className="my-1 h-px bg-border" />
             </>
           )}

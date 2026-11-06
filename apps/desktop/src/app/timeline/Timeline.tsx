@@ -12,6 +12,44 @@ import { buildTimeline, formatStoryDay, type TimelineOrder } from "../../lib/sce
 import { useBoardData } from "../board/useBoardData";
 import { TimelineRow } from "./TimelineRow";
 
+function TimelineHeader({
+  order,
+  onOrder,
+  onBack,
+}: {
+  order: TimelineOrder;
+  onOrder: (order: TimelineOrder) => void;
+  onBack: () => void;
+}) {
+  const { t } = useLingui();
+  const notice = useProject((s) => s.notice);
+  const isAlert = useProject(noticeIsAlert);
+  return (
+    <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border bg-surface px-4 py-2">
+      <IconButton icon={ArrowLeft} label={t`Back`} onClick={onBack} />
+      <CalendarRange size={16} aria-hidden className="text-ink-muted" />
+      <h1 className="font-book text-base font-semibold">{t`Timeline`}</h1>
+      <div className="flex min-w-0 flex-1 items-start gap-1 text-sm text-ink-muted">
+        <span role="status" className="min-w-0 break-words empty:sr-only">
+          {isAlert ? "" : notice}
+        </span>
+        <span role="alert" className="min-w-0 break-words font-semibold text-danger empty:sr-only">
+          {isAlert ? notice : ""}
+        </span>
+      </div>
+      <Segmented<TimelineOrder>
+        label={t`Order`}
+        value={order}
+        onChange={onOrder}
+        items={[
+          { value: "book", label: t`Book order` },
+          { value: "story", label: t`Story date` },
+        ]}
+      />
+    </header>
+  );
+}
+
 /**
  * The timeline: every scene of the book on one axis, in book order or by story date. A scene's story date is edited on its row
  * (a calendar day and an optional time); the chapters need not be open, the date goes to the chapter file like the board's edits,
@@ -20,8 +58,6 @@ import { TimelineRow } from "./TimelineRow";
 export function Timeline({ onBack }: { onBack: () => void }) {
   const { t, i18n } = useLingui();
   const actions = useProject((s) => s.actions);
-  const notice = useProject((s) => s.notice);
-  const isAlert = useProject(noticeIsAlert);
   // The chapter files are read once typing in the open chapter has been written.
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -86,31 +122,7 @@ export function Timeline({ onBack }: { onBack: () => void }) {
   const undated = items.filter((i) => !i.dated).length;
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border bg-surface px-4 py-2">
-        <IconButton icon={ArrowLeft} label={t`Back`} onClick={onBack} />
-        <CalendarRange size={16} aria-hidden className="text-ink-muted" />
-        <h1 className="font-book text-base font-semibold">{t`Timeline`}</h1>
-        <div className="flex min-w-0 flex-1 items-start gap-1 text-sm text-ink-muted">
-          <span role="status" className="min-w-0 break-words empty:sr-only">
-            {isAlert ? "" : notice}
-          </span>
-          <span
-            role="alert"
-            className="min-w-0 break-words font-semibold text-danger empty:sr-only"
-          >
-            {isAlert ? notice : ""}
-          </span>
-        </div>
-        <Segmented<TimelineOrder>
-          label={t`Order`}
-          value={order}
-          onChange={setOrder}
-          items={[
-            { value: "book", label: t`Book order` },
-            { value: "story", label: t`Story date` },
-          ]}
-        />
-      </header>
+      <TimelineHeader order={order} onOrder={setOrder} onBack={onBack} />
       <main id="main" tabIndex={-1} className="min-h-0 flex-1 overflow-y-auto outline-none">
         <div className="mx-auto flex max-w-4xl flex-col gap-4 p-4 md:p-6">
           {board.duplicates.length > 0 && (

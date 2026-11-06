@@ -12,8 +12,8 @@ import { bridge } from "../../lib/bridge";
 import { coverThumbs } from "../../lib/export/coverThumbsBrowser";
 import { errText } from "../../lib/projectError";
 import { relativeTime } from "../../lib/relativeTime";
-import { useLibraryPrefs } from "../../state/app/library";
-import { useRecents, type Recent } from "../../state/app/recents";
+import { useLibraryPrefs, type LibraryPrefs } from "../../state/app/library";
+import { useRecents, type Recent, type ScannedBook } from "../../state/app/recents";
 import { BookCover } from "./BookCover";
 import {
   groupBySeries,
@@ -37,9 +37,7 @@ export function Library({ onBack, onOpenRecent }: Props) {
   const { recents, remove, addScanned } = useRecents();
   const { sort, layout, groupBySeries: grouped, set } = useLibraryPrefs();
   const [query, setQuery] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [scanning, setScanning] = useState(false);
+  const { scan, message, error, scanning } = useScanFolder(addScanned);
   const { open, problems, forget } = useOpenBook(onOpenRecent);
 
   const shown = useMemo(
@@ -52,14 +50,76 @@ export function Library({ onBack, onOpenRecent }: Props) {
   );
   const hasSeries = groups.some((g) => g.series !== null);
 
-  const sortLabels: Record<LibrarySort, string> = {
-    edited: t`Last edited`,
-    title: t`Title`,
-    author: t`Author`,
-    words: t`Most words`,
-    series: t`Series order`,
+  const removeBook = (r: Recent) => {
+    const cover = infoOf(r).cover;
+    if (cover) void coverThumbs.forget(r.root, cover);
+    remove(r.root);
+    forget(r.root);
   };
 
+  return (
+    <div className="flex min-h-dvh flex-col bg-bg text-ink">
+      <header className="mx-auto flex w-full max-w-7xl items-center gap-2 px-4 py-3.5 md:px-16">
+        <Button icon={ArrowLeft} onClick={onBack}>{t`Home`}</Button>
+      </header>
+      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 pb-10 md:px-16">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-col gap-1">
+            <h1 className="font-book text-heading font-semibold md:text-display">{t`Library`}</h1>
+            <p role="status" className="text-sm text-ink-muted">
+              {query.trim() === ""
+                ? plural(recents.length, { one: "# book", other: "# books" })
+                : t`${shown.length} of ${plural(recents.length, { one: "# book", other: "# books" })}`}
+            </p>
+          </div>
+          <Button icon={FolderPlus} onClick={() => void scan()} disabled={scanning}>
+            {scanning ? t`Looking for books…` : t`Add a folder of books…`}
+          </Button>
+        </div>
+        {error && <Notice role="alert">{error}</Notice>}
+        {message && (
+          <Notice tone="accent" role="status">
+            {message}
+          </Notice>
+        )}
+        <LibraryToolbar
+          query={query}
+          onQuery={setQuery}
+          sort={sort}
+          layout={layout}
+          grouped={grouped}
+          set={set}
+        />
+        {shown.length === 0 ? (
+          <p className="py-10 text-center text-sm text-ink-muted">
+            {recents.length === 0
+              ? t`No books yet. Add a folder of books, or start a new one from Home.`
+              : t`No book matches “${query.trim()}”.`}
+          </p>
+        ) : (
+          groups.map((g) => (
+            <BookGroupSection
+              key={g.series ?? "\u0000none"}
+              group={g}
+              showTitle={hasSeries}
+              layout={layout}
+              problems={problems}
+              onOpen={(root) => void open(root)}
+              onRemove={removeBook}
+            />
+          ))
+        )}
+      </main>
+    </div>
+  );
+}
+
+/** Picks a folder, adds the books found in it to the Library, and says what happened. */
+function useScanFolder(addScanned: (found: readonly ScannedBook[]) => number) {
+  const { t } = useLingui();
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [scanning, setScanning] = useState(false);
   const scan = async () => {
     setError("");
     setMessage("");
@@ -100,128 +160,126 @@ export function Library({ onBack, onOpenRecent }: Props) {
       setScanning(false);
     }
   };
+  return { scan, message, error, scanning };
+}
 
-  const removeBook = (r: Recent) => {
-    const cover = infoOf(r).cover;
-    if (cover) void coverThumbs.forget(r.root, cover);
-    remove(r.root);
-    forget(r.root);
+function LibraryToolbar({
+  query,
+  onQuery,
+  sort,
+  layout,
+  grouped,
+  set,
+}: {
+  query: string;
+  onQuery: (query: string) => void;
+  sort: LibrarySort;
+  layout: "grid" | "list";
+  grouped: boolean;
+  set: (patch: Partial<LibraryPrefs>) => void;
+}) {
+  const { t } = useLingui();
+  const sortLabels: Record<LibrarySort, string> = {
+    edited: t`Last edited`,
+    title: t`Title`,
+    author: t`Author`,
+    words: t`Most words`,
+    series: t`Series order`,
   };
-
   return (
-    <div className="flex min-h-dvh flex-col bg-bg text-ink">
-      <header className="mx-auto flex w-full max-w-7xl items-center gap-2 px-4 py-3.5 md:px-16">
-        <Button icon={ArrowLeft} onClick={onBack}>{t`Home`}</Button>
-      </header>
-      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 pb-10 md:px-16">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="flex flex-col gap-1">
-            <h1 className="font-book text-heading font-semibold md:text-display">{t`Library`}</h1>
-            <p role="status" className="text-sm text-ink-muted">
-              {query.trim() === ""
-                ? plural(recents.length, { one: "# book", other: "# books" })
-                : t`${shown.length} of ${plural(recents.length, { one: "# book", other: "# books" })}`}
-            </p>
-          </div>
-          <Button icon={FolderPlus} onClick={() => void scan()} disabled={scanning}>
-            {scanning ? t`Looking for books…` : t`Add a folder of books…`}
-          </Button>
-        </div>
-        {error && <Notice role="alert">{error}</Notice>}
-        {message && (
-          <Notice tone="accent" role="status">
-            {message}
-          </Notice>
-        )}
-        <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end">
-          <div className="relative md:w-80">
-            <Field
-              label={t`Search books`}
-              hideLabel
-              type="search"
-              placeholder={t`Search title, author or series`}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="ps-9"
-            />
-            <Search
-              size={16}
-              aria-hidden
-              className="pointer-events-none absolute inset-s-3 top-1/2 -translate-y-1/2 text-ink-muted"
-            />
-          </div>
-          <div className="md:w-48">
-            <Select
-              label={t`Sort by`}
-              value={sort}
-              onChange={(e) => set({ sort: e.target.value as LibrarySort })}
-            >
-              {SORTS.map((s) => (
-                <option key={s} value={s}>
-                  {sortLabels[s]}
-                </option>
-              ))}
-            </Select>
-          </div>
-          <Segmented
-            label={t`Layout`}
-            value={layout}
-            onChange={(v) => set({ layout: v })}
-            items={[
-              { value: "grid", label: t`Covers`, icon: LayoutGrid, collapse: true },
-              { value: "list", label: t`List`, icon: List, collapse: true },
-            ]}
-          />
-          <Checkbox
-            label={t`Group by series`}
-            checked={grouped}
-            onChange={(e) => set({ groupBySeries: e.target.checked })}
-          />
-        </div>
-        {shown.length === 0 ? (
-          <p className="py-10 text-center text-sm text-ink-muted">
-            {recents.length === 0
-              ? t`No books yet. Add a folder of books, or start a new one from Home.`
-              : t`No book matches “${query.trim()}”.`}
-          </p>
-        ) : (
-          groups.map((g) => (
-            <section
-              key={g.series ?? "\u0000none"}
-              aria-label={g.series ?? t`Books without a series`}
-              className="flex flex-col gap-3"
-            >
-              {hasSeries && (
-                <h2 className="text-subtitle font-semibold">
-                  {g.series ?? t`Not in a series`}
-                  <span className="ms-2 text-small font-normal text-ink-muted">
-                    {plural(g.books.length, { one: "# book", other: "# books" })}
-                  </span>
-                </h2>
-              )}
-              <ul
-                className={
-                  layout === "grid"
-                    ? "grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5"
-                    : "flex flex-col gap-2"
-                }
-              >
-                {g.books.map((r) => (
-                  <LibraryBook
-                    key={r.root}
-                    recent={r}
-                    layout={layout}
-                    problem={problems.get(r.root)}
-                    onOpen={() => void open(r.root)}
-                    onRemove={() => removeBook(r)}
-                  />
-                ))}
-              </ul>
-            </section>
-          ))
-        )}
-      </main>
+    <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end">
+      <div className="relative md:w-80">
+        <Field
+          label={t`Search books`}
+          hideLabel
+          type="search"
+          placeholder={t`Search title, author or series`}
+          value={query}
+          onChange={(e) => onQuery(e.target.value)}
+          className="ps-9"
+        />
+        <Search
+          size={16}
+          aria-hidden
+          className="pointer-events-none absolute inset-s-3 top-1/2 -translate-y-1/2 text-ink-muted"
+        />
+      </div>
+      <div className="md:w-48">
+        <Select
+          label={t`Sort by`}
+          value={sort}
+          onChange={(e) => set({ sort: e.target.value as LibrarySort })}
+        >
+          {SORTS.map((s) => (
+            <option key={s} value={s}>
+              {sortLabels[s]}
+            </option>
+          ))}
+        </Select>
+      </div>
+      <Segmented
+        label={t`Layout`}
+        value={layout}
+        onChange={(v) => set({ layout: v })}
+        items={[
+          { value: "grid", label: t`Covers`, icon: LayoutGrid, collapse: true },
+          { value: "list", label: t`List`, icon: List, collapse: true },
+        ]}
+      />
+      <Checkbox
+        label={t`Group by series`}
+        checked={grouped}
+        onChange={(e) => set({ groupBySeries: e.target.checked })}
+      />
     </div>
+  );
+}
+
+function BookGroupSection({
+  group: g,
+  showTitle,
+  layout,
+  problems,
+  onOpen,
+  onRemove,
+}: {
+  group: BookGroup;
+  showTitle: boolean;
+  layout: "grid" | "list";
+  problems: ReadonlyMap<string, string>;
+  onOpen: (root: string) => void;
+  onRemove: (recent: Recent) => void;
+}) {
+  const { t } = useLingui();
+  return (
+    <section aria-label={g.series ?? t`Books without a series`} className="flex flex-col gap-3">
+      {showTitle && (
+        <h2 className="text-subtitle font-semibold">
+          {g.series ?? t`Not in a series`}
+          <span className="ms-2 text-small font-normal text-ink-muted">
+            {plural(g.books.length, { one: "# book", other: "# books" })}
+          </span>
+        </h2>
+      )}
+      <ul
+        className={
+          layout === "grid"
+            ? "grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5"
+            : "flex flex-col gap-2"
+        }
+      >
+        {g.books.map((r) => (
+          <LibraryBook
+            key={r.root}
+            recent={r}
+            layout={layout}
+            problem={problems.get(r.root)}
+            onOpen={() => onOpen(r.root)}
+            onRemove={() => onRemove(r)}
+          />
+        ))}
+      </ul>
+    </section>
   );
 }
 

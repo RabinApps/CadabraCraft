@@ -1,74 +1,36 @@
 import { useEffect, useMemo } from "react";
 import { i18n } from "@lingui/core";
-import { t } from "@lingui/core/macro";
-import { canAddMatter, chaptersOf, readingOrder } from "@cadabracraft/format";
-import type { MatterKind } from "@cadabracraft/shared";
-import { bridge } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
+import { readingOrder } from "@cadabracraft/format";
 import {
   runCommand,
   useCommandRegistry,
   useRegisterCommands,
   useStartDialogs,
-  type Commands,
+  type Command,
 } from "../../state/app/commands";
 import { useLayout } from "../../state/view/layout";
 import { useLibraryOpen } from "../../state/app/library";
 import { useQuickNav } from "../../state/app/quickNav";
 import { useSettings } from "../../state/view/editorPrefs";
 import { buildMenuModel } from "../shell/native/menuModel";
-import { quitApp } from "../shell/native/quit";
 import { showNativeMenu } from "../shell/native/nativeMenu";
 import { useRecents } from "../../state/app/recents";
-import { useLicenses } from "../../state/app/licenses";
-import { useUpdates } from "../../state/app/updates";
-import { SPONSOR_URL } from "../../state/app/sponsor";
 import { isMac } from "../../lib/platform";
-import type { ExportFormat } from "../export/exportFormat";
 import { useProject } from "../../state/project/index";
+import {
+  appCommands,
+  bookCommands,
+  writingCommands,
+  type AppMenuHooks,
+  type CommandEnv,
+} from "./appMenuCommands";
 
-type View =
-  "book" | "settings" | "fonts" | "templates" | "print" | "welcome" | "board" | "timeline";
-
-export interface AppMenuHooks {
-  view: View;
-  setView: (v: View) => void;
-  mode: "write" | "read";
-  setMode: (m: "write" | "read") => void;
-  openExport: (format: ExportFormat) => void;
-  openDetails: () => void;
-  /** Help > Welcome to CadabraCraft…: the first-run screen, shown over the current page. */
-  openWelcome: () => void;
-  /** Shows a failure from a menu action in the page's error banner. */
-  fail: (message: string) => void;
-}
-
-const FRONT: MatterKind[] = [
-  "title-page",
-  "copyright",
-  "dedication",
-  "epigraph",
-  "contents",
-  "foreword",
-  "preface",
-  "custom",
-];
-const BACK: MatterKind[] = ["acknowledgments", "about-the-author", "also-by", "colophon", "custom"];
+export type { AppMenuHooks } from "./appMenuCommands";
 
 /**
  * Registers what the File, Edit, Insert, View and Help menus can do in the current context, and shows the native menu.
  * A book command is only registered while a book is open and its main view is showing, so everywhere else its item is greyed out.
  */
-/** Manual check from the Help menu: says so when the app is current, and reports a failure. */
-async function checkForUpdatesNow(h: { fail: (message: string) => void }) {
-  await useUpdates.getState().check(true);
-  const { status } = useUpdates.getState();
-  if (status.kind === "current") useProject.setState({ notice: t`CadabraCraft is up to date.` });
-  if (status.kind === "unsupported")
-    useProject.setState({ notice: t`Your package manager updates this copy of CadabraCraft.` });
-  if (status.kind === "error") h.fail(status.message);
-}
-
 export function useAppMenu(h: AppMenuHooks): void {
   const manifest = useProject((s) => s.manifest);
   const currentId = useProject((s) => s.currentId);
@@ -89,188 +51,30 @@ export function useAppMenu(h: AppMenuHooks): void {
   const inBook = open && h.view === "book";
   const writing = inBook && h.mode === "write";
   const order = manifest ? readingOrder(manifest) : [];
-  const index = order.findIndex((p) => p.id === currentId);
-  const guard = (f: () => Promise<unknown>) => () => {
-    void f().catch((e) => h.fail(errText(e)));
+  const env: CommandEnv = {
+    h,
+    actions,
+    manifest,
+    history,
+    order,
+    index: order.findIndex((p) => p.id === currentId),
+    recentCount: recents.length,
+    clearRecents,
+    layout: { focus, details, references },
+    setLayout,
+    typewriter,
+    setTypewriter: (on) => setPrefs({ typewriterScroll: on }),
+    showQuickNav,
+    setCreating,
+    setImporting,
+    setImportingInto,
+    setLibraryOpen,
   };
-  /** Leaves the open book (saving first) so the start screen can show a dialog. */
-  const leave = async () => {
-    h.setView("book");
-    await actions.closeProject();
+  const commands: Record<string, Command> = {
+    ...appCommands(env),
+    ...(inBook ? bookCommands(env) : {}),
+    ...(writing ? writingCommands(env) : {}),
   };
-
-  const commands: Record<string, Commands[string]> = {
-    "app.quit": { run: guard(quitApp), global: true },
-    "view.palette": { run: () => showQuickNav("palette") },
-    "app.settings": {
-      run: () => h.setView("settings"),
-      enabled: h.view !== "settings" && h.view !== "fonts",
-    },
-    "file.new": {
-      run: guard(async () => {
-        await leave();
-        setCreating(true);
-      }),
-    },
-    "file.open": {
-      run: guard(async () => {
-        const root = await bridge.pickFolder();
-        if (root) {
-          await leave();
-          await actions.openProject(root);
-        }
-      }),
-    },
-    "file.import": {
-      run: guard(async () => {
-        await leave();
-        setImporting(true);
-      }),
-    },
-    "file.library": {
-      run: guard(async () => {
-        await leave();
-        setLibraryOpen(true);
-      }),
-    },
-    "file.openRecent": {
-      run: (root) => {
-        if (root)
-          void leave()
-            .then(() => actions.openProject(root))
-            .catch((e) => h.fail(errText(e)));
-      },
-    },
-    "file.clearRecents": { run: clearRecents, enabled: recents.length > 0 },
-    "help.welcome": { run: () => h.openWelcome() },
-    "help.sponsor": { run: guard(() => bridge.openUrl(SPONSOR_URL)) },
-    "help.licenses": { run: () => useLicenses.getState().show() },
-    "help.updates": { run: () => void checkForUpdatesNow(h) },
-  };
-  if (inBook) {
-    Object.assign(commands, {
-      "file.save": { run: guard(actions.flush) },
-      "file.bookDetails": { run: h.openDetails },
-      "file.exportEpub": {
-        run: guard(async () => {
-          await actions.flush();
-          h.openExport("epub");
-        }),
-      },
-      "file.exportPdf": {
-        run: guard(async () => {
-          await actions.flush();
-          h.openExport("pdf");
-        }),
-      },
-      "file.exportMarkdown": {
-        run: guard(async () => {
-          await actions.flush();
-          h.openExport("markdown");
-        }),
-      },
-      "file.exportDocx": {
-        run: guard(async () => {
-          await actions.flush();
-          h.openExport("docx");
-        }),
-      },
-      "file.exportRtf": {
-        run: guard(async () => {
-          await actions.flush();
-          h.openExport("rtf");
-        }),
-      },
-      "file.exportAudiobook": {
-        run: guard(async () => {
-          await actions.flush();
-          h.openExport("audiobook");
-        }),
-      },
-      "file.printPreview": {
-        run: guard(async () => {
-          await actions.flush();
-          h.setView("print");
-        }),
-      },
-      "file.importInto": {
-        run: guard(async () => {
-          await actions.flush();
-          setImportingInto(true);
-        }),
-      },
-      "file.close": { run: guard(leave) },
-      "edit.bookUndo": { run: guard(actions.undo), enabled: history.undo.length > 0 },
-      "edit.bookRedo": { run: guard(actions.redo), enabled: history.redo.length > 0 },
-      "insert.chapter": {
-        run: guard(() => actions.add(t`Chapter ${chaptersOf(manifest!).length + 1}`)),
-      },
-      "insert.blank": { run: guard(() => actions.addBlank()) },
-      "view.write": { run: () => h.setMode("write"), checked: h.mode === "write" },
-      "view.read": {
-        run: guard(async () => {
-          await actions.flush();
-          h.setMode("read");
-        }),
-        checked: h.mode === "read",
-      },
-      "view.details": {
-        run: () => setLayout({ details: !details }),
-        checked: details,
-        enabled: h.mode === "write",
-      },
-      "view.references": {
-        run: () => setLayout({ references: !references }),
-        checked: references,
-        enabled: h.mode === "write",
-      },
-      "view.board": {
-        run: guard(async () => {
-          await actions.flush();
-          h.setView("board");
-        }),
-      },
-      "view.timeline": {
-        run: guard(async () => {
-          await actions.flush();
-          h.setView("timeline");
-        }),
-      },
-      "go.previous": {
-        run: guard(async () => {
-          const p = order[index - 1];
-          if (p) await actions.selectChapter(p.id);
-        }),
-        enabled: index > 0,
-      },
-      "go.next": {
-        run: guard(async () => {
-          const p = order[index + 1];
-          if (p) await actions.selectChapter(p.id);
-        }),
-        enabled: index >= 0 && index < order.length - 1,
-      },
-    });
-    for (const k of FRONT)
-      commands[`insert.front.${k}`] = {
-        run: guard(() => actions.addMatter("front", k)),
-        enabled: canAddMatter(manifest!, k),
-      };
-    for (const k of BACK)
-      commands[`insert.back.${k}`] = {
-        run: guard(() => actions.addMatter("back", k)),
-        enabled: canAddMatter(manifest!, k),
-      };
-  }
-  if (writing) {
-    // The outline jumps inside the editor, which exists in Write mode only.
-    commands["view.outline"] = { run: () => showQuickNav("outline") };
-    commands["view.focus"] = { run: () => setLayout({ focus: !focus }), checked: focus };
-    commands["view.typewriter"] = {
-      run: () => setPrefs({ typewriterScroll: !typewriter }),
-      checked: typewriter,
-    };
-  }
   useRegisterCommands(commands);
 
   // The native menu follows the registry: same structure, different availability and a few labels.

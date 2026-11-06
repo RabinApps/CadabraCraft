@@ -23,43 +23,114 @@ interface Props {
 const fieldClass =
   "rounded-md border border-border-strong bg-bg px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-60 max-md:min-h-11";
 
-/** One scene on the axis: its date and time at the side, a marker on the line, and a card with the scene's notes and its date fields. */
-export function TimelineRow({ item, last, onDate, onOpen }: Props) {
+function DateColumn({ item }: { item: TimelineItem }) {
   const { t, i18n } = useLingui();
+  const { scene, dated, follows } = item;
+  const time = storyTime(scene.date);
+  return (
+    <div className="pt-0.5 [grid-area:date] md:pt-[13px] md:text-end">
+      {dated ? (
+        <>
+          <time dateTime={scene.date} className="block text-sm font-semibold">
+            {formatStoryDay(scene.date, i18n.locale)}
+          </time>
+          {time && (
+            <span className="block text-micro text-ink-muted">
+              {formatStoryTime(scene.date, i18n.locale)}
+            </span>
+          )}
+        </>
+      ) : (
+        <>
+          <span className="block text-sm font-semibold text-ink-muted">{t`No date`}</span>
+          {follows && (
+            <span className="block text-micro text-ink-muted">{t`Follows ${follows}`}</span>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function DateFields({
+  item,
+  title,
+  onDate,
+}: {
+  item: TimelineItem;
+  title: string;
+  onDate: Props["onDate"];
+}) {
+  const { t } = useLingui();
   const { scene, dated } = item;
-  const title = scene.title || t`Untitled scene`;
   const day = storyDay(scene.date);
   const time = storyTime(scene.date);
+  return (
+    <div className="flex flex-wrap items-center gap-2 md:ms-auto">
+      <input
+        type="date"
+        data-date-for={scene.id}
+        data-field="day"
+        // Saved when the field is left, not on every keystroke: a date typed digit by digit passes through other dates.
+        key={`day-${scene.date}`}
+        defaultValue={day}
+        aria-label={t`Story date of ${title}`}
+        onBlur={(e) => {
+          const next = joinStoryDate(e.target.value, e.target.value ? time : "");
+          if (next === scene.date || !(next === "" || isStoryDate(next))) return;
+          onDate(next, "day");
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+        }}
+        className={fieldClass}
+      />
+      <input
+        type="time"
+        data-date-for={scene.id}
+        data-field="time"
+        key={`time-${scene.date}`}
+        defaultValue={time}
+        disabled={!day}
+        aria-label={t`Story time of ${title}`}
+        onBlur={(e) => {
+          const next = joinStoryDate(day, e.target.value);
+          if (!day || next === scene.date || !isStoryDate(next)) return;
+          onDate(next, "time");
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+        }}
+        className={fieldClass}
+      />
+      {dated && (
+        <button
+          type="button"
+          onClick={() => onDate("", "day")}
+          aria-label={t`Clear the story date of ${title}`}
+          className="rounded-sm text-sm text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent max-md:min-h-11"
+        >
+          {t`Clear`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** One scene on the axis: its date and time at the side, a marker on the line, and a card with the scene's notes and its date fields. */
+export function TimelineRow({ item, last, onDate, onOpen }: Props) {
+  const { t } = useLingui();
+  const { scene, dated } = item;
+  const title = scene.title || t`Untitled scene`;
   const tone = sceneStatusTone(scene.status);
   const chapterTitle = item.chapterTitle;
-  const follows = item.follows;
   return (
     <li
       data-timeline-item
       data-scene-id={scene.id}
       className="grid grid-cols-[1rem_1fr] gap-x-3 [grid-template-areas:'axis_date'_'axis_card'] md:grid-cols-[8rem_1rem_1fr] md:gap-x-4 md:[grid-template-areas:'date_axis_card']"
     >
-      <div className="pt-0.5 [grid-area:date] md:pt-[13px] md:text-end">
-        {dated ? (
-          <>
-            <time dateTime={scene.date} className="block text-sm font-semibold">
-              {formatStoryDay(scene.date, i18n.locale)}
-            </time>
-            {time && (
-              <span className="block text-micro text-ink-muted">
-                {formatStoryTime(scene.date, i18n.locale)}
-              </span>
-            )}
-          </>
-        ) : (
-          <>
-            <span className="block text-sm font-semibold text-ink-muted">{t`No date`}</span>
-            {follows && (
-              <span className="block text-micro text-ink-muted">{t`Follows ${follows}`}</span>
-            )}
-          </>
-        )}
-      </div>
+      <DateColumn item={item} />
       <div aria-hidden className="flex flex-col items-center pt-1.5 [grid-area:axis] md:pt-4">
         <span
           data-marker={dated ? "dated" : "undated"}
@@ -112,54 +183,7 @@ export function TimelineRow({ item, last, onDate, onOpen }: Props) {
                 </span>
               ) : null}
             </div>
-            <div className="flex flex-wrap items-center gap-2 md:ms-auto">
-              <input
-                type="date"
-                data-date-for={scene.id}
-                data-field="day"
-                // Saved when the field is left, not on every keystroke: a date typed digit by digit passes through other dates.
-                key={`day-${scene.date}`}
-                defaultValue={day}
-                aria-label={t`Story date of ${title}`}
-                onBlur={(e) => {
-                  const next = joinStoryDate(e.target.value, e.target.value ? time : "");
-                  if (next === scene.date || !(next === "" || isStoryDate(next))) return;
-                  onDate(next, "day");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.currentTarget.blur();
-                }}
-                className={fieldClass}
-              />
-              <input
-                type="time"
-                data-date-for={scene.id}
-                data-field="time"
-                key={`time-${scene.date}`}
-                defaultValue={time}
-                disabled={!day}
-                aria-label={t`Story time of ${title}`}
-                onBlur={(e) => {
-                  const next = joinStoryDate(day, e.target.value);
-                  if (!day || next === scene.date || !isStoryDate(next)) return;
-                  onDate(next, "time");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.currentTarget.blur();
-                }}
-                className={fieldClass}
-              />
-              {dated && (
-                <button
-                  type="button"
-                  onClick={() => onDate("", "day")}
-                  aria-label={t`Clear the story date of ${title}`}
-                  className="rounded-sm text-sm text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent max-md:min-h-11"
-                >
-                  {t`Clear`}
-                </button>
-              )}
-            </div>
+            <DateFields item={item} title={title} onDate={onDate} />
           </div>
         </div>
       </div>
