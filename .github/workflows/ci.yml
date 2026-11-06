@@ -253,6 +253,13 @@ jobs:
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: bash scripts/fetch-ffmpeg.sh
+      # Style is in apps/desktop/src-tauri/rustfmt.toml; run `cargo fmt` to fix.
+      - name: Rust formatting (rustfmt)
+        shell: bash
+        run: |
+          rustup component add rustfmt
+          cargo fmt --check
+        working-directory: apps/desktop/src-tauri
       # Lints are in Cargo.toml ([lints]): no unsafe beyond the one documented kill, no unwrap/expect/panic in production code.
       - name: Rust lints (clippy)
         shell: bash

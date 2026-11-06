@@ -120,7 +120,14 @@ fn a_package_import_is_refused_before_typst_runs() {
     ] {
         assert!(matches!(refuse_packages(bad), Err(TypstError::Compile { message }) if message.contains("Packages")), "{bad:?}");
     }
-    for ok in ["#import /* nested /* ok */ */ \"template.typ\"", "#import // note\n\"template.typ\"", "#import \"template.typ\": *", "Please import \"quoted\" text and write to me@preview/x", "#set page(width: 5in)", "important \"@handle\""] {
+    for ok in [
+        "#import /* nested /* ok */ */ \"template.typ\"",
+        "#import // note\n\"template.typ\"",
+        "#import \"template.typ\": *",
+        "Please import \"quoted\" text and write to me@preview/x",
+        "#set page(width: 5in)",
+        "important \"@handle\"",
+    ] {
         assert!(refuse_packages(ok).is_ok(), "{ok:?}");
     }
     // The compile and query entry points both refuse, without leaving a temp directory behind.
@@ -139,7 +146,10 @@ fn compile_and_query_pass_empty_package_folders_to_typst() {
     let base = tempfile::tempdir().unwrap();
     let echo_args = fake(d.path(), "echo \"$@\" > out.pdf; echo \"$@\"");
     let pdf = String::from_utf8(compile(&echo_args, base.path(), "x", &[], false, false, COMPILE_TIMEOUT).unwrap()).unwrap();
-    assert!(pdf.contains("--package-path") && pdf.contains("no-local-packages") && pdf.contains("--package-cache-path") && pdf.contains("no-package-cache"), "{pdf}");
+    assert!(
+        pdf.contains("--package-path") && pdf.contains("no-local-packages") && pdf.contains("--package-cache-path") && pdf.contains("no-package-cache"),
+        "{pdf}"
+    );
     let q = String::from_utf8(query(&echo_args, base.path(), "x", &[], "<r>", COMPILE_TIMEOUT).unwrap()).unwrap();
     assert!(q.contains("--package-path") && q.contains("--package-cache-path"), "{q}");
 }
@@ -214,7 +224,9 @@ fn a_program_that_fails_is_an_error_with_its_message_for_version_fonts_and_compi
     assert!(matches!(list_fonts(&loud), Err(TypstError::Other { message }) if message.contains("typst fonts failed") && message.contains("bad things")));
     assert!(matches!(compile(&loud, d.path(), "x", &[], false, false, COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message == "bad things"));
     let silent = fake(d.path(), "exit 2");
-    assert!(matches!(compile(&silent, d.path(), "x", &[], false, false, COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message.contains("no message")));
+    assert!(
+        matches!(compile(&silent, d.path(), "x", &[], false, false, COMPILE_TIMEOUT), Err(TypstError::Compile { message }) if message.contains("no message"))
+    );
 }
 
 #[cfg(unix)]

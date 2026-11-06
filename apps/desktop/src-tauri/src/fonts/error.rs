@@ -30,15 +30,11 @@ pub enum FontError {
 }
 
 pub(crate) fn other(m: impl std::fmt::Display) -> FontError {
-    FontError::Other {
-        message: m.to_string(),
-    }
+    FontError::Other { message: m.to_string() }
 }
 
 pub(crate) fn invalid(m: impl std::fmt::Display) -> FontError {
-    FontError::InvalidFont {
-        message: m.to_string(),
-    }
+    FontError::InvalidFont { message: m.to_string() }
 }
 
 pub(crate) fn io_err(e: std::io::Error) -> FontError {
@@ -76,84 +72,30 @@ mod tests {
 
     #[test]
     fn errors_serialize_as_a_kind_with_its_fields() {
-        assert_eq!(
-            serde_json::to_value(FontError::DiskFull).unwrap(),
-            json!({ "kind": "disk_full" })
-        );
-        assert_eq!(
-            serde_json::to_value(FontError::Cancelled).unwrap(),
-            json!({ "kind": "cancelled" })
-        );
-        assert_eq!(
-            serde_json::to_value(FontError::Checksum { file: "a".into() }).unwrap(),
-            json!({ "kind": "checksum", "file": "a" })
-        );
-        assert_eq!(
-            serde_json::to_value(FontError::Network {
-                message: "m".into()
-            })
-            .unwrap(),
-            json!({ "kind": "network", "message": "m" })
-        );
-        assert_eq!(
-            serde_json::to_value(FontError::UnknownFont { font: "f".into() }).unwrap(),
-            json!({ "kind": "unknown_font", "font": "f" })
-        );
-        assert_eq!(
-            serde_json::to_value(invalid("bad")).unwrap(),
-            json!({ "kind": "invalid_font", "message": "bad" })
-        );
-        assert_eq!(
-            serde_json::to_value(other("boom")).unwrap(),
-            json!({ "kind": "other", "message": "boom" })
-        );
+        assert_eq!(serde_json::to_value(FontError::DiskFull).unwrap(), json!({ "kind": "disk_full" }));
+        assert_eq!(serde_json::to_value(FontError::Cancelled).unwrap(), json!({ "kind": "cancelled" }));
+        assert_eq!(serde_json::to_value(FontError::Checksum { file: "a".into() }).unwrap(), json!({ "kind": "checksum", "file": "a" }));
+        assert_eq!(serde_json::to_value(FontError::Network { message: "m".into() }).unwrap(), json!({ "kind": "network", "message": "m" }));
+        assert_eq!(serde_json::to_value(FontError::UnknownFont { font: "f".into() }).unwrap(), json!({ "kind": "unknown_font", "font": "f" }));
+        assert_eq!(serde_json::to_value(invalid("bad")).unwrap(), json!({ "kind": "invalid_font", "message": "bad" }));
+        assert_eq!(serde_json::to_value(other("boom")).unwrap(), json!({ "kind": "other", "message": "boom" }));
     }
 
     #[test]
     fn download_errors_keep_their_meaning() {
-        assert_eq!(
-            FontError::from(AudioError::Download {
-                message: "m".into()
-            }),
-            FontError::Network {
-                message: "m".into()
-            }
-        );
-        assert_eq!(
-            FontError::from(AudioError::Checksum { file: "f".into() }),
-            FontError::Checksum { file: "f".into() }
-        );
+        assert_eq!(FontError::from(AudioError::Download { message: "m".into() }), FontError::Network { message: "m".into() });
+        assert_eq!(FontError::from(AudioError::Checksum { file: "f".into() }), FontError::Checksum { file: "f".into() });
         assert_eq!(FontError::from(AudioError::DiskFull), FontError::DiskFull);
         assert_eq!(FontError::from(AudioError::Cancelled), FontError::Cancelled);
-        assert_eq!(
-            FontError::from(AudioError::Other {
-                message: "o".into()
-            }),
-            FontError::Other {
-                message: "o".into()
-            }
-        );
-        assert!(matches!(
-            FontError::from(AudioError::Timeout { seconds: 3 }),
-            FontError::Other { .. }
-        ));
+        assert_eq!(FontError::from(AudioError::Other { message: "o".into() }), FontError::Other { message: "o".into() });
+        assert!(matches!(FontError::from(AudioError::Timeout { seconds: 3 }), FontError::Other { .. }));
     }
 
     #[test]
     fn disk_full_io_errors_keep_their_kind_and_a_failed_task_becomes_other() {
-        assert_eq!(
-            io_err(std::io::Error::from(std::io::ErrorKind::StorageFull)),
-            FontError::DiskFull
-        );
-        assert!(matches!(
-            io_err(std::io::Error::from(std::io::ErrorKind::NotFound)),
-            FontError::Other { .. }
-        ));
-        let e = tauri::async_runtime::block_on(async {
-            tauri::async_runtime::spawn_blocking(|| -> u8 { panic!("worker died") })
-                .await
-                .unwrap_err()
-        });
+        assert_eq!(io_err(std::io::Error::from(std::io::ErrorKind::StorageFull)), FontError::DiskFull);
+        assert!(matches!(io_err(std::io::Error::from(std::io::ErrorKind::NotFound)), FontError::Other { .. }));
+        let e = tauri::async_runtime::block_on(async { tauri::async_runtime::spawn_blocking(|| -> u8 { panic!("worker died") }).await.unwrap_err() });
         assert!(matches!(FontError::from(e), FontError::Other { .. }));
     }
 }

@@ -16,7 +16,14 @@ fn metadata_lists_chapters_back_to_back_in_milliseconds_and_escapes_values() {
 #[test]
 fn part_names_must_be_plain_files_in_the_parts_folder() {
     assert_eq!(part_name(".cadabra/audio/parts/ch-1_a.flac").unwrap(), "ch-1_a.flac");
-    for bad in [".cadabra/audio/parts/a'b.flac", ".cadabra/audio/parts/a b.flac", "exports/a.flac", ".cadabra/audio/parts/../a.flac", ".cadabra/audio/parts/a.wav", ".cadabra/audio/parts/é.flac"] {
+    for bad in [
+        ".cadabra/audio/parts/a'b.flac",
+        ".cadabra/audio/parts/a b.flac",
+        "exports/a.flac",
+        ".cadabra/audio/parts/../a.flac",
+        ".cadabra/audio/parts/a.wav",
+        ".cadabra/audio/parts/é.flac",
+    ] {
         assert!(part_name(bad).is_err(), "{bad}");
     }
     let list = concat_list(&[PathBuf::from("/p/it's/a.flac"), PathBuf::from("/p/b.flac")]);
@@ -48,7 +55,18 @@ fn arguments_map_the_audio_chapters_and_the_cover_as_an_attached_picture() {
 
 #[test]
 fn the_track_language_is_a_three_letter_code_and_odd_tags_are_undetermined() {
-    for (tag, code) in [("en", "eng"), ("fr-CA", "fra"), ("PT-br", "por"), ("zh-Hant", "zho"), ("tlh", "tlh"), ("", "und"), ("x", "und"), ("fr FR", "und"), ("fr--CA", "und"), ("fr\nCA", "und")] {
+    for (tag, code) in [
+        ("en", "eng"),
+        ("fr-CA", "fra"),
+        ("PT-br", "por"),
+        ("zh-Hant", "zho"),
+        ("tlh", "tlh"),
+        ("", "und"),
+        ("x", "und"),
+        ("fr FR", "und"),
+        ("fr--CA", "und"),
+        ("fr\nCA", "und"),
+    ] {
         assert_eq!(iso639_2(Some(tag)), code, "{tag:?}");
     }
     assert_eq!(iso639_2(None), "und");
@@ -242,7 +260,9 @@ fn real_ffmpeg_builds_an_aac_m4b_with_chapters_and_a_cover() {
     fs::create_dir_all(project.join(".cadabra/audio/parts")).unwrap();
     fs::create_dir_all(project.join("assets")).unwrap();
     fs::write(project.join("cadabra.json"), "{}").unwrap();
-    let tone = |hz: f64, secs: f64| -> Vec<i16> { (0..(24000.0 * secs) as usize).map(|i| ((i as f64 * hz * std::f64::consts::TAU / 24000.0).sin() * 8000.0) as i16).collect() };
+    let tone = |hz: f64, secs: f64| -> Vec<i16> {
+        (0..(24000.0 * secs) as usize).map(|i| ((i as f64 * hz * std::f64::consts::TAU / 24000.0).sin() * 8000.0) as i16).collect()
+    };
     for (name, hz, secs) in [("one", 300.0, 2.0), ("two", 500.0, 1.0)] {
         fs::write(project.join(format!(".cadabra/audio/parts/{name}.flac")), super::super::encode::encode_flac(24000, &tone(hz, secs)).unwrap()).unwrap();
     }

@@ -138,7 +138,13 @@ pub fn render_sample(req: &SampleRequest, sherpa: &Path, voices: Option<&Path>, 
 
 /// Renders one chapter. `progress` receives 0..1 after every batch. Everything is validated before the engine runs,
 /// and nothing is written unless the whole chapter rendered.
-pub fn render_chapter(req: &ChapterRequest, sherpa: &Path, voices: Option<&Path>, cancel: &AtomicBool, progress: &dyn Fn(f64)) -> Result<RenderedChapter, AudioError> {
+pub fn render_chapter(
+    req: &ChapterRequest,
+    sherpa: &Path,
+    voices: Option<&Path>,
+    cancel: &AtomicBool,
+    progress: &dyn Fn(f64),
+) -> Result<RenderedChapter, AudioError> {
     check_request(req)?;
     let root = project::require_project(&PathBuf::from(&req.root))?;
     for f in &req.formats {

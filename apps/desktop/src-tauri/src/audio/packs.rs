@@ -39,21 +39,66 @@ pub const PACKS: &[Pack] = &[
         id: "piper",
         voices: &["piper-amy", "piper-libritts-0"],
         files: &[
-            file!("vits-piper-en_US-amy-low/en_US-amy-low.onnx", hf!("vits-piper-en_US-amy-low", "76da6ca287517a49f58b943c4c4fdb0c1e94d61f", "en_US-amy-low.onnx"), 63104657, "8275b02c37c4ce6483b26a91704807e6de0c3f0bf8068e5d3b3598ab0da4253e"),
-            file!("vits-piper-en_US-amy-low/tokens.txt", hf!("vits-piper-en_US-amy-low", "76da6ca287517a49f58b943c4c4fdb0c1e94d61f", "tokens.txt"), 763, "42d1a69ed2b91a51928a711aa228ed9f3dc021c6d359a3e9c4f37eb1d20f80bd"),
-            file!("vits-piper-en_US-libritts_r-medium/en_US-libritts_r-medium.onnx", hf!("vits-piper-en_US-libritts_r-medium", "fe872db7e697e9f2a45d09328953f1fd2a9df630", "en_US-libritts_r-medium.onnx"), 78581047, "acd9425049d887a4d04681010c3b2ed143898b824e5bc1f2ef6ddaee4b11ad0e"),
-            file!("vits-piper-en_US-libritts_r-medium/tokens.txt", hf!("vits-piper-en_US-libritts_r-medium", "fe872db7e697e9f2a45d09328953f1fd2a9df630", "tokens.txt"), 954, "620e1aecf1a68fea3ba5850d137b0138fa2037c9b372dad13b95a2a215d0849a"),
-            file!("lexicon-en-us.txt", "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/lexicon-en-us.txt", 6305773, "8b67ae549a465eee78f92ecb74644ad90c3c58ce65f19c68baf85878a10ef73a"),
+            file!(
+                "vits-piper-en_US-amy-low/en_US-amy-low.onnx",
+                hf!("vits-piper-en_US-amy-low", "76da6ca287517a49f58b943c4c4fdb0c1e94d61f", "en_US-amy-low.onnx"),
+                63104657,
+                "8275b02c37c4ce6483b26a91704807e6de0c3f0bf8068e5d3b3598ab0da4253e"
+            ),
+            file!(
+                "vits-piper-en_US-amy-low/tokens.txt",
+                hf!("vits-piper-en_US-amy-low", "76da6ca287517a49f58b943c4c4fdb0c1e94d61f", "tokens.txt"),
+                763,
+                "42d1a69ed2b91a51928a711aa228ed9f3dc021c6d359a3e9c4f37eb1d20f80bd"
+            ),
+            file!(
+                "vits-piper-en_US-libritts_r-medium/en_US-libritts_r-medium.onnx",
+                hf!("vits-piper-en_US-libritts_r-medium", "fe872db7e697e9f2a45d09328953f1fd2a9df630", "en_US-libritts_r-medium.onnx"),
+                78581047,
+                "acd9425049d887a4d04681010c3b2ed143898b824e5bc1f2ef6ddaee4b11ad0e"
+            ),
+            file!(
+                "vits-piper-en_US-libritts_r-medium/tokens.txt",
+                hf!("vits-piper-en_US-libritts_r-medium", "fe872db7e697e9f2a45d09328953f1fd2a9df630", "tokens.txt"),
+                954,
+                "620e1aecf1a68fea3ba5850d137b0138fa2037c9b372dad13b95a2a215d0849a"
+            ),
+            file!(
+                "lexicon-en-us.txt",
+                "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/lexicon-en-us.txt",
+                6305773,
+                "8b67ae549a465eee78f92ecb74644ad90c3c58ce65f19c68baf85878a10ef73a"
+            ),
         ],
     },
     Pack {
         id: "kokoro",
         voices: &["kokoro-heart"],
         files: &[
-            file!("kokoro-multi-lang-v1_0/model.onnx", hf!("kokoro-multi-lang-v1_0", "f7b96bb6bef5c5da4d3aa4f4e0498fbbf62dc78b", "model.onnx"), 325560556, "b40f62b166ac8164b0627ef48a0b358eda0985e272fb03ef5252e7206305da11"),
-            file!("kokoro-multi-lang-v1_0/voices.bin", hf!("kokoro-multi-lang-v1_0", "f7b96bb6bef5c5da4d3aa4f4e0498fbbf62dc78b", "voices.bin"), 28200960, "1c5a5b983d3d50d8586d437a51f3faa2da7919ce76a013c081e65671a3447c29"),
-            file!("kokoro-multi-lang-v1_0/tokens.txt", hf!("kokoro-multi-lang-v1_0", "f7b96bb6bef5c5da4d3aa4f4e0498fbbf62dc78b", "tokens.txt"), 687, "6ebb6bb288f20f3ae8d004d3c2ca27697da27c037d75e81a60e2a6a663f95425"),
-            file!("kokoro-multi-lang-v1_0/lexicon-us-en.txt", hf!("kokoro-multi-lang-v1_0", "f7b96bb6bef5c5da4d3aa4f4e0498fbbf62dc78b", "lexicon-us-en.txt"), 5956885, "7daaab53a181be9885b853a8582bf1838186317e5dadacbcef9c426d6fa0da14"),
+            file!(
+                "kokoro-multi-lang-v1_0/model.onnx",
+                hf!("kokoro-multi-lang-v1_0", "f7b96bb6bef5c5da4d3aa4f4e0498fbbf62dc78b", "model.onnx"),
+                325560556,
+                "b40f62b166ac8164b0627ef48a0b358eda0985e272fb03ef5252e7206305da11"
+            ),
+            file!(
+                "kokoro-multi-lang-v1_0/voices.bin",
+                hf!("kokoro-multi-lang-v1_0", "f7b96bb6bef5c5da4d3aa4f4e0498fbbf62dc78b", "voices.bin"),
+                28200960,
+                "1c5a5b983d3d50d8586d437a51f3faa2da7919ce76a013c081e65671a3447c29"
+            ),
+            file!(
+                "kokoro-multi-lang-v1_0/tokens.txt",
+                hf!("kokoro-multi-lang-v1_0", "f7b96bb6bef5c5da4d3aa4f4e0498fbbf62dc78b", "tokens.txt"),
+                687,
+                "6ebb6bb288f20f3ae8d004d3c2ca27697da27c037d75e81a60e2a6a663f95425"
+            ),
+            file!(
+                "kokoro-multi-lang-v1_0/lexicon-us-en.txt",
+                hf!("kokoro-multi-lang-v1_0", "f7b96bb6bef5c5da4d3aa4f4e0498fbbf62dc78b", "lexicon-us-en.txt"),
+                5956885,
+                "7daaab53a181be9885b853a8582bf1838186317e5dadacbcef9c426d6fa0da14"
+            ),
         ],
     },
 ];
@@ -72,7 +117,6 @@ impl Pack {
 pub fn find_pack(id: &str) -> Result<&'static Pack, AudioError> {
     PACKS.iter().find(|p| p.id == id).ok_or_else(|| other(format!("unknown voice pack {id:?}")))
 }
-
 
 /// Removes the pack's files (and the folders they leave empty). Partial `.part` files are removed too.
 pub fn delete_pack(pack: &Pack, root: &Path) -> Result<(), AudioError> {

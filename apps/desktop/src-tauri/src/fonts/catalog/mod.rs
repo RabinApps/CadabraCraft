@@ -30,7 +30,12 @@ pub struct Family {
 /// A file of the `google/fonts` repo at the pinned commit; `$path` is already percent-encoded.
 macro_rules! file {
     ($name:literal, $path:literal, $size:literal, $sha:literal) => {
-        RemoteFile { name: $name, url: concat!("https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/", $path), size: $size, sha256: $sha }
+        RemoteFile {
+            name: $name,
+            url: concat!("https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/", $path),
+            size: $size,
+            sha256: $sha,
+        }
     };
 }
 
@@ -43,13 +48,7 @@ mod data_serif;
 mod data_serif_modern;
 
 /// Every family, grouped by kind of face.
-const GROUPS: [&[Family]; 5] = [
-    data_serif::SERIF,
-    data_serif_modern::SERIF_MODERN,
-    data_sans::SANS,
-    data_mono::MONO,
-    data_display::DISPLAY,
-];
+const GROUPS: [&[Family]; 5] = [data_serif::SERIF, data_serif_modern::SERIF_MODERN, data_sans::SANS, data_mono::MONO, data_display::DISPLAY];
 
 /// All families of the catalog, in display order.
 pub fn families() -> impl Iterator<Item = &'static Family> {
@@ -66,10 +65,7 @@ impl Family {
     /// hash matched.
     pub fn installed(&self, root: &Path) -> bool {
         let dir = root.join(self.id);
-        self.files
-            .iter()
-            .chain(std::iter::once(&self.licence))
-            .all(|f| fs::metadata(dir.join(f.name)).is_ok_and(|m| m.is_file() && m.len() == f.size))
+        self.files.iter().chain(std::iter::once(&self.licence)).all(|f| fs::metadata(dir.join(f.name)).is_ok_and(|m| m.is_file() && m.len() == f.size))
     }
 }
 
@@ -119,34 +115,12 @@ mod tests {
 
     #[test]
     fn the_catalog_has_about_forty_families_with_unique_ids_and_family_names() {
-        assert!(
-            (35..=45).contains(&families().count()),
-            "{} families",
-            families().count()
-        );
-        assert_eq!(
-            families().map(|f| f.id).collect::<HashSet<_>>().len(),
-            families().count()
-        );
-        assert_eq!(
-            families()
-                .map(|f| f.family)
-                .collect::<HashSet<_>>()
-                .len(),
-            families().count()
-        );
+        assert!((35..=45).contains(&families().count()), "{} families", families().count());
+        assert_eq!(families().map(|f| f.id).collect::<HashSet<_>>().len(), families().count());
+        assert_eq!(families().map(|f| f.family).collect::<HashSet<_>>().len(), families().count());
         for f in families() {
-            assert!(
-                f.id.bytes()
-                    .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-'),
-                "{}",
-                f.id
-            );
-            assert!(
-                !f.id.starts_with("imported"),
-                "{} would collide with imported fonts",
-                f.id
-            );
+            assert!(f.id.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-'), "{}", f.id);
+            assert!(!f.id.starts_with("imported"), "{} would collide with imported fonts", f.id);
             assert!(!f.family.trim().is_empty());
         }
     }
@@ -156,43 +130,16 @@ mod tests {
         let prefix = "https://raw.githubusercontent.com/google/fonts/";
         for f in families() {
             for file in all_files(f) {
-                let rest = file
-                    .url
-                    .strip_prefix(prefix)
-                    .unwrap_or_else(|| panic!("{}: {}", f.id, file.url));
+                let rest = file.url.strip_prefix(prefix).unwrap_or_else(|| panic!("{}: {}", f.id, file.url));
                 let (commit, path) = rest.split_once('/').unwrap();
-                assert!(
-                    commit.len() == 40
-                        && commit
-                            .bytes()
-                            .all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')),
-                    "{}: commit {commit}",
-                    f.id
-                );
+                assert!(commit.len() == 40 && commit.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')), "{}: commit {commit}", f.id);
                 assert!(path.starts_with("ofl/"), "{}: {path}", f.id);
-                assert!(
-                    !file.url.contains(['[', ']', ' ', ',']),
-                    "{}: unencoded url {}",
-                    f.id,
-                    file.url
-                );
+                assert!(!file.url.contains(['[', ']', ' ', ',']), "{}: unencoded url {}", f.id, file.url);
                 assert!(file.size > 0, "{}", file.name);
-                assert!(
-                    file.sha256.len() == 64
-                        && file
-                            .sha256
-                            .bytes()
-                            .all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')),
-                    "{}: {}",
-                    f.id,
-                    file.name
-                );
+                assert!(file.sha256.len() == 64 && file.sha256.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')), "{}: {}", f.id, file.name);
             }
         }
-        let commits: HashSet<_> = families()
-            .flat_map(all_files)
-            .map(|f| f.url[prefix.len()..prefix.len() + 40].to_string())
-            .collect();
+        let commits: HashSet<_> = families().flat_map(all_files).map(|f| f.url[prefix.len()..prefix.len() + 40].to_string()).collect();
         assert_eq!(commits.len(), 1, "one commit for the whole catalog");
     }
 
@@ -200,33 +147,14 @@ mod tests {
     fn fonts_are_ttf_or_otf_files_with_safe_unique_names_and_a_style_each() {
         for f in families() {
             assert!(!f.files.is_empty());
-            assert_eq!(
-                f.styles.len(),
-                f.files.len(),
-                "{}: one style per file",
-                f.id
-            );
+            assert_eq!(f.styles.len(), f.files.len(), "{}: one style per file", f.id);
             let names: HashSet<_> = f.files.iter().map(|x| x.name).collect();
             assert_eq!(names.len(), f.files.len(), "{}: duplicate file names", f.id);
             for file in f.files {
                 let lower = file.name.to_ascii_lowercase();
-                assert!(
-                    lower.ends_with(".ttf") || lower.ends_with(".otf"),
-                    "{}: {}",
-                    f.id,
-                    file.name
-                );
-                assert!(
-                    file.name
-                        .bytes()
-                        .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'-' | b'_')),
-                    "{}",
-                    file.name
-                );
-                assert!(
-                    file.url.to_ascii_lowercase().ends_with(".ttf")
-                        || file.url.to_ascii_lowercase().ends_with(".otf")
-                );
+                assert!(lower.ends_with(".ttf") || lower.ends_with(".otf"), "{}: {}", f.id, file.name);
+                assert!(file.name.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'-' | b'_')), "{}", file.name);
+                assert!(file.url.to_ascii_lowercase().ends_with(".ttf") || file.url.to_ascii_lowercase().ends_with(".otf"));
             }
         }
     }
@@ -236,18 +164,10 @@ mod tests {
         for f in families() {
             assert_eq!(f.licence.name, "OFL.txt", "{}", f.id);
             assert!(f.licence.url.ends_with("/OFL.txt"), "{}", f.id);
-            assert!(
-                (1_000..20_000).contains(&f.licence.size),
-                "{}: {}",
-                f.id,
-                f.licence.size
-            );
+            assert!((1_000..20_000).contains(&f.licence.size), "{}: {}", f.id, f.licence.size);
         }
         let info = list_catalog(None);
-        assert!(info.iter().all(|i| i.licence == "OFL-1.1"
-            && i.licence_url.ends_with("/OFL.txt")
-            && !i.installed
-            && i.bytes > 0));
+        assert!(info.iter().all(|i| i.licence == "OFL-1.1" && i.licence_url.ends_with("/OFL.txt") && !i.installed && i.bytes > 0));
     }
 
     #[test]
@@ -297,15 +217,7 @@ mod tests {
     #[test]
     fn the_info_serializes_with_the_camel_case_names_of_the_bridge() {
         let v = serde_json::to_value(&list_catalog(None)[0]).unwrap();
-        for key in [
-            "id",
-            "family",
-            "styles",
-            "bytes",
-            "installed",
-            "licence",
-            "licenceUrl",
-        ] {
+        for key in ["id", "family", "styles", "bytes", "installed", "licence", "licenceUrl"] {
             assert!(v.get(key).is_some(), "{key}");
         }
     }
@@ -316,15 +228,7 @@ mod tests {
         let cancel = std::sync::atomic::AtomicBool::new(false);
         for f in files {
             let dest = dir.join(f.name);
-            tauri::async_runtime::block_on(crate::audio::download::download_file(
-                &client,
-                f.url,
-                f.size,
-                f.sha256,
-                &dest,
-                &cancel,
-                &mut |_| {},
-            ))?;
+            tauri::async_runtime::block_on(crate::audio::download::download_file(&client, f.url, f.size, f.sha256, &dest, &cancel, &mut |_| {}))?;
         }
         Ok(())
     }
@@ -332,11 +236,7 @@ mod tests {
     /// Opt-in (CADABRA_NET_TESTS=1): the licence texts are small, so fetch them from the real server and check the pins.
     #[test]
     fn real_licence_files_match_their_pins() {
-        let count = if std::env::var("CADABRA_NET_TESTS").as_deref() == Ok("1") {
-            3
-        } else {
-            0
-        };
+        let count = if std::env::var("CADABRA_NET_TESTS").as_deref() == Ok("1") { 3 } else { 0 };
         let files: Vec<&RemoteFile> = families().take(count).map(|f| &f.licence).collect();
         download_pins(&files, tempfile::tempdir().unwrap().path(), true).unwrap();
     }
@@ -347,18 +247,8 @@ mod tests {
         let body = b"licence text".to_vec();
         let url: &'static str = Box::leak(serve(body.clone(), Mode::Normal).url.into_boxed_str());
         let sha: &'static str = Box::leak(stub::sha(&body).into_boxed_str());
-        let good = RemoteFile {
-            name: "OFL.txt",
-            url,
-            size: body.len() as u64,
-            sha256: sha,
-        };
-        let bad = RemoteFile {
-            name: "BAD.txt",
-            url,
-            size: body.len() as u64,
-            sha256: "0000000000000000000000000000000000000000000000000000000000000000",
-        };
+        let good = RemoteFile { name: "OFL.txt", url, size: body.len() as u64, sha256: sha };
+        let bad = RemoteFile { name: "BAD.txt", url, size: body.len() as u64, sha256: "0000000000000000000000000000000000000000000000000000000000000000" };
         let dir = tempfile::tempdir().unwrap();
         download_pins(&[&good], dir.path(), false).unwrap();
         assert_eq!(fs::read(dir.path().join("OFL.txt")).unwrap(), body);

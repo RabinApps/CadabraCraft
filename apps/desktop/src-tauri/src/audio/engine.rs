@@ -27,9 +27,14 @@ pub fn find_sherpa() -> Result<PathBuf, AudioError> {
 pub fn find_sherpa_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>, dev: bool) -> Result<PathBuf, AudioError> {
     if let Some(g) = env_bin.map(str::trim).filter(|g| dev && !g.is_empty()) {
         let p = PathBuf::from(g);
-        return if is_executable(&p) { Ok(p) } else { Err(AudioError::NotFound { message: format!("No runnable voice engine at {g} (from SHERPA_TTS_BIN). {INSTALL_ADVICE}") }) };
+        return if is_executable(&p) {
+            Ok(p)
+        } else {
+            Err(AudioError::NotFound { message: format!("No runnable voice engine at {g} (from SHERPA_TTS_BIN). {INSTALL_ADVICE}") })
+        };
     }
-    find_executable(&[BINARY], &search_dirs(bundled, path_var.filter(|_| dev), &[])).ok_or_else(|| AudioError::NotFound { message: format!("The voice engine was not found. {INSTALL_ADVICE}") })
+    find_executable(&[BINARY], &search_dirs(bundled, path_var.filter(|_| dev), &[]))
+        .ok_or_else(|| AudioError::NotFound { message: format!("The voice engine was not found. {INSTALL_ADVICE}") })
 }
 
 const FFMPEG: &str = if cfg!(windows) { "ffmpeg.exe" } else { "ffmpeg" };
@@ -46,9 +51,14 @@ pub fn find_ffmpeg() -> Result<PathBuf, AudioError> {
 pub fn find_ffmpeg_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>, dev: bool) -> Result<PathBuf, AudioError> {
     if let Some(g) = env_bin.map(str::trim).filter(|g| dev && !g.is_empty()) {
         let p = PathBuf::from(g);
-        return if is_executable(&p) { Ok(p) } else { Err(AudioError::NotFound { message: format!("No runnable encoder at {g} (from FFMPEG_BIN). {FFMPEG_ADVICE}") }) };
+        return if is_executable(&p) {
+            Ok(p)
+        } else {
+            Err(AudioError::NotFound { message: format!("No runnable encoder at {g} (from FFMPEG_BIN). {FFMPEG_ADVICE}") })
+        };
     }
-    find_executable(&[FFMPEG], &search_dirs(bundled, path_var.filter(|_| dev), &[])).ok_or_else(|| AudioError::NotFound { message: format!("The audio encoder was not found. {FFMPEG_ADVICE}") })
+    find_executable(&[FFMPEG], &search_dirs(bundled, path_var.filter(|_| dev), &[]))
+        .ok_or_else(|| AudioError::NotFound { message: format!("The audio encoder was not found. {FFMPEG_ADVICE}") })
 }
 
 /// Runs ffmpeg in `cwd` with a timeout and the cancel flag (the same process rules as the voice engine).
@@ -64,8 +74,20 @@ pub(crate) fn run_cancellable(bin: &Path, args: &[String], timeout: Duration, ca
 }
 
 /// Runs the engine over the chunks and joins the batches with their pauses. Shared by a chapter render and a sample.
-pub(crate) fn synthesize(chunks: &[Chunk], voice_id: &str, speed: f64, sherpa: &Path, voices: Option<&Path>, cancel: &AtomicBool, progress: &dyn Fn(f64)) -> Result<(Vec<i16>, u32), AudioError> {
-    let voice = VOICES.iter().find(|v| v.id == voice_id).filter(|v| voices.is_some_and(|r| v.installed(r))).ok_or_else(|| AudioError::VoiceMissing { voice: voice_id.to_string() })?;
+pub(crate) fn synthesize(
+    chunks: &[Chunk],
+    voice_id: &str,
+    speed: f64,
+    sherpa: &Path,
+    voices: Option<&Path>,
+    cancel: &AtomicBool,
+    progress: &dyn Fn(f64),
+) -> Result<(Vec<i16>, u32), AudioError> {
+    let voice = VOICES
+        .iter()
+        .find(|v| v.id == voice_id)
+        .filter(|v| voices.is_some_and(|r| v.installed(r)))
+        .ok_or_else(|| AudioError::VoiceMissing { voice: voice_id.to_string() })?;
     let voices = voices.unwrap_or(Path::new(""));
     let batches = plan_batches(chunks);
     let total: usize = batches.iter().map(|b| b.text.len()).sum::<usize>().max(1);
@@ -80,7 +102,13 @@ pub(crate) fn synthesize(chunks: &[Chunk], voice_id: &str, speed: f64, sherpa: &
         let r = run_cancellable(sherpa, &engine_args(voice, voices, speed, threads, &out, &b.text), BATCH_TIMEOUT, cancel)?;
         if !r.success || !out.is_file() {
             let msg = r.stderr.trim();
-            return Err(AudioError::Synth { message: if msg.is_empty() { "the voice engine exited with an error and no message".into() } else { msg.chars().rev().take(2000).collect::<Vec<_>>().into_iter().rev().collect() } });
+            return Err(AudioError::Synth {
+                message: if msg.is_empty() {
+                    "the voice engine exited with an error and no message".into()
+                } else {
+                    msg.chars().rev().take(2000).collect::<Vec<_>>().into_iter().rev().collect()
+                },
+            });
         }
         let pcm = parse_wav(&read_batch_wav(&out)?)?;
         if rate != 0 && pcm.rate != rate {

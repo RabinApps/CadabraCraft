@@ -25,7 +25,14 @@ fn wav(chunks: &[(&[u8; 4], u32, Vec<u8>)]) -> Vec<u8> {
 
 #[test]
 fn files_that_are_empty_cut_off_or_only_a_header_are_refused() {
-    for bytes in [vec![], b"RIFF".to_vec(), b"RIFF\0\0\0\0WAVE".to_vec(), b"RIFF\0\0\0\0WAVE\x01\x02\x03".to_vec(), b"RIFX\0\0\0\0WAVE".to_vec(), b"RIFF\0\0\0\0WAVF".to_vec()] {
+    for bytes in [
+        vec![],
+        b"RIFF".to_vec(),
+        b"RIFF\0\0\0\0WAVE".to_vec(),
+        b"RIFF\0\0\0\0WAVE\x01\x02\x03".to_vec(),
+        b"RIFX\0\0\0\0WAVE".to_vec(),
+        b"RIFF\0\0\0\0WAVF".to_vec(),
+    ] {
         assert!(matches!(parse_wav(&bytes), Err(AudioError::Synth { .. })), "{} bytes", bytes.len());
     }
     // Every prefix of a good file is either readable (with fewer samples) or a typed error.
@@ -56,7 +63,14 @@ fn chunk_sizes_that_wrap_or_point_past_the_end_do_not_panic() {
 #[test]
 fn unsupported_formats_are_refused_by_what_they_are() {
     let data = (b"data", 2, vec![1, 0]);
-    for (what, f) in [("float", fmt_body(3, 1, 16000, 32)), ("stereo", fmt_body(1, 2, 16000, 16)), ("8 bit", fmt_body(1, 1, 16000, 8)), ("zero rate", fmt_body(1, 1, 0, 16)), ("rate over the limit", fmt_body(1, 1, MAX_RATE + 1, 16)), ("zero channels", fmt_body(1, 0, 16000, 16))] {
+    for (what, f) in [
+        ("float", fmt_body(3, 1, 16000, 32)),
+        ("stereo", fmt_body(1, 2, 16000, 16)),
+        ("8 bit", fmt_body(1, 1, 16000, 8)),
+        ("zero rate", fmt_body(1, 1, 0, 16)),
+        ("rate over the limit", fmt_body(1, 1, MAX_RATE + 1, 16)),
+        ("zero channels", fmt_body(1, 0, 16000, 16)),
+    ] {
         let r = parse_wav(&wav(&[(b"fmt ", 16, f), (data.0, data.1, data.2.clone())]));
         assert!(matches!(r, Err(AudioError::Synth { .. })), "{what}");
     }

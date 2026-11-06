@@ -15,7 +15,11 @@ fn import_picked(picked: &PickedPaths, root: &str, source: &str) -> Result<Impor
 /// Copies a file the user picked into `references/`; returns where it went and what it is. Any other source is refused.
 #[tauri::command]
 pub async fn import_reference(picked: State<'_, PickedPaths>, root: String, source: String) -> Result<ImportedReference, ProjectError> {
-    blocking({ let picked = picked.inner().clone(); move || import_picked(&picked, &root, &source) }).await
+    blocking({
+        let picked = picked.inner().clone();
+        move || import_picked(&picked, &root, &source)
+    })
+    .await
 }
 
 /// Size and kind of `references/<name>`.

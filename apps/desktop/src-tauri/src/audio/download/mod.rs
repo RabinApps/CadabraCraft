@@ -46,7 +46,9 @@ pub(crate) fn client(https_only: bool) -> Result<reqwest::Client, AudioError> {
         .https_only(https_only)
         .connect_timeout(Duration::from_secs(20))
         .read_timeout(Duration::from_secs(60))
-        .redirect(reqwest::redirect::Policy::custom(move |a| if follow_redirect(a.previous().len(), a.url().scheme(), https_only) { a.follow() } else { a.stop() }))
+        .redirect(reqwest::redirect::Policy::custom(
+            move |a| if follow_redirect(a.previous().len(), a.url().scheme(), https_only) { a.follow() } else { a.stop() },
+        ))
         .build()
         .map_err(net_err)
 }
@@ -88,13 +90,30 @@ pub const DEADLINE: Duration = Duration::from_secs(30 * 60);
 /// Downloads `url` to `dest`, resuming a `.part` file when the server honours `Range`, and renames it into place only
 /// when its size and sha256 match. `progress` receives the bytes of this file present so far (including resumed ones).
 /// Cancel leaves the `.part` file for a later resume; a hash mismatch deletes it.
-pub async fn download_file(client: &reqwest::Client, url: &str, size: u64, sha256: &str, dest: &Path, cancel: &AtomicBool, progress: &mut (dyn FnMut(u64) + Send)) -> Result<(), AudioError> {
+pub async fn download_file(
+    client: &reqwest::Client,
+    url: &str,
+    size: u64,
+    sha256: &str,
+    dest: &Path,
+    cancel: &AtomicBool,
+    progress: &mut (dyn FnMut(u64) + Send),
+) -> Result<(), AudioError> {
     download_file_within(client, url, size, sha256, dest, cancel, progress, DEADLINE).await
 }
 
 /// `download_file` with its overall time limit given (the tests use a short one).
 #[allow(clippy::too_many_arguments)]
-pub(crate) async fn download_file_within(client: &reqwest::Client, url: &str, size: u64, sha256: &str, dest: &Path, cancel: &AtomicBool, progress: &mut (dyn FnMut(u64) + Send), deadline: Duration) -> Result<(), AudioError> {
+pub(crate) async fn download_file_within(
+    client: &reqwest::Client,
+    url: &str,
+    size: u64,
+    sha256: &str,
+    dest: &Path,
+    cancel: &AtomicBool,
+    progress: &mut (dyn FnMut(u64) + Send),
+    deadline: Duration,
+) -> Result<(), AudioError> {
     let started = Instant::now();
     if fs::metadata(dest).is_ok_and(|m| m.is_file() && m.len() == size) {
         // A file of the right size is only trusted when its hash matches too (it may be a corrupt or swapped file).
@@ -196,7 +215,13 @@ pub struct DownloadProgress {
 }
 
 /// Downloads every file of `pack` that is not installed yet, one after another.
-pub async fn download_pack(client: &reqwest::Client, pack: &Pack, root: &Path, cancel: &AtomicBool, on_progress: &(dyn Fn(DownloadProgress) + Send + Sync)) -> Result<(), AudioError> {
+pub async fn download_pack(
+    client: &reqwest::Client,
+    pack: &Pack,
+    root: &Path,
+    cancel: &AtomicBool,
+    on_progress: &(dyn Fn(DownloadProgress) + Send + Sync),
+) -> Result<(), AudioError> {
     let total = pack.bytes();
     let mut before = 0u64;
     for f in pack.files {
@@ -209,12 +234,12 @@ pub async fn download_pack(client: &reqwest::Client, pack: &Pack, root: &Path, c
 /// A loopback HTTP server for the download tests (and the command tests), so nothing here touches the network.
 #[cfg(test)]
 pub(crate) mod stub {
+    use crate::audio::packs::{Pack, RemoteFile};
+    use sha2::{Digest, Sha256};
     use std::io::{BufRead, BufReader, Write};
     use std::net::TcpListener;
     use std::sync::{Arc, Mutex};
     use std::time::Duration;
-    use crate::audio::packs::{Pack, RemoteFile};
-    use sha2::{Digest, Sha256};
 
     #[derive(Clone, Copy, PartialEq)]
     pub(crate) enum Mode {
@@ -317,7 +342,6 @@ pub(crate) mod stub {
         h.update(b);
         super::hex(h)
     }
-
 }
 
 #[cfg(test)]

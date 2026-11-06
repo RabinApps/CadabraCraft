@@ -173,7 +173,9 @@ pub fn classify(style_id: Option<&str>, styles: &Styles) -> Cls {
         if let Some(d) = with_digit(&name, "list number") {
             return Cls::List { ordered: true, level: d.map_or(0.0, |d| f64::from(d) - 1.0), checked: None };
         }
-        if ["normal", "body text", "body text 2", "body text 3", "first paragraph", "no spacing", "plain text", "list paragraph", "default"].contains(&name.as_str()) {
+        if ["normal", "body text", "body text 2", "body text 3", "first paragraph", "no spacing", "plain text", "list paragraph", "default"]
+            .contains(&name.as_str())
+        {
             return Cls::Normal { fallback: None };
         }
         id = st.based_on.clone();
@@ -315,30 +317,33 @@ mod tests {
 
     #[test]
     fn classifies_styles_by_name_and_through_based_on() {
-        let s = styles(&[
-            style("H1", "heading 1", Some("Normal")),
-            style("H9", "Heading 9", None),
-            style("H10", "heading 10", None),
-            style("Q", " Block Quote ", None),
-            style("Code", "Source Code", None),
-            style("MyCode", "My Listing", Some("Code")),
-            style("DT", "Definition Term", None),
-            style("D", "Definition", None),
-            style("LB", "List Bullet", None),
-            style("LB3", "List Bullet 3", None),
-            style("LN2", "list number 2", None),
-            style("LN", "List Number", None),
-            style("LB10", "List Bullet 10", None),
-            style("LBx", "List Bullet x", None),
-            style("LB0", "List Bullet 0", None),
-            style("Normal", "Normal", None),
-            style("BT", "Body Text 3", None),
-            style("Custom", "My Custom", Some("Missing")),
-            style("Loop1", "L1", Some("Loop2")),
-            style("Loop2", "L2", Some("Loop1")),
-            style("Chain", "Chain", Some("H1")),
-            style("Blank", "Blank", Some("")),
-        ].concat());
+        let s = styles(
+            &[
+                style("H1", "heading 1", Some("Normal")),
+                style("H9", "Heading 9", None),
+                style("H10", "heading 10", None),
+                style("Q", " Block Quote ", None),
+                style("Code", "Source Code", None),
+                style("MyCode", "My Listing", Some("Code")),
+                style("DT", "Definition Term", None),
+                style("D", "Definition", None),
+                style("LB", "List Bullet", None),
+                style("LB3", "List Bullet 3", None),
+                style("LN2", "list number 2", None),
+                style("LN", "List Number", None),
+                style("LB10", "List Bullet 10", None),
+                style("LBx", "List Bullet x", None),
+                style("LB0", "List Bullet 0", None),
+                style("Normal", "Normal", None),
+                style("BT", "Body Text 3", None),
+                style("Custom", "My Custom", Some("Missing")),
+                style("Loop1", "L1", Some("Loop2")),
+                style("Loop2", "L2", Some("Loop1")),
+                style("Chain", "Chain", Some("H1")),
+                style("Blank", "Blank", Some("")),
+            ]
+            .concat(),
+        );
         let c = |id| classify(Some(id), &s);
         assert_eq!(c("H1"), Cls::Heading(1));
         assert_eq!(c("H9"), Cls::Heading(9));

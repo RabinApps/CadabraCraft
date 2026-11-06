@@ -1,9 +1,9 @@
 //! The Tauri command layer for the audiobook export and the voice packs. Work runs on Tauri's blocking pool.
 use super::download::{build_client, download_pack, DownloadProgress};
 use super::engine::{find_ffmpeg, find_sherpa};
-use super::m4b::{build_m4b, BuiltM4b, M4bRequest};
 use super::error::{other, AudioError};
 use super::jobs::{voices_root, AudioJobs};
+use super::m4b::{build_m4b, BuiltM4b, M4bRequest};
 use super::packs::{delete_pack, find_pack, list_packs, Pack, PackInfo};
 use super::render::{render_chapter, render_sample, write_transcript, ChapterRequest, RenderedChapter, SampleRequest};
 use super::voices::{list_voices, VoiceInfo};
@@ -18,7 +18,13 @@ pub async fn audio_voices() -> Result<Vec<VoiceInfo>, AudioError> {
 }
 
 /// The body of `audio_render_chapter`. `find` locates the engine; `on_progress` gets 0..1 after every batch.
-async fn render_chapter_job(jobs: &AudioJobs, request: ChapterRequest, on_progress: tauri::ipc::Channel<f64>, find: Finder, voices: Option<PathBuf>) -> Result<RenderedChapter, AudioError> {
+async fn render_chapter_job(
+    jobs: &AudioJobs,
+    request: ChapterRequest,
+    on_progress: tauri::ipc::Channel<f64>,
+    find: Finder,
+    voices: Option<PathBuf>,
+) -> Result<RenderedChapter, AudioError> {
     let flag = jobs.flag(&request.job_id);
     crate::platform::blocking(move || {
         let sherpa = find()?;
@@ -31,7 +37,11 @@ async fn render_chapter_job(jobs: &AudioJobs, request: ChapterRequest, on_progre
 
 /// Renders one chapter off the UI thread and reports 0..1 progress on `on_progress`.
 #[tauri::command]
-pub async fn audio_render_chapter(state: tauri::State<'_, AudioJobs>, request: ChapterRequest, on_progress: tauri::ipc::Channel<f64>) -> Result<RenderedChapter, AudioError> {
+pub async fn audio_render_chapter(
+    state: tauri::State<'_, AudioJobs>,
+    request: ChapterRequest,
+    on_progress: tauri::ipc::Channel<f64>,
+) -> Result<RenderedChapter, AudioError> {
     render_chapter_job(&state, request, on_progress, Box::new(find_sherpa), voices_root()).await
 }
 
@@ -81,10 +91,7 @@ pub fn audio_forget(state: tauri::State<'_, AudioJobs>, job_id: String) {
 /// Which of these project-relative paths are existing regular files. Used to trust a cached chapter only while its
 /// audio files are still on disk. A path outside the project is refused like everywhere else.
 pub(crate) fn files_exist(root: &std::path::Path, paths: &[String]) -> Result<Vec<bool>, AudioError> {
-    paths
-        .iter()
-        .map(|rel| Ok(crate::project::resolve(root, rel)?.symlink_metadata().map(|m| m.is_file()).unwrap_or(false)))
-        .collect()
+    paths.iter().map(|rel| Ok(crate::project::resolve(root, rel)?.symlink_metadata().map(|m| m.is_file()).unwrap_or(false))).collect()
 }
 
 #[tauri::command]
@@ -109,7 +116,14 @@ pub async fn audio_packs() -> Result<Vec<PackInfo>, AudioError> {
 
 /// The body of `audio_download_pack`. `pack` is the catalog lookup and `client` builds the HTTP client, so tests can use a
 /// stand-in pack and a client that talks to a loopback server.
-async fn download_pack_job(jobs: &AudioJobs, pack: Result<&Pack, AudioError>, job_id: String, on_progress: tauri::ipc::Channel<DownloadProgress>, voices: Option<PathBuf>, client: fn() -> Result<reqwest::Client, AudioError>) -> Result<(), AudioError> {
+async fn download_pack_job(
+    jobs: &AudioJobs,
+    pack: Result<&Pack, AudioError>,
+    job_id: String,
+    on_progress: tauri::ipc::Channel<DownloadProgress>,
+    voices: Option<PathBuf>,
+    client: fn() -> Result<reqwest::Client, AudioError>,
+) -> Result<(), AudioError> {
     let pack = pack?;
     let root = require_root(voices)?;
     let _running = jobs.begin_download(pack.id).ok_or_else(|| other("this voice pack is already downloading"))?;
@@ -124,7 +138,12 @@ async fn download_pack_job(jobs: &AudioJobs, pack: Result<&Pack, AudioError>, jo
 /// Downloads a voice pack. `on_progress` gets the bytes of the whole pack. Stop it with `audio_cancel(job_id)`; a stopped
 /// or failed download resumes on the next call.
 #[tauri::command]
-pub async fn audio_download_pack(state: tauri::State<'_, AudioJobs>, pack: String, job_id: String, on_progress: tauri::ipc::Channel<DownloadProgress>) -> Result<(), AudioError> {
+pub async fn audio_download_pack(
+    state: tauri::State<'_, AudioJobs>,
+    pack: String,
+    job_id: String,
+    on_progress: tauri::ipc::Channel<DownloadProgress>,
+) -> Result<(), AudioError> {
     download_pack_job(&state, find_pack(&pack), job_id, on_progress, voices_root(), build_client).await
 }
 
@@ -288,7 +307,10 @@ mod tests {
             let wav = dir.path().join("fixture.wav");
             std::fs::write(&wav, write_wav(24000, &[1000i16; 2400]).unwrap()).unwrap();
             let engine = dir.path().join("fake-engine");
-            let script = format!("#!/bin/sh\nfor a in \"$@\"; do case \"$a\" in --output-filename=*) out=\"${{a#--output-filename=}}\";; esac; OUT=\"$a\"; done\n{}\n", body.replace("$WAV", &wav.to_string_lossy()));
+            let script = format!(
+                "#!/bin/sh\nfor a in \"$@\"; do case \"$a\" in --output-filename=*) out=\"${{a#--output-filename=}}\";; esac; OUT=\"$a\"; done\n{}\n",
+                body.replace("$WAV", &wav.to_string_lossy())
+            );
             std::fs::write(&engine, script).unwrap();
             std::fs::set_permissions(&engine, std::fs::Permissions::from_mode(0o755)).unwrap();
             Fixture { _dir: dir, project, voices, engine }
@@ -327,7 +349,8 @@ mod tests {
         }
 
         fn sample_request() -> SampleRequest {
-            serde_json::from_value(serde_json::json!({ "jobId": "s", "chunks": [{ "text": "Hello.", "pauseAfterMs": 0 }], "voice": "piper-amy", "speed": 1.0 })).unwrap()
+            serde_json::from_value(serde_json::json!({ "jobId": "s", "chunks": [{ "text": "Hello.", "pauseAfterMs": 0 }], "voice": "piper-amy", "speed": 1.0 }))
+                .unwrap()
         }
 
         #[test]
@@ -342,7 +365,9 @@ mod tests {
         #[test]
         fn an_m4b_job_runs_the_encoder_it_finds() {
             let f = fixture("echo m4b > \"$OUT\"");
-            let request = || -> M4bRequest { serde_json::from_value(serde_json::json!({ "jobId": "m", "root": f.project, "base": "exports/audio/book", "title": "Book", "author": "Me", "cover": null, "chapters": [{ "title": "One", "part": ".cadabra/audio/parts/a.flac", "durationSec": 1.0 }] })).unwrap() };
+            let request = || -> M4bRequest {
+                serde_json::from_value(serde_json::json!({ "jobId": "m", "root": f.project, "base": "exports/audio/book", "title": "Book", "author": "Me", "cover": null, "chapters": [{ "title": "One", "part": ".cadabra/audio/parts/a.flac", "durationSec": 1.0 }] })).unwrap()
+            };
             let built = run(build_m4b_job(&AudioJobs::default(), request(), found(&f))).unwrap();
             assert_eq!(built.path, "exports/audio/book.m4b");
             assert!(f.project.join("exports/audio/book.m4b").is_file());

@@ -28,7 +28,10 @@ fn kinds_and_caps_follow_the_extension() {
     assert_eq!(kind_of("md"), ReferenceKind::Text);
     assert_eq!(kind_of("xlsx"), ReferenceKind::Other);
     assert_eq!(kind_of(""), ReferenceKind::Other);
-    let caps: Vec<u64> = [ReferenceKind::Video, ReferenceKind::Audio, ReferenceKind::Pdf, ReferenceKind::Image, ReferenceKind::Other, ReferenceKind::Text].iter().map(|k| max_bytes(*k) / MB).collect();
+    let caps: Vec<u64> = [ReferenceKind::Video, ReferenceKind::Audio, ReferenceKind::Pdf, ReferenceKind::Image, ReferenceKind::Other, ReferenceKind::Text]
+        .iter()
+        .map(|k| max_bytes(*k) / MB)
+        .collect();
     assert_eq!(caps, vec![500, 200, 200, 100, 100, 5]);
 }
 
@@ -63,7 +66,11 @@ fn every_supported_type_is_imported_with_a_sanitized_name() {
     let got = import_reference(proj.path(), &src(&out, " Spaced Title .txt", b"x")).unwrap();
     assert_eq!(got.title, "Spaced Title");
     assert_eq!(import_reference(proj.path(), &src(&out, ".md", b"x")).unwrap().title, "file");
-    let left: Vec<_> = fs::read_dir(proj.path().join("references")).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).filter(|n| n.ends_with(".tmp")).collect();
+    let left: Vec<_> = fs::read_dir(proj.path().join("references"))
+        .unwrap()
+        .map(|e| e.unwrap().file_name().to_string_lossy().into_owned())
+        .filter(|n| n.ends_with(".tmp"))
+        .collect();
     assert!(left.is_empty(), "{left:?}");
 }
 
@@ -93,14 +100,52 @@ fn refuses_blocked_types_bad_names_fake_content_and_non_files() {
     for name in ["setup.exe", "a.SH", "page.html", "x.js", "tool.app"] {
         assert!(matches!(err(name, b"x"), ProjectError::UnsupportedReference { .. }), "{name}");
     }
-    for name in ["a.py", "a.rb", "a.pl", "a.scpt", "a.terminal", "a.url", "a.webloc", "a.desktop", "a.docm", "a.XLSM", "a.chm", "a.cpl", "a.command", "a.pkg", "a.dmg", "a.jar", "a.ps1", "a.vbs", "a.wsf", "a.hta", "a.lnk", "a.inf", "a.reg", "a.sh", "a.bash", "a.zsh", "a.ps1xml", "a.pptm", "a.workflow"] {
+    for name in [
+        "a.py",
+        "a.rb",
+        "a.pl",
+        "a.scpt",
+        "a.terminal",
+        "a.url",
+        "a.webloc",
+        "a.desktop",
+        "a.docm",
+        "a.XLSM",
+        "a.chm",
+        "a.cpl",
+        "a.command",
+        "a.pkg",
+        "a.dmg",
+        "a.jar",
+        "a.ps1",
+        "a.vbs",
+        "a.wsf",
+        "a.hta",
+        "a.lnk",
+        "a.inf",
+        "a.reg",
+        "a.sh",
+        "a.bash",
+        "a.zsh",
+        "a.ps1xml",
+        "a.pptm",
+        "a.workflow",
+    ] {
         assert!(matches!(err(name, b"x"), ProjectError::UnsupportedReference { .. }), "{name}");
     }
     for ext in ["docx", "xlsx", "epub", "zip", "csv", "json"] {
         assert!(!BLOCKED.contains(&ext), "{ext} is ordinary research material");
     }
     // No extension: only a recognizable file is kept, never a program or unknown bytes.
-    let programs: [(&str, &[u8]); 7] = [("tool", &[0x7f, b'E', b'L', b'F', 2, 1][..]), ("tool2", &[0xcf, 0xfa, 0xed, 0xfe, 7][..]), ("tool3", b"MZ\x90\0"), ("run", b"#!/bin/sh\necho hi"), ("blob", &[1, 2, 3][..]), ("nul", b"a\0b"), ("latin", &[0x80, 0x81][..])];
+    let programs: [(&str, &[u8]); 7] = [
+        ("tool", &[0x7f, b'E', b'L', b'F', 2, 1][..]),
+        ("tool2", &[0xcf, 0xfa, 0xed, 0xfe, 7][..]),
+        ("tool3", b"MZ\x90\0"),
+        ("run", b"#!/bin/sh\necho hi"),
+        ("blob", &[1, 2, 3][..]),
+        ("nul", b"a\0b"),
+        ("latin", &[0x80, 0x81][..]),
+    ];
     for (name, bytes) in programs {
         assert!(matches!(err(name, bytes), ProjectError::UnsupportedReference { .. }), "{name}");
     }
@@ -193,7 +238,9 @@ fn only_flat_references_paths_are_served() {
     fs::create_dir_all(proj.path().join("references/sub")).unwrap();
     fs::write(proj.path().join("cadabra.json"), "{}").unwrap();
     fs::write(proj.path().join("references/sub/a.pdf"), "x").unwrap();
-    for rel in ["cadabra.json", "assets/a.png", "references", "references/", "references/sub/a.pdf", "references/../cadabra.json", "/etc/passwd", "references\\a.pdf"] {
+    for rel in
+        ["cadabra.json", "assets/a.png", "references", "references/", "references/sub/a.pdf", "references/../cadabra.json", "/etc/passwd", "references\\a.pdf"]
+    {
         assert!(read_reference_range(proj.path(), rel, 0, 1).is_err(), "{rel}");
         assert!(stat_reference(proj.path(), rel).is_err(), "{rel}");
         assert!(trash_reference(proj.path(), rel).is_err(), "{rel}");
@@ -252,7 +299,9 @@ fn extensionless_files_open_only_when_their_content_is_a_document_or_media() {
     assert_eq!(open("README", b"plain text notes\n").unwrap(), refs.join("README"));
     assert_eq!(open("scan", &PNG).unwrap(), refs.join("scan"));
     assert!(open("empty", b"").is_ok(), "an empty file follows the import sniff, which accepts it");
-    for (name, bytes) in [("elf", &b"\x7fELF\x02\x01\x01\0"[..]), ("mz", b"MZ\x90\0\x03\0\0\0"), ("script", b"#!/bin/sh\necho hi\n"), ("blob", &[0xde, 0xad, 0x01, 0x02][..])] {
+    for (name, bytes) in
+        [("elf", &b"\x7fELF\x02\x01\x01\0"[..]), ("mz", b"MZ\x90\0\x03\0\0\0"), ("script", b"#!/bin/sh\necho hi\n"), ("blob", &[0xde, 0xad, 0x01, 0x02][..])]
+    {
         assert!(matches!(open(name, bytes).unwrap_err(), ProjectError::UnsupportedReference { .. }), "{name}");
     }
 }

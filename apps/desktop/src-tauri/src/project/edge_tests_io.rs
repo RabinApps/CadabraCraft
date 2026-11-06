@@ -1,6 +1,6 @@
 //! Edge cases, second half: special files, a link swapped between check and use, concurrency and clock extremes.
 //! See `edge_tests.rs` for the first half and the shared helpers.
-use super::edge_tests::{PAGE, at, book, temp_files, within};
+use super::edge_tests::{at, book, temp_files, within, PAGE};
 use super::snapshots::SnapshotMode;
 use super::*;
 use chrono::{DateTime, Utc};
@@ -63,7 +63,8 @@ fn special_files_inside_the_project_are_typed_errors_for_every_page_and_referenc
     for path in pages {
         let rel = format!("manuscript/{}", path.file_name().unwrap().to_string_lossy());
         let (root, r) = (d.path().to_path_buf(), rel.clone());
-        let (read, write, trash, snaps) = within(move || (read_file(&root, &r), write_file(&root, &r, "x", None), trash_file(&root, &r), snapshots::list_snapshots(&root, &r)));
+        let (read, write, trash, snaps) =
+            within(move || (read_file(&root, &r), write_file(&root, &r, "x", None), trash_file(&root, &r), snapshots::list_snapshots(&root, &r)));
         assert!(read.is_err(), "read {rel}: {read:?}");
         assert!(write.is_err(), "write {rel}: {write:?}");
         assert!(trash.is_err(), "trash {rel}: {trash:?}");
@@ -74,7 +75,8 @@ fn special_files_inside_the_project_are_typed_errors_for_every_page_and_referenc
         let rel = format!("references/{}", path.file_name().unwrap().to_string_lossy());
         let (root, r) = (d.path().to_path_buf(), rel.clone());
         let name = rel.clone();
-        let (stat, range, open, media) = within(move || (stat_reference(&root, &r), read_reference_range(&root, &r, 0, 10), reference_open_path(&root, &r), read_media(&root, &r, None)));
+        let (stat, range, open, media) =
+            within(move || (stat_reference(&root, &r), read_reference_range(&root, &r, 0, 10), reference_open_path(&root, &r), read_media(&root, &r, None)));
         let is_mp4 = name.ends_with(".mp4");
         assert!(stat.is_err(), "stat {name}: {stat:?}");
         assert!(range.is_err(), "range {name}: {range:?}");
@@ -280,7 +282,10 @@ fn two_book_snapshots_in_one_minute_both_exist_and_the_second_is_numbered() {
     let a = book_snapshots::create_book_snapshot(d.path(), "a", now).unwrap();
     let b = book_snapshots::create_book_snapshot(d.path(), "b", now).unwrap();
     let c = book_snapshots::create_book_snapshot(d.path(), "c", now).unwrap();
-    assert_eq!((a.path.as_str(), b.path.as_str(), c.path.as_str()), (".cadabra/snapshots/20260505-0505.json", ".cadabra/snapshots/20260505-0505~2.json", ".cadabra/snapshots/20260505-0505~3.json"));
+    assert_eq!(
+        (a.path.as_str(), b.path.as_str(), c.path.as_str()),
+        (".cadabra/snapshots/20260505-0505.json", ".cadabra/snapshots/20260505-0505~2.json", ".cadabra/snapshots/20260505-0505~3.json")
+    );
     let names: Vec<String> = book_snapshots::list_book_snapshots(d.path()).unwrap().into_iter().map(|e| e.name).collect();
     assert_eq!(names, ["c", "b", "a"], "newest first within the minute");
 }
@@ -304,7 +309,13 @@ fn page_snapshots_taken_in_one_minute_never_replace_each_other() {
 fn clocks_before_1970_and_far_in_the_future_never_panic_and_still_list_in_order() {
     let d = book();
     write_file(d.path(), PAGE, "text", None).unwrap();
-    for (label, now) in [("1969", at(1969, 7, 20, 20, 17)), ("1900", at(1900, 1, 1, 0, 0)), ("year 1", at(1, 1, 1, 0, 0)), ("9999", at(9999, 12, 31, 23, 59)), ("epoch", DateTime::from_timestamp(0, 0).unwrap())] {
+    for (label, now) in [
+        ("1969", at(1969, 7, 20, 20, 17)),
+        ("1900", at(1900, 1, 1, 0, 0)),
+        ("year 1", at(1, 1, 1, 0, 0)),
+        ("9999", at(9999, 12, 31, 23, 59)),
+        ("epoch", DateTime::from_timestamp(0, 0).unwrap()),
+    ] {
         let made = book_snapshots::create_book_snapshot(d.path(), label, now).unwrap();
         assert!(d.path().join(&made.path).is_file(), "{label}");
         let page_snap = snapshots::keep_before_overwrite(d.path(), PAGE, label.as_bytes(), b"next", SnapshotMode::Always, now).unwrap();
@@ -319,7 +330,11 @@ fn clocks_before_1970_and_far_in_the_future_never_panic_and_still_list_in_order(
     // With "now" at year 9999 everything older than 30 days is prunable page history; with "now" in 1969 nothing is.
     let kept = snapshots::list_snapshots(d.path(), PAGE).unwrap().len();
     assert!(kept >= 1);
-    assert_eq!(snapshots::prune(d.path(), &[PAGE.to_string()], 1, at(1969, 1, 1, 0, 0)).unwrap(), 0, "nothing is 30 days old to a clock that is earlier than all of it");
+    assert_eq!(
+        snapshots::prune(d.path(), &[PAGE.to_string()], 1, at(1969, 1, 1, 0, 0)).unwrap(),
+        0,
+        "nothing is 30 days old to a clock that is earlier than all of it"
+    );
     assert!(book_snapshots::prune_book_snapshots(d.path(), &listed[0].path, 1, u64::MAX, at(1969, 1, 1, 0, 0)).len() <= listed.len());
 }
 

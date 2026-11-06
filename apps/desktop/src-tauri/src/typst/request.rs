@@ -94,7 +94,15 @@ mod tests {
     fn compile_request_decodes_options_source_and_files_in_order() {
         let h = r#"{"source":"Hello ✓","pdfA":true,"pdfUa":true,"files":[{"name":"assets/a.png","len":3},{"name":"assets/b.jpg","len":0},{"name":"c.bin","len":2}]}"#;
         let r = parse_compile_request(&frame(h, &[1, 2, 3, 9, 8])).unwrap();
-        assert_eq!(r, CompileRequest { source: "Hello ✓".into(), files: vec![("assets/a.png".into(), vec![1, 2, 3]), ("assets/b.jpg".into(), vec![]), ("c.bin".into(), vec![9, 8])], pdf_a: true, pdf_ua: true });
+        assert_eq!(
+            r,
+            CompileRequest {
+                source: "Hello ✓".into(),
+                files: vec![("assets/a.png".into(), vec![1, 2, 3]), ("assets/b.jpg".into(), vec![]), ("c.bin".into(), vec![9, 8])],
+                pdf_a: true,
+                pdf_ua: true
+            }
+        );
         let none = parse_compile_request(&frame(r#"{"source":"","pdfA":false,"files":[]}"#, &[])).unwrap();
         assert_eq!((none.files.len(), none.pdf_a, none.pdf_ua), (0, false, false));
     }

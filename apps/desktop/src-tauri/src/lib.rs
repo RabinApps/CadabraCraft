@@ -1,6 +1,6 @@
+mod audio;
 #[cfg(feature = "dev-automation")]
 mod automation;
-mod audio;
 mod commands;
 mod fonts;
 mod import_docx;
@@ -146,9 +146,7 @@ pub fn run() {
     // Dev-only: lets an AI agent drive the real window. Debug builds with the feature only, and bound to
     // loopback because the plugin's default (all interfaces) would expose unauthenticated script execution.
     #[cfg(all(feature = "dev-automation", debug_assertions))]
-    let builder = builder
-        .manage(automation::DialogQueue::default())
-        .plugin(tauri_plugin_mcp_bridge::Builder::new().bind_address("127.0.0.1").build());
+    let builder = builder.manage(automation::DialogQueue::default()).plugin(tauri_plugin_mcp_bridge::Builder::new().bind_address("127.0.0.1").build());
     #[cfg(all(feature = "dev-automation", debug_assertions))]
     let builder = builder.invoke_handler(app_handlers![automation::automation_queue_dialog]);
     #[cfg(not(all(feature = "dev-automation", debug_assertions)))]
@@ -187,9 +185,21 @@ mod navigation_tests {
             assert!(allowed(ok, false) && allowed(ok, true), "{ok}");
         }
         for bad in [
-            "https://example.com", "http://example.com/tauri://localhost", "https://tauri.localhost", "tauri://evil", "tauri://localhost.evil.com", "http://tauri.localhost.evil.com",
-            "http://tauri.localhost:8080/", "http://localhost:1421/", "file:///usr/bin/x", "data:text/html,hi", "javascript:alert(1)", "blob:tauri://localhost/x", "cadabra-ref://localhost/t/a.mp4",
-            "about:blank", "ftp://tauri.localhost",
+            "https://example.com",
+            "http://example.com/tauri://localhost",
+            "https://tauri.localhost",
+            "tauri://evil",
+            "tauri://localhost.evil.com",
+            "http://tauri.localhost.evil.com",
+            "http://tauri.localhost:8080/",
+            "http://localhost:1421/",
+            "file:///usr/bin/x",
+            "data:text/html,hi",
+            "javascript:alert(1)",
+            "blob:tauri://localhost/x",
+            "cadabra-ref://localhost/t/a.mp4",
+            "about:blank",
+            "ftp://tauri.localhost",
         ] {
             assert!(!allowed(bad, true), "{bad}");
             assert!(!allowed(bad, false), "{bad}");

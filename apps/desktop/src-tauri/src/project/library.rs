@@ -48,7 +48,8 @@ fn text(v: &Value, key: &str) -> Option<String> {
 /// The book a manifest describes: its first (source) edition.
 fn read_book(dir: &Path) -> Result<ScannedBook> {
     let path = dir.join(MANIFEST);
-    let bytes = read_regular(&path, MAX_MANIFEST_BYTES, MANIFEST, || ProjectError::TooLarge { path: MANIFEST.into(), max_mb: MAX_MANIFEST_BYTES / 1024 / 1024 })?;
+    let bytes =
+        read_regular(&path, MAX_MANIFEST_BYTES, MANIFEST, || ProjectError::TooLarge { path: MANIFEST.into(), max_mb: MAX_MANIFEST_BYTES / 1024 / 1024 })?;
     let manifest: Value = serde_json::from_slice(&bytes).map_err(|_| ProjectError::InvalidManifest)?;
     let edition = manifest.get("editions").and_then(|e| e.as_array()).and_then(|e| e.first()).ok_or(ProjectError::InvalidManifest)?;
     let publishing = edition.get("publishing").unwrap_or(&Value::Null);
@@ -147,7 +148,8 @@ mod tests {
         fs::write(dir.join(MANIFEST), manifest).unwrap();
     }
 
-    const FULL: &str = r#"{"editions":[{"language":"en","title":"Moon","author":"Mara","cover":"assets/c.png","publishing":{"series":"Tides","seriesNumber":"2"}}]}"#;
+    const FULL: &str =
+        r#"{"editions":[{"language":"en","title":"Moon","author":"Mara","cover":"assets/c.png","publishing":{"series":"Tides","seriesNumber":"2"}}]}"#;
 
     #[test]
     fn a_manifest_is_read_for_its_source_edition_only() {

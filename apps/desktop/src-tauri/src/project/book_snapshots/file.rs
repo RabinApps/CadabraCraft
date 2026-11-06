@@ -116,5 +116,13 @@ pub(super) fn read_head_slow(path: &Path, limit: u64) -> Option<(Head, bool)> {
     }
     let file = fs::File::open(path).ok()?;
     let head: BookHead = serde_json::from_reader(std::io::BufReader::new(file)).ok()?;
-    Some((Head { version: head.version, name: head.name, automatic: head.automatic, summary: Summary { pages: head.pages.into_keys().collect(), assets: head.assets.len() } }, true))
+    Some((
+        Head {
+            version: head.version,
+            name: head.name,
+            automatic: head.automatic,
+            summary: Summary { pages: head.pages.into_keys().collect(), assets: head.assets.len() },
+        },
+        true,
+    ))
 }

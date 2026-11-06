@@ -235,7 +235,10 @@ mod tests {
         let (_book, roots, t) = setup();
         let whole = get(&roots, &format!("/{t}/clip.mp4"), None);
         assert_eq!((whole.status(), whole.body().as_slice()), (StatusCode::OK, &b"0123456789"[..]));
-        assert_eq!((h(&whole, header::CONTENT_TYPE), h(&whole, header::CONTENT_LENGTH), h(&whole, header::ACCEPT_RANGES)), ("video/mp4".into(), "10".into(), "bytes".into()));
+        assert_eq!(
+            (h(&whole, header::CONTENT_TYPE), h(&whole, header::CONTENT_LENGTH), h(&whole, header::ACCEPT_RANGES)),
+            ("video/mp4".into(), "10".into(), "bytes".into())
+        );
         let part = get(&roots, &format!("/{t}/clip.mp4"), Some("bytes=2-4"));
         assert_eq!((part.status(), part.body().as_slice()), (StatusCode::PARTIAL_CONTENT, &b"234"[..]));
         assert_eq!((h(&part, header::CONTENT_RANGE), h(&part, header::CONTENT_LENGTH)), ("bytes 2-4/10".into(), "3".into()));

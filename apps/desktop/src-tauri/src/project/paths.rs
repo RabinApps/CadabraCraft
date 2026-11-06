@@ -131,7 +131,10 @@ mod tests {
         // An entry that is still there but cannot be resolved (a dangling link or a loop) is refused.
         fs::write(&page, "x").unwrap();
         let broken = |_: &Path| Err(std::io::Error::from(std::io::ErrorKind::NotFound));
-        assert_eq!(ensure_contained_with(d.path(), &page, "manuscript/001-a.json", broken), Err(ProjectError::PathEscape { path: "manuscript/001-a.json".into() }));
+        assert_eq!(
+            ensure_contained_with(d.path(), &page, "manuscript/001-a.json", broken),
+            Err(ProjectError::PathEscape { path: "manuscript/001-a.json".into() })
+        );
     }
 
     #[test]

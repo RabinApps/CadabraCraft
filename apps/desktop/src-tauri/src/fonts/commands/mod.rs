@@ -38,21 +38,7 @@ async fn download_family(
     let dir = root.join(family.id);
     let mut before = 0u64;
     for f in family.files.iter().chain(std::iter::once(&family.licence)) {
-        download_file(
-            client,
-            f.url,
-            f.size,
-            f.sha256,
-            &dir.join(f.name),
-            cancel,
-            &mut |n| {
-                on_progress(DownloadProgress {
-                    done: before + n,
-                    total,
-                })
-            },
-        )
-        .await?;
+        download_file(client, f.url, f.size, f.sha256, &dir.join(f.name), cancel, &mut |n| on_progress(DownloadProgress { done: before + n, total })).await?;
         before += f.size;
     }
     Ok(())
@@ -68,14 +54,10 @@ async fn download_job(
     root: Option<PathBuf>,
     client: fn() -> Result<reqwest::Client, crate::audio::error::AudioError>,
 ) -> Result<(), FontError> {
-    let family = family.ok_or_else(|| FontError::UnknownFont {
-        font: font_id.to_string(),
-    })?;
+    let family = family.ok_or_else(|| FontError::UnknownFont { font: font_id.to_string() })?;
     let root = require_root(root)?;
     // The mark's name cannot be a voice pack id: the audio and font downloads share one set.
-    let _running = jobs
-        .begin_download(&format!("font:{}", family.id))
-        .ok_or_else(|| other("this font is already downloading"))?;
+    let _running = jobs.begin_download(&format!("font:{}", family.id)).ok_or_else(|| other("this font is already downloading"))?;
     let flag = jobs.flag(&job_id);
     let client = client()?;
     download_family(&client, family, &root, &flag, &|p| {
@@ -92,16 +74,7 @@ pub async fn fonts_download(
     job_id: String,
     on_progress: tauri::ipc::Channel<DownloadProgress>,
 ) -> Result<(), FontError> {
-    download_job(
-        &state,
-        find_family(&font_id),
-        &font_id,
-        job_id,
-        on_progress,
-        fonts_root(),
-        build_client,
-    )
-    .await
+    download_job(&state, find_family(&font_id), &font_id, job_id, on_progress, fonts_root(), build_client).await
 }
 
 #[tauri::command]
@@ -111,17 +84,12 @@ pub fn fonts_cancel(state: tauri::State<'_, AudioJobs>, job_id: String) {
 
 /// The font file the author picked with `pick_font_file`; any other path is refused (the webview cannot name a file).
 fn picked_font(picked: &PickedPaths, src_path: &str) -> Result<PathBuf, FontError> {
-    picked
-        .require(PickKind::Font, &PathBuf::from(src_path))
-        .map_err(|_| invalid("choose the font file with the Import font button"))
+    picked.require(PickKind::Font, &PathBuf::from(src_path)).map_err(|_| invalid("choose the font file with the Import font button"))
 }
 
 /// Copies a `.ttf` or `.otf` file the author chose (`pick_font_file`) into the fonts folder.
 #[tauri::command]
-pub async fn fonts_import(
-    picked: tauri::State<'_, PickedPaths>,
-    src_path: String,
-) -> Result<InstalledFont, FontError> {
+pub async fn fonts_import(picked: tauri::State<'_, PickedPaths>, src_path: String) -> Result<InstalledFont, FontError> {
     let src = picked_font(&picked, &src_path)?;
     let root = require_root(fonts_root())?;
     crate::platform::blocking(move || import_font(&src, &root)).await
@@ -137,10 +105,7 @@ pub async fn fonts_delete(font_id: String) -> Result<(), FontError> {
 #[tauri::command]
 pub async fn fonts_data(font_id: String, file: String) -> Result<tauri::ipc::Response, FontError> {
     let root = require_root(fonts_root())?;
-    crate::platform::blocking(move || {
-        read_font_file(&root, &font_id, &file).map(tauri::ipc::Response::new)
-    })
-    .await
+    crate::platform::blocking(move || read_font_file(&root, &font_id, &file).map(tauri::ipc::Response::new)).await
 }
 
 #[cfg(test)]

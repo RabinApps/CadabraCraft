@@ -107,7 +107,13 @@ pub fn encode_opus(rate: u32, samples: &[i16], language: Option<&str>) -> Result
     if samples.is_empty() {
         return Err("there is no audio to encode".into());
     }
-    let enc_rate = if OPUS_RATES.contains(&rate) { rate } else if rate < 24_000 { 24_000 } else { 48_000 };
+    let enc_rate = if OPUS_RATES.contains(&rate) {
+        rate
+    } else if rate < 24_000 {
+        24_000
+    } else {
+        48_000
+    };
     let pcm = resample(samples, rate, enc_rate)?;
     let frame = (enc_rate / 50) as usize;
     let mut enc = OpusEncoder::new(enc_rate as i32, 1, Application::Audio).map_err(str::to_string)?;
@@ -150,7 +156,13 @@ pub fn encode_opus(rate: u32, samples: &[i16], language: Option<&str>) -> Result
         let n = enc.encode_i16(input, frame, &mut buf).map_err(str::to_string)?;
         let last = i + 1 == frames;
         let granule = if last { PRE_SKIP_48K + total_48k } else { PRE_SKIP_48K + (i as u64 + 1) * FRAME_48K };
-        let end = if last { PacketWriteEndInfo::EndStream } else if (i + 1) % PAGE_PACKETS == 0 { PacketWriteEndInfo::EndPage } else { PacketWriteEndInfo::NormalPacket };
+        let end = if last {
+            PacketWriteEndInfo::EndStream
+        } else if (i + 1) % PAGE_PACKETS == 0 {
+            PacketWriteEndInfo::EndPage
+        } else {
+            PacketWriteEndInfo::NormalPacket
+        };
         w.write_packet(buf[..n].to_vec(), serial, end, granule).map_err(display_text)?;
     }
     Ok(w.into_inner())
@@ -299,9 +311,19 @@ mod tests {
     /// Decodes with ffmpeg to 16-bit mono PCM at `rate`, and also returns what `ffprobe` says about the container.
     fn decode(path: &std::path::Path, rate: u32) -> (Vec<i16>, String) {
         let out = path.with_extension("raw");
-        let r = Command::new("ffmpeg").args(["-v", "error", "-y", "-i"]).arg(path).args(["-f", "s16le", "-ac", "1", "-ar", &rate.to_string()]).arg(&out).output().unwrap();
+        let r = Command::new("ffmpeg")
+            .args(["-v", "error", "-y", "-i"])
+            .arg(path)
+            .args(["-f", "s16le", "-ac", "1", "-ar", &rate.to_string()])
+            .arg(&out)
+            .output()
+            .unwrap();
         assert!(r.status.success() && r.stderr.is_empty(), "ffmpeg: {}", String::from_utf8_lossy(&r.stderr));
-        let probe = Command::new("ffprobe").args(["-v", "error", "-show_entries", "stream=codec_name,sample_rate,channels", "-of", "default=nw=1"]).arg(path).output().unwrap();
+        let probe = Command::new("ffprobe")
+            .args(["-v", "error", "-show_entries", "stream=codec_name,sample_rate,channels", "-of", "default=nw=1"])
+            .arg(path)
+            .output()
+            .unwrap();
         (std::fs::read(out).unwrap().as_chunks::<2>().0.iter().map(|c| i16::from_le_bytes(*c)).collect(), String::from_utf8_lossy(&probe.stdout).into_owned())
     }
 

@@ -241,7 +241,13 @@ fn a_book_snapshot_of_a_book_with_corrupt_files_is_a_typed_error_and_writes_noth
 fn odd_page_text_survives_a_book_snapshot_and_restore_exactly() {
     let d = book();
     let deep = format!("{}{}", "[".repeat(50_000), "]".repeat(50_000));
-    let pages = [("manuscript/001-empty.json", String::new()), ("manuscript/002-bom.json", "\u{feff}{\"type\":\"doc\"".to_string()), ("manuscript/003-nul.json", "a\0b\u{202e}\u{200b}\n".to_string()), ("manuscript/004-deep.json", deep), ("manuscript/005-big.json", "x".repeat(256 * 1024))];
+    let pages = [
+        ("manuscript/001-empty.json", String::new()),
+        ("manuscript/002-bom.json", "\u{feff}{\"type\":\"doc\"".to_string()),
+        ("manuscript/003-nul.json", "a\0b\u{202e}\u{200b}\n".to_string()),
+        ("manuscript/004-deep.json", deep),
+        ("manuscript/005-big.json", "x".repeat(256 * 1024)),
+    ];
     for (rel, text) in &pages {
         fs::write(d.path().join(rel), text).unwrap();
     }
@@ -283,7 +289,11 @@ fn hand_damaged_book_snapshot_files_are_skipped_when_listing_and_refused_when_re
     assert_eq!(book_snapshots::list_book_snapshots(d.path()).unwrap(), vec![], "none of these is a snapshot");
     for (name, _) in &cases {
         let path = format!(".cadabra/snapshots/{name}");
-        for r in [book_snapshots::restore_book_snapshot(d.path(), &path, at(2026, 1, 2, 0, 0)).map(|_| ()), book_snapshots::delete_book_snapshot(d.path(), &path), book_snapshots::read_book_snapshot_page(d.path(), &path, PAGE).map(|_| ())] {
+        for r in [
+            book_snapshots::restore_book_snapshot(d.path(), &path, at(2026, 1, 2, 0, 0)).map(|_| ()),
+            book_snapshots::delete_book_snapshot(d.path(), &path),
+            book_snapshots::read_book_snapshot_page(d.path(), &path, PAGE).map(|_| ()),
+        ] {
             assert!(matches!(r, Err(ProjectError::CannotRestore { .. })), "{name}: {r:?}");
         }
         assert!(dir.join(name).exists(), "{name} is left alone");
@@ -304,13 +314,28 @@ fn a_book_snapshot_naming_paths_outside_the_pages_is_refused_before_anything_is_
     write_file(d.path(), PAGE, "keep me", None).unwrap();
     let dir = d.path().join(".cadabra/snapshots");
     fs::create_dir_all(&dir).unwrap();
-    for (i, bad) in ["../evil.json", "manuscript/../../evil.json", "/etc/evil.json", "exports/evil.json", "manuscript/a/b/c.json", "manuscript/.json/x", "cadabra.json", "manuscript/a.json:stream"].into_iter().enumerate() {
+    for (i, bad) in [
+        "../evil.json",
+        "manuscript/../../evil.json",
+        "/etc/evil.json",
+        "exports/evil.json",
+        "manuscript/a/b/c.json",
+        "manuscript/.json/x",
+        "cadabra.json",
+        "manuscript/a.json:stream",
+    ]
+    .into_iter()
+    .enumerate()
+    {
         let body = serde_json::json!({ "version": 1, "name": "n", "automatic": false, "summary": { "pages": [bad], "assets": 0 }, "manifest": "{}", "pages": { bad: "pwned" }, "assets": [] });
         let name = format!("20260101-00{i:02}.json");
         fs::write(dir.join(&name), body.to_string()).unwrap();
         let path = format!(".cadabra/snapshots/{name}");
         let r = book_snapshots::restore_book_snapshot(d.path(), &path, at(2026, 1, 2, 0, 0));
-        assert!(matches!(r, Err(ProjectError::CannotRestore { .. }) | Err(ProjectError::NotUtf8 { .. }) | Err(ProjectError::UnsafePath { .. })), "{bad}: {r:?}");
+        assert!(
+            matches!(r, Err(ProjectError::CannotRestore { .. }) | Err(ProjectError::NotUtf8 { .. }) | Err(ProjectError::UnsafePath { .. })),
+            "{bad}: {r:?}"
+        );
         assert!(book_snapshots::restore_page_from_book(d.path(), &path, bad).is_err(), "{bad}");
         fs::remove_file(dir.join(&name)).unwrap();
     }
@@ -373,7 +398,8 @@ fn a_4096_byte_and_a_1000_deep_path_are_typed_errors_or_work_and_never_panic() {
 #[test]
 fn names_with_newlines_bidi_overrides_and_zero_width_characters_round_trip_and_trash_and_restore() {
     let d = book();
-    let names: &[&str] = if cfg!(windows) { &["a\u{202e}b\u{200b}c.json"] } else { &["a\nb.json", "a\u{202e}gnp.json", "a\u{200b}b.json", "\u{feff}a.json", "a\u{0007}b.json"] };
+    let names: &[&str] =
+        if cfg!(windows) { &["a\u{202e}b\u{200b}c.json"] } else { &["a\nb.json", "a\u{202e}gnp.json", "a\u{200b}b.json", "\u{feff}a.json", "a\u{0007}b.json"] };
     for name in names {
         let rel = format!("manuscript/{name}");
         write_file(d.path(), &rel, "text", None).unwrap();
@@ -527,7 +553,19 @@ fn a_text_reference_of_exactly_the_cap_is_kept_and_empty_files_are_judged_by_the
     let r = import_reference(d.path(), &at_cap).unwrap();
     assert_eq!((r.size, r.reused), (5 * 1024 * 1024, false));
     // Zero bytes: plain text is fine, anything with a signature is not a valid file of its type.
-    for (name, ok) in [("empty.txt", true), ("empty.md", true), ("empty.png", false), ("empty.jpg", false), ("empty.svg", false), ("empty.pdf", false), ("empty.mp4", false), ("empty.mp3", false), ("empty.wav", false), ("empty.flac", false), ("empty.zip", true)] {
+    for (name, ok) in [
+        ("empty.txt", true),
+        ("empty.md", true),
+        ("empty.png", false),
+        ("empty.jpg", false),
+        ("empty.svg", false),
+        ("empty.pdf", false),
+        ("empty.mp4", false),
+        ("empty.mp3", false),
+        ("empty.wav", false),
+        ("empty.flac", false),
+        ("empty.zip", true),
+    ] {
         let p = src.path().join(name);
         fs::write(&p, b"").unwrap();
         let r = import_reference(d.path(), &p);

@@ -77,7 +77,13 @@ pub fn simple_docx(body: &str, extra: &[(&str, &str)]) -> Vec<u8> {
     let styles = styles_xml();
     let numbering = numbering_xml();
     let doc_rels = format!("{RELS_HEAD}</Relationships>");
-    let mut parts: Vec<(&str, &str)> = vec![("_rels/.rels", &rels), ("word/document.xml", &doc), ("word/styles.xml", &styles), ("word/numbering.xml", &numbering), ("word/_rels/document.xml.rels", &doc_rels)];
+    let mut parts: Vec<(&str, &str)> = vec![
+        ("_rels/.rels", &rels),
+        ("word/document.xml", &doc),
+        ("word/styles.xml", &styles),
+        ("word/numbering.xml", &numbering),
+        ("word/_rels/document.xml.rels", &doc_rels),
+    ];
     parts.retain(|(n, _)| !extra.iter().any(|(e, _)| e == n));
     parts.extend_from_slice(extra);
     docx(&parts)

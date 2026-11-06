@@ -11,56 +11,114 @@ use std::fmt;
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ProjectError {
     /// A project-relative path that is empty, absolute, has `..`, a backslash or a NUL byte.
-    UnsafePath { path: String },
+    UnsafePath {
+        path: String,
+    },
     /// A path that is lexically fine but leaves the project folder through a symbolic link.
-    PathEscape { path: String },
-    NotFound { path: String },
+    PathEscape {
+        path: String,
+    },
+    NotFound {
+        path: String,
+    },
     /// `create_project` on a folder that already holds a project.
     AlreadyExists,
     /// A project root that is not an absolute path, or a folder without a `cadabra.json` file.
-    NotAProject { path: String },
-    NotUtf8 { path: String },
+    NotAProject {
+        path: String,
+    },
+    NotUtf8 {
+        path: String,
+    },
     /// A cloud placeholder (`.name.icloud`) that has not finished downloading.
-    IcloudPending { path: String },
-    TooLarge { path: String, max_mb: u64 },
-    NotAFile { path: String },
+    IcloudPending {
+        path: String,
+    },
+    TooLarge {
+        path: String,
+        max_mb: u64,
+    },
+    NotAFile {
+        path: String,
+    },
     /// An image whose extension is not allowlisted.
-    UnsupportedImage { name: String },
+    UnsupportedImage {
+        name: String,
+    },
     /// An image whose bytes do not match its extension.
-    InvalidImage { name: String, ext: String },
+    InvalidImage {
+        name: String,
+        ext: String,
+    },
     /// A document whose extension is not `.docx`, `.md`, `.markdown` or `.txt`.
-    UnsupportedDocument { name: String },
-    NotImageAsset { path: String },
+    UnsupportedDocument {
+        name: String,
+    },
+    NotImageAsset {
+        path: String,
+    },
     /// A reference file whose type is never imported (programs, scripts and web pages that could run when opened).
-    UnsupportedReference { name: String },
+    UnsupportedReference {
+        name: String,
+    },
     /// A reference file whose bytes do not match its extension.
-    InvalidReference { name: String, ext: String },
+    InvalidReference {
+        name: String,
+        ext: String,
+    },
     /// A path that is not `references/<name>`.
-    NotReference { path: String },
-    NotTrashPath { path: String },
-    CannotRestore { path: String },
+    NotReference {
+        path: String,
+    },
+    NotTrashPath {
+        path: String,
+    },
+    CannotRestore {
+        path: String,
+    },
     /// A Markdown image reference that is absolute, has `..`, a backslash or a NUL byte.
-    ImageRefNotAllowed { reference: String },
-    ImageRefNotFound { reference: String },
-    ImageRefOutside { reference: String },
+    ImageRefNotAllowed {
+        reference: String,
+    },
+    ImageRefNotFound {
+        reference: String,
+    },
+    ImageRefOutside {
+        reference: String,
+    },
     InvalidFileName,
     /// A path the webview named for `create_project`, `import_asset` or `read_import_source` that the author never picked in a file dialog.
-    NotPicked { name: String },
+    NotPicked {
+        name: String,
+    },
     /// The operating system refused access (file or folder permissions, read-only volume).
-    PermissionDenied { path: String },
+    PermissionDenied {
+        path: String,
+    },
     /// The volume is full or the user's quota is used up.
-    DiskFull { path: String },
+    DiskFull {
+        path: String,
+    },
     /// An image whose width times height is above `MAX_IMAGE_PIXELS` (a small file can still decode to gigabytes).
-    ImageDimensions { name: String, max_megapixels: u64 },
+    ImageDimensions {
+        name: String,
+        max_megapixels: u64,
+    },
     /// A `.docx` the importer could not read: `code` is an `ImportErrorCode` of `packages/import-docx` (`invalid-zip`,
     /// `too-many-entries`, `archive-too-large`, `missing-document`, `invalid-xml`).
-    ImportDocx { code: String },
+    ImportDocx {
+        code: String,
+    },
     /// A `create_project` manifest that is not a JSON object (or not JSON at all).
     InvalidManifest,
     /// The folder watcher could not start; `path` is the folder name, never an absolute path.
-    WatchFailed { path: String },
+    WatchFailed {
+        path: String,
+    },
     /// Any other IO or runtime failure (the OS message).
-    Io { message: String },
+    Io {
+        message: String,
+    },
 }
 
 impl fmt::Display for ProjectError {

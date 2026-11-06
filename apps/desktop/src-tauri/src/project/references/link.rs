@@ -28,7 +28,14 @@ mod tests {
 
     #[test]
     fn plain_web_addresses_pass() {
-        for ok in ["https://example.org", "http://example.org/a?b=1#c", "HTTPS://Example.org/x", "https://user@example.org:8080/p", "http://[::1]:3000/", "https://例え.jp/"] {
+        for ok in [
+            "https://example.org",
+            "http://example.org/a?b=1#c",
+            "HTTPS://Example.org/x",
+            "https://user@example.org:8080/p",
+            "http://[::1]:3000/",
+            "https://例え.jp/",
+        ] {
             assert_eq!(checked_web_url(ok).unwrap(), ok, "{ok}");
         }
     }
@@ -37,8 +44,22 @@ mod tests {
     fn anything_else_is_refused() {
         let long = format!("https://example.org/{}", "a".repeat(MAX_URL_CHARS));
         for bad in [
-            "", "example.org", "javascript:alert(1)", "file:///etc/passwd", "mailto:a@b.org", "data:text/html,x", "ftp://example.org/", "https://", "http:///path", "https://:80/",
-            "https://exa mple.org", "https://example.org/\n", "https://example.org/\u{7}", "https://example.org/\u{a0}x", " https://example.org", &long,
+            "",
+            "example.org",
+            "javascript:alert(1)",
+            "file:///etc/passwd",
+            "mailto:a@b.org",
+            "data:text/html,x",
+            "ftp://example.org/",
+            "https://",
+            "http:///path",
+            "https://:80/",
+            "https://exa mple.org",
+            "https://example.org/\n",
+            "https://example.org/\u{7}",
+            "https://example.org/\u{a0}x",
+            " https://example.org",
+            &long,
         ] {
             assert!(matches!(checked_web_url(bad), Err(ProjectError::UnsupportedReference { .. })), "{bad:?}");
         }

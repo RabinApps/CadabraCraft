@@ -134,7 +134,8 @@ fn descendants_are_found_parent_first_and_stop_at_the_depth_limit() {
     let ids: Vec<_> = descendants(&r[0], "b").iter().map(|n| attr(n, "id").unwrap()).collect();
     assert_eq!(ids, ["1", "2", "3"]);
     // The XML limit (101 open elements) keeps real files above the walk limit, so deeper trees are built by hand.
-    let chain = |depth: usize, leaf: XNode| (0..depth).fold(leaf, |inner, _| XNode::El(Rc::new(Element { name: "a".into(), attrs: vec![], kids: vec![inner] })));
+    let chain =
+        |depth: usize, leaf: XNode| (0..depth).fold(leaf, |inner, _| XNode::El(Rc::new(Element { name: "a".into(), attrs: vec![], kids: vec![inner] })));
     let b_leaf = || XNode::El(Rc::new(Element { name: "b".into(), ..Element::default() }));
     assert_eq!(descendants(&chain(100, b_leaf()), "b").len(), 1);
     assert_eq!(descendants(&chain(102, b_leaf()), "b").len(), 0, "past the limit nothing is looked at");

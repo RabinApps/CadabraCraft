@@ -54,13 +54,24 @@ fn binary_names(windows: bool) -> &'static [&'static str] {
 
 /// `dev` false: only `bundled`; `env_bin`, `path_var` and `fallback_dirs` are ignored. `dev` true: `env_bin` (an error
 /// when it is not runnable), then `bundled`, PATH and the fallback folders.
-pub fn find_typst_in(env_bin: Option<&str>, bundled: Option<&Path>, path_var: Option<&std::ffi::OsStr>, fallback_dirs: &[&str], dev: bool) -> Result<PathBuf, TypstError> {
+pub fn find_typst_in(
+    env_bin: Option<&str>,
+    bundled: Option<&Path>,
+    path_var: Option<&std::ffi::OsStr>,
+    fallback_dirs: &[&str],
+    dev: bool,
+) -> Result<PathBuf, TypstError> {
     if let Some(g) = env_bin.map(str::trim).filter(|g| dev && !g.is_empty()) {
         let p = PathBuf::from(g);
-        return if is_executable(&p) { Ok(p) } else { Err(TypstError::NotFound { message: format!("No runnable typst program at {g} (from TYPST_BIN). {INSTALL_ADVICE}") }) };
+        return if is_executable(&p) {
+            Ok(p)
+        } else {
+            Err(TypstError::NotFound { message: format!("No runnable typst program at {g} (from TYPST_BIN). {INSTALL_ADVICE}") })
+        };
     }
     let dirs = if dev { search_dirs(bundled, path_var, fallback_dirs) } else { search_dirs(bundled, None, &[]) };
-    find_executable(binary_names(cfg!(windows)), &dirs).ok_or_else(|| TypstError::NotFound { message: format!("The bundled \"typst\" program was not found next to the app. {INSTALL_ADVICE}") })
+    find_executable(binary_names(cfg!(windows)), &dirs)
+        .ok_or_else(|| TypstError::NotFound { message: format!("The bundled \"typst\" program was not found next to the app. {INSTALL_ADVICE}") })
 }
 
 /// Typst's package folders, both pointed at empty folders inside the compile directory, so no package installed on the
@@ -121,7 +132,9 @@ fn refuse_packages(source: &str) -> Result<(), TypstError> {
     for kw in ["import", "include"] {
         for (i, _) in source.match_indices(kw) {
             if skip_noise(&source[i + kw.len()..]).is_none_or(|rest| rest.starts_with("\"@")) {
-                return Err(TypstError::Compile { message: "Packages are not available in the PDF export (it never uses the network): remove the \"@...\" import.".into() });
+                return Err(TypstError::Compile {
+                    message: "Packages are not available in the PDF export (it never uses the network): remove the \"@...\" import.".into(),
+                });
             }
         }
     }
@@ -216,7 +229,15 @@ pub fn query(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8
 
 /// Writes `source` and `files` into a fresh temp directory under `tmp_base`, runs `typst compile`, returns the PDF.
 /// The directory is removed on every path out (success, error, timeout).
-pub fn compile(bin: &Path, tmp_base: &Path, source: &str, files: &[(String, Vec<u8>)], pdf_a: bool, pdf_ua: bool, timeout: Duration) -> Result<Vec<u8>, TypstError> {
+pub fn compile(
+    bin: &Path,
+    tmp_base: &Path,
+    source: &str,
+    files: &[(String, Vec<u8>)],
+    pdf_a: bool,
+    pdf_ua: bool,
+    timeout: Duration,
+) -> Result<Vec<u8>, TypstError> {
     let dir = stage(tmp_base, source, files)?;
     let mut args: Vec<String> = vec!["compile".into(), "--root".into(), ".".into(), "--diagnostic-format".into(), "short".into()];
     args.extend(font_args(&font_dirs()));

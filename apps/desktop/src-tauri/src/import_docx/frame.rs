@@ -102,7 +102,8 @@ mod tests {
     #[cfg(target_pointer_width = "64")]
     #[test]
     fn an_image_or_a_total_over_4_gib_is_refused_before_anything_is_copied() {
-        let image = |n: usize| Asset { source_path: "word/media/a.png".into(), target_path: "assets/a.png".into(), media_type: "image/png", bytes: vec![0u8; n] };
+        let image =
+            |n: usize| Asset { source_path: "word/media/a.png".into(), target_path: "assets/a.png".into(), media_type: "image/png", bytes: vec![0u8; n] };
         let one = ImportResult { chapters: vec![], warnings: vec![], assets: vec![image(u32::MAX as usize + 1)] };
         assert_eq!(encode(&one).unwrap_err().to_string(), "an imported image exceeds 4 GiB");
         let two = ImportResult { chapters: vec![], warnings: vec![], assets: vec![image(3 << 30), image(3 << 30)] };

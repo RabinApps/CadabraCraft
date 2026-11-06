@@ -49,7 +49,11 @@ fn the_document_part_is_found_through_the_package_relationships() {
     let r = run(&docx(&[("_rels/.rels", &rel("/custom/document.xml", "")), ("word/document.xml", &doc), ("word/styles.xml", &styles_xml())]));
     assert_eq!(r.chapters[0].title, "Hello");
     // An external relationship to a document is ignored.
-    let r = run(&docx(&[("_rels/.rels", &rel("https://x.test/word/document.xml", r#" TargetMode="External""#)), ("word/document.xml", &doc), ("word/styles.xml", &styles_xml())]));
+    let r = run(&docx(&[
+        ("_rels/.rels", &rel("https://x.test/word/document.xml", r#" TargetMode="External""#)),
+        ("word/document.xml", &doc),
+        ("word/styles.xml", &styles_xml()),
+    ]));
     assert_eq!(r.chapters[0].title, "Hello");
     // No package relationships at all.
     assert_eq!(run(&docx(&[("word/document.xml", &doc), ("word/styles.xml", &styles_xml())])).chapters[0].title, "Hello");
@@ -66,7 +70,18 @@ fn a_file_without_a_document_or_a_body_is_refused() {
 fn every_part_that_is_read_must_be_well_formed() {
     let ok = |name: &str, content: &str| simple_docx(&chapter_body(), &[(name, content)]);
     let broken = "<w:x><w:y></w:x>";
-    for part in ["_rels/.rels", "word/_rels/document.xml.rels", "word/styles.xml", "word/numbering.xml", "word/footnotes.xml", "word/endnotes.xml", "word/comments.xml", "word/header1.xml", "word/footer2.xml", "word/document.xml"] {
+    for part in [
+        "_rels/.rels",
+        "word/_rels/document.xml.rels",
+        "word/styles.xml",
+        "word/numbering.xml",
+        "word/footnotes.xml",
+        "word/endnotes.xml",
+        "word/comments.xml",
+        "word/header1.xml",
+        "word/footer2.xml",
+        "word/document.xml",
+    ] {
         assert_eq!(err(&ok(part, broken)), ImportErrorCode::InvalidXml, "{part}");
     }
     assert_eq!(err(&docx(&[("word/document.xml", "<w:document><w:body><w:p></w:document>")])), ImportErrorCode::InvalidXml);
@@ -87,7 +102,8 @@ fn comments_are_counted_from_the_references_or_the_comment_part_whichever_is_lar
 #[test]
 fn headers_and_footers_with_text_are_reported_and_empty_ones_are_not() {
     let hdr = |text: &str| format!(r#"<w:hdr {NS}><w:p><w:r><w:t>{text}</w:t></w:r></w:p></w:hdr>"#);
-    let r = run(&simple_docx(&p("x", None), &[("word/header1.xml", &hdr("Running head")), ("word/footer1.xml", &hdr(" ")), ("word/footer2.xml", &hdr("Page"))]));
+    let r =
+        run(&simple_docx(&p("x", None), &[("word/header1.xml", &hdr("Running head")), ("word/footer1.xml", &hdr(" ")), ("word/footer2.xml", &hdr("Page"))]));
     let w = r.warnings.iter().find(|w| w.code == "header-footer").unwrap();
     assert_eq!((w.count, w.examples.clone()), (Some(2), vec!["Running head".to_string(), "Page".to_string()]));
 }
@@ -141,7 +157,15 @@ fn bare_ctx() -> ctx::DCtx {
 #[test]
 fn the_body_walk_stops_at_the_depth_limit() {
     // A real file cannot nest this deep (the XML reader refuses 102 open elements), so the tree is built by hand.
-    let para = XNode::El(Rc::new(Element { name: "p".into(), attrs: vec![], kids: vec![XNode::El(Rc::new(Element { name: "r".into(), attrs: vec![], kids: vec![XNode::El(Rc::new(Element { name: "t".into(), attrs: vec![], kids: vec![XNode::Text("deep".into())] }))] }))] }));
+    let para = XNode::El(Rc::new(Element {
+        name: "p".into(),
+        attrs: vec![],
+        kids: vec![XNode::El(Rc::new(Element {
+            name: "r".into(),
+            attrs: vec![],
+            kids: vec![XNode::El(Rc::new(Element { name: "t".into(), attrs: vec![], kids: vec![XNode::Text("deep".into())] }))],
+        }))],
+    }));
     for (levels, expect) in [(50, 1), (101, 0)] {
         let mut ctx = bare_ctx();
         let mut b = body::BodyBuilder::new(8.0);
@@ -159,12 +183,22 @@ fn a_paragraph_state_starts_empty() {
 
 #[test]
 fn images_are_returned_with_their_bytes_and_unique_names() {
-    let drawing = |rid: &str| format!(r#"<w:p><w:r><w:drawing><wp:inline><wp:docPr id="1" name="n" descr="A pixel"/><a:graphic><a:blip r:embed="{rid}"/></a:graphic></wp:inline></w:drawing></w:r></w:p>"#);
-    let rels = format!(r#"{RELS_HEAD}<Relationship Id="rId1" Type="x" Target="media/a.png"/><Relationship Id="rId2" Type="x" Target="media/sub/a.PNG"/></Relationships>"#);
+    let drawing = |rid: &str| {
+        format!(
+            r#"<w:p><w:r><w:drawing><wp:inline><wp:docPr id="1" name="n" descr="A pixel"/><a:graphic><a:blip r:embed="{rid}"/></a:graphic></wp:inline></w:drawing></w:r></w:p>"#
+        )
+    };
+    let rels = format!(
+        r#"{RELS_HEAD}<Relationship Id="rId1" Type="x" Target="media/a.png"/><Relationship Id="rId2" Type="x" Target="media/sub/a.PNG"/></Relationships>"#
+    );
     let doc = document_xml(&[drawing("rId1"), drawing("rId2"), drawing("rId1")].concat());
-    let bytes = docx_with(&[("word/document.xml", &doc), ("word/_rels/document.xml.rels", &rels)], &[("word/media/a.png", &[1, 2, 3]), ("word/media/sub/a.PNG", &[4])]);
+    let bytes =
+        docx_with(&[("word/document.xml", &doc), ("word/_rels/document.xml.rels", &rels)], &[("word/media/a.png", &[1, 2, 3]), ("word/media/sub/a.PNG", &[4])]);
     let r = run(&bytes);
-    assert_eq!(r.assets.iter().map(|a| (a.target_path.as_str(), a.bytes.clone())).collect::<Vec<_>>(), [("assets/a.png", vec![1, 2, 3]), ("assets/a-2.PNG", vec![4])]);
+    assert_eq!(
+        r.assets.iter().map(|a| (a.target_path.as_str(), a.bytes.clone())).collect::<Vec<_>>(),
+        [("assets/a.png", vec![1, 2, 3]), ("assets/a-2.PNG", vec![4])]
+    );
     assert_eq!(text_of(&r).matches("assets/a.png").count(), 2, "the same image twice is one asset used twice");
     assert!(text_of(&r).contains(r#""alt":"A pixel""#));
 }
@@ -183,5 +217,8 @@ fn damaged_archives_are_refused_with_the_matching_code() {
 #[test]
 fn the_limit_defaults_match_the_typescript_importer() {
     let o = Options::default();
-    assert_eq!((o.split_heading_level, o.untitled_title.as_str(), o.max_decompressed_bytes, o.max_entries, o.max_nesting_depth), (1, "Untitled", 209_715_200, 10_000, 32));
+    assert_eq!(
+        (o.split_heading_level, o.untitled_title.as_str(), o.max_decompressed_bytes, o.max_entries, o.max_nesting_depth),
+        (1, "Untitled", 209_715_200, 10_000, 32)
+    );
 }

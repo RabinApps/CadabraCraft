@@ -7,11 +7,21 @@ use serde::Serialize;
 #[derive(Debug, Clone, PartialEq)]
 pub enum Attrs {
     /// `align` is the author's `textAlign` (`start`, `center` or `end`), absent when the template decides.
-    Heading { level: u8, align: Option<&'static str> },
+    Heading {
+        level: u8,
+        align: Option<&'static str>,
+    },
     /// A paragraph with an alignment; a paragraph without one has no attrs.
-    Align { align: &'static str },
-    Image { src: String, alt: Option<String> },
-    Task { checked: bool },
+    Align {
+        align: &'static str,
+    },
+    Image {
+        src: String,
+        alt: Option<String>,
+    },
+    Task {
+        checked: bool,
+    },
 }
 
 impl Serialize for Attrs {

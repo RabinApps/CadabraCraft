@@ -19,7 +19,12 @@ pub fn parse_wav(b: &[u8]) -> Result<Pcm, AudioError> {
         let body = at + 8;
         if id == b"fmt " {
             let f = b.get(body..body + 16).ok_or_else(|| bad("short fmt chunk"))?;
-            let (tag, channels, hz, bits) = (u16::from_le_bytes([f[0], f[1]]), u16::from_le_bytes([f[2], f[3]]), u32::from_le_bytes([f[4], f[5], f[6], f[7]]), u16::from_le_bytes([f[14], f[15]]));
+            let (tag, channels, hz, bits) = (
+                u16::from_le_bytes([f[0], f[1]]),
+                u16::from_le_bytes([f[2], f[3]]),
+                u32::from_le_bytes([f[4], f[5], f[6], f[7]]),
+                u16::from_le_bytes([f[14], f[15]]),
+            );
             if tag != 1 || channels != 1 || bits != 16 || hz == 0 || hz > MAX_RATE {
                 return Err(bad("expected 16-bit mono PCM"));
             }
@@ -102,7 +107,8 @@ mod tests {
     }
 
     fn fmt() -> Vec<u8> {
-        chunk(b"fmt ", &[1, 0, 1, 0, 0x80, 0x3e, 0, 0, 0, 0x7d, 0, 0, 2, 0, 16, 0]) // PCM, mono, 16000 Hz, 16 bit
+        chunk(b"fmt ", &[1, 0, 1, 0, 0x80, 0x3e, 0, 0, 0, 0x7d, 0, 0, 2, 0, 16, 0])
+        // PCM, mono, 16000 Hz, 16 bit
     }
 
     #[test]

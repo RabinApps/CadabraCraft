@@ -198,7 +198,10 @@ mod tests {
         write_file(d.path(), "manuscript/big.json", &at_cap, None).unwrap();
         assert_eq!(read_file(d.path(), "manuscript/big.json").unwrap().unwrap().contents.len() as u64, MAX_READ_BYTES, "what is written can be read back");
         let over = "x".repeat(MAX_READ_BYTES as usize + 1);
-        assert_eq!(write_file(d.path(), "manuscript/big2.json", &over, None).unwrap_err(), ProjectError::TooLarge { path: "manuscript/big2.json".into(), max_mb: 32 });
+        assert_eq!(
+            write_file(d.path(), "manuscript/big2.json", &over, None).unwrap_err(),
+            ProjectError::TooLarge { path: "manuscript/big2.json".into(), max_mb: 32 }
+        );
         assert!(!d.path().join("manuscript/big2.json").exists());
         assert!(write_file(d.path(), "manuscript/empty.json", "", None).is_ok(), "zero bytes are fine");
     }

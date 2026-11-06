@@ -243,7 +243,10 @@ fn open_element(e: &BytesStart<'_>, label: &str, budget: &XmlBudget) -> Result<E
         let a = a.map_err(|err| invalid(label, err))?;
         budget.attribute(label)?;
         if attrs.len() >= budget.limits.max_attributes_per_element {
-            return Err(ImportError::new(ImportErrorCode::TooManyNodes, format!("{label} has an element with more than {} attributes.", budget.limits.max_attributes_per_element)));
+            return Err(ImportError::new(
+                ImportErrorCode::TooManyNodes,
+                format!("{label} has an element with more than {} attributes.", budget.limits.max_attributes_per_element),
+            ));
         }
         let key = a.key.as_ref();
         if !valid_name(key) {

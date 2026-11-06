@@ -138,7 +138,14 @@ pub(crate) fn move_to_free_name_with(
 }
 
 /// `move_to_free_name_with` without the per-caller generics, so the loop exists (and is tested) once.
-fn move_to_free_name_dyn(root: &Path, from: &Path, want: &str, label: &str, pick: &dyn Fn(&Path, &str) -> Result<String>, mv: &dyn Fn(&Path, &Path) -> std::io::Result<()>) -> Result<String> {
+fn move_to_free_name_dyn(
+    root: &Path,
+    from: &Path,
+    want: &str,
+    label: &str,
+    pick: &dyn Fn(&Path, &str) -> Result<String>,
+    mv: &dyn Fn(&Path, &Path) -> std::io::Result<()>,
+) -> Result<String> {
     for _ in 0..64 {
         let to_rel = pick(root, want)?;
         let to = resolve(root, &to_rel)?;

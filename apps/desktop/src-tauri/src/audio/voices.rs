@@ -24,9 +24,33 @@ pub struct VoiceDef {
 }
 
 pub const VOICES: &[VoiceDef] = &[
-    VoiceDef { id: "kokoro-heart", engine: Engine::Kokoro, dir: "kokoro-multi-lang-v1_0", model: "model.onnx", speaker: Some(3), lexicon: "kokoro-multi-lang-v1_0/lexicon-us-en.txt", languages: &["en"] },
-    VoiceDef { id: "piper-amy", engine: Engine::Piper, dir: "vits-piper-en_US-amy-low", model: "en_US-amy-low.onnx", speaker: None, lexicon: "lexicon-en-us.txt", languages: &["en"] },
-    VoiceDef { id: "piper-libritts-0", engine: Engine::Piper, dir: "vits-piper-en_US-libritts_r-medium", model: "en_US-libritts_r-medium.onnx", speaker: Some(0), lexicon: "lexicon-en-us.txt", languages: &["en"] },
+    VoiceDef {
+        id: "kokoro-heart",
+        engine: Engine::Kokoro,
+        dir: "kokoro-multi-lang-v1_0",
+        model: "model.onnx",
+        speaker: Some(3),
+        lexicon: "kokoro-multi-lang-v1_0/lexicon-us-en.txt",
+        languages: &["en"],
+    },
+    VoiceDef {
+        id: "piper-amy",
+        engine: Engine::Piper,
+        dir: "vits-piper-en_US-amy-low",
+        model: "en_US-amy-low.onnx",
+        speaker: None,
+        lexicon: "lexicon-en-us.txt",
+        languages: &["en"],
+    },
+    VoiceDef {
+        id: "piper-libritts-0",
+        engine: Engine::Piper,
+        dir: "vits-piper-en_US-libritts_r-medium",
+        model: "en_US-libritts_r-medium.onnx",
+        speaker: Some(0),
+        lexicon: "lexicon-en-us.txt",
+        languages: &["en"],
+    },
 ];
 
 impl VoiceDef {

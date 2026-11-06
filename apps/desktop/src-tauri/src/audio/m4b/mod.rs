@@ -60,7 +60,8 @@ pub struct BuiltM4b {
 /// A part name is a plain file name in the parts folder; the file list handed to ffmpeg then needs no escaping.
 fn part_name(part: &str) -> Result<&str, AudioError> {
     let name = part.strip_prefix(project::AUDIO_PARTS_DIR).filter(|_| project::is_audio_part(part));
-    name.filter(|n| n.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-'))).ok_or_else(|| AudioError::from(ProjectError::UnsafePath { path: part.to_string() }))
+    name.filter(|n| n.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-')))
+        .ok_or_else(|| AudioError::from(ProjectError::UnsafePath { path: part.to_string() }))
 }
 
 /// A BCP 47 tag as it may be written into a tag value: letters, digits and hyphens only, so nothing odd reaches a file.
@@ -74,11 +75,45 @@ pub fn clean_language(tag: Option<&str>) -> Option<String> {
 pub fn iso639_2(tag: Option<&str>) -> String {
     let primary = clean_language(tag).map(|t| t.split('-').next().unwrap_or("").to_ascii_lowercase()).unwrap_or_default();
     let three = match primary.as_str() {
-        "en" => "eng", "fr" => "fra", "de" => "deu", "es" => "spa", "it" => "ita", "pt" => "por", "nl" => "nld", "sv" => "swe",
-        "da" => "dan", "no" | "nb" | "nn" => "nor", "fi" => "fin", "pl" => "pol", "cs" => "ces", "sk" => "slk", "sl" => "slv",
-        "hu" => "hun", "ro" => "ron", "bg" => "bul", "hr" => "hrv", "sr" => "srp", "ru" => "rus", "uk" => "ukr", "el" => "ell",
-        "tr" => "tur", "ar" => "ara", "he" => "heb", "fa" => "fas", "hi" => "hin", "ja" => "jpn", "ko" => "kor", "zh" => "zho",
-        "id" => "ind", "vi" => "vie", "th" => "tha", "ca" => "cat", "la" => "lat", "et" => "est", "lv" => "lav", "lt" => "lit",
+        "en" => "eng",
+        "fr" => "fra",
+        "de" => "deu",
+        "es" => "spa",
+        "it" => "ita",
+        "pt" => "por",
+        "nl" => "nld",
+        "sv" => "swe",
+        "da" => "dan",
+        "no" | "nb" | "nn" => "nor",
+        "fi" => "fin",
+        "pl" => "pol",
+        "cs" => "ces",
+        "sk" => "slk",
+        "sl" => "slv",
+        "hu" => "hun",
+        "ro" => "ron",
+        "bg" => "bul",
+        "hr" => "hrv",
+        "sr" => "srp",
+        "ru" => "rus",
+        "uk" => "ukr",
+        "el" => "ell",
+        "tr" => "tur",
+        "ar" => "ara",
+        "he" => "heb",
+        "fa" => "fas",
+        "hi" => "hin",
+        "ja" => "jpn",
+        "ko" => "kor",
+        "zh" => "zho",
+        "id" => "ind",
+        "vi" => "vie",
+        "th" => "tha",
+        "ca" => "cat",
+        "la" => "lat",
+        "et" => "est",
+        "lv" => "lav",
+        "lt" => "lit",
         other if other.len() == 3 && other.chars().all(|c| c.is_ascii_lowercase()) => other,
         _ => "und",
     };
@@ -131,10 +166,7 @@ fn forward_slashes(path: &str, windows: bool) -> String {
 /// ones against the list's own folder). A single quote in a path is written as `'\''`; on Windows the separators become
 /// `/`, which ffmpeg accepts and which keeps backslashes out of the file.
 pub fn concat_list(paths: &[PathBuf]) -> String {
-    paths
-        .iter()
-        .map(|p| format!("file '{}'\n", forward_slashes(&p.to_string_lossy(), cfg!(windows)).replace('\'', "'\\''")))
-        .collect()
+    paths.iter().map(|p| format!("file '{}'\n", forward_slashes(&p.to_string_lossy(), cfg!(windows)).replace('\'', "'\\''"))).collect()
 }
 
 /// ffmpeg's arguments (`-safe 0` because the part paths are absolute). Input 0 is the part list, input 1 the metadata and, with a cover, input 2 the picture (kept as an
@@ -220,7 +252,11 @@ pub fn build_m4b(req: &M4bRequest, ffmpeg: &Path, cancel: &AtomicBool) -> Result
     let r = run_ffmpeg(ffmpeg, &ffmpeg_args(&list, &meta, cover.as_deref(), req.language.as_deref(), &out), scratch.path(), TIMEOUT, cancel)?;
     if !r.success || !out.is_file() {
         let msg = r.stderr.trim();
-        let message = if msg.is_empty() { "the encoder exited with an error and no message".to_string() } else { msg.chars().rev().take(2000).collect::<Vec<_>>().into_iter().rev().collect() };
+        let message = if msg.is_empty() {
+            "the encoder exited with an error and no message".to_string()
+        } else {
+            msg.chars().rev().take(2000).collect::<Vec<_>>().into_iter().rev().collect()
+        };
         return Err(AudioError::Encode { format: "m4b".into(), message });
     }
     // The encoder's output is read whole to be written into the project: cap it so a runaway encode cannot use all memory.

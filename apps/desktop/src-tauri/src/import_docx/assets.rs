@@ -107,7 +107,9 @@ mod tests {
         assert_eq!(ext_of("trailing."), "");
         assert_eq!(ext_of("a.b c"), "");
         assert_eq!(ext_of("é.png"), "png");
-        for (e, t) in [("png", "image/png"), ("jpg", "image/jpeg"), ("jpeg", "image/jpeg"), ("gif", "image/gif"), ("webp", "image/webp"), ("svg", "image/svg+xml")] {
+        for (e, t) in
+            [("png", "image/png"), ("jpg", "image/jpeg"), ("jpeg", "image/jpeg"), ("gif", "image/gif"), ("webp", "image/webp"), ("svg", "image/svg+xml")]
+        {
             assert_eq!(image_type(e), Some(t));
         }
         assert_eq!(image_type("emf"), None);
@@ -133,7 +135,19 @@ mod tests {
         let t: Vec<_> = r.assets.iter().map(|a| a.target_path.as_str()).collect();
         assert_eq!(
             t,
-            ["assets/Pic.png", "assets/pic-2.PNG", "assets/pic-3.png", "assets/my_pic__1_.png", "assets/hidden.png", "assets/__.png", "assets/noext", "assets/noext-2", "assets/image", "assets/back.png", "assets/png"]
+            [
+                "assets/Pic.png",
+                "assets/pic-2.PNG",
+                "assets/pic-3.png",
+                "assets/my_pic__1_.png",
+                "assets/hidden.png",
+                "assets/__.png",
+                "assets/noext",
+                "assets/noext-2",
+                "assets/image",
+                "assets/back.png",
+                "assets/png"
+            ]
         );
         let info = r.assets[0].info();
         assert_eq!((info.source_path, info.target_path, info.media_type, info.len), ("word/media/Pic.png", "assets/Pic.png", "image/png", 1));

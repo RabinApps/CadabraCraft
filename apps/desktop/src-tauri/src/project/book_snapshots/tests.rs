@@ -34,7 +34,11 @@ fn a_snapshot_holds_the_manifest_pages_and_asset_names_and_nothing_absolute() {
     let e = create_book_snapshot(d.path(), "  Before the rewrite ", at("20261027-1000")).unwrap();
     assert_eq!(e.path, ".cadabra/snapshots/20261027-1000.json");
     assert_eq!((e.name.as_str(), e.automatic, e.assets), ("Before the rewrite", false, 1));
-    assert_eq!(e.pages, ["front-matter/01-x.json", "manuscript/001-a.json", "manuscript/002-b.json", "manuscript/fr/001-a.json"], "conflict copies are not pages");
+    assert_eq!(
+        e.pages,
+        ["front-matter/01-x.json", "manuscript/001-a.json", "manuscript/002-b.json", "manuscript/fr/001-a.json"],
+        "conflict copies are not pages"
+    );
     let raw = read(d.path(), &e.path);
     assert!(raw.contains("\"assets/pic.png\"") && !raw.contains(d.path().to_str().unwrap()), "{raw}");
     assert_eq!(list_book_snapshots(d.path()).unwrap(), vec![e]);
@@ -140,9 +144,19 @@ fn delete_removes_only_a_listed_snapshot() {
     let b = create_book_snapshot(d.path(), "b", at("20261027-1001")).unwrap();
     delete_book_snapshot(d.path(), &a.path).unwrap();
     assert_eq!(list_book_snapshots(d.path()).unwrap(), vec![b.clone()]);
-    for bad in ["cadabra.json", "manuscript/001-a.json", ".cadabra/snapshots/../../cadabra.json", ".cadabra/snapshots/20261027-1000.json", ".cadabra/snapshots/x/20261027-1001.json", ".cadabra/backups/20261027-1001.json"] {
+    for bad in [
+        "cadabra.json",
+        "manuscript/001-a.json",
+        ".cadabra/snapshots/../../cadabra.json",
+        ".cadabra/snapshots/20261027-1000.json",
+        ".cadabra/snapshots/x/20261027-1001.json",
+        ".cadabra/backups/20261027-1001.json",
+    ] {
         assert!(matches!(delete_book_snapshot(d.path(), bad), Err(ProjectError::CannotRestore { .. } | ProjectError::UnsafePath { .. })), "{bad}");
-        assert!(matches!(restore_book_snapshot(d.path(), bad, at("20261027-1100")), Err(ProjectError::CannotRestore { .. } | ProjectError::UnsafePath { .. })), "{bad}");
+        assert!(
+            matches!(restore_book_snapshot(d.path(), bad, at("20261027-1100")), Err(ProjectError::CannotRestore { .. } | ProjectError::UnsafePath { .. })),
+            "{bad}"
+        );
     }
     assert!(d.path().join("cadabra.json").exists() && d.path().join(&b.path).exists());
 }
@@ -174,7 +188,15 @@ fn page_paths_are_checked() {
     for ok in ["manuscript/a.json", "back-matter/fr/01-x.json"] {
         assert!(is_book_page(ok), "{ok}");
     }
-    for bad in ["cadabra.json", "manuscript/a.txt", "manuscript/a/b/c.json", "assets/a.json", "manuscript//a.json", "manuscript/a.conflict-20261027-1000.json", "manuscript"] {
+    for bad in [
+        "cadabra.json",
+        "manuscript/a.txt",
+        "manuscript/a/b/c.json",
+        "assets/a.json",
+        "manuscript//a.json",
+        "manuscript/a.conflict-20261027-1000.json",
+        "manuscript",
+    ] {
         assert!(!is_book_page(bad), "{bad}");
     }
 }
@@ -464,7 +486,11 @@ fn a_legacy_snapshot_over_the_cap_is_listed_but_not_rewritten_and_a_failed_rewri
     // A rewrite that cannot happen (file gone, not a snapshot) changes nothing and does not panic.
     upgrade_legacy(&d.path().join("missing.json"));
     let small = put_old_format(d.path(), "20260102-0000", "small");
-    fs::write(d.path().join(&small), "{\"version\":1,\"name\":\"n\",\"automatic\":false,\"summary\":{\"pages\":[],\"assets\":0},\"manifest\":\"\",\"pages\":{},\"assets\":[]}").unwrap();
+    fs::write(
+        d.path().join(&small),
+        "{\"version\":1,\"name\":\"n\",\"automatic\":false,\"summary\":{\"pages\":[],\"assets\":0},\"manifest\":\"\",\"pages\":{},\"assets\":[]}",
+    )
+    .unwrap();
     let before = fs::read(d.path().join(&small)).unwrap();
     upgrade_legacy(&d.path().join(&small));
     assert_eq!(fs::read(d.path().join(&small)).unwrap(), before, "a file that already has a summary is left alone");

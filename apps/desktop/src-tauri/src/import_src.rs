@@ -42,9 +42,8 @@ pub fn read_relative_image(source_file: &Path, reference: &str) -> Result<Vec<u8
     require_absolute(source_file)?;
     let shown: String = reference.chars().take(80).collect();
     let rel = Path::new(reference);
-    let safe = !reference.is_empty()
-        && !reference.contains(['\\', ':', '\0'])
-        && rel.components().all(|c| matches!(c, Component::Normal(_) | Component::CurDir));
+    let safe =
+        !reference.is_empty() && !reference.contains(['\\', ':', '\0']) && rel.components().all(|c| matches!(c, Component::Normal(_) | Component::CurDir));
     if !safe {
         return Err(ProjectError::ImageRefNotAllowed { reference: shown });
     }
@@ -254,13 +253,8 @@ mod tests {
     fn empty_and_odd_encodings_come_back_byte_for_byte() {
         // Decoding is the importer's job (TypeScript); the native layer never alters, strips or rejects text bytes.
         let d = tempfile::tempdir().unwrap();
-        let cases: [(&str, &[u8]); 5] = [
-            ("empty.md", b""),
-            ("bom.md", b"\xef\xbb\xbf# Title"),
-            ("utf16.txt", b"\xff\xfeH\x00i\x00"),
-            ("latin1.html", b"caf\xe9"),
-            ("nul.md", b"a\0b"),
-        ];
+        let cases: [(&str, &[u8]); 5] =
+            [("empty.md", b""), ("bom.md", b"\xef\xbb\xbf# Title"), ("utf16.txt", b"\xff\xfeH\x00i\x00"), ("latin1.html", b"caf\xe9"), ("nul.md", b"a\0b")];
         for (n, b) in cases {
             fs::write(d.path().join(n), b).unwrap();
             assert_eq!(read_source(&d.path().join(n)).unwrap(), b, "{n}");
@@ -314,8 +308,19 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let md = d.path().join("book.md");
         for bad in [
-            "C:/x.png", "C:\\x.png", "c:x.png", "//server/share/x.png", "\\\\server\\share\\x.png", "/abs.png", "file:///etc/x.png", "a/../b.png",
-            "./../x.png", "a/./../../x.png", "x.png:stream", "\0.png", "a\0.png",
+            "C:/x.png",
+            "C:\\x.png",
+            "c:x.png",
+            "//server/share/x.png",
+            "\\\\server\\share\\x.png",
+            "/abs.png",
+            "file:///etc/x.png",
+            "a/../b.png",
+            "./../x.png",
+            "a/./../../x.png",
+            "x.png:stream",
+            "\0.png",
+            "a\0.png",
         ] {
             assert!(matches!(read_relative_image(&md, bad), Err(ProjectError::ImageRefNotAllowed { .. })), "{bad:?}");
         }

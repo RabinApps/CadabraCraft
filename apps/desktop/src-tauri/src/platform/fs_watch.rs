@@ -1,9 +1,9 @@
 //! Watches a project folder for changes made outside the app (cloud sync, another editor) and tells the UI.
+use crate::project::ProjectError;
 use notify_debouncer_mini::{new_debouncer, notify::RecursiveMode, Debouncer};
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Duration;
-use crate::project::ProjectError;
 use tauri::{AppHandle, Emitter, Runtime};
 
 #[derive(Default)]
@@ -69,7 +69,8 @@ fn start_with(
     // Only the folder name goes into the error: the UI never shows absolute paths.
     let failed = || ProjectError::WatchFailed { path: root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default() };
     let r = root.clone();
-    let mut debouncer = new_debouncer(debounce, move |res: notify_debouncer_mini::DebounceEventResult| deliver(&r, res, &mut *notify, &mut *on_error)).map_err(|_| failed())?;
+    let mut debouncer =
+        new_debouncer(debounce, move |res: notify_debouncer_mini::DebounceEventResult| deliver(&r, res, &mut *notify, &mut *on_error)).map_err(|_| failed())?;
     debouncer.watcher().watch(&root, RecursiveMode::Recursive).map_err(|_| failed())?;
     let old = state.0.lock().map_err(poisoned)?.replace(debouncer); // replaces any previous watcher
     drop(old); // stopped outside the lock

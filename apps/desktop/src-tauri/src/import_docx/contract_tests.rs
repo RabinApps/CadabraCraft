@@ -45,7 +45,9 @@ fn options(spec: &Value) -> Options {
 fn without_lone_surrogates(json: &str) -> String {
     let b = json.as_bytes();
     let mut out = String::with_capacity(json.len());
-    let unit = |i: usize| -> Option<u32> { json.get(i + 2..i + 6).filter(|_| b.get(i) == Some(&b'\\') && b.get(i + 1) == Some(&b'u')).and_then(|h| u32::from_str_radix(h, 16).ok()) };
+    let unit = |i: usize| -> Option<u32> {
+        json.get(i + 2..i + 6).filter(|_| b.get(i) == Some(&b'\\') && b.get(i + 1) == Some(&b'u')).and_then(|h| u32::from_str_radix(h, 16).ok())
+    };
     let mut i = 0;
     while i < b.len() {
         if b[i] == b'\\' {

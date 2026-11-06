@@ -108,7 +108,11 @@ pub struct BookRestore {
 /// `manuscript|front-matter|back-matter/<name>.json`, optionally one language folder deeper.
 fn is_book_page(rel: &str) -> bool {
     let parts: Vec<&str> = rel.split('/').collect();
-    (2..=3).contains(&parts.len()) && PAGE_DIRS.contains(&parts[0]) && parts[1..].iter().all(|p| !p.is_empty()) && parts[parts.len() - 1].ends_with(".json") && !rel.contains(".conflict-")
+    (2..=3).contains(&parts.len())
+        && PAGE_DIRS.contains(&parts[0])
+        && parts[1..].iter().all(|p| !p.is_empty())
+        && parts[parts.len() - 1].ends_with(".json")
+        && !rel.contains(".conflict-")
 }
 
 fn file_names(root: &Path, dir: &str, want_dirs: bool) -> Result<Vec<String>> {
@@ -183,7 +187,18 @@ fn list_with(root: &Path, head_bytes: u64) -> Result<Vec<BookSnapshotEntry>> {
             upgrade_legacy(&file);
         }
         let Ok(meta) = fs::metadata(&file) else { continue };
-        found.push((key.clone(), BookSnapshotEntry { path, at: key.0, name: head.name, automatic: head.automatic, pages: head.summary.pages, assets: head.summary.assets, bytes: meta.len() }));
+        found.push((
+            key.clone(),
+            BookSnapshotEntry {
+                path,
+                at: key.0,
+                name: head.name,
+                automatic: head.automatic,
+                pages: head.summary.pages,
+                assets: head.summary.assets,
+                bytes: meta.len(),
+            },
+        ));
     }
     found.sort_by(|a, b| b.0.cmp(&a.0));
     Ok(found.into_iter().map(|(_, e)| e).collect())
@@ -232,7 +247,15 @@ fn create(root: &Path, name: &str, automatic: bool, now: DateTime<Utc>) -> Resul
         to
     };
     prune_book_snapshots(root, &to, MAX_SNAPSHOTS, MAX_TOTAL_BYTES, now);
-    Ok(BookSnapshotEntry { path: to, at: stamp_of(now), name: file.name, automatic, pages: file.pages.into_keys().collect(), assets: file.assets.len(), bytes: bytes.len() as u64 })
+    Ok(BookSnapshotEntry {
+        path: to,
+        at: stamp_of(now),
+        name: file.name,
+        automatic,
+        pages: file.pages.into_keys().collect(),
+        assets: file.assets.len(),
+        bytes: bytes.len() as u64,
+    })
 }
 
 fn snapshot_too_large() -> ProjectError {

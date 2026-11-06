@@ -13,7 +13,11 @@ fn scan_picked(picked: &PickedPaths, root: &str) -> Result<LibraryScan, ProjectE
 /// Lists the books (manifest fields only) in a folder the author picked as a library. Any other folder is refused.
 #[tauri::command]
 pub async fn scan_library(picked: State<'_, PickedPaths>, root: String) -> Result<LibraryScan, ProjectError> {
-    blocking({ let picked = picked.inner().clone(); move || scan_picked(&picked, &root) }).await
+    blocking({
+        let picked = picked.inner().clone();
+        move || scan_picked(&picked, &root)
+    })
+    .await
 }
 
 /// Size and modification time of `assets/<image>`, for the cover thumbnail cache.
@@ -38,7 +42,10 @@ mod tests {
         picked.record(PickKind::Folder, other.path()).unwrap(); // picked, but for a new book
         let scan = scan_picked(&picked, &lib.path().to_string_lossy()).unwrap();
         assert_eq!(scan.books.len(), 1);
-        assert_eq!(scan_picked(&picked, &other.path().to_string_lossy()), Err(ProjectError::NotPicked { name: other.path().file_name().unwrap().to_string_lossy().into_owned() }));
+        assert_eq!(
+            scan_picked(&picked, &other.path().to_string_lossy()),
+            Err(ProjectError::NotPicked { name: other.path().file_name().unwrap().to_string_lossy().into_owned() })
+        );
         assert!(scan_picked(&picked, &book.to_string_lossy()).is_err(), "a child of a picked folder was not picked");
     }
 

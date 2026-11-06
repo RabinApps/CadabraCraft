@@ -120,7 +120,12 @@ fn a_speed_that_is_not_a_number_in_range_is_refused_before_any_engine_is_asked()
     use crate::audio::batch::Chunk;
     use crate::audio::render::{render_sample, SampleRequest};
     let flag = AtomicBool::new(false);
-    let req = |speed: f64| SampleRequest { job_id: "s".into(), chunks: vec![Chunk { text: "Hello.".into(), pause_after_ms: u32::MAX }], voice: "piper-amy".into(), speed };
+    let req = |speed: f64| SampleRequest {
+        job_id: "s".into(),
+        chunks: vec![Chunk { text: "Hello.".into(), pause_after_ms: u32::MAX }],
+        voice: "piper-amy".into(),
+        speed,
+    };
     for bad in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, -1.0, -0.0, 0.0, 0.499_999_9, 2.000_001, 1e308, -1e308, f64::MAX, f64::MIN_POSITIVE, f64::EPSILON] {
         let e = render_sample(&req(bad), std::path::Path::new("/no/engine"), None, &flag).unwrap_err();
         assert!(format!("{e:?}").contains("speed must be between"), "{bad}: {e:?}");
@@ -136,7 +141,11 @@ fn a_speed_that_is_not_a_number_in_range_is_refused_before_any_engine_is_asked()
         let r = call(&w, "audio_sample", json!({ "request": { "jobId": "s", "chunks": [], "voice": "v", "speed": speed } }));
         assert!(r.is_err(), "{speed}");
     }
-    let r = call(&w, "audio_sample", json!({ "request": { "jobId": "s", "chunks": [{ "text": "x", "pauseAfterMs": 4294967296u64 }], "voice": "v", "speed": 1.0 } }));
+    let r = call(
+        &w,
+        "audio_sample",
+        json!({ "request": { "jobId": "s", "chunks": [{ "text": "x", "pauseAfterMs": 4294967296u64 }], "voice": "v", "speed": 1.0 } }),
+    );
     assert!(r.is_err(), "a pause over u32 is refused when decoding");
     let r = call(&w, "audio_sample", json!({ "request": { "jobId": "s", "chunks": [{ "text": "x", "pauseAfterMs": -1 }], "voice": "v", "speed": 1.0 } }));
     assert!(r.is_err());
@@ -176,7 +185,10 @@ fn a_flood_of_projects_asking_for_stream_urls_is_bounded_and_the_newest_always_w
             b
         })
         .collect();
-    let urls: Vec<String> = books.iter().map(|b| json_of(call(&w, "reference_stream_url", json!({ "root": root(b), "path": "references/c.mp4" }))).as_str().unwrap().to_string()).collect();
+    let urls: Vec<String> = books
+        .iter()
+        .map(|b| json_of(call(&w, "reference_stream_url", json!({ "root": root(b), "path": "references/c.mp4" }))).as_str().unwrap().to_string())
+        .collect();
     let roots = app.state::<commands::MediaRoots>();
     let status = |url: &str| commands::respond(&roots, &tauri::http::Request::builder().uri(url).body(vec![]).unwrap()).status().as_u16();
     assert_eq!(status(urls.last().unwrap()), 200, "the newest project streams");

@@ -3,8 +3,8 @@
 use super::assets::{image_size, looks_like};
 use super::trash::parse_trash_name;
 use super::*;
-use std::{fs, path::Path};
 use serde_json::Value;
+use std::{fs, path::Path};
 
 fn vectors(name: &str) -> Value {
     let path = format!("{}/../../../fixtures/contract/{name}.json", env!("CARGO_MANIFEST_DIR"));

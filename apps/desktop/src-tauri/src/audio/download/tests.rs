@@ -167,7 +167,16 @@ fn a_download_past_its_deadline_stops_and_keeps_the_part_file() {
     let dir = tempfile::tempdir().unwrap();
     let dest = dir.path().join("file.bin");
     let client = client(false).unwrap();
-    let r = tauri::async_runtime::block_on(download_file_within(&client, &s.url, data.len() as u64, &sha(&data), &dest, &AtomicBool::new(false), &mut noop, Duration::from_millis(100)));
+    let r = tauri::async_runtime::block_on(download_file_within(
+        &client,
+        &s.url,
+        data.len() as u64,
+        &sha(&data),
+        &dest,
+        &AtomicBool::new(false),
+        &mut noop,
+        Duration::from_millis(100),
+    ));
     assert!(matches!(&r, Err(AudioError::Download { message }) if message.contains("longer than")), "{r:?}");
     assert!(!dest.exists());
     assert!(part_path(&dest).exists(), "kept for a later resume");
@@ -256,7 +265,8 @@ fn a_pack_downloads_every_file_and_reports_progress_over_the_whole_pack() {
     let pack = stub_pack("stub", &[], &s.url, &data, &["a/one.bin", "two.bin"]);
     let dir = tempfile::tempdir().unwrap();
     let seen = Mutex::new(Vec::new());
-    let r = tauri::async_runtime::block_on(download_pack(&client(false).unwrap(), pack, dir.path(), &AtomicBool::new(false), &|p| seen.lock().unwrap().push(p)));
+    let r =
+        tauri::async_runtime::block_on(download_pack(&client(false).unwrap(), pack, dir.path(), &AtomicBool::new(false), &|p| seen.lock().unwrap().push(p)));
     assert_eq!(r, Ok(()));
     assert!(pack.installed(dir.path()));
     let seen = seen.into_inner().unwrap();
@@ -336,7 +346,17 @@ fn download_packs_and_speak(enabled: bool, https_only: bool, packs: &[&Pack], sh
         return;
     };
     for voice in crate::audio::voices::VOICES.iter().filter(|v| expected.contains(&v.id)) {
-        let req = crate::audio::render::ChapterRequest { job_id: "dl".into(), root: book.to_string_lossy().into_owned(), base: format!("exports/audio/{}", voice.id), chunks: vec![crate::audio::batch::Chunk { text: "The quay was empty. A gull cried once.".into(), pause_after_ms: 600 }], voice: voice.id.into(), speed: 1.0, formats: vec!["opus".into(), "flac".into()], part: None, language: None };
+        let req = crate::audio::render::ChapterRequest {
+            job_id: "dl".into(),
+            root: book.to_string_lossy().into_owned(),
+            base: format!("exports/audio/{}", voice.id),
+            chunks: vec![crate::audio::batch::Chunk { text: "The quay was empty. A gull cried once.".into(), pause_after_ms: 600 }],
+            voice: voice.id.into(),
+            speed: 1.0,
+            formats: vec!["opus".into(), "flac".into()],
+            part: None,
+            language: None,
+        };
         let done = crate::audio::render::render_chapter(&req, &bin, Some(&voices), &AtomicBool::new(false), &|_| {}).unwrap();
         assert!(done.duration_sec > min_secs && done.duration_sec < 30.0, "{}: {}", voice.id, done.duration_sec);
         assert!(book.join(format!("exports/audio/{}.opus", voice.id)).is_file());
@@ -369,7 +389,13 @@ fn the_pack_check_works_against_a_loopback_server_with_and_without_an_engine() {
     let data = body(3_000);
     let s = serve(data.clone(), Mode::Normal);
     // the files piper-amy needs, so that its voice counts as installed
-    let pack = stub_pack("stub", &["piper-amy"], &s.url, &data, &["vits-piper-en_US-amy-low/en_US-amy-low.onnx", "vits-piper-en_US-amy-low/tokens.txt", "lexicon-en-us.txt"]);
+    let pack = stub_pack(
+        "stub",
+        &["piper-amy"],
+        &s.url,
+        &data,
+        &["vits-piper-en_US-amy-low/en_US-amy-low.onnx", "vits-piper-en_US-amy-low/tokens.txt", "lexicon-en-us.txt"],
+    );
     let none = || Err(AudioError::NotFound { message: "no engine".into() });
     download_packs_and_speak(false, true, &[], none(), 1.0);
     download_packs_and_speak(true, false, &[pack], none(), 1.0);
@@ -380,7 +406,14 @@ fn the_pack_check_works_against_a_loopback_server_with_and_without_an_engine() {
         let wav = dir.path().join("two-seconds.wav");
         fs::write(&wav, crate::audio::wav::write_wav(24000, &vec![1000i16; 48_000]).unwrap()).unwrap();
         let engine = dir.path().join("fake-engine");
-        fs::write(&engine, format!("#!/bin/sh\nfor a in \"$@\"; do case \"$a\" in --output-filename=*) out=\"${{a#--output-filename=}}\";; esac; done\ncp '{}' \"$out\"\n", wav.display())).unwrap();
+        fs::write(
+            &engine,
+            format!(
+                "#!/bin/sh\nfor a in \"$@\"; do case \"$a\" in --output-filename=*) out=\"${{a#--output-filename=}}\";; esac; done\ncp '{}' \"$out\"\n",
+                wav.display()
+            ),
+        )
+        .unwrap();
         fs::set_permissions(&engine, fs::Permissions::from_mode(0o755)).unwrap();
         download_packs_and_speak(true, false, &[pack], Ok(engine), 1.5);
     }

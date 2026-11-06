@@ -20,7 +20,17 @@ fn chunk(text: &str, pause: u32) -> Chunk {
 
 #[test]
 fn a_chapter_request_with_too_much_text_or_too_many_chunks_is_refused() {
-    let req = |chunks: Vec<Chunk>| ChapterRequest { job_id: "j".into(), root: "/r".into(), base: "exports/a".into(), chunks, voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None, language: None };
+    let req = |chunks: Vec<Chunk>| ChapterRequest {
+        job_id: "j".into(),
+        root: "/r".into(),
+        base: "exports/a".into(),
+        chunks,
+        voice: "piper-amy".into(),
+        speed: 1.0,
+        formats: vec!["wav".into()],
+        part: None,
+        language: None,
+    };
     assert!(check_request(&req(vec![chunk("Hi.", 600)])).is_ok());
     let long = "x".repeat(CHAPTER_MAX_CHARS + 1);
     assert!(matches!(check_request(&req(vec![chunk(&long, 0)])), Err(AudioError::Other { message }) if message.contains("too long")));
@@ -35,7 +45,8 @@ mod process {
     /// A stand-in engine: copies `fixture` to the `--output-filename=` argument, or runs `body`.
     fn script(dir: &Path, body: &str) -> PathBuf {
         let p = dir.join("fake-engine");
-        fs::write(&p, format!("#!/bin/sh\nfor a in \"$@\"; do case \"$a\" in --output-filename=*) out=\"${{a#--output-filename=}}\";; esac; done\n{body}\n")).unwrap();
+        fs::write(&p, format!("#!/bin/sh\nfor a in \"$@\"; do case \"$a\" in --output-filename=*) out=\"${{a#--output-filename=}}\";; esac; done\n{body}\n"))
+            .unwrap();
         fs::set_permissions(&p, fs::Permissions::from_mode(0o755)).unwrap();
         p
     }
@@ -64,7 +75,17 @@ mod process {
     }
 
     fn request(f: &Fixture, chunks: Vec<Chunk>) -> ChapterRequest {
-        ChapterRequest { job_id: "j".into(), root: f.project.to_string_lossy().into_owned(), base: "exports/audio/01-one".into(), chunks, voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None, language: None }
+        ChapterRequest {
+            job_id: "j".into(),
+            root: f.project.to_string_lossy().into_owned(),
+            base: "exports/audio/01-one".into(),
+            chunks,
+            voice: "piper-amy".into(),
+            speed: 1.0,
+            formats: vec!["wav".into()],
+            part: None,
+            language: None,
+        }
     }
 
     fn copy(wav: &Path) -> String {
@@ -75,7 +96,14 @@ mod process {
     fn renders_batches_joins_them_with_pauses_and_writes_under_exports() {
         let f = fixture(copy);
         let seen = Mutex::new(Vec::new());
-        let r = render_chapter(&request(&f, vec![chunk("Title", 1000), chunk("Body one.", 600), chunk("Body two.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(false), &|p| seen.lock().unwrap().push(p)).unwrap();
+        let r = render_chapter(
+            &request(&f, vec![chunk("Title", 1000), chunk("Body one.", 600), chunk("Body two.", 600)]),
+            &f.engine,
+            Some(&f.voices),
+            &AtomicBool::new(false),
+            &|p| seen.lock().unwrap().push(p),
+        )
+        .unwrap();
         // two batches of 0.1 s plus a 1.0 s pause after the first and 0.6 s after the second
         assert!((r.duration_sec - 1.8).abs() < 0.001, "{}", r.duration_sec);
         assert_eq!(r.files, vec![RenderedFile { format: "wav".into(), path: "exports/audio/01-one.wav".into() }]);
@@ -111,7 +139,9 @@ mod process {
     fn a_sample_with_nothing_to_read_is_refused() {
         let f = fixture(copy);
         let req = SampleRequest { job_id: "s".into(), chunks: vec![chunk("   ", 0)], voice: "piper-amy".into(), speed: 1.0 };
-        assert!(matches!(render_sample(&req, &f.engine, Some(&f.voices), &AtomicBool::new(false)), Err(AudioError::Other { message }) if message.contains("nothing to read")));
+        assert!(
+            matches!(render_sample(&req, &f.engine, Some(&f.voices), &AtomicBool::new(false)), Err(AudioError::Other { message }) if message.contains("nothing to read"))
+        );
     }
 
     #[test]
@@ -147,7 +177,10 @@ mod process {
         let mut r = request(&f, vec![chunk("Hello there.", 600)]);
         r.formats = vec!["opus".into(), "flac".into(), "wav".into()];
         let done = render_chapter(&r, &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore).unwrap();
-        assert_eq!(done.files.iter().map(|x| (x.format.as_str(), x.path.as_str())).collect::<Vec<_>>(), vec![("opus", "exports/audio/01-one.opus"), ("flac", "exports/audio/01-one.flac"), ("wav", "exports/audio/01-one.wav")]);
+        assert_eq!(
+            done.files.iter().map(|x| (x.format.as_str(), x.path.as_str())).collect::<Vec<_>>(),
+            vec![("opus", "exports/audio/01-one.opus"), ("flac", "exports/audio/01-one.flac"), ("wav", "exports/audio/01-one.wav")]
+        );
         let read = |n: &str| fs::read(f.project.join(format!("exports/audio/01-one.{n}"))).unwrap();
         assert_eq!(&read("opus")[..4], b"OggS");
         assert_eq!(&read("flac")[..4], b"fLaC");
@@ -184,7 +217,12 @@ mod process {
             let other = wav.with_file_name("fixture16k.wav");
             fs::write(&other, write_wav(16000, &vec![1000i16; 1600]).unwrap()).unwrap();
             let seen = wav.with_file_name("seen");
-            format!("if [ -f '{seen}' ]; then cp '{other}' \"$out\"; else touch '{seen}'; cp '{wav}' \"$out\"; fi", seen = seen.display(), other = other.display(), wav = wav.display())
+            format!(
+                "if [ -f '{seen}' ]; then cp '{other}' \"$out\"; else touch '{seen}'; cp '{wav}' \"$out\"; fi",
+                seen = seen.display(),
+                other = other.display(),
+                wav = wav.display()
+            )
         });
         let r = render_chapter(&request(&f, vec![chunk("Title", 1000), chunk("Body.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore);
         assert!(matches!(&r, Err(AudioError::Synth { message }) if message.contains("sample rate")), "{r:?}");
@@ -220,9 +258,15 @@ mod process {
     #[test]
     fn a_missing_output_file_or_garbage_wav_is_a_synth_error() {
         let f = fixture(|_| "true".into());
-        assert!(matches!(render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore), Err(AudioError::Synth { .. })));
+        assert!(matches!(
+            render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, Some(&f.voices), &AtomicBool::new(false), &ignore),
+            Err(AudioError::Synth { .. })
+        ));
         let g = fixture(|_| "echo garbage > \"$out\"".into());
-        assert!(matches!(render_chapter(&request(&g, vec![chunk("Hello.", 600)]), &g.engine, Some(&g.voices), &AtomicBool::new(false), &ignore), Err(AudioError::Synth { .. })));
+        assert!(matches!(
+            render_chapter(&request(&g, vec![chunk("Hello.", 600)]), &g.engine, Some(&g.voices), &AtomicBool::new(false), &ignore),
+            Err(AudioError::Synth { .. })
+        ));
     }
 
     #[test]
@@ -245,7 +289,10 @@ mod process {
         }
         assert!(matches!(run(&|r| r.root = "relative/book".into()), Err(AudioError::Other { .. })));
         assert!(!f.engine.parent().unwrap().join("ran").exists());
-        assert!(matches!(render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, None, &AtomicBool::new(false), &ignore), Err(AudioError::VoiceMissing { .. })));
+        assert!(matches!(
+            render_chapter(&request(&f, vec![chunk("Hello.", 600)]), &f.engine, None, &AtomicBool::new(false), &ignore),
+            Err(AudioError::VoiceMissing { .. })
+        ));
     }
 }
 
@@ -286,7 +333,17 @@ fn render_short_chapter(found: Option<(PathBuf, PathBuf)>, min_secs: f64) {
     }
     let dir = tempfile::tempdir().unwrap();
     fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
-    let req = ChapterRequest { job_id: "real".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-real".into(), chunks: vec![chunk("The quay was empty. A gull cried once.", 600)], voice: "piper-amy".into(), speed: 1.0, formats: vec!["wav".into()], part: None, language: None };
+    let req = ChapterRequest {
+        job_id: "real".into(),
+        root: dir.path().to_string_lossy().into_owned(),
+        base: "exports/audio/01-real".into(),
+        chunks: vec![chunk("The quay was empty. A gull cried once.", 600)],
+        voice: "piper-amy".into(),
+        speed: 1.0,
+        formats: vec!["wav".into()],
+        part: None,
+        language: None,
+    };
     let r = render_chapter(&req, &bin, Some(&voices), &AtomicBool::new(false), &ignore).unwrap();
     assert!(r.duration_sec > min_secs && r.duration_sec < 30.0, "{}", r.duration_sec);
     assert!(dir.path().join("exports/audio/01-real.wav").is_file());
@@ -295,7 +352,17 @@ fn render_short_chapter(found: Option<(PathBuf, PathBuf)>, min_secs: f64) {
 fn outputs(formats: &[&str], part: Option<&str>) -> (tempfile::TempDir, ChapterRequest) {
     let dir = tempfile::tempdir().unwrap();
     fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
-    let req = ChapterRequest { job_id: "j".into(), root: dir.path().to_string_lossy().into_owned(), base: "exports/audio/01-one".into(), chunks: vec![], voice: "piper-amy".into(), speed: 1.0, formats: formats.iter().map(|f| f.to_string()).collect(), part: part.map(str::to_string), language: None };
+    let req = ChapterRequest {
+        job_id: "j".into(),
+        root: dir.path().to_string_lossy().into_owned(),
+        base: "exports/audio/01-one".into(),
+        chunks: vec![],
+        voice: "piper-amy".into(),
+        speed: 1.0,
+        formats: formats.iter().map(|f| f.to_string()).collect(),
+        part: part.map(str::to_string),
+        language: None,
+    };
     (dir, req)
 }
 
@@ -304,7 +371,19 @@ fn transcripts_are_text_files_in_an_audio_folder_under_exports() {
     for ok in ["exports/audio/book-transcript.txt", "exports/fr/audio/01-un.vtt", "exports/pt-BR/audio/a_b.1.txt"] {
         assert!(is_transcript_path(ok), "{ok}");
     }
-    for bad in ["exports/audio/a.json", "exports/audio/a", "exports/fr/a.txt", "audio/a.txt", "exports/audio/.txt", "exports/audio/.hid.txt", "exports/audio/a b.txt", "exports/audio/../a.txt", "exports/audio/", "exports/audio/x/y.txt", "cadabra.json"] {
+    for bad in [
+        "exports/audio/a.json",
+        "exports/audio/a",
+        "exports/fr/a.txt",
+        "audio/a.txt",
+        "exports/audio/.txt",
+        "exports/audio/.hid.txt",
+        "exports/audio/a b.txt",
+        "exports/audio/../a.txt",
+        "exports/audio/",
+        "exports/audio/x/y.txt",
+        "cadabra.json",
+    ] {
         assert!(!is_transcript_path(bad), "{bad}");
     }
 }

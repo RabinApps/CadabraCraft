@@ -1,14 +1,13 @@
 //! The document body: paragraphs, lists, quotes, code, definitions, tables (`docx/body.ts`).
 use super::blocks::{cell_paragraphs, definition_nodes, table_of, DefinitionEntry};
-use super::lists::{build_lists, ListEntry};
 use super::ctx::{DCtx, PState};
+use super::lists::{build_lists, ListEntry};
 use super::node::{Attrs, Item, Node};
 use super::parts::{classify, Cls};
 use super::runs::paragraph_children;
 use super::text::{flatten_items, is_js_space, is_scene_break_text, js_max, js_min, js_number, js_round, js_trim, merge_inline, paragraph_of, plain_text};
 use super::warnings::Severity;
 use super::xml::{attr, child, child_val, children_named, kids, on, raw_text, tag_of, XNode, MAX_XML_DEPTH};
-
 
 /// A paragraph's items as blocks: runs of inline content become paragraphs (empty ones dropped), lifted blocks stay blocks.
 fn split_items(items: &[Item]) -> (Vec<Node>, bool) {
@@ -159,7 +158,12 @@ impl BodyBuilder {
         self.flush();
         let mut level = h;
         if level > 3 {
-            ctx.warn.tally("heading-clamped", Severity::Warning, "Headings deeper than level 3 were changed to level 3.", Some(&format!("Heading {level}: {text}")));
+            ctx.warn.tally(
+                "heading-clamped",
+                Severity::Warning,
+                "Headings deeper than level 3 were changed to level 3.",
+                Some(&format!("Heading {level}: {text}")),
+            );
             level = 3;
         }
         let flat = flatten_items(&items);
@@ -321,10 +325,20 @@ impl BodyBuilder {
         let header = trs.first().and_then(|r| child(r, "trPr")).is_some_and(|p| on(child(p, "tblHeader")));
         let (node, padded) = table_of(rows, header);
         if complex {
-            ctx.warn.tally("table-complex", Severity::Warning, "Nested tables, lists and images inside table cells were flattened to paragraphs.", Some(&raw_text(t)));
+            ctx.warn.tally(
+                "table-complex",
+                Severity::Warning,
+                "Nested tables, lists and images inside table cells were flattened to paragraphs.",
+                Some(&raw_text(t)),
+            );
         }
         if merged || padded {
-            ctx.warn.tally("table-merged", Severity::Warning, "Merged table cells were split into separate cells (the covered cells are empty).", Some(&raw_text(t)));
+            ctx.warn.tally(
+                "table-merged",
+                Severity::Warning,
+                "Merged table cells were split into separate cells (the covered cells are empty).",
+                Some(&raw_text(t)),
+            );
         }
         if let Some(n) = node {
             self.out.push(n);

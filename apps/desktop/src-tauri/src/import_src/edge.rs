@@ -34,7 +34,10 @@ fn sockets_devices_folders_and_dangling_links_are_typed_errors_for_documents_and
     for name in ["s.png", "zero.png", "dangling.png"] {
         let (doc, shown) = (doc.clone(), name.to_string());
         let r = within(move || read_relative_image(&doc, &shown));
-        assert!(matches!(r, Err(ProjectError::NotAFile { .. } | ProjectError::ImageRefNotFound { .. } | ProjectError::ImageRefOutside { .. })), "{name}: {r:?}");
+        assert!(
+            matches!(r, Err(ProjectError::NotAFile { .. } | ProjectError::ImageRefNotFound { .. } | ProjectError::ImageRefOutside { .. })),
+            "{name}: {r:?}"
+        );
     }
 }
 

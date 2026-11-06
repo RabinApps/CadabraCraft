@@ -51,7 +51,9 @@ pub struct Captured {
 pub enum RunError {
     /// The program does not exist (the message already carries the caller's install advice).
     NotFound(String),
-    Timeout { seconds: u64 },
+    Timeout {
+        seconds: u64,
+    },
     Cancelled,
     Other(String),
 }
@@ -110,7 +112,10 @@ pub fn run(r: &Run) -> Result<Captured, RunError> {
             let lib = dir.join("..").join("lib");
             if lib.is_dir() {
                 let var = if cfg!(target_os = "macos") { "DYLD_LIBRARY_PATH" } else { "LD_LIBRARY_PATH" };
-                let joined = std::env::join_paths(std::iter::once(lib).chain(std::env::var_os(var).map(|v| std::env::split_paths(&v).collect::<Vec<_>>()).unwrap_or_default())).map_err(other)?;
+                let joined = std::env::join_paths(
+                    std::iter::once(lib).chain(std::env::var_os(var).map(|v| std::env::split_paths(&v).collect::<Vec<_>>()).unwrap_or_default()),
+                )
+                .map_err(other)?;
                 cmd.env(var, joined);
             }
         }
@@ -140,7 +145,11 @@ pub fn run(r: &Run) -> Result<Captured, RunError> {
             None => std::thread::sleep(Duration::from_millis(20)),
         }
     };
-    Ok(Captured { success: status.success(), stdout: fs::read(&out_path).map_err(other)?, stderr: String::from_utf8_lossy(&fs::read(&err_path).map_err(other)?).into_owned() })
+    Ok(Captured {
+        success: status.success(),
+        stdout: fs::read(&out_path).map_err(other)?,
+        stderr: String::from_utf8_lossy(&fs::read(&err_path).map_err(other)?).into_owned(),
+    })
 }
 
 #[cfg(all(test, unix))]

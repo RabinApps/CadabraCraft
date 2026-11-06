@@ -2,9 +2,9 @@
 //! generated handler code (argument decoding, `State` and `Channel` injection, response encoding) runs, with the same
 //! command names and wire format the webview uses. The command bodies are tested next to their definitions.
 use crate::audio::AudioJobs;
+use crate::commands;
 use crate::commands::testutil::{project, root, text};
 use crate::platform::fs_watch::WatchState;
-use crate::commands;
 use serde_json::{json, Value};
 use std::sync::mpsc::channel;
 use std::time::Duration;
@@ -21,7 +21,11 @@ fn mock_app() -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
 /// `with_state: false` leaves `WatchState`, `AudioJobs`, `MediaRoots` and `PickedPaths` unmanaged, as a build that forgot `.manage` would be.
 fn build_app(with_state: bool) -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     let builder = mock_builder();
-    let builder = if with_state { builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()).manage(commands::PickedPaths::default()) } else { builder };
+    let builder = if with_state {
+        builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()).manage(commands::PickedPaths::default())
+    } else {
+        builder
+    };
     let app = builder.invoke_handler(crate::handlers()).build(mock_context(noop_assets())).expect("the mock app builds");
     let window = WebviewWindowBuilder::new(&app, "main", Default::default()).build().expect("the mock window builds");
     (app, window)
@@ -83,7 +87,16 @@ fn the_native_pickers_answer_through_the_ipc_and_what_they_pick_is_remembered() 
     let (notes, font) = (dir.path().join("notes.txt"), dir.path().join("a.ttf"));
     std::fs::write(&notes, "x").unwrap();
     std::fs::write(&font, "x").unwrap();
-    ANSWERS.lock().unwrap().extend([Some(folder.clone()), None, Some(image.clone()), Some(doc.clone()), None, Some(font.clone()), None, Some(dir.path().to_path_buf())]);
+    ANSWERS.lock().unwrap().extend([
+        Some(folder.clone()),
+        None,
+        Some(image.clone()),
+        Some(doc.clone()),
+        None,
+        Some(font.clone()),
+        None,
+        Some(dir.path().to_path_buf()),
+    ]);
     ANSWERS_MANY.lock().unwrap().extend([vec![notes.clone(), doc.clone()], vec![]]);
     let shown = |p: &std::path::Path| json!(p.to_string_lossy());
     assert_eq!(json_of(call(&w, "pick_folder", json!({}))), shown(&folder));

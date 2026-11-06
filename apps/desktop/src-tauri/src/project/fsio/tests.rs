@@ -55,7 +55,14 @@ fn audio_parts_are_only_flac_files_directly_under_the_parts_folder() {
     for ok in [".cadabra/audio/parts/ch-1.flac", ".cadabra/audio/parts/a b.flac"] {
         assert!(is_audio_part(ok), "{ok}");
     }
-    for bad in [".cadabra/audio/parts/.flac", ".cadabra/audio/parts/x.wav", ".cadabra/audio/parts/sub/x.flac", ".cadabra/audio/x.flac", "exports/x.flac", ".cadabra/audio/parts/"] {
+    for bad in [
+        ".cadabra/audio/parts/.flac",
+        ".cadabra/audio/parts/x.wav",
+        ".cadabra/audio/parts/sub/x.flac",
+        ".cadabra/audio/x.flac",
+        "exports/x.flac",
+        ".cadabra/audio/parts/",
+    ] {
         assert!(!is_audio_part(bad), "{bad}");
     }
     let d = tempfile::tempdir().unwrap();

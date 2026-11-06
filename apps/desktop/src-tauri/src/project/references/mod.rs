@@ -47,6 +47,7 @@ pub enum ReferenceKind {
 /// Programs, scripts, installers, shortcuts, macro-enabled Office files and web pages: they could run, or run script,
 /// when opened, so they are never imported. A list of what to refuse (not of what to allow) so that research files such
 /// as `.docx`, `.xlsx`, `.epub` or `.zip` keep working; the signature checks cover the types that are served inline.
+#[rustfmt::skip]
 const BLOCKED: &[&str] = &[
     // Windows programs, installers and shortcuts
     "exe", "bat", "cmd", "com", "msi", "msp", "mst", "scr", "dll", "cpl", "lnk", "pif", "inf", "reg", "hta", "chm", "msc", "gadget", "scf", "application", "diagcab",
@@ -149,7 +150,11 @@ fn file_hash(path: &Path, label: &str) -> Result<String> {
 
 /// A readable stem for the name on disk: `[A-Za-z0-9_-]` only, "file" when nothing is left.
 fn stem_for(stem: &str) -> String {
-    if stem.bytes().any(|b| b.is_ascii_alphanumeric()) { sanitize_asset_stem(stem) } else { "file".into() }
+    if stem.bytes().any(|b| b.is_ascii_alphanumeric()) {
+        sanitize_asset_stem(stem)
+    } else {
+        "file".into()
+    }
 }
 
 /// What an import reports: the project-relative file, a title to start from (the original name without extension), the
@@ -238,7 +243,9 @@ fn import_reference_with(root: &Path, source: &Path, persist: Persist) -> Result
         let rel = if ext.is_empty() { format!("{REFERENCES_DIR}/{base}") } else { format!("{REFERENCES_DIR}/{base}.{ext}") };
         let path = resolve(root, &rel)?;
         match fs::symlink_metadata(&path) {
-            Ok(m) if m.is_file() && m.len() == size && file_hash(&path, &rel)? == hash => return Ok(ImportedReference { file: rel, title, size, kind, reused: true }),
+            Ok(m) if m.is_file() && m.len() == size && file_hash(&path, &rel)? == hash => {
+                return Ok(ImportedReference { file: rel, title, size, kind, reused: true })
+            }
             Ok(_) => n += 1,
             // Nothing there (or nothing readable there): moving in either succeeds or reports why it cannot. It never
             // replaces a file that appeared meanwhile: that name is skipped like any taken one.
