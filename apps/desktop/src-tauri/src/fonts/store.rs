@@ -1,6 +1,6 @@
 //! What is installed under the fonts folder: listing, deleting and reading font files. Ids and file names that reach
 //! this layer come from the webview, so they are checked before they become part of a path.
-use super::catalog::{find_family, FAMILIES};
+use super::catalog::{families, find_family};
 use super::error::{io_err, FontError};
 use super::import::{family_name, read_font};
 use serde::Serialize;
@@ -97,8 +97,7 @@ pub(crate) fn installed_in(
 /// Downloaded families (complete ones only, as the catalog defines it) and imported ones.
 pub fn list_installed(root: Option<&Path>) -> Vec<InstalledFont> {
     let Some(root) = root else { return Vec::new() };
-    let mut out: Vec<InstalledFont> = FAMILIES
-        .iter()
+    let mut out: Vec<InstalledFont> = families()
         .filter(|f| f.installed(root))
         .map(|f| InstalledFont {
             id: f.id.into(),
