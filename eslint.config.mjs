@@ -37,12 +37,12 @@ export default tseslint.config(
       // Structure guardrails (CLAUDE.md, "Code organization"). scripts/check-size.mjs covers Rust, CSS and folder size.
       "max-lines": ["error", { max: 400, skipBlankLines: true, skipComments: true }],
       "max-lines-per-function": [
-        "warn",
+        "error",
         { max: 120, skipBlankLines: true, skipComments: true, IIFEs: true },
       ],
-      complexity: ["warn", 20],
-      "max-depth": ["warn", 4],
-      "max-params": ["warn", 5],
+      complexity: ["error", 20],
+      "max-depth": ["error", 4],
+      "max-params": ["error", 5],
     },
   },
   {
