@@ -14,7 +14,7 @@ fn replace_strings(v: &Value, with: &str) -> Value {
 }
 
 /// Commands that share global state with other tests (the fake dialog queue, the one folder watcher) or that need a channel.
-fn is_shared_state_command(cmd: &str) -> bool {
+pub(super) fn is_shared_state_command(cmd: &str) -> bool {
     cmd.starts_with("pick_") || cmd == "watch_project" || cmd == "unwatch_project"
 }
 

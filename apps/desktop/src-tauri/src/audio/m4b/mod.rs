@@ -14,7 +14,7 @@ use std::time::Duration;
 /// A book has at most a few hundred chapters; this stops a request from building an enormous list.
 const MAX_CHAPTERS: usize = 10_000;
 
-/// Largest M4B built, in bytes (about 70 hours at 64 kbit/s). The file is held in memory once to be written into the project.
+/// Largest M4B built, in bytes (about 70 hours at 64 kbit/s). The file is streamed into the project, so it is never held in memory.
 const MAX_M4B_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 
 /// Joining and encoding a long book takes a few minutes at most; anything longer is stuck.
@@ -259,16 +259,15 @@ pub fn build_m4b(req: &M4bRequest, ffmpeg: &Path, cancel: &AtomicBool) -> Result
         };
         return Err(AudioError::Encode { format: "m4b".into(), message });
     }
-    // The encoder's output is read whole to be written into the project: cap it so a runaway encode cannot use all memory.
-    let bytes = read_encoded(&out, MAX_M4B_BYTES)?;
-    project::write_bytes(&root, &path, &bytes)?;
+    // The encoder's output is streamed into the project, never held in memory; the cap stops a runaway encode filling the disk.
+    store_encoded(&root, &path, &out, MAX_M4B_BYTES)?;
     Ok(BuiltM4b { path, duration_sec: req.chapters.iter().map(|c| c.duration_sec.max(0.0)).sum() })
 }
 
-/// The encoder's output, if it is a regular file of at most `cap` bytes.
-fn read_encoded(out: &Path, cap: u64) -> Result<Vec<u8>, AudioError> {
+/// Copies the encoder's output (a regular file of at most `cap` bytes) to `rel` under `exports/`, atomically, in chunks.
+fn store_encoded(root: &Path, rel: &str, out: &Path, cap: u64) -> Result<u64, AudioError> {
     let too_large = || ProjectError::TooLarge { path: "book.m4b".into(), max_mb: cap / 1024 / 1024 };
-    Ok(project::read_regular(out, cap, "book.m4b", too_large)?)
+    Ok(project::write_bytes_from_file(root, rel, out, cap, "book.m4b", &too_large)?)
 }
 
 #[cfg(test)]

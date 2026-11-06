@@ -41,6 +41,13 @@ pub(crate) fn retry_transient<T>(mut attempt: impl FnMut() -> Result<T>) -> Resu
 }
 
 fn atomic_write_once(path: &Path, bytes: &[u8]) -> Result<()> {
+    let label = path.file_name().and_then(|n| n.to_str()).ok_or(ProjectError::InvalidFileName)?;
+    atomic_write_with(path, &mut |file| file.write_all(bytes).map_err(|e| io_error(e, label)))
+}
+
+/// `atomic_write` for content that is produced into the temp file by `fill` (a streamed copy), so it is never held in
+/// memory whole. A failing `fill` removes the temp file and leaves the target as it was.
+pub(super) fn atomic_write_with(path: &Path, fill: &mut dyn FnMut(&mut fs::File) -> Result<()>) -> Result<()> {
     let dir = path.parent().ok_or(ProjectError::InvalidFileName)?;
     let label = path.file_name().and_then(|n| n.to_str()).ok_or(ProjectError::InvalidFileName)?;
     let io = |e: std::io::Error| io_error(e, label);
@@ -55,7 +62,7 @@ fn atomic_write_once(path: &Path, bytes: &[u8]) -> Result<()> {
     })?;
     // `.<random>.tmp`: dot-prefixed and `.tmp`-suffixed, which the file watcher ignores.
     let mut tmp = tempfile::Builder::new().prefix(".").suffix(".tmp").tempfile_in(dir).map_err(io)?;
-    tmp.write_all(bytes).map_err(io)?;
+    fill(tmp.as_file_mut())?;
     tmp.as_file().sync_all().map_err(io)?;
     #[cfg(unix)]
     {
@@ -269,6 +276,9 @@ pub fn write_audio_part(root: &Path, rel: &str, bytes: &[u8]) -> Result<()> {
         atomic_write_once(&target, bytes)
     })
 }
+
+mod stream;
+pub use stream::write_bytes_from_file;
 
 #[cfg(test)]
 mod tests;

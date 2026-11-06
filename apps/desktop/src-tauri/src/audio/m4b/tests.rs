@@ -76,15 +76,20 @@ fn the_track_language_is_a_three_letter_code_and_odd_tags_are_undetermined() {
 }
 
 #[test]
-fn the_encoder_output_is_read_up_to_the_cap_and_no_further() {
+fn the_encoder_output_is_stored_up_to_the_cap_and_no_further() {
     let d = tempfile::tempdir().unwrap();
+    let root = d.path().join("book");
+    project::create_project(&root, "{}").unwrap();
     let out = d.path().join("book.m4b");
     fs::write(&out, [7u8; 4]).unwrap();
-    assert_eq!(read_encoded(&out, 4).unwrap(), vec![7u8; 4]);
-    assert_eq!(read_encoded(&out, 3), Err(AudioError::from(ProjectError::TooLarge { path: "book.m4b".into(), max_mb: 0 })));
+    assert_eq!(store_encoded(&root, "exports/b.m4b", &out, 4).unwrap(), 4);
+    assert_eq!(fs::read(root.join("exports/b.m4b")).unwrap(), vec![7u8; 4]);
+    assert_eq!(store_encoded(&root, "exports/c.m4b", &out, 3), Err(AudioError::from(ProjectError::TooLarge { path: "book.m4b".into(), max_mb: 0 })));
+    assert!(!root.join("exports/c.m4b").exists(), "an oversized output leaves nothing");
     fs::write(&out, []).unwrap();
-    assert_eq!(read_encoded(&out, 4).unwrap(), Vec::<u8>::new(), "zero bytes are read as an empty file");
-    assert!(read_encoded(d.path(), 4).is_err(), "a folder is not output");
+    assert_eq!(store_encoded(&root, "exports/b.m4b", &out, 4).unwrap(), 0, "zero bytes are an empty file");
+    assert!(store_encoded(&root, "exports/d.m4b", d.path(), 4).is_err(), "a folder is not output");
+    assert!(store_encoded(&root, "manuscript/x.m4b", &out, 4).is_err(), "only exports/ is written");
 }
 
 #[cfg(unix)]

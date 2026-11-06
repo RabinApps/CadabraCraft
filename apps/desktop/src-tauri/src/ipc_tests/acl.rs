@@ -62,7 +62,8 @@ fn every_registered_command_resolves_through_the_real_handler() {
     let probe = |cmd: &str| call(&w, cmd, json!({})).err().map(|e| e.to_string()).unwrap_or_default();
     let unknown = probe("no_such_command_anywhere");
     assert!(unknown.contains("no_such_command_anywhere"), "an unregistered command is refused by name: {unknown}");
-    for cmd in registered_commands() {
+    // The pickers and the watcher share process-wide state with other tests; their names are checked by the argument table instead.
+    for cmd in registered_commands().into_iter().filter(|c| !super::edge::is_shared_state_command(c)) {
         assert_ne!(probe(&cmd), unknown.replace("no_such_command_anywhere", &cmd), "{cmd} is listed in lib.rs but the handler does not know it");
     }
 }

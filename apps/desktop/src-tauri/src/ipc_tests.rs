@@ -534,4 +534,4 @@ fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
 #[cfg(test)]
 mod acl;
 #[cfg(test)]
-mod edge;
+pub(super) mod edge;

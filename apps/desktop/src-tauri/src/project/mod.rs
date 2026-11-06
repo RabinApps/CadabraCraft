@@ -25,7 +25,7 @@ pub use assets::{import_image, read_asset, store_image, IMAGE_EXTENSIONS, MAX_IM
 #[cfg(test)]
 pub(crate) use assets::{sanitize_asset_stem, MAX_IMAGE_PIXELS};
 pub use error::{io_error, ProjectError};
-pub use fsio::{atomic_write, hash_bytes, is_audio_part, write_audio_part, write_bytes, AUDIO_PARTS_DIR};
+pub use fsio::{atomic_write, hash_bytes, is_audio_part, write_audio_part, write_bytes, write_bytes_from_file, AUDIO_PARTS_DIR};
 pub(crate) use fsio::{icloud_pending, open_error, read_regular};
 pub use layout::{backup_manifest, create_project, MANIFEST};
 pub use library::{scan_library, stat_asset, AssetStat, LibraryScan};
