@@ -2,11 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { AudioFormat, VoiceInfo } from "@cadabracraft/export-audio";
 import { chaptersOf, entryRowsIn, isTranslated, sourceEdition } from "@cadabracraft/format";
 import { bridge, type VoicePack } from "../../lib/bridge";
-import { AUDIO_SPEEDS, voicesFor } from "../../lib/audioFormats";
-import { PdfUiError } from "../../lib/pdfErrors";
+import { AUDIO_SPEEDS, voicesFor } from "../../lib/audio/audioFormats";
+import { PdfUiError } from "../../lib/export/pdfErrors";
 import { errText } from "../../lib/projectError";
 import { useProject } from "../../state/project";
-import { useSettings } from "../../state/editorPrefs";
+import { useSettings } from "../../state/view/editorPrefs";
 
 /**
  * Everything the Audiobook format of the Export dialog needs: the installed voices and downloadable packs, the choices

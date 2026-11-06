@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Button } from "../../ui/Button";
-import { Checkbox } from "../../ui/Checkbox";
+import { Checkbox } from "../../ui/forms/Checkbox";
 import { bridge, type VoicePack } from "../../lib/bridge";
-import { describeAudioError } from "../../lib/audioErrors";
+import { describeAudioError } from "../../lib/audio/audioErrors";
 import type { VoiceInfo } from "@cadabracraft/export-audio";
-import { AUDIO_FORMATS, mb, toggleAudioFormat } from "../../lib/audioFormats";
+import { AUDIO_FORMATS, mb, toggleAudioFormat } from "../../lib/audio/audioFormats";
 import { useAudioLabels } from "../hooks/useAudioLabels";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/forms/Select";
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import { Section, Row } from "./SettingsParts";
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createCoverThumbs, fitWithin, thumbKey, type ThumbDeps } from "../coverThumbs";
+import { createCoverThumbs, fitWithin, thumbKey, type ThumbDeps } from "../export/coverThumbs";
 
 vi.mock("../bridge", () => ({ bridge: {} }));
 

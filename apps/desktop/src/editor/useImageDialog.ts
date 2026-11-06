@@ -2,8 +2,8 @@ import { useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
 import { useProject } from "../state/project/index";
-import { focusField } from "../ui/Input";
-import type { ImageDraft } from "./ToolbarDialogs";
+import { focusField } from "../ui/forms/Input";
+import type { ImageDraft } from "./toolbar/ToolbarDialogs";
 
 /** State and actions of the Add image / Image details dialog: pick a file, edit the selected image, insert or save with its alt text. */
 export function useImageDialog(editor: Editor, chain: () => ReturnType<Editor["chain"]>) {

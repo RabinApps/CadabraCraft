@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { sessionWords } from "../../lib/sessionWords";
+import { sessionWords } from "../../lib/reading/sessionWords";
 
 /**
  * Words written since the book was opened: the first book total seen for this project and language is the baseline

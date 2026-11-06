@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createManifest, type Manifest } from "@cadabracraft/format";
-import { epubChecks, kdpGutterMinIn, pdfChecks } from "../exportChecks";
+import { epubChecks, kdpGutterMinIn, pdfChecks } from "../export/exportChecks";
 
 describe("kdpGutterMinIn", () => {
   it.each([

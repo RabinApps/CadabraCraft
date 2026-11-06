@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { setCommentInserter, useCommentAnchor } from "../commentAnchor";
+import { setCommentInserter, useCommentAnchor } from "../comments/commentAnchor";
 
 describe("comment anchor", () => {
   it("keeps the editor's inserter while it is mounted and forgets it, and the selection, on unmount", () => {

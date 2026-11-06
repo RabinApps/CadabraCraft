@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState, type RefObject } from "react";
 import type { Editor as TipTapEditor } from "@tiptap/react";
-import { useSettings } from "../state/editorPrefs";
-import { typewriterSlack, typewriterTarget } from "../lib/typewriterScroll";
+import { useSettings } from "../state/view/editorPrefs";
+import { typewriterSlack, typewriterTarget } from "../lib/reading/typewriterScroll";
 
 /** How long after a key a selection change still counts as the key's (a click or a find jump comes without one). */
 export const KEY_WINDOW_MS = 250;

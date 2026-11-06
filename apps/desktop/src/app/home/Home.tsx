@@ -13,18 +13,18 @@ import {
 } from "lucide-react";
 import { Button, IconButton } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Field } from "../../ui/Input";
-import { Select } from "../../ui/Select";
-import { trimLabel } from "../../lib/trimLabels";
-import { useStartDialogs } from "../../state/commands";
-import type { ImportChoices } from "../../lib/importBook";
+import { Field } from "../../ui/forms/Input";
+import { Select } from "../../ui/forms/Select";
+import { trimLabel } from "../../lib/export/trimLabels";
+import { useStartDialogs } from "../../state/app/commands";
+import type { ImportChoices } from "../../lib/import/importBook";
 import { ImportDialog } from "../dialogs/ImportDialogs";
-import { newest, useRecents } from "../../state/recents";
-import { useLibraryOpen } from "../../state/library";
+import { newest, useRecents } from "../../state/app/recents";
+import { useLibraryOpen } from "../../state/app/library";
 import { Library } from "../library/Library";
 import { useOpenBook } from "../library/useOpenBook";
 import { whyText } from "../../lib/projectError";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 import { BookCard, ContinueCard, NewBookTile } from "./Dashboard";
 
 interface Props {

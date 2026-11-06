@@ -2,10 +2,10 @@ import { useCallback, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft, ArrowRight, FileUp, FolderOpen } from "lucide-react";
 import type { ImportResult } from "@cadabracraft/import-docx";
-import { Segmented } from "../../ui/Segmented";
+import { Segmented } from "../../ui/forms/Segmented";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Field, focusField } from "../../ui/Input";
+import { Field, focusField } from "../../ui/forms/Input";
 import {
   loadImport,
   outlineFormatFor,
@@ -14,13 +14,13 @@ import {
   titleFromFile,
   type ImportChoices,
   type LoadedSource,
-} from "../../lib/importBook";
+} from "../../lib/import/importBook";
 import { baseName } from "../../lib/paths";
 import { causeText } from "../../lib/projectError";
-import { initialPlan, keptCount, type ImportPlan } from "../../lib/importPlan";
+import { initialPlan, keptCount, type ImportPlan } from "../../lib/import/importPlan";
 import { ImportChapterList } from "./ImportChapterList";
 import { PickRow, Summary } from "./ImportParts";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 
 export { ImportReportDialog } from "./ImportReportDialog";
 

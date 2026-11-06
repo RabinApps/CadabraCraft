@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { setReadingPosition, useReadingPosition } from "../readingPosition";
+import { setReadingPosition, useReadingPosition } from "../view/readingPosition";
 
 describe("reading position", () => {
   it("holds the chapter and the printed page at the reading line, and ignores an unchanged position", () => {

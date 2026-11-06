@@ -13,8 +13,8 @@ import { Button, IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { useProject } from "../../state/project/index";
 import { whyText } from "../../lib/projectError";
-import { Notice } from "../../ui/Notice";
-import { Segmented } from "../../ui/Segmented";
+import { Notice } from "../../ui/feedback/Notice";
+import { Segmented } from "../../ui/forms/Segmented";
 import { useKindLabels } from "../shell/useKindLabels";
 
 const PREVIEW_LINES = [0, 1, 2, 3, 4, 5, 6, 7];

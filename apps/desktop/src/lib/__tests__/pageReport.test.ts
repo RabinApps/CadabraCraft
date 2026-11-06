@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PageReport } from "@cadabracraft/export-pdf";
-import { reportChapterMarks, usableReport } from "../pageReport";
+import { reportChapterMarks, usableReport } from "../page/pageReport";
 
 const start = (id: string, page: number, number: string, end = page) => ({
   id,

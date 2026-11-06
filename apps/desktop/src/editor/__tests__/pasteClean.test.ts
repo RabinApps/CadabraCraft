@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanPastedHtml, cleanPastedText } from "../pasteClean";
+import { cleanPastedHtml, cleanPastedText } from "../paste/pasteClean";
 
 describe("cleanPastedText", () => {
   it("turns Word's vertical tab and form feed into a line break and drops other control characters", () => {

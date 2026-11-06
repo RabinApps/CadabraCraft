@@ -30,8 +30,8 @@ vi.mock("../../../lib/bridge", async () =>
 );
 
 import { sourceEdition } from "@cadabracraft/format";
-import { PdfUiError } from "../../../lib/pdfErrors";
-import { PREVIEW_CACHE_SIZE } from "../preview";
+import { PdfUiError } from "../../../lib/export/pdfErrors";
+import { PREVIEW_CACHE_SIZE } from "../output/preview";
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;

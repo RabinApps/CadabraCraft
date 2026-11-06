@@ -3,7 +3,7 @@ import { entryFile, readingOrder } from "@cadabracraft/format";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
-import { newSceneId, sceneRows } from "../../lib/scenes";
+import { newSceneId, sceneRows } from "../../lib/scenes/scenes";
 import {
   appendScenes,
   insertScene,
@@ -12,7 +12,7 @@ import {
   reorderScenes,
   sceneIdsOf,
   wrapUnsorted,
-} from "../../lib/sceneMoves";
+} from "../../lib/scenes/sceneMoves";
 import { parseChapter, PartialWrite } from "./util";
 import type { SceneActions } from "./types";
 import type { Ctx } from "./context";

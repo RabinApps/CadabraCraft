@@ -8,7 +8,7 @@ import {
 } from "@cadabracraft/format";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { describe, expect, it } from "vitest";
-import { bookContents, pdfToc } from "../tocExport";
+import { bookContents, pdfToc } from "../export/tocExport";
 
 const doc = (...headings: [number, string][]): ChapterDoc => ({
   type: "doc",

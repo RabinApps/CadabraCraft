@@ -11,15 +11,15 @@ import {
   type CodexKind,
 } from "@cadabracraft/format";
 import { appearsIn, newCodexId, type ChapterScenes } from "../../lib/codex";
-import { sceneRows } from "../../lib/scenes";
+import { sceneRows } from "../../lib/scenes/scenes";
 import { useProject } from "../../state/project/index";
 import { useCodex } from "../../state/codex";
 import { useChapterScenes } from "../scenes/useChapterScenes";
 import { Button, IconButton } from "../../ui/Button";
-import { Chip } from "../../ui/Chip";
+import { Chip } from "../../ui/feedback/Chip";
 import { cx } from "../../ui/cx";
 import { overlayClass, panelClass } from "../../ui/Dialog";
-import { Field } from "../../ui/Input";
+import { Field } from "../../ui/forms/Input";
 
 type Filter = "all" | CodexKind;
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { describeFontError, FontUiError } from "../fontErrors";
+import { describeFontError, FontUiError } from "../font/fontErrors";
 
 const code = (e: unknown) => describeFontError(e).code;
 

@@ -10,7 +10,7 @@ import {
   unsortedWords,
   wrapUnsorted,
   type SceneNodeJson,
-} from "../sceneMoves";
+} from "../scenes/sceneMoves";
 
 type Doc = { type: "doc"; content: unknown[] };
 const para = (text: string) => ({

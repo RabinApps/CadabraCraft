@@ -8,7 +8,7 @@ import { SkipLink } from "./ui/SkipLink";
 import { installRejectionNotice } from "./state/attempt";
 import { useProject } from "./state/project/index";
 import { assetUrl } from "./lib/assets";
-import { applyTheme, readTheme } from "./state/theme";
+import { applyTheme, readTheme } from "./state/view/theme";
 import { i18n, initI18n } from "./i18n/i18n";
 
 // Chapter JSON keeps `assets/...` paths; the webview shows them through blob URLs read via the Tauri bridge.

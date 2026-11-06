@@ -8,12 +8,12 @@ import {
   newCommentId,
   relativeTime,
   splitThreads,
-} from "../../lib/comments";
-import { useCommentAnchor } from "../../lib/commentAnchor";
+} from "../../lib/comments/comments";
+import { useCommentAnchor } from "../../lib/comments/commentAnchor";
 import { useProject } from "../../state/project/index";
 import { Button, IconButton } from "../../ui/Button";
-import { Chip } from "../../ui/Chip";
-import { Field } from "../../ui/Input";
+import { Chip } from "../../ui/feedback/Chip";
+import { Field } from "../../ui/forms/Input";
 
 type Filter = "open" | "resolved";
 

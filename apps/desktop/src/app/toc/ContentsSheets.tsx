@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { cx } from "../../ui/cx";
-import type { ContentsLayout, PreviewLine, PreviewPage } from "../../lib/tocPreview";
+import type { ContentsLayout, PreviewLine, PreviewPage } from "../../lib/toc/tocPreview";
 
 /**
  * The one drawing of a Contents page in the app. The editor's preview (when Typst cannot draw the page) and Read mode both render

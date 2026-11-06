@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { insertDefinitionList } from "../insertDefinitionList";
+import { insertDefinitionList } from "../toolbar/insertDefinitionList";
 
 interface FakeNode {
   type: string;

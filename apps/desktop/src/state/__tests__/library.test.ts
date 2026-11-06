@@ -10,7 +10,7 @@ async function fresh(stored?: string) {
   store.clear();
   if (stored !== undefined) store.set("cadabracraft.library", stored);
   vi.resetModules();
-  return import("../library");
+  return import("../app/library");
 }
 
 describe("library view and preferences", () => {

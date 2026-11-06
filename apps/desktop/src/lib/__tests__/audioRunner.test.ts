@@ -18,7 +18,7 @@ import {
   chapterPart,
   createTauriAudioRunner,
   mapAudioError,
-} from "../audioRunner";
+} from "../audio/audioRunner";
 
 describe("mapAudioError", () => {
   it("maps every error shape the Rust side sends", () => {

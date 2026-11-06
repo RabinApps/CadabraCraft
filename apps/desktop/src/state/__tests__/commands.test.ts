@@ -5,7 +5,7 @@ import {
   registerCommands,
   runCommand,
   setCapturingKeys,
-} from "../commands";
+} from "../app/commands";
 
 afterEach(() => vi.unstubAllGlobals());
 

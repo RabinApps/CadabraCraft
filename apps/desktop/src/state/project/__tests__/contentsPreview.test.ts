@@ -24,8 +24,8 @@ vi.mock("../../../lib/bridge", async () =>
   }),
 );
 
-import { PdfUiError } from "../../../lib/pdfErrors";
-import { CONTENTS_CACHE_SIZE } from "../contentsPreview";
+import { PdfUiError } from "../../../lib/export/pdfErrors";
+import { CONTENTS_CACHE_SIZE } from "../output/contentsPreview";
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;

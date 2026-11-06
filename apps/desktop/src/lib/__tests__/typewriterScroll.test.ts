@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { typewriterSlack, typewriterTarget } from "../typewriterScroll";
+import { typewriterSlack, typewriterTarget } from "../reading/typewriterScroll";
 
 const view = { top: 100, bottom: 700 }; // middle at 400
 const line = (middle: number) => ({ top: middle - 10, bottom: middle + 10 });

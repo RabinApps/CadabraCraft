@@ -49,7 +49,7 @@ fn split_frame<H: serde::de::DeserializeOwned>(body: &[u8], files_of: impl Fn(&H
 /// Decodes the binary body of `typst_compile`: a 4-byte little-endian header length, the header (UTF-8 JSON with
 /// `source`, `pdfA` and `files: [{ name, len }]`), then every file's bytes back to back, in header order.
 /// The bytes must add up exactly; anything else is refused rather than guessed at. (The TypeScript writer is
-/// `packCompileRequest` in `src/lib/compileFrame.ts`.)
+/// `packCompileRequest` in `src/lib/export/compileFrame.ts`.)
 pub fn parse_compile_request(body: &[u8]) -> Result<CompileRequest, TypstError> {
     #[derive(serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
@@ -65,7 +65,7 @@ pub fn parse_compile_request(body: &[u8]) -> Result<CompileRequest, TypstError> 
 }
 
 /// Decodes the binary body of `typst_query`: the same frame as `typst_compile` with a `selector` header field in
-/// place of `pdfA` (`packQueryRequest` in `src/lib/compileFrame.ts` writes it).
+/// place of `pdfA` (`packQueryRequest` in `src/lib/export/compileFrame.ts` writes it).
 pub fn parse_query_request(body: &[u8]) -> Result<QueryRequest, TypstError> {
     #[derive(serde::Deserialize)]
     #[serde(rename_all = "camelCase")]

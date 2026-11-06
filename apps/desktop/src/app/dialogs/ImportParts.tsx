@@ -4,7 +4,7 @@ import { plural } from "@lingui/core/macro";
 import { FileUp } from "lucide-react";
 import type { ImportResult } from "@cadabracraft/import-docx";
 import { Button } from "../../ui/Button";
-import { groupWarnings } from "../../lib/importBook";
+import { groupWarnings } from "../../lib/import/importBook";
 
 export function Summary({
   result,

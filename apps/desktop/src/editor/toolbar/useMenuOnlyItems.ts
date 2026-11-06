@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import type { ToolbarItem } from "./types";
 import type { ToolbarState } from "./useToolbarState";
-import { insertDefinitionList } from "../insertDefinitionList";
+import { insertDefinitionList } from "./insertDefinitionList";
 
 /** The less common marks and blocks that sit in the More formatting menu at the end of the bar (and in the Format and Insert menus). */
 export function useMenuOnlyItems(

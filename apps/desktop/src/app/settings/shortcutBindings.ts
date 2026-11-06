@@ -1,5 +1,5 @@
 import { eventMatches, proseMirrorKey, type Overrides } from "../../lib/shortcutCombo";
-import { useSettings } from "../../state/editorPrefs";
+import { useSettings } from "../../state/view/editorPrefs";
 import { buildShortcuts, IGNORED_EDITOR_KEYS, type Shortcut } from "./shortcutList";
 
 /**

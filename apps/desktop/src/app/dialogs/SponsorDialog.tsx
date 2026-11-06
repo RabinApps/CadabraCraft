@@ -5,9 +5,9 @@ import { whyText } from "../../lib/projectError";
 import { alertOf } from "../../state/project/util";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { SPONSOR_URL, useSponsor } from "../../state/sponsor";
+import { SPONSOR_URL, useSponsor } from "../../state/app/sponsor";
 import { useProject } from "../../state/project/index";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 
 /**
  * Shown after a successful export: a short thank-you with a link to sponsor the project. "Maybe later" stays quiet for the

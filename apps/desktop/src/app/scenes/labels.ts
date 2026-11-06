@@ -1,5 +1,5 @@
 import { t } from "@lingui/core/macro";
-import type { SceneStatus } from "../../lib/scenes";
+import type { SceneStatus } from "../../lib/scenes/scenes";
 
 /** The word for a scene's status, and for a scene that has none yet. */
 export function sceneStatusWord(status: SceneStatus): string {

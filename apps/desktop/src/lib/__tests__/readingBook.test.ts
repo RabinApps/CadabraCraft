@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { sizes } from "../../state/reading";
+import { sizes } from "../../state/view/reading";
 import {
   PLAIN_PAD_PX,
   READING_ZOOM_STEPS,
@@ -9,7 +9,7 @@ import {
   readingGutter,
   readingZoom,
   visibleIndex,
-} from "../readingBook";
+} from "../reading/readingBook";
 
 describe("placeholder heights", () => {
   it("is pages x (page + gap) at the zoom, less the trailing gap", () => {

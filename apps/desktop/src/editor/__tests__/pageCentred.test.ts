@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getTemplate } from "@cadabracraft/templates";
 import { centredPage, pageIsBare, pageIsCentred, pageIsCopyright, pageIsNarrow } from "../centring";
-import { centreOffsetPx } from "../../lib/pageLayout";
+import { centreOffsetPx } from "../../lib/page/pageLayout";
 
 const look = { print: getTemplate("novel").print };
 

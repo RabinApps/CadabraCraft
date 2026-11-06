@@ -7,7 +7,7 @@ import {
   newCommentId,
   relativeTime,
   splitThreads,
-} from "../comments";
+} from "../comments/comments";
 
 const text = (t: string, id?: string) => ({
   type: "text" as const,

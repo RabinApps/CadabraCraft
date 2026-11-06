@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { packCompileRequest, packQueryRequest } from "../compileFrame";
+import { packCompileRequest, packQueryRequest } from "../export/compileFrame";
 
 /** Reads the layout back the way the Rust side does. */
 function unpack(frame: Uint8Array) {

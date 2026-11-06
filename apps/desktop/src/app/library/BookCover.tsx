@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { cx } from "../../ui/cx";
-import { coverThumbs } from "../../lib/coverThumbsBrowser";
-import type { Recent } from "../../state/recents";
+import { coverThumbs } from "../../lib/export/coverThumbsBrowser";
+import type { Recent } from "../../state/app/recents";
 import { infoOf } from "./libraryModel";
 
 const TONES = ["bg-accent-soft", "bg-success-soft", "bg-warn-soft"] as const;

@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { errMsg } from "@cadabracraft/shared";
 import type { ImportErrorCode } from "@cadabracraft/import-docx";
-import { describeImportCode } from "./importErrorText";
+import { describeImportCode } from "./import/importErrorText";
 
 /** What the Rust file commands reject with (`ProjectError` in src-tauri/src/project/error.rs). */
 export type ProjectError =

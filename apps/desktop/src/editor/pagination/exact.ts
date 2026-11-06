@@ -1,8 +1,8 @@
 import type { Node as PMNode, ResolvedPos } from "@tiptap/pm/model";
 import { wordStarts } from "@cadabracraft/shared";
 import type { BlockMarkKind } from "@cadabracraft/export-pdf";
-import type { ExactLeaf } from "../../lib/exactBreaks";
-import type { DocWord } from "../../lib/pageWords";
+import type { ExactLeaf } from "../../lib/page/exactBreaks";
+import type { DocWord } from "../../lib/page/pageWords";
 
 /**
  * The editor's side of Typst's page marks (see `lib/exactBreaks.ts`): which nodes of a chapter the exporter marks (its leaves), what

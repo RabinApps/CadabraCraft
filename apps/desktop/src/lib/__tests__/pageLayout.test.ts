@@ -15,7 +15,7 @@ import {
   sideMargins,
   type BlockKind,
   type MeasuredBlock,
-} from "../pageLayout";
+} from "../page/pageLayout";
 
 const BUILTIN = ["novel", "nonfiction", "modern", "poetry"];
 const px = (v: string | undefined): number => parseFloat(v ?? "NaN");

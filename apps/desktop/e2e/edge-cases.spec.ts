@@ -313,7 +313,7 @@ test.describe("typewriter scrolling", () => {
       } as never,
     ]);
     await page.evaluate(async () => {
-      const prefs = await import("/src/state/editorPrefs.ts" as string);
+      const prefs = await import("/src/state/view/editorPrefs.ts" as string);
       prefs.useSettings.getState().set({ typewriterScroll: true });
     });
     await page.locator(".ProseMirror").click({ position: { x: 100, y: 400 } });

@@ -12,7 +12,7 @@ async function fresh(stored: string | null) {
     },
   });
   vi.resetModules();
-  const { useSponsor } = await import("../sponsor");
+  const { useSponsor } = await import("../app/sponsor");
   return { data, store: useSponsor };
 }
 
@@ -68,7 +68,7 @@ describe("sponsor dialog state", () => {
       },
     });
     vi.resetModules();
-    const { useSponsor } = await import("../sponsor");
+    const { useSponsor } = await import("../app/sponsor");
     useSponsor.getState().offer("exports/book.epub");
     expect(useSponsor.getState().exported).toBe("exports/book.epub");
     expect(() => useSponsor.getState().never()).not.toThrow();

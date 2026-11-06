@@ -2,11 +2,11 @@ import { useRef, type KeyboardEvent, type PointerEvent } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import { Ellipsis, Eye, EyeOff, GripVertical, Pencil, RotateCcw, Trash2 } from "lucide-react";
-import { Badge } from "../../ui/Badge";
+import { Badge } from "../../ui/feedback/Badge";
 import { cx } from "../../ui/cx";
 import { useGripHint } from "../../ui/GripHint";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";
-import type { TocRow as Row } from "../../lib/tocView";
+import type { TocRow as Row } from "../../lib/toc/tocView";
 
 export interface TocRowActions {
   onGrab: (e: PointerEvent<HTMLElement>) => void;

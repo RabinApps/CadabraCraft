@@ -1,7 +1,7 @@
 import type { Editor } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
 import { AlignCenter, AlignLeft, AlignRight, Pilcrow } from "lucide-react";
-import type { AlignItem } from "../AlignmentMenu";
+import type { AlignItem } from "./AlignmentMenu";
 import type { ToolbarState } from "./useToolbarState";
 
 /** Text alignment: the blocks the author aligned say how (start, centre, end); the rest follow the template. */

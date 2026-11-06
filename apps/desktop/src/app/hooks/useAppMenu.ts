@@ -11,18 +11,18 @@ import {
   useRegisterCommands,
   useStartDialogs,
   type Commands,
-} from "../../state/commands";
-import { useLayout } from "../../state/layout";
-import { useLibraryOpen } from "../../state/library";
-import { useQuickNav } from "../../state/quickNav";
-import { useSettings } from "../../state/editorPrefs";
-import { buildMenuModel } from "../shell/menuModel";
-import { quitApp } from "../shell/quit";
-import { showNativeMenu } from "../shell/nativeMenu";
-import { useRecents } from "../../state/recents";
-import { useLicenses } from "../../state/licenses";
-import { useUpdates } from "../../state/updates";
-import { SPONSOR_URL } from "../../state/sponsor";
+} from "../../state/app/commands";
+import { useLayout } from "../../state/view/layout";
+import { useLibraryOpen } from "../../state/app/library";
+import { useQuickNav } from "../../state/app/quickNav";
+import { useSettings } from "../../state/view/editorPrefs";
+import { buildMenuModel } from "../shell/native/menuModel";
+import { quitApp } from "../shell/native/quit";
+import { showNativeMenu } from "../shell/native/nativeMenu";
+import { useRecents } from "../../state/app/recents";
+import { useLicenses } from "../../state/app/licenses";
+import { useUpdates } from "../../state/app/updates";
+import { SPONSOR_URL } from "../../state/app/sponsor";
 import { isMac } from "../../lib/platform";
 import type { ExportFormat } from "../export/exportFormat";
 import { useProject } from "../../state/project/index";

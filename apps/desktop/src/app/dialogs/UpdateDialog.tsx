@@ -2,8 +2,8 @@ import { useLingui } from "@lingui/react/macro";
 import { CircleArrowUp, Download } from "lucide-react";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { useUpdates } from "../../state/updates";
-import { Notice } from "../../ui/Notice";
+import { useUpdates } from "../../state/app/updates";
+import { Notice } from "../../ui/feedback/Notice";
 
 /**
  * Shown when GitHub Releases has a newer version. Nothing installs until the author presses Install now; "Later" waits for

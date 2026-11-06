@@ -12,7 +12,7 @@ import {
   unlinkEntry,
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
-import { forgetReference } from "../../lib/references";
+import { forgetReference } from "../../lib/references/references";
 import { whyText } from "../../lib/projectError";
 import { alertOf, PartialWrite, retargetEntry } from "./util";
 import type { HistoryEntry, HistoryActions } from "./types";

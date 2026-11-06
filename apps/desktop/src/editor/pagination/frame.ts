@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { editorFontStack } from "../../state/editorPrefs";
+import { editorFontStack } from "../../state/view/editorPrefs";
 import type { PageKind } from "./core";
 
 /** `pageCssVars` returns two plain properties (text-align, hyphens) next to the custom ones; as variables they all style one container. */

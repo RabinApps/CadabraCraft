@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readingMinutes } from "../readingTime";
+import { readingMinutes } from "../reading/readingTime";
 
 describe("readingMinutes", () => {
   it("is 0 for no words and at least 1 otherwise", () => {

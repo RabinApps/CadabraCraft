@@ -5,8 +5,8 @@ import {
   translationProgress,
   type Manifest,
 } from "@cadabracraft/format";
-import { Checkbox } from "../../ui/Checkbox";
-import { nativeName } from "../shell/EditionSwitcher";
+import { Checkbox } from "../../ui/forms/Checkbox";
+import { nativeName } from "../shell/header/EditionSwitcher";
 
 /** Pages of `language` that are not translated yet (a copy, a blank page or no file): they stop an export unless skipped. */
 export const untranslatedIn = (manifest: Manifest, language: string) =>

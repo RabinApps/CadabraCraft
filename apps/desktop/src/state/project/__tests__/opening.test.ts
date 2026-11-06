@@ -14,7 +14,7 @@ vi.mock("../../../lib/bridge", async () =>
 );
 
 import { useProject } from "../index";
-import { useRecents } from "../../recents";
+import { useRecents } from "../../app/recents";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();

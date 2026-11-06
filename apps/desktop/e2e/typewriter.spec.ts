@@ -22,7 +22,7 @@ const stored = (page: Page) =>
   page.evaluate(() => JSON.parse(localStorage.getItem("cadabracraft.settings") ?? "{}"));
 const turnOn = (page: Page) =>
   page.evaluate(async () => {
-    (await import("/src/state/editorPrefs.ts" as string)).useSettings
+    (await import("/src/state/view/editorPrefs.ts" as string)).useSettings
       .getState()
       .set({ typewriterScroll: true });
   });

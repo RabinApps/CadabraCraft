@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
-import type { ReferenceKind } from "../referenceKinds";
+import type { ReferenceKind } from "../references/referenceKinds";
 import { binary, type RawBytes } from "./types";
 
 /** What `import_reference` reports (`ImportedReference` in src-tauri/src/project/references.rs). */

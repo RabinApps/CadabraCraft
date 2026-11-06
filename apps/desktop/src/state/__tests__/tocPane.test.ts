@@ -5,7 +5,7 @@ vi.stubGlobal("localStorage", {
   getItem: (k: string) => store.get(k) ?? null,
   setItem: (k: string, v: string) => void store.set(k, v),
 });
-const { useTocPane } = await import("../tocPane");
+const { useTocPane } = await import("../view/tocPane");
 
 describe("useTocPane", () => {
   beforeEach(() => {
@@ -20,11 +20,11 @@ describe("useTocPane", () => {
   it("reads a stored choice and ignores one of the wrong shape", async () => {
     store.set("cadabracraft.tocPane", '{"pane":"preview"}');
     vi.resetModules();
-    expect((await import("../tocPane")).useTocPane.getState().pane).toBe("preview");
+    expect((await import("../view/tocPane")).useTocPane.getState().pane).toBe("preview");
     for (const bad of ["null", '{"pane":"both"}', "{}", "not json"]) {
       store.set("cadabracraft.tocPane", bad);
       vi.resetModules();
-      expect((await import("../tocPane")).useTocPane.getState().pane).toBe("edit");
+      expect((await import("../view/tocPane")).useTocPane.getState().pane).toBe("edit");
     }
   });
 });

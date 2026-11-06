@@ -19,7 +19,7 @@ async function fresh(stored: string | null, osDark = false) {
     }),
   });
   vi.resetModules();
-  const mod = await import("../theme");
+  const mod = await import("../view/theme");
   return { ...mod, data, root, media };
 }
 

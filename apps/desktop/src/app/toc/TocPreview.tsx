@@ -2,15 +2,15 @@ import { useRef } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
 import { Button } from "../../ui/Button";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 import {
   cardScale,
   PREVIEW_GAP_PX,
   PREVIEW_PAD_PX,
   type ContentsLayout,
   type PreviewLine,
-} from "../../lib/tocPreview";
-import { PX_PER_INCH } from "../../lib/pageLayout";
+} from "../../lib/toc/tocPreview";
+import { PX_PER_INCH } from "../../lib/page/pageLayout";
 import { usePaneWidth } from "../hooks/usePaneWidth";
 import { PdfPage, usePdfDocument } from "../export/TypstSpread";
 import { ContentsSheets } from "./ContentsSheets";

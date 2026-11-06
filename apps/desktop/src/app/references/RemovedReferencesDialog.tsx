@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { i18n } from "@lingui/core";
 import { Loader, Undo2 } from "lucide-react";
-import { referenceKind, stampDate, titleFromFile } from "../../lib/referenceKinds";
+import { referenceKind, stampDate, titleFromFile } from "../../lib/references/referenceKinds";
 import { useProject } from "../../state/project/index";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 import { kindIcon, useKindLabel } from "./ReferenceRow";
 
 /** "2 days ago", "yesterday": the age of a trash stamp in the app's language. */

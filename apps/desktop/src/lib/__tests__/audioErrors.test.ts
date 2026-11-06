@@ -11,7 +11,7 @@ import {
   SynthesisError,
   VoiceNotInstalledError,
 } from "@cadabracraft/export-audio";
-import { AudioUiError, describeAudioError } from "../audioErrors";
+import { AudioUiError, describeAudioError } from "../audio/audioErrors";
 
 describe("describeAudioError", () => {
   const cases: [string, Error, string, RegExp][] = [

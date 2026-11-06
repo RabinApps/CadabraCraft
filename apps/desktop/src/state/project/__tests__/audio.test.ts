@@ -97,7 +97,7 @@ vi.mock("../../../lib/bridge", async () =>
   }),
 );
 
-import { AudioUiError } from "../../../lib/audioErrors";
+import { AudioUiError } from "../../../lib/audio/audioErrors";
 import { useProject } from "../index";
 
 const a = () => useProject.getState().actions;

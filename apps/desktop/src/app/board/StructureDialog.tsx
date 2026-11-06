@@ -8,10 +8,10 @@ import {
 } from "@cadabracraft/story-structures";
 import { Modal } from "../../ui/Dialog";
 import { Button } from "../../ui/Button";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/forms/Select";
 import { cx } from "../../ui/cx";
 import { whyText } from "../../lib/projectError";
-import { newSceneId } from "../../lib/scenes";
+import { newSceneId } from "../../lib/scenes/scenes";
 import { useProject } from "../../state/project/index";
 
 interface Props {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { editorFontStack } from "../editorPrefs";
+import { editorFontStack } from "../view/editorPrefs";
 
 describe("editorFontStack", () => {
   it("maps the bundled choices to their stacks", () => {

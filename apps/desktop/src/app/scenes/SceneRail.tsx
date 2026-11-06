@@ -10,15 +10,15 @@ import {
   SCENE_STATUSES,
 } from "@cadabracraft/editor-schema";
 import type { CodexEntry } from "@cadabracraft/format";
-import { sceneProgress, sceneRow, type SceneRow, type SceneStatus } from "../../lib/scenes";
-import { useSceneEditing } from "../../lib/sceneEditing";
+import { sceneProgress, sceneRow, type SceneRow, type SceneStatus } from "../../lib/scenes/scenes";
+import { useSceneEditing } from "../../lib/scenes/sceneEditing";
 import { useProject } from "../../state/project/index";
 import { useCodex } from "../../state/codex";
-import { useSceneView } from "../../state/sceneView";
+import { useSceneView } from "../../state/view/sceneView";
 import { Button, IconButton } from "../../ui/Button";
-import { Chip } from "../../ui/Chip";
+import { Chip } from "../../ui/feedback/Chip";
 import { cx } from "../../ui/cx";
-import { Field } from "../../ui/Input";
+import { Field } from "../../ui/forms/Input";
 import { sceneStatusWord, sceneStatusTone } from "./labels";
 
 const pillTone = {

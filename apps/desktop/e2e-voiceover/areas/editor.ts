@@ -25,7 +25,7 @@ async function selectLastParagraph(page: Page) {
 
 const runCommand = (page: Page, id: string) =>
   page.evaluate(async (c) => {
-    (await import("/src/state/commands.ts" as string)).runCommand(c);
+    (await import("/src/state/app/commands.ts" as string)).runCommand(c);
   }, id);
 
 const PAGE_TEXT = /Page text/i;

@@ -2,8 +2,8 @@ import { useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { useLingui } from "@lingui/react/macro";
 import { isLangTag } from "@cadabracraft/shared";
-import { focusField } from "../ui/Input";
-import type { LangDraft } from "./ToolbarDialogs";
+import { focusField } from "../ui/forms/Input";
+import type { LangDraft } from "./toolbar/ToolbarDialogs";
 
 /**
  * State and actions of the Language of selection dialog and its Clear language command. With the caret inside a language

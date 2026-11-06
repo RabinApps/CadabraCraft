@@ -6,7 +6,7 @@ vi.stubGlobal("localStorage", {
   setItem: (k: string, v: string) => void store.set(k, v),
 });
 const { SIDEBAR_DEFAULT_WIDTH, SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH, useLayout } =
-  await import("../layout");
+  await import("../view/layout");
 
 describe("useLayout", () => {
   beforeEach(() => {
@@ -49,7 +49,7 @@ describe("useLayout", () => {
     for (const bad of ["null", '{"focus":1,"details":true}', "not json"]) {
       store.set("cadabracraft.layout", bad);
       vi.resetModules();
-      const { useLayout: fresh } = await import("../layout");
+      const { useLayout: fresh } = await import("../view/layout");
       expect(fresh.getState()).toMatchObject({ focus: false, details: true });
     }
   });
@@ -58,15 +58,15 @@ describe("useLayout", () => {
     expect(JSON.parse(store.get("cadabracraft.layout")!).references).toBe(true);
     store.set("cadabracraft.layout", '{"focus":false,"details":true,"references":true}');
     vi.resetModules();
-    expect((await import("../layout")).useLayout.getState().references).toBe(true);
+    expect((await import("../view/layout")).useLayout.getState().references).toBe(true);
     store.set("cadabracraft.layout", '{"focus":false,"details":true}');
     vi.resetModules();
-    expect((await import("../layout")).useLayout.getState().references).toBe(false);
+    expect((await import("../view/layout")).useLayout.getState().references).toBe(false);
   });
   it("reads a valid stored value", async () => {
     store.set("cadabracraft.layout", '{"focus":true,"details":false}');
     vi.resetModules();
-    const { useLayout: fresh } = await import("../layout");
+    const { useLayout: fresh } = await import("../view/layout");
     expect(fresh.getState()).toMatchObject({ focus: true, details: false });
     expect(fresh.getState().sidebarWidth).toBe(SIDEBAR_DEFAULT_WIDTH);
   });

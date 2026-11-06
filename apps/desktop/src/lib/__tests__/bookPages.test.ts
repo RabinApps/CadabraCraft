@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { BookPage } from "../../state/project/types";
-import { bookPages, layoutOfPages } from "../bookPages";
+import { bookPages, layoutOfPages } from "../page/bookPages";
 
 const page = (
   id: string,

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Modal } from "../../ui/Dialog";
 import { Button } from "../../ui/Button";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/forms/Select";
 import { cx } from "../../ui/cx";
 import { whyText } from "../../lib/projectError";
 import { ENABLED_LOCALE_INFO, LOCALES } from "../../i18n/locales";

@@ -56,7 +56,7 @@ vi.mock("../../../lib/bridge", async () =>
 );
 
 import { useProject } from "../index";
-import { useSettings } from "../../editorPrefs";
+import { useSettings } from "../../view/editorPrefs";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();

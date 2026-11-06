@@ -11,7 +11,7 @@ async function load(stored: unknown) {
     getItem: (k: string) => data.get(k) ?? null,
     setItem: (k: string, v: string) => void data.set(k, v),
   });
-  return { ...(await import("../editorPrefs")), data };
+  return { ...(await import("../view/editorPrefs")), data };
 }
 afterEach(() => vi.unstubAllGlobals());
 

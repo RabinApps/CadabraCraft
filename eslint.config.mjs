@@ -68,7 +68,7 @@ export default tseslint.config(
   },
   {
     // The sidebar divider follows the ARIA window splitter pattern: a focusable separator, resized with the arrow keys.
-    files: ["apps/desktop/src/app/shell/SidebarResizeHandle.tsx"],
+    files: ["apps/desktop/src/app/shell/sidebar/SidebarResizeHandle.tsx"],
     rules: {
       "jsx-a11y/no-noninteractive-element-interactions": "off",
       "jsx-a11y/no-noninteractive-tabindex": "off",
@@ -84,7 +84,7 @@ export default tseslint.config(
       // Combobox pattern: the input keeps focus and points at the option with aria-activedescendant.
       "apps/desktop/src/app/quicknav/QuickPicker.tsx",
       // Shortcut handler for the find bar group.
-      "apps/desktop/src/editor/FindBar.tsx",
+      "apps/desktop/src/editor/find/FindBar.tsx",
       // Children come through the rest props.
       "apps/desktop/src/ui/SectionHeading.tsx",
     ],

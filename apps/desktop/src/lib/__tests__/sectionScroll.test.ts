@@ -7,7 +7,7 @@ import {
   takeLanding,
   wheelPx,
   type EdgeInput,
-} from "../sectionScroll";
+} from "../reading/sectionScroll";
 
 /** A scroller 600px high showing 2000px of pages, by default at its top. */
 const at = (scrollTop: number, extra: Partial<EdgeInput> = {}): EdgeInput => ({

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { EntryWords } from "../lib/pageNumbering";
+import type { EntryWords } from "../lib/page/pageNumbering";
 
 /**
  * The words of every page of the open book in reading order: the input of the page layout (`bookLayout`) besides what Typst and the

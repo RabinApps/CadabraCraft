@@ -10,7 +10,7 @@ import {
   mergePlanItemUp,
   movePlanItem,
   splitPlanItem,
-} from "../importPlan";
+} from "../import/importPlan";
 
 const para = (text: string) => ({ type: "paragraph", content: [{ type: "text", text }] });
 const img = (src: string) => ({ type: "image", attrs: { src, alt: null } });

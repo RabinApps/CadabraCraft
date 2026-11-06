@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createCloseHandler } from "../closeGuard";
+import { createCloseHandler } from "../native/closeGuard";
 
 const setup = (over: { unsaved?: boolean; flush?: () => Promise<void> } = {}) => {
   const state = { unsaved: over.unsaved ?? true };

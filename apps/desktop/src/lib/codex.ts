@@ -1,5 +1,5 @@
 import type { CodexEntry } from "@cadabracraft/format";
-import type { SceneRow } from "./scenes";
+import type { SceneRow } from "./scenes/scenes";
 
 /** One chapter and its scenes, as the codex looks through the book. */
 export interface ChapterScenes {

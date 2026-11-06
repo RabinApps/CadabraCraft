@@ -1,10 +1,10 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { File } from "lucide-react";
-import type { ReferenceKind } from "../../lib/referenceKinds";
+import type { ReferenceKind } from "../../lib/references/referenceKinds";
 import { errText } from "../../lib/projectError";
-import { readReferenceBytes, referenceUrl } from "../../lib/references";
-import { Notice } from "../../ui/Notice";
+import { readReferenceBytes, referenceUrl } from "../../lib/references/references";
+import { Notice } from "../../ui/feedback/Notice";
 import { ImagePreview } from "./ImagePreview";
 import { PdfPreview } from "./PdfPreview";
 

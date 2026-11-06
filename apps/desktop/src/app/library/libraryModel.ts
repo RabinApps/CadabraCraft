@@ -1,6 +1,6 @@
 import type { Edition } from "@cadabracraft/format";
 import { fuzzyMatch } from "../../lib/fuzzy";
-import type { BookStats, Recent } from "../../state/recents";
+import type { BookStats, Recent } from "../../state/app/recents";
 
 /** What the Library caches about a book from its source edition (cover file, series text and number). Absent fields stay absent. */
 export function libraryFields(

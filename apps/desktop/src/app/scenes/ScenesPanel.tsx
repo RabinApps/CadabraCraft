@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronLeft, X } from "lucide-react";
-import { sceneRow, sceneRows } from "../../lib/scenes";
-import { useSceneEditing } from "../../lib/sceneEditing";
+import { sceneRow, sceneRows } from "../../lib/scenes/scenes";
+import { useSceneEditing } from "../../lib/scenes/sceneEditing";
 import { useProject } from "../../state/project/index";
-import { useSceneView } from "../../state/sceneView";
+import { useSceneView } from "../../state/view/sceneView";
 import { IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { SceneList } from "./SceneList";

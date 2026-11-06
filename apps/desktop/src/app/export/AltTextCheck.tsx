@@ -1,5 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
-import { imageAltChecks } from "../../lib/exportChecks";
+import { imageAltChecks } from "../../lib/export/exportChecks";
 import type { ExportScope } from "../../state/project/types";
 import { CheckList } from "./CheckList";
 import { useAltPages } from "./useAltPages";

@@ -4,7 +4,7 @@ import { plural } from "@lingui/core/macro";
 import { Camera, Trash2, Undo2 } from "lucide-react";
 import { Button } from "../../ui/Button";
 import { Confirm } from "../../ui/Dialog";
-import { Field, focusField } from "../../ui/Input";
+import { Field, focusField } from "../../ui/forms/Input";
 import { cx } from "../../ui/cx";
 import { bridge, type BookSnapshotEntry } from "../../lib/bridge";
 import { causeText } from "../../lib/projectError";

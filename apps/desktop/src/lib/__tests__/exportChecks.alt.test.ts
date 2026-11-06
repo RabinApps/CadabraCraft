@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createManifest, type Manifest } from "@cadabracraft/format";
-import { epubChecks } from "../exportChecks";
+import { epubChecks } from "../export/exportChecks";
 
 const book = (titles: string[]): Manifest => ({
   ...createManifest({ title: "Book", author: "", identifier: "id-1" }),

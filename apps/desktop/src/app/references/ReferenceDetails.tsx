@@ -5,9 +5,9 @@ import { BookOpen, Trash2, X } from "lucide-react";
 import { attempt } from "../../state/attempt";
 import { useProject } from "../../state/project/index";
 import { Button } from "../../ui/Button";
-import { Chip } from "../../ui/Chip";
-import { Field } from "../../ui/Input";
-import { Select } from "../../ui/Select";
+import { Chip } from "../../ui/feedback/Chip";
+import { Field } from "../../ui/forms/Input";
+import { Select } from "../../ui/forms/Select";
 import { cx } from "../../ui/cx";
 
 /** The reference's title, note, tags and linked pages, saved as they change, and the button that removes it. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { alignWord } from "../pageWords";
+import { alignWord } from "../page/pageWords";
 
 const w = (s: string) => s.split(" ");
 

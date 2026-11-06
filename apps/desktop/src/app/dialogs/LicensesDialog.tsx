@@ -2,10 +2,10 @@ import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { bridge } from "../../lib/bridge";
 import { whyText } from "../../lib/projectError";
-import { LICENSE_DOCS, type LicenseDoc, useLicenses } from "../../state/licenses";
+import { LICENSE_DOCS, type LicenseDoc, useLicenses } from "../../state/app/licenses";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Segmented } from "../../ui/Segmented";
+import { Segmented } from "../../ui/forms/Segmented";
 
 /**
  * Help > Licenses: the app's own license and the notices for everything that ships with it. The text is read from the

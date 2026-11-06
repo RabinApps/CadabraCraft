@@ -1,7 +1,7 @@
 import type { Node as PMNode } from "@tiptap/pm/model";
 import type { EditorView } from "@tiptap/pm/view";
-import type { CellCut, DocSpan, PageBreak } from "../../lib/pageLayout";
-import type { ExactCut } from "../../lib/exactBreaks";
+import type { CellCut, DocSpan, PageBreak } from "../../lib/page/pageLayout";
+import type { ExactCut } from "../../lib/page/exactBreaks";
 import type { FlowBlock } from "./core";
 import { flowY, nodeBottomY, splitY } from "./dom";
 import { leafWordTexts, rowAround, wordOffset, type DocLeaf } from "./exact";

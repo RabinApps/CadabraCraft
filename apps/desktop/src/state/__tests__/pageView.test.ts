@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pageViewAvailable, readingPaged } from "../pageView";
+import { pageViewAvailable, readingPaged } from "../view/pageView";
 
 describe("page surface availability", () => {
   it("is the paged book only in Write mode at md+ width (a phone reflows)", () => {

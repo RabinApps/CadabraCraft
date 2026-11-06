@@ -3,7 +3,7 @@ import { flattenExtensions, getExtensionField, resolveExtensions } from "@tiptap
 import { EDITOR_KEY_COMMANDS, extensions } from "@cadabracraft/editor-schema";
 import { Search } from "../../../editor/search/plugin";
 import { Pagination } from "../../../editor/pagination/plugin";
-import { buildMenuModel, commandIds, type MenuEntry } from "../../shell/menuModel";
+import { buildMenuModel, commandIds, type MenuEntry } from "../../shell/native/menuModel";
 import { isMac } from "../../../lib/platform";
 import {
   GROUP_ORDER,

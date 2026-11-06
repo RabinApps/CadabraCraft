@@ -11,7 +11,7 @@ import {
   tocMovePlace,
   tocMoveTarget,
   type TocNumber,
-} from "../tocView";
+} from "../toc/tocView";
 
 /** A layout number: `estimated` unless it is a measured count. */
 const n = (text: string | null, estimated = false): TocNumber => ({ text, estimated });

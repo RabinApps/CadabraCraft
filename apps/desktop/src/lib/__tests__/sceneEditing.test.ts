@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { useSceneEditing } from "../sceneEditing";
+import { useSceneEditing } from "../scenes/sceneEditing";
 
 describe("scene editing callbacks", () => {
   it("has none until the editor registers them, then calls what it registered", () => {

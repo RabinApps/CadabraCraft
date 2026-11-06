@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import type { Editor } from "@tiptap/react";
 import type { Node as PMNode } from "@tiptap/pm/model";
-import { useSceneEditing } from "../lib/sceneEditing";
-import { newSceneId } from "../lib/scenes";
+import { useSceneEditing } from "../lib/scenes/sceneEditing";
+import { newSceneId } from "../lib/scenes/scenes";
 
 /** Where a scene starts in the chapter, or -1 when the chapter has no scene with that id. */
 function scenePos(doc: PMNode, id: string): number {

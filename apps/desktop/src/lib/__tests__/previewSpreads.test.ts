@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { spreadCount, spreadLabel, spreadPages } from "../previewSpreads";
+import { spreadCount, spreadLabel, spreadPages } from "../export/previewSpreads";
 
 describe("previewSpreads", () => {
   it("counts the spreads: the first page alone, then pairs", () => {

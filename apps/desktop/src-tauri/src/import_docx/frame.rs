@@ -1,7 +1,7 @@
 //! The binary reply of the `import_docx` command: a 4-byte little-endian header length, the header (UTF-8 JSON with
 //! `chapters`, `warnings` and `assets: [{ sourcePath, targetPath, mediaType, len }]`), then every asset's bytes back to
 //! back in header order. Image bytes cross the IPC once, as raw bytes, never as JSON numbers. (The TypeScript reader is
-//! `decodeDocxImport` in `src/lib/docxFrame.ts`.)
+//! `decodeDocxImport` in `src/lib/export/docxFrame.ts`.)
 use super::assets::AssetInfo;
 use super::blocks::Chapter;
 use super::ImportResult;

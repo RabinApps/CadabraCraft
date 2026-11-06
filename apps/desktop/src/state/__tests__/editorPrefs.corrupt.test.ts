@@ -17,7 +17,7 @@ async function load(stored: string | null | "throw") {
       data.set(k, v);
     },
   });
-  const mod = await import("../editorPrefs");
+  const mod = await import("../view/editorPrefs");
   return { ...mod, data };
 }
 afterEach(() => vi.unstubAllGlobals());

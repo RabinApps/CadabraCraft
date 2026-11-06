@@ -1,6 +1,6 @@
 import { sourceFileById } from "@cadabracraft/format";
 import { useEffect, useState } from "react";
-import type { CheckPage } from "../../lib/exportChecks";
+import type { CheckPage } from "../../lib/export/exportChecks";
 import { useProject } from "../../state/project";
 
 /** Every page's document for `language`, for the image alt-text checks. Empty while loading or when reading fails. */

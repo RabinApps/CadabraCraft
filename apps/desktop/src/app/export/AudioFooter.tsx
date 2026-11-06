@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { Download, Headphones, LoaderCircle, Play, Square } from "lucide-react";
-import { mb } from "../../lib/audioFormats";
+import { mb } from "../../lib/audio/audioFormats";
 import { Button } from "../../ui/Button";
 import type { AudioExport } from "./useAudioExport";
 

@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from "react";
 import { i18n } from "@lingui/core";
 import { useLingui } from "@lingui/react/macro";
-import { useCommandRegistry, runCommand } from "../../state/commands";
+import { useCommandRegistry, runCommand } from "../../state/app/commands";
 import { useProject } from "../../state/project/index";
-import { useRecents } from "../../state/recents";
-import { useSettings } from "../../state/editorPrefs";
+import { useRecents } from "../../state/app/recents";
+import { useSettings } from "../../state/view/editorPrefs";
 import { isMac } from "../../lib/platform";
-import { buildMenuModel } from "../shell/menuModel";
+import { buildMenuModel } from "../shell/native/menuModel";
 import { comboFromAccelerator, keysFor } from "../settings/shortcutList";
 import { paletteEntries, paletteResults } from "./quickNavModel";
 import { QuickPicker, type PickerItem } from "./QuickPicker";

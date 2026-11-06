@@ -4,8 +4,8 @@ import { ChevronLeft, ChevronRight, Maximize2, PenLine, ZoomIn, ZoomOut } from "
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { type PageBox } from "@cadabracraft/export-pdf";
 import { errText } from "../../lib/projectError";
-import { wordAtPoint, type WordClick } from "../../lib/pdfWords";
-import { spreadCount, spreadLabel, spreadPages } from "../../lib/previewSpreads";
+import { wordAtPoint, type WordClick } from "../../lib/export/pdfWords";
+import { spreadCount, spreadLabel, spreadPages } from "../../lib/export/previewSpreads";
 import {
   clampZoom,
   fitZoomFor,
@@ -13,9 +13,9 @@ import {
   stepZoom,
   touchDistance,
   wheelZoom,
-} from "../../lib/previewZoom";
+} from "../../lib/export/previewZoom";
 import { IconButton } from "../../ui/Button";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 import { usePaneWidth } from "../hooks/usePaneWidth";
 
 /** Screen size of one inch of paper in the preview at 100%. */

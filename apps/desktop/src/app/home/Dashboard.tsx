@@ -2,9 +2,9 @@ import { plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import { PenLine, Plus, X } from "lucide-react";
 import { Button, IconButton } from "../../ui/Button";
-import { ProgressBar } from "../../ui/ProgressBar";
+import { ProgressBar } from "../../ui/feedback/ProgressBar";
 import { relativeTime } from "../../lib/relativeTime";
-import type { Recent } from "../../state/recents";
+import type { Recent } from "../../state/app/recents";
 import { BookCover } from "../library/BookCover";
 
 function useEditedLabel() {

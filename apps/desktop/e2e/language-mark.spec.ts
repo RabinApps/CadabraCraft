@@ -11,14 +11,14 @@ const dialog = (page: Page) => page.getByRole("dialog", { name: "Language of sel
 const pick = (page: Page) => dialog(page).getByLabel("Language", { exact: true });
 const run = (page: Page, id: string) =>
   page.evaluate(async (c) => {
-    (await import("/src/state/commands.ts" as string)).runCommand(c);
+    (await import("/src/state/app/commands.ts" as string)).runCommand(c);
   }, id);
 
 /** Whether the editor's selection is in a language mark, as the Language command sees it (the editor's own state). */
 const langChecked = (page: Page) =>
   page.evaluate(async () =>
     Boolean(
-      (await import("/src/state/commands.ts" as string)).getCommands()["editor.lang"]?.checked,
+      (await import("/src/state/app/commands.ts" as string)).getCommands()["editor.lang"]?.checked,
     ),
   );
 

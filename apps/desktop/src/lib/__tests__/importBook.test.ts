@@ -39,7 +39,7 @@ vi.mock("../bridge", async () =>
 );
 
 import { useProject } from "../../state/project/index";
-import { applyChapterEdits, groupWarnings, loadImport, parseText } from "../importBook";
+import { applyChapterEdits, groupWarnings, loadImport, parseText } from "../import/importBook";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();

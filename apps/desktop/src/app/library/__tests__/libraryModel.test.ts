@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Recent } from "../../../state/recents";
+import type { Recent } from "../../../state/app/recents";
 import { groupBySeries, infoOf, libraryFields, searchBooks, sortBooks } from "../libraryModel";
 
 const stats = (author: string, words: number, over: Record<string, string> = {}) => ({

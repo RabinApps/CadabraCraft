@@ -1,5 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
-import { epubChecks } from "../../lib/exportChecks";
+import { epubChecks } from "../../lib/export/exportChecks";
 import { useProject } from "../../state/project";
 import type { ExportScope } from "../../state/project/types";
 import { CheckList } from "./CheckList";

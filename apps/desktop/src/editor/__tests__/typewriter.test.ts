@@ -24,14 +24,14 @@ vi.mock("react", () => ({
   },
 }));
 
-vi.mock("../../state/editorPrefs", () => ({
+vi.mock("../../state/view/editorPrefs", () => ({
   // Like zustand: the caller's selector is what reads the store.
   useSettings: (select: (s: { typewriterScroll: boolean }) => unknown) =>
     select({ typewriterScroll: h.on }),
 }));
 
 import { followCaret, useTypewriterSlack } from "../typewriter";
-import { typewriterSlack, typewriterTarget } from "../../lib/typewriterScroll";
+import { typewriterSlack, typewriterTarget } from "../../lib/reading/typewriterScroll";
 
 interface Span {
   top: number;

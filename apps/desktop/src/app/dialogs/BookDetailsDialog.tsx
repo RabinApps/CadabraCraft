@@ -13,15 +13,15 @@ import {
   publishingToForm,
   type PublishingForm,
   type PublishingProblem,
-} from "../../lib/publishingForm";
-import { trimLabel } from "../../lib/trimLabels";
+} from "../../lib/export/publishingForm";
+import { trimLabel } from "../../lib/export/trimLabels";
 import { Button, IconButton } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Field, focusField } from "../../ui/Input";
-import { Textarea } from "../../ui/Textarea";
-import { Select } from "../../ui/Select";
+import { Field, focusField } from "../../ui/forms/Input";
+import { Textarea } from "../../ui/forms/Textarea";
+import { Select } from "../../ui/forms/Select";
 import { useProject, type BookDetails } from "../../state/project/index";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 
 interface Props {
   open: boolean;

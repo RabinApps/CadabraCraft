@@ -1,6 +1,6 @@
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
-import type { DocSpan } from "../../lib/pageLayout";
+import type { DocSpan } from "../../lib/page/pageLayout";
 import { blockFragments, isVerso, type CutSpec, type GapSpec, type PageLayoutResult } from "./core";
 
 /** The document position of a split inside a block, or null when none could be found (that gap is then left out). */

@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import type { Manifest } from "@cadabracraft/format";
 import { cx } from "../../../ui/cx";
-import { useLayout } from "../../../state/layout";
+import { useLayout } from "../../../state/view/layout";
 import { CommentsPanel } from "../../comments/CommentsPanel";
 import { ReferencesPanel } from "../../references/ReferencesPanel";
 import { SceneRail } from "../../scenes/SceneRail";

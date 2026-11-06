@@ -11,10 +11,10 @@ import {
 } from "@cadabracraft/export-audio";
 import { MissingAssetError, TypstCompileError, TypstTimeoutError } from "@cadabracraft/export-pdf";
 import type { ImportErrorCode } from "@cadabracraft/import-docx";
-import { describeAudioError } from "../audioErrors";
-import { describeFontError } from "../fontErrors";
-import { describeImportCode, describeOutlineCode } from "../importErrorText";
-import { describePdfError } from "../pdfErrors";
+import { describeAudioError } from "../audio/audioErrors";
+import { describeFontError } from "../font/fontErrors";
+import { describeImportCode, describeOutlineCode } from "../import/importErrorText";
+import { describePdfError } from "../export/pdfErrors";
 import { errText, projectErrorMessage, type ProjectError } from "../projectError";
 
 /** WCAG 3.3.3: a message that says what went wrong also says what to do next. */

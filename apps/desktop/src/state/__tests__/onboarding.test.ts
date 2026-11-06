@@ -12,7 +12,7 @@ async function fresh(stored: string | null) {
     },
   });
   vi.resetModules();
-  const { useOnboarding } = await import("../onboarding");
+  const { useOnboarding } = await import("../app/onboarding");
   return { data, store: useOnboarding };
 }
 
@@ -48,7 +48,7 @@ describe("onboarding state", () => {
       },
     });
     vi.resetModules();
-    const { useOnboarding } = await import("../onboarding");
+    const { useOnboarding } = await import("../app/onboarding");
     expect(useOnboarding.getState().seen).toBe(false);
     expect(() => useOnboarding.getState().markSeen()).not.toThrow();
     expect(useOnboarding.getState().seen).toBe(true);

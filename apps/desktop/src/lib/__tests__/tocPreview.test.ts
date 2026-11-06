@@ -12,8 +12,8 @@ import {
   previewLines,
   typstKey,
   type PreviewLine,
-} from "../tocPreview";
-import type { TocRow } from "../tocView";
+} from "../toc/tocPreview";
+import type { TocRow } from "../toc/tocView";
 
 const row = (
   key: string,

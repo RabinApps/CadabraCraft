@@ -2,17 +2,17 @@ import { plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import { Circle, CircleAlert, CircleCheck, CircleX, Download, LoaderCircle } from "lucide-react";
 import type { AudioFormat, VoiceInfo } from "@cadabracraft/export-audio";
-import { Checkbox } from "../../ui/Checkbox";
-import { Segmented } from "../../ui/Segmented";
-import { Select } from "../../ui/Select";
+import { Checkbox } from "../../ui/forms/Checkbox";
+import { Segmented } from "../../ui/forms/Segmented";
+import { Select } from "../../ui/forms/Select";
 import { cx } from "../../ui/cx";
 import type { VoicePack } from "../../lib/bridge";
-import { AUDIO_FORMATS, AUDIO_SPEEDS, mb, toggleAudioFormat } from "../../lib/audioFormats";
-import { nativeName } from "../shell/EditionSwitcher";
+import { AUDIO_FORMATS, AUDIO_SPEEDS, mb, toggleAudioFormat } from "../../lib/audio/audioFormats";
+import { nativeName } from "../shell/header/EditionSwitcher";
 import { useAudioLabels } from "../hooks/useAudioLabels";
 import type { AudioJob, VoiceDownload } from "../../state/project/index";
-import { Notice } from "../../ui/Notice";
-import { ProgressBar } from "../../ui/ProgressBar";
+import { Notice } from "../../ui/feedback/Notice";
+import { ProgressBar } from "../../ui/feedback/ProgressBar";
 
 /** Which edition the audiobook reads, and what to do about its chapters that are not translated yet. */
 export interface AudioEditionChoice {

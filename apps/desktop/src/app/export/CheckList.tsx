@@ -1,7 +1,7 @@
 import { CircleAlert, CircleCheck, CircleX, Info, type LucideIcon } from "lucide-react";
 import { useLingui } from "@lingui/react/macro";
 import { cx } from "../../ui/cx";
-import type { ExportCheck } from "../../lib/exportChecks";
+import type { ExportCheck } from "../../lib/export/exportChecks";
 
 const TONE_CLASS: Record<ExportCheck["tone"], string> = {
   ok: "bg-success-soft text-success",

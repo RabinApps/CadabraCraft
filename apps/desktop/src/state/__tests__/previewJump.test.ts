@@ -4,7 +4,7 @@ import {
   requestPreviewJump,
   takePreviewJump,
   usePreviewJump,
-} from "../previewJump";
+} from "../pages/previewJump";
 
 beforeEach(clearPreviewJump);
 

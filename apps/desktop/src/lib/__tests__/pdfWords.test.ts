@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { wordAtPoint, type TextRun } from "../pdfWords";
+import { wordAtPoint, type TextRun } from "../export/pdfWords";
 
 const run = (
   str: string,

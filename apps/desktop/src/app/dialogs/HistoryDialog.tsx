@@ -6,7 +6,7 @@ import { isChapterDoc } from "@cadabracraft/editor-schema";
 import { countWords, type ChapterDoc } from "@cadabracraft/shared";
 import { Modal } from "../../ui/Dialog";
 import { Button } from "../../ui/Button";
-import { Segmented } from "../../ui/Segmented";
+import { Segmented } from "../../ui/forms/Segmented";
 import { cx } from "../../ui/cx";
 import { BookSnapshotsPanel } from "./BookSnapshotsPanel";
 import { formatStamp } from "./formatStamp";

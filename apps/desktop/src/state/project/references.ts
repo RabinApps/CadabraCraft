@@ -8,9 +8,9 @@ import {
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { baseName } from "../../lib/paths";
-import { forgetReference } from "../../lib/references";
+import { forgetReference } from "../../lib/references/references";
 import { isProjectError, whyText } from "../../lib/projectError";
-import { removedReferences, titleFromFile } from "../../lib/referenceKinds";
+import { removedReferences, titleFromFile } from "../../lib/references/referenceKinds";
 import { alertOf, HISTORY_LIMIT } from "./util";
 import type { ReferenceActions, ReferenceNotice } from "./types";
 import type { Ctx } from "./context";

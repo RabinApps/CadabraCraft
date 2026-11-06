@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { useLingui } from "@lingui/react/macro";
 import type { EditionEntry } from "@cadabracraft/format";
 import { dirFor } from "../../i18n/locales";
-import { fontKindOf } from "../../lib/pageLayout";
-import { contentsLayout, previewLines } from "../../lib/tocPreview";
+import { fontKindOf } from "../../lib/page/pageLayout";
+import { contentsLayout, previewLines } from "../../lib/toc/tocPreview";
 import { useProject } from "../../state/project/index";
 import { useToc } from "./useToc";
 

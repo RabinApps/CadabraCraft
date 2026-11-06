@@ -1,13 +1,13 @@
 import { Extension } from "@tiptap/react";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { DecorationSet, type EditorView } from "@tiptap/pm/view";
-import type { PageGeometry } from "../../lib/pageLayout";
+import type { PageGeometry } from "../../lib/page/pageLayout";
 import { createBlockCache } from "./cache";
 import { PAGE_GAP, layoutPages, withTops, type FlowBlock, type PageLayoutResult } from "./core";
 import { buildDecorations, type GapWidgetSpec } from "./decorations";
 import { rowBreak } from "./rows";
-import type { PageBreak } from "../../lib/pageLayout";
-import { exactBreaks, type ExactSource } from "../../lib/exactBreaks";
+import type { PageBreak } from "../../lib/page/pageLayout";
+import { exactBreaks, type ExactSource } from "../../lib/page/exactBreaks";
 import { cursorPage, findSplitPos, flowY, measureFlow, readPageTops, splitY } from "./dom";
 import { docLeaves, insideCell, leafWordTexts, pageStartAt, rowAround, wordOffset } from "./exact";
 

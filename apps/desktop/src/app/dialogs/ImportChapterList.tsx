@@ -7,8 +7,8 @@ import type { ImportResult } from "@cadabracraft/import-docx";
 import { IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { useGripHint } from "../../ui/GripHint";
-import { dropPosition, insertionIndex } from "../../lib/referenceKinds";
-import { sceneCountOf } from "../../lib/importBook";
+import { dropPosition, insertionIndex } from "../../lib/references/referenceKinds";
+import { sceneCountOf } from "../../lib/import/importBook";
 import {
   canMergeUp,
   canSplit,
@@ -17,7 +17,7 @@ import {
   splitPlanItem,
   type ImportPlan,
   type PlanItem,
-} from "../../lib/importPlan";
+} from "../../lib/import/importPlan";
 
 interface Props {
   result: ImportResult;

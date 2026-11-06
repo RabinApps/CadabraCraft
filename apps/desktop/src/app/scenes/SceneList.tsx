@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import { Plus } from "lucide-react";
 import { cx } from "../../ui/cx";
-import { sceneWordsLabel, type SceneRow } from "../../lib/scenes";
+import { sceneWordsLabel, type SceneRow } from "../../lib/scenes/scenes";
 import { sceneStatusDot, sceneStatusWord } from "./labels";
 
 interface Props {

@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { isStoryDate } from "@cadabracraft/editor-schema";
-import { sceneWordsLabel } from "../../lib/scenes";
+import { sceneWordsLabel } from "../../lib/scenes/scenes";
 import {
   formatStoryDay,
   formatStoryTime,
@@ -8,7 +8,7 @@ import {
   storyDay,
   storyTime,
   type TimelineItem,
-} from "../../lib/timelineData";
+} from "../../lib/scenes/timelineData";
 import { cx } from "../../ui/cx";
 import { sceneStatusTone, sceneStatusWord } from "../scenes/labels";
 

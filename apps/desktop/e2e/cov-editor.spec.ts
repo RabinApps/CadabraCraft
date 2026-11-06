@@ -11,11 +11,11 @@ test.beforeEach(async ({ page }) => {
 const pm = (page: Page) => page.locator(".ProseMirror");
 const run = (page: Page, id: string) =>
   page.evaluate(async (c) => {
-    (await import("/src/state/commands.ts" as string)).runCommand(c);
+    (await import("/src/state/app/commands.ts" as string)).runCommand(c);
   }, id);
 const setting = (page: Page, patch: Record<string, unknown>) =>
   page.evaluate(async (p) => {
-    (await import("/src/state/editorPrefs.ts" as string)).useSettings.getState().set(p);
+    (await import("/src/state/view/editorPrefs.ts" as string)).useSettings.getState().set(p);
   }, patch);
 const notice = (page: Page, text: string) => page.getByRole("status").filter({ hasText: text });
 /** Caret at the end of the empty paragraph under the chapter title. */

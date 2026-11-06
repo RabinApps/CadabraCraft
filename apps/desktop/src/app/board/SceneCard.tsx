@@ -3,7 +3,12 @@ import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowDown, ArrowUp, Ellipsis, GripVertical, PenLine } from "lucide-react";
 import { MAX_SCENE_POV, MAX_SCENE_SYNOPSIS, SCENE_STATUSES } from "@cadabracraft/editor-schema";
-import { sceneProgress, sceneWordsLabel, type SceneRow, type SceneStatus } from "../../lib/scenes";
+import {
+  sceneProgress,
+  sceneWordsLabel,
+  type SceneRow,
+  type SceneStatus,
+} from "../../lib/scenes/scenes";
 import { IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";

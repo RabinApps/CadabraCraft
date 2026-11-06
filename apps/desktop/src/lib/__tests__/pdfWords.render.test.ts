@@ -8,8 +8,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { renderPdf, type PdfChapter } from "@cadabracraft/export-pdf";
 import { createNodeRunner } from "@cadabracraft/export-pdf/node";
-import { alignWord } from "../pageWords";
-import { wordAtPoint, type TextRun } from "../pdfWords";
+import { alignWord } from "../page/pageWords";
+import { wordAtPoint, type TextRun } from "../export/pdfWords";
 
 const has = (cmd: string, args: string[]): boolean =>
   spawnSync(cmd, args, { stdio: "ignore" }).status === 0;

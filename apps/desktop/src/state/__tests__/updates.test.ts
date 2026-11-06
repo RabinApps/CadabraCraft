@@ -19,7 +19,7 @@ async function fresh(stored: string | null) {
     },
   });
   vi.resetModules();
-  const { useUpdates } = await import("../updates");
+  const { useUpdates } = await import("../app/updates");
   return { data, store: useUpdates };
 }
 

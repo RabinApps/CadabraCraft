@@ -7,7 +7,7 @@ import { cx } from "../../ui/cx";
 import { CommentsPanel } from "../comments/CommentsPanel";
 import { ReferencesPanel } from "../references/ReferencesPanel";
 import { ScenesPanel } from "../scenes/ScenesPanel";
-import { Sidebar } from "./Sidebar";
+import { Sidebar } from "./sidebar/Sidebar";
 
 /** The chapter list as a sheet (bottom on phones, left on tablets), for widths where the sidebar is hidden. */
 export function ChaptersDrawer({

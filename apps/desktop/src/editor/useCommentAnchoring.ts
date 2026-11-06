@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { t } from "@lingui/core/macro";
 import type { Editor } from "@tiptap/react";
-import { setCommentInserter, useCommentAnchor } from "../lib/commentAnchor";
+import { setCommentInserter, useCommentAnchor } from "../lib/comments/commentAnchor";
 import { useProject } from "../state/project/index";
 
 /**

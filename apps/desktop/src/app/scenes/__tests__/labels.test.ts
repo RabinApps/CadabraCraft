@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { SceneStatus } from "../../../lib/scenes";
+import type { SceneStatus } from "../../../lib/scenes/scenes";
 import { sceneStatusDot, sceneStatusTone, sceneStatusWord } from "../labels";
 
 const statuses: SceneStatus[] = ["", "outline", "draft", "revised", "final"];

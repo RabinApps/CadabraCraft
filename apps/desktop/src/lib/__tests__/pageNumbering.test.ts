@@ -6,7 +6,7 @@ import {
   chapterPageCount,
   chapterStart,
   type EntryWords,
-} from "../pageNumbering";
+} from "../page/pageNumbering";
 
 const book = { template: "modern" };
 const front = (id: string, kind: EntryWords["kind"]): EntryWords => ({

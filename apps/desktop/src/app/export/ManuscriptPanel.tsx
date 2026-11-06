@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
-import { Select } from "../../ui/Select";
+import { Select } from "../../ui/forms/Select";
 import { useFontList } from "../hooks/useFontList";
 
 /** The Word and Rich Text formats: the manuscript font. */

@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Button } from "../../ui/Button";
-import { Field } from "../../ui/Input";
+import { Field } from "../../ui/forms/Input";
 import { isMac } from "../../lib/platform";
 import { captureKey, comboProblem, MODIFIER_KEYS } from "../../lib/shortcutCombo";
-import { setCapturingKeys } from "../../state/commands";
-import { useSettings } from "../../state/editorPrefs";
+import { setCapturingKeys } from "../../state/app/commands";
+import { useSettings } from "../../state/view/editorPrefs";
 import { applyOverrides, findConflict, withBinding, withoutBinding } from "./shortcutBindings";
 import { buildShortcuts, groupRows, shortcutRows } from "./shortcutList";
 import { KeyCombo } from "./KeyCombo";

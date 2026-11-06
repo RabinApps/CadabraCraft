@@ -10,7 +10,7 @@ import {
   updateStats,
   type BookStats,
   type Recent,
-} from "../recents";
+} from "../app/recents";
 
 const r = (root: string, openedAt = 1, title = root): Recent => ({ root, title, openedAt });
 
@@ -99,7 +99,7 @@ describe("useRecents store", () => {
       setItem: (k: string, v: string) => void data.set(k, v),
     });
     vi.resetModules();
-    const { useRecents } = await import("../recents");
+    const { useRecents } = await import("../app/recents");
     return { useRecents, data };
   }
   afterEach(() => vi.unstubAllGlobals());
@@ -224,7 +224,7 @@ describe("books found by a folder scan", () => {
       setItem: (k: string, v: string) => void data.set(k, v),
     });
     vi.resetModules();
-    const { useRecents } = await import("../recents");
+    const { useRecents } = await import("../app/recents");
     expect(useRecents.getState().addScanned([found("/x"), found("/y")])).toBe(2);
     expect(useRecents.getState().addScanned([found("/x")])).toBe(0);
     expect(JSON.parse(data.get("cadabracraft.recents")!)).toHaveLength(2);

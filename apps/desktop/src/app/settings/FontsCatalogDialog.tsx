@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { Check } from "lucide-react";
 import { bridge, type FontPack } from "../../lib/bridge";
-import { describeFontError } from "../../lib/fontErrors";
-import { formatMb } from "../../lib/fontList";
+import { describeFontError } from "../../lib/font/fontErrors";
+import { formatMb } from "../../lib/font/fontList";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Notice } from "../../ui/Notice";
-import { ProgressBar } from "../../ui/ProgressBar";
+import { Notice } from "../../ui/feedback/Notice";
+import { ProgressBar } from "../../ui/feedback/ProgressBar";
 import { useProject } from "../../state/project";
 
 /** Short name of the catalog's licence id, as the design shows it. */

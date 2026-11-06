@@ -43,7 +43,7 @@ import {
   runImport,
   titleFromFile,
   writeImport,
-} from "../importBook";
+} from "../import/importBook";
 
 beforeEach(() => {
   disk.clear();

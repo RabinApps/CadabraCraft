@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { useViewMode } from "../viewMode";
+import { useViewMode } from "../view/viewMode";
 
 describe("view mode", () => {
   it("starts in write mode and switches", () => {

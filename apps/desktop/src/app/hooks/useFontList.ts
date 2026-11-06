@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { bridge, type InstalledFont } from "../../lib/bridge";
-import { mergeFonts, printFamilies, type FontEntry } from "../../lib/fontList";
+import { mergeFonts, printFamilies, type FontEntry } from "../../lib/font/fontList";
 
 /**
  * The families Typst sees on this computer, asked once until the font library changes (Typst also lists the

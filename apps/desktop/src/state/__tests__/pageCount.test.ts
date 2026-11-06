@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { setEntryPages, setPageCount, usePageCount } from "../pageCount";
+import { setEntryPages, setPageCount, usePageCount } from "../pages/pageCount";
 
 beforeEach(() => {
   usePageCount.setState({ count: 0, current: 1, exact: false, byId: {}, key: "" });

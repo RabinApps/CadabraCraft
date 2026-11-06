@@ -4,7 +4,7 @@ import {
   type CellCut,
   type MeasuredBlock,
   type PageBreak,
-} from "../../lib/pageLayout";
+} from "../../lib/page/pageLayout";
 
 /**
  * The pure part of Page view pagination: no DOM, no ProseMirror view. The DOM adapter (`dom.ts`) measures the top-level blocks in

@@ -6,31 +6,31 @@ import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import { chapterJson, extensions, shortcutRemap } from "@cadabracraft/editor-schema";
 import { editorRemap, pressed } from "../app/settings/shortcutBindings";
 import type { ChapterDoc } from "@cadabracraft/shared";
-import { useSettings } from "../state/editorPrefs";
+import { useSettings } from "../state/view/editorPrefs";
 import { dirFor } from "../i18n/locales";
-import { Toolbar } from "./Toolbar";
+import { Toolbar } from "./toolbar/Toolbar";
 import { Search } from "./search/plugin";
 import { Pagination } from "./pagination/plugin";
-import { PageFrame, ReflowFrame } from "./PageFrame";
+import { PageFrame, ReflowFrame } from "./pageview/PageFrame";
 import { KEY_WINDOW_MS, followCaret } from "./typewriter";
 import { TabKey } from "./tabKey";
 import { FootnoteA11y } from "./footnoteA11y";
-import { cleanPastedHtml, cleanPastedText } from "./pasteClean";
+import { cleanPastedHtml, cleanPastedText } from "./paste/pasteClean";
 import { usePageView } from "../app/hooks/usePageView";
-import { FindBar } from "./FindBar";
+import { FindBar } from "./find/FindBar";
 import { prefillQuery } from "../lib/search/findHelpers";
-import { useFind } from "./findStore";
+import { useFind } from "./find/findStore";
 import { registerHeadingJump } from "./headingJump";
 import { docLeaves, wordOffset, wordsFrom } from "./pagination/exact";
-import { alignWord } from "../lib/pageWords";
-import { takePreviewJump } from "../state/previewJump";
+import { alignWord } from "../lib/page/pageWords";
+import { takePreviewJump } from "../state/pages/previewJump";
 import { useCommentAnchoring } from "./useCommentAnchoring";
 import { useSceneEditingBridge } from "./useSceneEditingBridge";
-import { modalOpen, useRegisterCommands } from "../state/commands";
+import { modalOpen, useRegisterCommands } from "../state/app/commands";
 import { useProject } from "../state/project/index";
 import { Modal } from "../ui/Dialog";
 import { Button } from "../ui/Button";
-import { Checkbox } from "../ui/Checkbox";
+import { Checkbox } from "../ui/forms/Checkbox";
 import {
   MAX_HTML_CHARS,
   crossesCells,
@@ -41,7 +41,7 @@ import {
   truncate,
   tryConvertHtmlText,
   type Converted,
-} from "./htmlPaste";
+} from "./paste/htmlPaste";
 
 interface Props {
   initial: ChapterDoc;

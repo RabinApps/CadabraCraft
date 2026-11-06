@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cx } from "./cx";
 import { mirrorClass } from "./directional";
-import { Tooltip } from "./Tooltip";
+import { Tooltip } from "./feedback/Tooltip";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 

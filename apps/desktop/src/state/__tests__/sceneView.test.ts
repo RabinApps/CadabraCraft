@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { useSceneView } from "../sceneView";
+import { useSceneView } from "../view/sceneView";
 
 describe("scene view", () => {
   it("starts closed, shows a scene and closes again", () => {

@@ -11,20 +11,20 @@ import {
   resolveTrimSize,
 } from "@cadabracraft/templates";
 import { errText } from "../../lib/projectError";
-import { layoutOfPages } from "../../lib/bookPages";
-import { plainBlocks } from "../../lib/printEstimate";
-import { trimLabel } from "../../lib/trimLabels";
+import { layoutOfPages } from "../../lib/page/bookPages";
+import { plainBlocks } from "../../lib/export/printEstimate";
+import { trimLabel } from "../../lib/export/trimLabels";
 import { Button, IconButton } from "../../ui/Button";
-import { Select } from "../../ui/Select";
-import { Switch } from "../../ui/Switch";
+import { Select } from "../../ui/forms/Select";
+import { Switch } from "../../ui/forms/Switch";
 import type { ExportFormat } from "./exportFormat";
 import { useProject, type BookPage } from "../../state/project/index";
-import { Notice } from "../../ui/Notice";
-import { bleedInches, setBleed, setCropMarks, usePrintSetup } from "../../state/printSetup";
+import { Notice } from "../../ui/feedback/Notice";
+import { bleedInches, setBleed, setCropMarks, usePrintSetup } from "../../state/pages/printSetup";
 import { usePrintPdf } from "../hooks/usePrintPdf";
-import type { WordClick } from "../../lib/pdfWords";
-import { requestPreviewJump } from "../../state/previewJump";
-import { useViewMode } from "../../state/viewMode";
+import type { WordClick } from "../../lib/export/pdfWords";
+import { requestPreviewJump } from "../../state/pages/previewJump";
+import { useViewMode } from "../../state/view/viewMode";
 import { ApproxPage, CoverThumb } from "./ApproxSpread";
 import { TypstSpread } from "./TypstSpread";
 

@@ -5,7 +5,7 @@ import {
   TypstNotFoundError,
   TypstTimeoutError,
 } from "@cadabracraft/export-pdf";
-import { createTauriRunner, mapTypstError } from "../typstRunner";
+import { createTauriRunner, mapTypstError } from "../export/typstRunner";
 
 describe("mapTypstError", () => {
   it("maps each Rust error kind to an export-pdf error", () => {

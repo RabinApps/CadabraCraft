@@ -6,9 +6,9 @@ import {
   type EditionEntry,
   type Outlines,
 } from "@cadabracraft/format";
-import { needsOutlines, tocRows, type TocNumber } from "../../lib/tocView";
-import { usableReport } from "../../lib/pageReport";
-import { usePageMeasure } from "../../state/pageMeasure";
+import { needsOutlines, tocRows, type TocNumber } from "../../lib/toc/tocView";
+import { usableReport } from "../../lib/page/pageReport";
+import { usePageMeasure } from "../../state/pages/pageMeasure";
 import { useProject } from "../../state/project/index";
 import { useBookLayout } from "../hooks/useBookLayout";
 import { useMeasuredPages } from "../hooks/useMeasuredPages";

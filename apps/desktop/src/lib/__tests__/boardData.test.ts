@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { buildBoard } from "../boardData";
-import { sceneRows } from "../scenes";
-import { unsortedWords } from "../sceneMoves";
+import { buildBoard } from "../scenes/boardData";
+import { sceneRows } from "../scenes/scenes";
+import { unsortedWords } from "../scenes/sceneMoves";
 
 const para = (text: string) => ({ type: "paragraph", content: [{ type: "text", text }] });
 const scene = (id: string, text: string) => ({

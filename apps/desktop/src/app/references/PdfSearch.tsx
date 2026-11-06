@@ -2,7 +2,12 @@ import { useRef, useState, type FormEvent } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronDown, ChevronUp, Search, X } from "lucide-react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-import { countsByPage, findMatches, type PdfMatch, type PdfTextItem } from "../../lib/pdfSearch";
+import {
+  countsByPage,
+  findMatches,
+  type PdfMatch,
+  type PdfTextItem,
+} from "../../lib/export/pdfSearch";
 import { IconButton } from "../../ui/Button";
 
 /** The text items of every page, read once per document. */

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { entryFile, sourceFile, translationFile } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
-import { sceneRows, type SceneRow } from "../../lib/scenes";
+import { sceneRows, type SceneRow } from "../../lib/scenes/scenes";
 import { useProject } from "../../state/project/index";
 import { parseChapter } from "../../state/project/util";
 

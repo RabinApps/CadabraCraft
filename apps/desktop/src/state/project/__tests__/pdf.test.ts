@@ -41,7 +41,7 @@ vi.mock("../../../lib/bridge", async () =>
   }),
 );
 
-import { PdfUiError } from "../../../lib/pdfErrors";
+import { PdfUiError } from "../../../lib/export/pdfErrors";
 import { sourceEdition } from "@cadabracraft/format";
 import { useProject } from "../index";
 

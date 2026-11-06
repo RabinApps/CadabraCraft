@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { bridge } from "../../lib/bridge";
 import { whyText } from "../../lib/projectError";
-import { SPONSOR_URL } from "../../state/sponsor";
+import { SPONSOR_URL } from "../../state/app/sponsor";
 import { Button } from "../../ui/Button";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 
 /**
  * The first-run welcome: one screen that says what the app does and who pays for it. Shown once, before Home; Help >

@@ -23,7 +23,7 @@ import {
   parseOutlineSource,
   runImport,
   sceneCountOf,
-} from "../importBook";
+} from "../import/importBook";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();

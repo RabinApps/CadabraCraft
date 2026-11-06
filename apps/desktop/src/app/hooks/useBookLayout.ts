@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from "react";
 import type { BookPages } from "@cadabracraft/shared";
-import { bookLayout } from "../../lib/pageNumbering";
+import { bookLayout } from "../../lib/page/pageNumbering";
 import { clearBookWords, refreshBookWords, useBookWords } from "../../state/bookWords";
-import { usePageMeasure } from "../../state/pageMeasure";
-import { usePageCount } from "../../state/pageCount";
+import { usePageMeasure } from "../../state/pages/pageMeasure";
+import { usePageCount } from "../../state/pages/pageCount";
 import { useProject } from "../../state/project/index";
 
 /**

@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { resolveVerticalCenter, type Template } from "@cadabracraft/templates";
 import type { EntryKind } from "@cadabracraft/shared";
-import { centreOffsetPx } from "../lib/pageLayout";
+import { centreOffsetPx } from "../lib/page/pageLayout";
 
 /**
  * Whether a page's content sits in the vertical middle of its page: a matter page by its own choice or the template's kinds

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PageReport } from "@cadabracraft/export-pdf";
-import { pageTarget } from "../previewTarget";
+import { pageTarget } from "../export/previewTarget";
 
 const start = (id: string, page: number, end: number) => ({
   id,

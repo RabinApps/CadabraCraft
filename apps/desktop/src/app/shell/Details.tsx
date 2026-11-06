@@ -4,7 +4,7 @@ import { plural } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
 import { getTemplate, hasTemplate, DEFAULT_TEMPLATE_ID } from "@cadabracraft/templates";
 import { Pencil } from "lucide-react";
-import { readingMinutes } from "../../lib/readingTime";
+import { readingMinutes } from "../../lib/reading/readingTime";
 import { Button } from "../../ui/Button";
 import { useProject } from "../../state/project";
 import { SectionHeading } from "../../ui/SectionHeading";

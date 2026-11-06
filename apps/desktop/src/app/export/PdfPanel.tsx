@@ -11,13 +11,13 @@ import {
 } from "@cadabracraft/templates";
 import type { Manifest } from "@cadabracraft/format";
 import type { BookPage, ExportScope } from "../../state/project/types";
-import { pdfChecks } from "../../lib/exportChecks";
-import { layoutOfPages } from "../../lib/bookPages";
-import { trimLabel } from "../../lib/trimLabels";
-import { Checkbox } from "../../ui/Checkbox";
-import { Select } from "../../ui/Select";
+import { pdfChecks } from "../../lib/export/exportChecks";
+import { layoutOfPages } from "../../lib/page/bookPages";
+import { trimLabel } from "../../lib/export/trimLabels";
+import { Checkbox } from "../../ui/forms/Checkbox";
+import { Select } from "../../ui/forms/Select";
 import { useProject } from "../../state/project";
-import { setBleed, setCropMarks, usePrintSetup } from "../../state/printSetup";
+import { setBleed, setCropMarks, usePrintSetup } from "../../state/pages/printSetup";
 import { useFontList } from "../hooks/useFontList";
 import { CheckList } from "./CheckList";
 

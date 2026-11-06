@@ -11,15 +11,15 @@ import type { AudioFormat } from "@cadabracraft/export-audio";
 import type { OutlineFormat } from "@cadabracraft/outline";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, EntryKind, MatterKind } from "@cadabracraft/shared";
-import type { PublishingForm } from "../../lib/publishingForm";
-import type { ImportChoices, ImportReport } from "../../lib/importBook";
+import type { PublishingForm } from "../../lib/export/publishingForm";
+import type { ImportChoices, ImportReport } from "../../lib/import/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
-import type { SceneNodeJson, ScenePatch } from "../../lib/sceneMoves";
+import type { SceneNodeJson, ScenePatch } from "../../lib/scenes/sceneMoves";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
-import type { AudioUiError } from "../../lib/audioErrors";
-import type { FontUiError } from "../../lib/fontErrors";
-import type { RemovedReference } from "../../lib/referenceKinds";
-import type { PreviewTarget } from "../../lib/previewTarget";
+import type { AudioUiError } from "../../lib/audio/audioErrors";
+import type { FontUiError } from "../../lib/font/fontErrors";
+import type { RemovedReference } from "../../lib/references/referenceKinds";
+import type { PreviewTarget } from "../../lib/export/previewTarget";
 
 export interface PdfExportOptions extends ExportScope {
   trimSize: TrimSize;

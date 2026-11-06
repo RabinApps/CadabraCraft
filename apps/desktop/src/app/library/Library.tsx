@@ -3,17 +3,17 @@ import { plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft, FolderPlus, LayoutGrid, List, Search, X } from "lucide-react";
 import { Button, IconButton } from "../../ui/Button";
-import { Checkbox } from "../../ui/Checkbox";
-import { Field } from "../../ui/Input";
-import { Notice } from "../../ui/Notice";
-import { Segmented } from "../../ui/Segmented";
-import { Select } from "../../ui/Select";
+import { Checkbox } from "../../ui/forms/Checkbox";
+import { Field } from "../../ui/forms/Input";
+import { Notice } from "../../ui/feedback/Notice";
+import { Segmented } from "../../ui/forms/Segmented";
+import { Select } from "../../ui/forms/Select";
 import { bridge } from "../../lib/bridge";
-import { coverThumbs } from "../../lib/coverThumbsBrowser";
+import { coverThumbs } from "../../lib/export/coverThumbsBrowser";
 import { errText } from "../../lib/projectError";
 import { relativeTime } from "../../lib/relativeTime";
-import { useLibraryPrefs } from "../../state/library";
-import { useRecents, type Recent } from "../../state/recents";
+import { useLibraryPrefs } from "../../state/app/library";
+import { useRecents, type Recent } from "../../state/app/recents";
 import { BookCover } from "./BookCover";
 import {
   groupBySeries,

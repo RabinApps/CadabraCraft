@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ChapterDoc } from "@cadabracraft/shared";
-import { estimatePages, plainBlocks, wordsPerPage } from "../printEstimate";
+import { estimatePages, plainBlocks, wordsPerPage } from "../export/printEstimate";
 
 const margins = { top: 0.8, bottom: 0.9, inside: 0.9, outside: 0.65 };
 

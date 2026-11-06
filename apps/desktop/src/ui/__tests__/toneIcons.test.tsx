@@ -2,8 +2,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { I18nProvider } from "@lingui/react";
 import { i18n } from "@lingui/core";
-import { Badge, badgeIcons, type BadgeTone } from "../Badge";
-import { Notice, noticeIcons, type NoticeTone } from "../Notice";
+import { Badge, badgeIcons, type BadgeTone } from "../feedback/Badge";
+import { Notice, noticeIcons, type NoticeTone } from "../feedback/Notice";
 import { checkIcons } from "../../app/export/CheckList";
 
 // WCAG 1.4.1: the tone of a badge, notice or check is shown by a shape of its own, not by colour alone.

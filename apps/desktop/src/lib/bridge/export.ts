@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { packCompileRequest, packQueryRequest } from "../compileFrame";
+import { packCompileRequest, packQueryRequest } from "../export/compileFrame";
 import { binary, type RawBytes } from "./types";
 
 /** The PDF engine (Typst). */

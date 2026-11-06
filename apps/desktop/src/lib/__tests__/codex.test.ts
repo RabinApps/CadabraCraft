@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CodexEntry } from "@cadabracraft/format";
 import { appearsIn, newCodexId, type ChapterScenes } from "../codex";
-import type { SceneRow } from "../scenes";
+import type { SceneRow } from "../scenes/scenes";
 
 const entry = (over: Partial<CodexEntry> = {}): CodexEntry => ({
   id: "mara",

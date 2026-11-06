@@ -5,7 +5,7 @@ import {
   publishingToForm,
   subjectLines,
   type PublishingForm,
-} from "../publishingForm";
+} from "../export/publishingForm";
 
 const blank: PublishingForm = publishingToForm(undefined);
 

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { clearBookWords, refreshBookWords, useBookWords } from "../bookWords";
-import type { EntryWords } from "../../lib/pageNumbering";
+import type { EntryWords } from "../../lib/page/pageNumbering";
 
 const entry = (id: string, words: number): EntryWords => ({
   id,

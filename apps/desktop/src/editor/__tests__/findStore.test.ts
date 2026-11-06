@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "../findStore";
+import { MAX_QUERY_CHARS, MAX_REPLACEMENT_CHARS, useFind } from "../find/findStore";
 import {
   bookPosition,
   bookStep,

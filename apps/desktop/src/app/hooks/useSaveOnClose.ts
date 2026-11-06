@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { closeRequest } from "../shell/quit";
+import { closeRequest } from "../shell/native/quit";
 import { useProject } from "../../state/project/index";
 
 /**

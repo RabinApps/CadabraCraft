@@ -2,13 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft, CalendarRange } from "lucide-react";
 import { IconButton } from "../../ui/Button";
-import { Notice } from "../../ui/Notice";
-import { Segmented } from "../../ui/Segmented";
+import { Notice } from "../../ui/feedback/Notice";
+import { Segmented } from "../../ui/forms/Segmented";
 import { noticeIsAlert } from "../../state/project/util";
 import { useProject } from "../../state/project/index";
-import { useSceneView } from "../../state/sceneView";
+import { useSceneView } from "../../state/view/sceneView";
 import { attempt } from "../../state/attempt";
-import { buildTimeline, formatStoryDay, type TimelineOrder } from "../../lib/timelineData";
+import { buildTimeline, formatStoryDay, type TimelineOrder } from "../../lib/scenes/timelineData";
 import { useBoardData } from "../board/useBoardData";
 import { TimelineRow } from "./TimelineRow";
 

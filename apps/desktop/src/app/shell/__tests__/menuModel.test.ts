@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Commands } from "../../../state/commands";
-import { buildMenuModel, commandIds, type MenuContext, type MenuEntry } from "../menuModel";
+import type { Commands } from "../../../state/app/commands";
+import { buildMenuModel, commandIds, type MenuContext, type MenuEntry } from "../native/menuModel";
 
 const run = () => {};
 const ctx = (commands: Commands = {}, over: Partial<MenuContext> = {}): MenuContext => ({

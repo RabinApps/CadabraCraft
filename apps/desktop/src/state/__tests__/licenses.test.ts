@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LICENSE_DOCS, useLicenses } from "../licenses";
+import { LICENSE_DOCS, useLicenses } from "../app/licenses";
 
 describe("licenses dialog state", () => {
   it("opens and closes", () => {

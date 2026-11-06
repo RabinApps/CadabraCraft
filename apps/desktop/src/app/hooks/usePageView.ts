@@ -1,7 +1,7 @@
 import { useCallback, useSyncExternalStore } from "react";
-import { type PageZoom, useSettings } from "../../state/editorPrefs";
-import { pageViewAvailable } from "../../state/pageView";
-import { useViewMode } from "../../state/viewMode";
+import { type PageZoom, useSettings } from "../../state/view/editorPrefs";
+import { pageViewAvailable } from "../../state/view/pageView";
+import { useViewMode } from "../../state/view/viewMode";
 import { MD_QUERY } from "../shell/breakpoints";
 
 const subscribe = (cb: () => void) => {

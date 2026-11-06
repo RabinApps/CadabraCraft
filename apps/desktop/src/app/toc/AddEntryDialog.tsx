@@ -3,9 +3,9 @@ import { useLingui } from "@lingui/react/macro";
 import type { TocItem } from "@cadabracraft/format";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Field, focusField } from "../../ui/Input";
-import { Notice } from "../../ui/Notice";
-import { Select } from "../../ui/Select";
+import { Field, focusField } from "../../ui/forms/Input";
+import { Notice } from "../../ui/feedback/Notice";
+import { Select } from "../../ui/forms/Select";
 
 const TITLE_ID = "toc-entry-title";
 const ERROR_ID = "toc-entry-error";

@@ -3,7 +3,7 @@ import { expect, type Locator, type Page } from "./coverage";
 export const pm = (page: Page) => page.locator(".ProseMirror");
 export const run = (page: Page, id: string) =>
   page.evaluate(async (c) => {
-    (await import("/src/state/commands.ts" as string)).runCommand(c);
+    (await import("/src/state/app/commands.ts" as string)).runCommand(c);
   }, id);
 
 /** Types `text` in the last paragraph and selects it. */

@@ -6,7 +6,7 @@ import {
   TypstNotFoundError,
   TypstTimeoutError,
 } from "@cadabracraft/export-pdf";
-import { describePdfError, PdfUiError } from "../pdfErrors";
+import { describePdfError, PdfUiError } from "../export/pdfErrors";
 
 describe("describePdfError", () => {
   it("returns a PdfUiError unchanged", () => {

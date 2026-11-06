@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { runCommand } from "../../state/commands";
-import { useQuickNav } from "../../state/quickNav";
+import { runCommand } from "../../state/app/commands";
+import { useQuickNav } from "../../state/app/quickNav";
 import { pressed } from "../settings/shortcutBindings";
 import { CommandPalette } from "./CommandPalette";
 import { OutlineNavigator } from "./OutlineNavigator";

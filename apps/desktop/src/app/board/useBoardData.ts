@@ -5,9 +5,9 @@ import {
   type BoardChapter,
   type BoardData,
   type ChapterRead,
-} from "../../lib/boardData";
-import { sceneRows } from "../../lib/scenes";
-import { unsortedWords } from "../../lib/sceneMoves";
+} from "../../lib/scenes/boardData";
+import { sceneRows } from "../../lib/scenes/scenes";
+import { unsortedWords } from "../../lib/scenes/sceneMoves";
 import { useProject } from "../../state/project/index";
 import { useChapterReads } from "../scenes/useChapterScenes";
 

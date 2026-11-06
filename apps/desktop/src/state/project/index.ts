@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { createAssetActions } from "./assets";
-import { createAudioActions } from "./audio";
+import { createAudioActions } from "./output/audio";
 import { createCommentActions } from "./comments";
 import { createContext } from "./context";
 import { createEditionActions } from "./editions";
-import { createExportActions } from "./exports";
-import { createFontActions } from "./fonts";
+import { createExportActions } from "./output/exports";
+import { createFontActions } from "./output/fonts";
 import { createHistoryActions } from "./history";
 import { createPageActions } from "./pages";
 import { createProjectActions } from "./project";
@@ -16,7 +16,7 @@ import { createSnapshotActions } from "./snapshots";
 import { createTocActions } from "./toc";
 import { createTrashActions } from "./trash";
 import { NO_HISTORY } from "./util";
-import { createVoiceActions } from "./voices";
+import { createVoiceActions } from "./output/voices";
 import type { ProjectState } from "./types";
 
 export { COVER_EXTENSIONS } from "./types";

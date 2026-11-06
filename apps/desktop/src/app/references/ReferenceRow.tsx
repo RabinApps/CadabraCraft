@@ -13,7 +13,7 @@ import * as M from "@radix-ui/react-dropdown-menu";
 import { useId, type KeyboardEvent, type PointerEvent } from "react";
 import type { Reference } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
-import { referenceKind, type ReferenceKind } from "../../lib/referenceKinds";
+import { referenceKind, type ReferenceKind } from "../../lib/references/referenceKinds";
 import { cx } from "../../ui/cx";
 import { useGripHint } from "../../ui/GripHint";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";

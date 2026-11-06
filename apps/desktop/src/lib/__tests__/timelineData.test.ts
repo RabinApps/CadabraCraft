@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildBoard } from "../boardData";
+import { buildBoard } from "../scenes/boardData";
 import {
   buildTimeline,
   formatStoryDay,
@@ -7,8 +7,8 @@ import {
   joinStoryDate,
   storyDay,
   storyTime,
-} from "../timelineData";
-import type { SceneRow } from "../scenes";
+} from "../scenes/timelineData";
+import type { SceneRow } from "../scenes/scenes";
 
 const row = (id: string, date = ""): SceneRow => ({
   id,

@@ -1,5 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
-import { Checkbox } from "../../ui/Checkbox";
+import { Checkbox } from "../../ui/forms/Checkbox";
 
 /** The Markdown format: whether underline and small caps are kept as HTML tags. */
 export function MarkdownPanel({

@@ -3,10 +3,10 @@ import { useLingui } from "@lingui/react/macro";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { errText } from "../../lib/projectError";
-import { readReferenceBytes } from "../../lib/references";
+import { readReferenceBytes } from "../../lib/references/references";
 import { IconButton } from "../../ui/Button";
-import { Notice } from "../../ui/Notice";
-import { toScreen } from "../../lib/pdfSearch";
+import { Notice } from "../../ui/feedback/Notice";
+import { toScreen } from "../../lib/export/pdfSearch";
 import { PdfSearch, type PdfHits } from "./PdfSearch";
 
 const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];

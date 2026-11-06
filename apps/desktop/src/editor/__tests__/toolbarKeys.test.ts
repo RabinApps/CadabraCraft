@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { KeyboardEvent } from "react";
-import { moveInToolbar } from "../toolbarKeys";
+import { moveInToolbar } from "../toolbar/toolbarKeys";
 
 type FakeButton = { focus: ReturnType<typeof vi.fn> };
 

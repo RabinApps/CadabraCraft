@@ -11,13 +11,13 @@ import {
   staleLabel,
   tocMovePlace,
   tocMoveTarget,
-} from "../../lib/tocView";
-import { useTocPane, type TocPane } from "../../state/tocPane";
+} from "../../lib/toc/tocView";
+import { useTocPane, type TocPane } from "../../state/view/tocPane";
 import { Button } from "../../ui/Button";
 import { Confirm } from "../../ui/Dialog";
 import { DropLine } from "../../ui/DropLine";
-import { Segmented } from "../../ui/Segmented";
-import { Switch } from "../../ui/Switch";
+import { Segmented } from "../../ui/forms/Segmented";
+import { Switch } from "../../ui/forms/Switch";
 import { useIsXl } from "../hooks/useIsXl";
 import { AddEntryDialog } from "./AddEntryDialog";
 import { TocPreview } from "./TocPreview";

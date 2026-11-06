@@ -9,7 +9,7 @@ import {
   stepZoom,
   touchDistance,
   wheelZoom,
-} from "../previewZoom";
+} from "../export/previewZoom";
 
 describe("preview zoom", () => {
   it("steps to the next one above or below, and stops at the ends", () => {

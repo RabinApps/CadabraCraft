@@ -1,5 +1,5 @@
 import { t } from "@lingui/core/macro";
-import { buildMenuModel, type MenuEntry, type PredefinedKind } from "../shell/menuModel";
+import { buildMenuModel, type MenuEntry, type PredefinedKind } from "../shell/native/menuModel";
 
 /**
  * The list behind Settings > Shortcuts. One source of truth, two inputs:

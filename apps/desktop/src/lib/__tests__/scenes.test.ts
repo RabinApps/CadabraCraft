@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isValidSceneId } from "@cadabracraft/shared";
-import { newSceneId, sceneProgress, sceneRow, sceneRows, sceneWordsLabel } from "../scenes";
+import { newSceneId, sceneProgress, sceneRow, sceneRows, sceneWordsLabel } from "../scenes/scenes";
 
 const scene = (attrs: Record<string, unknown> = {}, text = "one two three") => ({
   type: "scene",

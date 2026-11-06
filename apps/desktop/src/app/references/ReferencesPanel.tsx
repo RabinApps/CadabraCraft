@@ -23,15 +23,15 @@ import {
   sortReferences,
   type ReferenceKind,
   type SortKey,
-} from "../../lib/referenceKinds";
+} from "../../lib/references/referenceKinds";
 import { attempt } from "../../state/attempt";
 import { useProject } from "../../state/project/index";
 import { Button, IconButton } from "../../ui/Button";
-import { Chip } from "../../ui/Chip";
-import { Field } from "../../ui/Input";
-import { Notice } from "../../ui/Notice";
+import { Chip } from "../../ui/feedback/Chip";
+import { Field } from "../../ui/forms/Input";
+import { Notice } from "../../ui/feedback/Notice";
 import { cx } from "../../ui/cx";
-import { ProgressBar } from "../../ui/ProgressBar";
+import { ProgressBar } from "../../ui/feedback/ProgressBar";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";
 import { ReferenceRow } from "./ReferenceRow";
 import { RemovedReferencesDialog } from "./RemovedReferencesDialog";

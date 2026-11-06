@@ -8,7 +8,7 @@ import {
   sectionNeighbours,
   takeLanding,
   type Landing,
-} from "../lib/sectionScroll";
+} from "../lib/reading/sectionScroll";
 
 /**
  * Keeps scrolling in Write mode going: past the last page of the open section the next one opens, and above its first page the one

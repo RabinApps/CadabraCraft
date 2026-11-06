@@ -14,7 +14,7 @@ import {
   formatSize,
   referenceKind,
   referenceMediaType,
-} from "../referenceKinds";
+} from "../references/referenceKinds";
 
 const ref = (over: Partial<Reference>): Reference => ({
   id: "ref-1",
