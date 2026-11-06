@@ -127,16 +127,5 @@ export default tseslint.config(
       complexity: "off",
     },
   },
-  {
-    // Temporary baseline for tests over 800 lines, being split (Phase 5). Remove entries as they shrink; never add one.
-    files: [
-      "apps/desktop/e2e/a11y/a11y-errors.spec.ts",
-      "apps/desktop/e2e/a11y/a11y-wcag-extra.spec.ts",
-      "apps/desktop/e2e/support/a11yScreens.ts",
-      "packages/export-rtf/src/__tests__/rtf.test.ts",
-      "packages/format/src/__tests__/toc.test.ts",
-    ],
-    rules: { "max-lines": "off" },
-  },
   prettier,
 );
