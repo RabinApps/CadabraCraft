@@ -375,6 +375,94 @@ const gapBetween = (prev: MeasuredBlock | undefined, b: MeasuredBlock, atTop: bo
   return Math.max(a, b.marginTop, 0) + Math.min(a, b.marginTop, 0);
 };
 
+/** Where `paginate` is on the page it is filling: the height used, whether nothing is on it yet, the block before, the breaks so far. */
+interface Flow {
+  y: number;
+  atTop: boolean;
+  prev: MeasuredBlock | undefined;
+  breaks: PageBreak[];
+}
+
+/** A new page begins before block `i`. */
+function startPage(flow: Flow, i: number) {
+  flow.breaks.push({ block: i, linesBefore: 0, blankBefore: false });
+  flow.y = 0;
+  flow.atTop = true;
+}
+
+/**
+ * Splits block `i` (`at.done` lines already placed, `at.lines` left) where `room` runs out, keeping at least two lines on each side.
+ * Returns the lines placed after the split, or null when it cannot be split here.
+ */
+function trySplit(
+  b: MeasuredBlock,
+  at: { block: number; done: number; lines: number },
+  room: number,
+  flow: Flow,
+): number | null {
+  const { lines } = at;
+  let n = Math.floor((room + EPS) / b.lineHeight);
+  if (n >= lines) n = lines - 1;
+  if (lines - n < MIN_LINES) n = lines - MIN_LINES;
+  if (n >= MIN_LINES || (flow.atTop && n >= 1)) {
+    const done = at.done + n;
+    flow.breaks.push({ block: at.block, linesBefore: done, blankBefore: false });
+    flow.y = 0;
+    flow.atTop = true;
+    return done;
+  }
+  if (flow.atTop && lines >= 2) {
+    // Page shorter than two lines: keep one line per page rather than loop.
+    const done = at.done + 1;
+    flow.breaks.push({ block: at.block, linesBefore: done, blankBefore: false });
+    return done;
+  }
+  return null;
+}
+
+/** Places block `i` on the pages, splitting it or moving it to a new page as needed. */
+function placeBlock(
+  b: MeasuredBlock,
+  i: number,
+  ctx: { textHeight: number; needed: (i: number) => number },
+  flow: Flow,
+) {
+  const { textHeight, needed } = ctx;
+  // `done` is the lines already placed on earlier pages.
+  let done = 0;
+  for (;;) {
+    const whole = done === 0;
+    const lines = b.lines - done;
+    const height = whole ? b.height : Math.max(0, b.height - done * b.lineHeight);
+    const gap = whole ? gapBetween(flow.prev, b, flow.atTop) : 0;
+    const room = textHeight - flow.y - gap;
+    if (height === 0 || height <= room + EPS) {
+      // A kept block must fit together with the first piece of what follows.
+      if (whole && !flow.atTop && keeps(b) && gap + needed(i) > textHeight - flow.y + EPS) {
+        startPage(flow, i);
+        continue;
+      }
+      flow.y += gap + height;
+      flow.atTop = false;
+      return;
+    }
+    if (canSplit(b) && lines >= 2) {
+      const split = trySplit(b, { block: i, done, lines }, room, flow);
+      if (split !== null) {
+        done = split;
+        continue;
+      }
+    }
+    if (flow.atTop) {
+      // Unsplittable and taller than a page: it overflows a page of its own.
+      flow.y = textHeight;
+      flow.atTop = false;
+      return;
+    }
+    startPage(flow, i);
+  }
+}
+
 /**
  * Pure pagination. `blocks` are measured at zoom 1, `textHeight` is the height a page's blocks may fill (see `trailingLeadingPx`).
  *
@@ -411,9 +499,7 @@ export function paginate(
     return b.height + gapBetween(b, next, false) + needed(i + 1);
   };
 
-  let y = 0;
-  let atTop = true;
-  let prev: MeasuredBlock | undefined;
+  const flow: Flow = { y: 0, atTop: true, prev: undefined, breaks };
   for (let i = 0; i < blocks.length; i++) {
     const b = blocks[i]!;
     // A page break ends the page it is on: the block after it begins the next one. A break that is already at the top of a page asks
@@ -421,61 +507,11 @@ export function paginate(
     if (
       i > 0 &&
       blocks[i - 1]!.kind === "pageBreak" &&
-      (y > 0 || (i >= 2 && blocks[i - 2]!.kind === "pageBreak"))
-    ) {
-      breaks.push({ block: i, linesBefore: 0, blankBefore: false });
-      y = 0;
-      atTop = true;
-    }
-    // `rest` is what remains of this block (undefined = all of it); `done` the lines already placed on earlier pages.
-    let done = 0;
-    for (;;) {
-      const whole = done === 0;
-      const lines = b.lines - done;
-      const height = whole ? b.height : Math.max(0, b.height - done * b.lineHeight);
-      const gap = whole ? gapBetween(prev, b, atTop) : 0;
-      const room = textHeight - y - gap;
-      if (height === 0 || height <= room + EPS) {
-        // A kept block must fit together with the first piece of what follows.
-        if (whole && !atTop && keeps(b) && gap + needed(i) > textHeight - y + EPS) {
-          breaks.push({ block: i, linesBefore: 0, blankBefore: false });
-          y = 0;
-          atTop = true;
-          continue;
-        }
-        y += gap + height;
-        atTop = false;
-        break;
-      }
-      if (canSplit(b) && lines >= 2) {
-        let n = Math.floor((room + EPS) / b.lineHeight);
-        if (n >= lines) n = lines - 1;
-        if (lines - n < MIN_LINES) n = lines - MIN_LINES;
-        if (n >= MIN_LINES || (atTop && n >= 1)) {
-          done += n;
-          breaks.push({ block: i, linesBefore: done, blankBefore: false });
-          y = 0;
-          atTop = true;
-          continue;
-        }
-        if (atTop && lines >= 2) {
-          // Page shorter than two lines: keep one line per page rather than loop.
-          done += 1;
-          breaks.push({ block: i, linesBefore: done, blankBefore: false });
-          continue;
-        }
-      }
-      if (atTop) {
-        // Unsplittable and taller than a page: it overflows a page of its own.
-        y = textHeight;
-        atTop = false;
-        break;
-      }
-      breaks.push({ block: i, linesBefore: 0, blankBefore: false });
-      y = 0;
-      atTop = true;
-    }
-    prev = b;
+      (flow.y > 0 || (i >= 2 && blocks[i - 2]!.kind === "pageBreak"))
+    )
+      startPage(flow, i);
+    placeBlock(b, i, { textHeight, needed }, flow);
+    flow.prev = b;
   }
   return { breaks, pageCount: breaks.length + 1 };
 }

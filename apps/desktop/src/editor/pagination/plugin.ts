@@ -3,13 +3,11 @@ import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { DecorationSet, type EditorView } from "@tiptap/pm/view";
 import type { PageGeometry } from "../../lib/page/pageLayout";
 import { createBlockCache } from "./cache";
-import { PAGE_GAP, layoutPages, withTops, type FlowBlock, type PageLayoutResult } from "./core";
+import { withTops, type PageLayoutResult } from "./core";
 import { buildDecorations, type GapWidgetSpec } from "./decorations";
-import { rowBreak } from "./rows";
-import type { PageBreak } from "../../lib/page/pageLayout";
-import { exactBreaks, type ExactSource } from "../../lib/page/exactBreaks";
-import { cursorPage, findSplitPos, flowY, measureFlow, readPageTops, splitY } from "./dom";
-import { docLeaves, insideCell, leafWordTexts, pageStartAt, rowAround, wordOffset } from "./exact";
+import type { ExactSource } from "../../lib/page/exactBreaks";
+import { cursorPage, readPageTops } from "./dom";
+import { measureAndLayout, type LayoutRun } from "./runLayout";
 
 /** What the pagination needs to know; set by the Page view frame, null (or `on: false`) when Page view is off. */
 export interface PageConfig {
@@ -55,91 +53,30 @@ const configKey = (c: PageConfig): string =>
 type Meta = { type: "set"; set: DecorationSet } | { type: "clear" };
 export const paginationKey = new PluginKey<DecorationSet>("pagination");
 
-/**
- * Typst's page breaks for this text as `paginate` takes them, or undefined when its marks do not fit the text or a break cannot be
- * placed (the estimate is used then, for the whole chapter). A page that begins at a block is a break before it. One that begins
- * inside a block (a word of a paragraph, an item of a list, a row of a table) is a break at a position of the document: `exactPos`
- * gets it, and the break says where in the flow it falls (`at.y`, read from the DOM) for the heights of the spacers and cards.
- */
-function forcedBreaks(
-  v: EditorView,
-  c: PageConfig,
-  blocks: FlowBlock[],
-  exactPos: Map<string, number>,
-): PageBreak[] | undefined {
-  const doc = v.state.doc;
-  // The report comes from a render of the text as it was then, and it has no way to say that the author has since put a page break
-  // in it: its pages would leave the break out, and the cards would disagree with the PDF. The estimate honours every break instead,
-  // and the chip says the breaks are approximate until the text is rendered again.
-  let breaksPages = false;
-  doc.forEach((n) => {
-    if (n.type.name === "pageBreak") breaksPages = true;
-  });
-  if (breaksPages) return undefined;
-  const leaves = docLeaves(doc);
-  const typst = exactBreaks(c.exact!, leaves);
-  if (!typst) return undefined;
-  const top = c.geometry.margins.top;
-  const out: PageBreak[] = [];
-  // Per block: the breaks made inside it so far and where the last one is.
-  const inside = new Map<number, { n: number; y: number }>();
-  // Per cell of the table row being cut: where its text was cut last (the position of the cell's start is its identity).
-  let cellY = new Map<number, number>();
-  for (let k = 0; k < typst.length; k++) {
-    const b = typst[k]!;
-    const flow = blocks[b.block];
-    const leaf = leaves[b.block]?.[b.leaf];
-    if (!flow || !leaf) return undefined;
-    let pos: number;
-    let at: NonNullable<PageBreak["at"]>;
-    if (b.cuts) {
-      // A page that begins inside a table row: it begins in each cell that runs onto it, at that cell's own place.
-      const sameRow = (o: (typeof typst)[number] | undefined): boolean =>
-        !!o?.cuts && o.block === b.block && o.row === b.row;
-      if (!sameRow(typst[k - 1])) cellY = new Map();
-      const last = !sameRow(typst[k + 1]);
-      const cut = rowBreak(v, c, doc, flow, leaves[b.block]!, b.cuts, cellY, last);
-      if (!cut) return undefined;
-      const prev = inside.get(b.block);
-      if (prev && cut.at.y <= prev.y) return undefined;
-      const n = (prev?.n ?? 0) + 1;
-      inside.set(b.block, { n, y: cut.at.y });
-      exactPos.set(`${b.block}:${n}`, cut.at.cuts![0]!.pos);
-      out.push({ block: b.block, linesBefore: n, blankBefore: false, at: cut.at });
-      continue;
-    }
-    if (b.word === null) {
-      // A page that begins at a row begins before it, whichever of its cells has the first text.
-      const rowFirst = b.rowStart ? rowAround(doc, leaf.pos)?.row.cells[0]?.from : undefined;
-      const start = pageStartAt(doc, rowFirst ?? leaf.pos);
-      if (!start) return undefined;
-      if (start.top) {
-        out.push({ block: b.block, linesBefore: 0, blankBefore: false });
-        continue;
-      }
-      const f = flowY(v, flow, start.pos, c.zoom, top);
-      if (!f) return undefined;
-      pos = start.pos;
-      at = { y: f.y, flow: true, marginBottom: f.marginBottom };
-    } else {
-      const offset = wordOffset(leaf.node, b.word);
-      // A page cannot begin in the middle of a table row, nor inside a word the text no longer has that many characters of.
-      if (offset === null || insideCell(doc, leaf.pos)) return undefined;
-      if (b.char !== undefined && !(b.char < (leafWordTexts(leaf.node)[b.word]?.text.length ?? 0)))
-        return undefined;
-      pos = leaf.pos + 1 + offset + (b.char ?? 0);
-      const y = splitY(v, flow, leaf.pos, pos, c.zoom, top);
-      if (y === null) return undefined;
-      at = { y, flow: false };
-    }
-    const prev = inside.get(b.block);
-    if (prev && at.y <= prev.y) return undefined;
-    const n = (prev?.n ?? 0) + 1;
-    inside.set(b.block, { n, y: at.y });
-    exactPos.set(`${b.block}:${n}`, pos);
-    out.push({ block: b.block, linesBefore: n, blankBefore: false, at });
+/** On an exact layout the cursor's page follows from the spacers' positions (they move with the text), not from where the line is drawn. */
+function exactCursorPage(v: EditorView, l: PageLayoutResult): number {
+  const set = paginationKey.getState(v.state);
+  const head = v.state.selection.head;
+  // The page breaks the caret is past. A page break inside a table row has a spacer per cell: in the text of a cell only that
+  // cell's own spacers count (a cell that ended before the break is on the row's earlier page), after the row all of them do.
+  const passed = new Set<number>();
+  for (const d of set?.find(0, v.state.doc.content.size) ?? []) {
+    const g = (d as unknown as { spec: { pvGap?: GapWidgetSpec } }).spec.pvGap;
+    if (!g) continue;
+    const reached =
+      g.cell && g.row
+        ? head >= g.row.to || (head >= g.cell.from && head <= g.cell.to && d.from <= head)
+        : d.from <= head;
+    if (reached) passed.add(g.index);
   }
-  return out;
+  return Math.min(passed.size, l.pages.length - 1);
+}
+
+/** Font loads and images change heights without touching the document. */
+function listenForReflow(root: HTMLElement, on: boolean, handler: () => void) {
+  const toggle = on ? "addEventListener" : "removeEventListener";
+  root[toggle]("load", handler, true);
+  document.fonts?.[toggle]("loadingdone", handler);
 }
 
 /**
@@ -179,25 +116,6 @@ export function createController() {
     }
   };
 
-  /** On an exact layout the cursor's page follows from the spacers' positions (they move with the text), not from where the line is drawn. */
-  const exactCursorPage = (v: EditorView, l: PageLayoutResult): number => {
-    const set = paginationKey.getState(v.state);
-    const head = v.state.selection.head;
-    // The page breaks the caret is past. A page break inside a table row has a spacer per cell: in the text of a cell only that
-    // cell's own spacers count (a cell that ended before the break is on the row's earlier page), after the row all of them do.
-    const passed = new Set<number>();
-    for (const d of set?.find(0, v.state.doc.content.size) ?? []) {
-      const g = (d as unknown as { spec: { pvGap?: GapWidgetSpec } }).spec.pvGap;
-      if (!g) continue;
-      const reached =
-        g.cell && g.row
-          ? head >= g.row.to || (head >= g.cell.from && head <= g.cell.to && d.from <= head)
-          : d.from <= head;
-      if (reached) passed.add(g.index);
-    }
-    return Math.min(passed.size, l.pages.length - 1);
-  };
-
   const run = () => {
     raf = 0;
     if (!live()) return;
@@ -212,52 +130,14 @@ export function createController() {
     // A hyphen belongs to the flow only once a page break is there, so it is left out of the natural measurement.
     const hyphens = root.querySelectorAll<HTMLElement>(".pv-hyphen");
     hyphens.forEach((h) => (h.style.display = "none"));
-    let hyphenate: boolean;
-    let result: PageLayoutResult;
-    const splits = new Map<string, number | null>();
-    const exactPos = new Map<string, number>();
+    let run: LayoutRun;
     try {
-      const blocks = measureFlow(v, c.zoom, g.margins.top, cache);
-      const starts: number[] = [];
-      v.state.doc.forEach((_n, offset) => starts.push(offset));
-      // Typst's breaks, when its marks fit this text: pages are then the PDF's, to the word.
-      const forced = c.exact ? forcedBreaks(v, c, blocks, exactPos) : undefined;
-      result = layoutPages({
-        blocks,
-        page: { h: g.page.h },
-        margins: g.margins,
-        // Typst's page may hold a line more or less than the webview's wrapping makes of it: a line of leeway before a card grows.
-        textHeight:
-          g.text.h +
-          c.slackPx +
-          (forced ? (blocks.find((b) => b.kind === "paragraph")?.lineHeight ?? 0) : 0),
-        ...(forced ? { forced } : {}),
-        gap: PAGE_GAP,
-        firstPage: c.firstPage,
-        startsOn: c.startsOn,
-        opensChapter: c.opensChapter,
-        blankBefore: c.blankBefore,
-      });
-      hyphenate = getComputedStyle(root).hyphens === "auto";
-      for (const gap of result.gaps)
-        if (gap.linesBefore > 0)
-          splits.set(
-            `${gap.block}:${gap.linesBefore}`,
-            exactPos.get(`${gap.block}:${gap.linesBefore}`) ??
-              findSplitPos(
-                v,
-                starts[gap.block]!,
-                v.state.doc.child(gap.block),
-                gap.linesBefore,
-                blocks[gap.block]!,
-                c.zoom,
-                g.margins.top,
-              ),
-          );
+      run = measureAndLayout(v, c, cache);
     } finally {
       root.classList.remove("pv-natural");
       hyphens.forEach((h) => (h.style.display = ""));
     }
+    const { result, splits, hyphenate } = run;
     const set = buildDecorations(
       v.state.doc,
       result,
@@ -295,15 +175,7 @@ export function createController() {
     },
     /** Font loads and images change heights without touching the document. */
     listen(on: boolean) {
-      const root = view?.dom;
-      if (!root) return;
-      if (on) {
-        root.addEventListener("load", onWindowChange, true);
-        document.fonts?.addEventListener("loadingdone", onWindowChange);
-      } else {
-        root.removeEventListener("load", onWindowChange, true);
-        document.fonts?.removeEventListener("loadingdone", onWindowChange);
-      }
+      if (view) listenForReflow(view.dom, on, onWindowChange);
     },
     configure(next: PageConfig | null) {
       const was = cfg;

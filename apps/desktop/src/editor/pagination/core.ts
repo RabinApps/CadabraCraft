@@ -180,6 +180,72 @@ export function blockFragments(
   return out;
 }
 
+interface GapContext {
+  blocks: FlowBlock[];
+  page: { h: number };
+  margins: { top: number; bottom: number };
+  textHeight: number;
+  gap: number;
+}
+
+/** The kind of page k: a blank verso before the entry, the chapter opening, or a body page. */
+function pageKindAt(
+  k: number,
+  blank: boolean,
+  blankFirst: boolean,
+  opensChapter: boolean,
+): PageKind {
+  if (blank) return "blank";
+  return opensChapter && k === (blankFirst ? 1 : 0) ? "open" : "body";
+}
+
+/** The spacer that ends a page whose text used `px` of it. */
+function spacerHeight(px: number, ctx: GapContext): number {
+  return px > ctx.textHeight + OVERFLOW_PX
+    ? Math.max(ctx.page.h - px, ctx.margins.top + ctx.margins.bottom) + ctx.gap
+    : ctx.page.h + ctx.gap - px;
+}
+
+/** The spacer after a page that used `u` px (starting at `start`) and the break `br` it ends with. */
+function gapSpec(
+  br: PageBreak,
+  u: number,
+  start: number,
+  blank: boolean,
+  ctx: GapContext,
+): { gap: GapSpec; gapHeight: number } {
+  const { blocks } = ctx;
+  const gapHeight = spacerHeight(u, ctx);
+  // A page that begins inside a table row: a spacer per cell, each sized by where its own text was cut.
+  const cuts = br.at?.cuts?.map((c) => ({
+    pos: c.pos,
+    inline: c.inline,
+    height: spacerHeight(
+      blocks[br.block]!.top + c.y - (c.prevY === null ? start : blocks[br.block]!.top + c.prevY),
+      ctx,
+    ),
+    marginTop: 0,
+    marginBottom: c.marginBottom,
+    cell: c.cell,
+    row: c.row,
+  }));
+  const between = br.linesBefore === 0 && !blank;
+  const prev = between ? blocks[br.block - 1] : undefined;
+  const next = blocks[br.block];
+  const gap: GapSpec = {
+    ...(cuts ? { cuts } : {}),
+    block: br.block,
+    linesBefore: br.linesBefore,
+    blank,
+    flow: br.at?.flow ?? false,
+    height: gapHeight,
+    marginTop: prev ? 0 - prev.marginBottom : 0,
+    marginBottom:
+      br.at?.marginBottom ?? (next && next.kind !== "chapterTitle" ? 0 - next.marginTop : 0),
+  };
+  return { gap, gapHeight };
+}
+
 /** Runs `paginate` on the measured blocks and derives the spacers and the page cards. */
 export function layoutPages(input: LayoutInput): PageLayoutResult {
   const { blocks, page, margins } = input;
@@ -199,6 +265,13 @@ export function layoutPages(input: LayoutInput): PageLayoutResult {
   const endOf = (br: PageBreak): number =>
     br.linesBefore > 0 ? lineY(br) : bottomOf(blocks[br.block - 1]!);
 
+  const gapCtx: GapContext = {
+    blocks,
+    page,
+    margins,
+    textHeight: input.textHeight,
+    gap: input.gap,
+  };
   const gaps: GapSpec[] = [];
   const used: number[] = [];
   const pages: PageSpec[] = [];
@@ -216,45 +289,11 @@ export function layoutPages(input: LayoutInput): PageLayoutResult {
     // margin and the card stays the page size. Only a block taller than that (an image, a table) grows its card.
     const overflow = u > input.textHeight + OVERFLOW_PX;
     const height = overflow ? Math.max(page.h, margins.top + u + margins.bottom) : page.h;
-    const kind: PageKind = blank
-      ? "blank"
-      : input.opensChapter && k === (blankFirst ? 1 : 0)
-        ? "open"
-        : "body";
+    const kind = pageKindAt(k, blank, blankFirst, input.opensChapter);
     pages.push({ index: k, number: input.firstPage + k, top, height, kind });
     if (!br) break;
-    // The spacer that ends a page whose text used `used` px of it.
-    const spacer = (px: number): number =>
-      px > input.textHeight + OVERFLOW_PX
-        ? Math.max(page.h - px, margins.top + margins.bottom) + input.gap
-        : page.h + input.gap - px;
-    const gapHeight = spacer(u);
-    // A page that begins inside a table row: a spacer per cell, each sized by where its own text was cut.
-    const cuts = br.at?.cuts?.map((c) => ({
-      pos: c.pos,
-      inline: c.inline,
-      height: spacer(
-        blocks[br.block]!.top + c.y - (c.prevY === null ? start : blocks[br.block]!.top + c.prevY),
-      ),
-      marginTop: 0,
-      marginBottom: c.marginBottom,
-      cell: c.cell,
-      row: c.row,
-    }));
-    const between = br.linesBefore === 0 && !blank;
-    const prev = between ? blocks[br.block - 1] : undefined;
-    const next = blocks[br.block];
-    gaps.push({
-      ...(cuts ? { cuts } : {}),
-      block: br.block,
-      linesBefore: br.linesBefore,
-      blank,
-      flow: br.at?.flow ?? false,
-      height: gapHeight,
-      marginTop: prev ? 0 - prev.marginBottom : 0,
-      marginBottom:
-        br.at?.marginBottom ?? (next && next.kind !== "chapterTitle" ? 0 - next.marginTop : 0),
-    });
+    const { gap, gapHeight } = gapSpec(br, u, start, blank, gapCtx);
+    gaps.push(gap);
     top += u + gapHeight;
     start = startOf(br);
   }

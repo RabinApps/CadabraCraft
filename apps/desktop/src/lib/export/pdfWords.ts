@@ -58,23 +58,28 @@ export function wordAtPoint(runs: readonly TextRun[], x: number, y: number): Wor
   const tokens: string[] = [];
   let hit: number | null = null;
   for (const run of readingOrder(runs)) {
-    const [a = 1, b = 0, , , e = 0, f = 0] = run.transform;
     const words = [...run.str.matchAll(/\S+/g)];
-    if (hit === null && b === 0 && a !== 0 && run.width > 0 && run.str.length > 0) {
-      const height = run.height || Math.abs(run.transform[3] ?? 0) || 10;
-      // Room below the baseline for descenders; a large run (a drop cap) has its words beside and under it, so the room is capped.
-      const inLine = y >= f - Math.min(height * 0.3, MAX_DESCENT) && y <= f + height;
-      const edge = Math.min(e, e + run.width);
-      const width = Math.abs(run.width);
-      if (inLine && x >= edge && x <= edge + width) {
-        const along = isRtl(run) ? edge + width - x : x - edge;
-        const at = Math.min(run.str.length - 1, Math.floor((along / width) * run.str.length));
-        // The word the character is in, or the one after the space it is on.
-        const k = words.findIndex((w) => w.index! + w[0].length > at);
-        if (k >= 0) hit = tokens.length + k;
-      }
+    if (hit === null) {
+      const k = wordIndexInRun(run, words, x, y);
+      if (k >= 0) hit = tokens.length + k;
     }
     for (const w of words) tokens.push(w[0]);
   }
   return hit === null ? null : { tokens, index: hit };
+}
+
+/** The index among `words` of the word of `run` at (`x`, `y`), or -1 when the run is drawn sideways or the point is not on it. */
+function wordIndexInRun(run: TextRun, words: RegExpMatchArray[], x: number, y: number): number {
+  const [a = 1, b = 0, , , e = 0, f = 0] = run.transform;
+  if (!(b === 0 && a !== 0 && run.width > 0 && run.str.length > 0)) return -1;
+  const height = run.height || Math.abs(run.transform[3] ?? 0) || 10;
+  // Room below the baseline for descenders; a large run (a drop cap) has its words beside and under it, so the room is capped.
+  const inLine = y >= f - Math.min(height * 0.3, MAX_DESCENT) && y <= f + height;
+  const edge = Math.min(e, e + run.width);
+  const width = Math.abs(run.width);
+  if (!inLine || x < edge || x > edge + width) return -1;
+  const along = isRtl(run) ? edge + width - x : x - edge;
+  const at = Math.min(run.str.length - 1, Math.floor((along / width) * run.str.length));
+  // The word the character is in, or the one after the space it is on.
+  return words.findIndex((w) => w.index! + w[0].length > at);
 }

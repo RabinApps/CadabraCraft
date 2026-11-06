@@ -102,13 +102,12 @@ export function measureFlow(
  */
 export function findSplitPos(
   view: EditorView,
-  blockPos: number,
-  node: PMNode,
-  linesBefore: number,
+  at: { blockPos: number; node: PMNode; linesBefore: number },
   block: FlowBlock,
   zoom: number,
   columnTop: number,
 ): number | null {
+  const { blockPos, node, linesBefore } = at;
   const rootTop = view.dom.getBoundingClientRect().top;
   const lh = block.lineHeight * zoom;
   const target = rootTop + (columnTop + block.top) * zoom + linesBefore * lh - lh / 2;
@@ -146,9 +145,9 @@ export function splitY(
   block: FlowBlock,
   leafPos: number,
   pos: number,
-  zoom: number,
-  columnTop: number,
+  scale: { zoom: number; columnTop: number },
 ): number | null {
+  const { zoom, columnTop } = scale;
   const el = view.nodeDOM(leafPos);
   if (!(el instanceof HTMLElement)) return null;
   const cs = getComputedStyle(el);

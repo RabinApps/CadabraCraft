@@ -106,10 +106,13 @@ function pieces(
   node: PMNode,
   offset: number,
   frag: { startPage: number; splits: number[] },
-  gaps: Map<string, { gap: GapSpec; index: number }>,
-  resolved: Map<string, number>,
-  block: number,
+  lookup: {
+    gaps: Map<string, { gap: GapSpec; index: number }>;
+    resolved: Map<string, number>;
+    block: number;
+  },
 ): [number, number, number][] {
+  const { gaps, resolved, block } = lookup;
   const out: [number, number, number][] = [];
   let at = offset + 1;
   let page = frag.startPage;
@@ -222,7 +225,7 @@ export function buildDecorations(
     const frag = fragments[i]!;
     // The pieces of the block that start at a placed split, with the page each one is on (a split that could not be placed
     // leaves its piece joined to the one before it).
-    const parts = pieces(node, offset, frag, byBreak, resolved, i);
+    const parts = pieces(node, offset, frag, { gaps: byBreak, resolved, block: i });
     if (parts.length <= 1) {
       if (isVerso(firstPage + (parts[0]?.[2] ?? frag.startPage)))
         out.push(Decoration.node(offset, offset + node.nodeSize, { class: "pv-verso" }));
