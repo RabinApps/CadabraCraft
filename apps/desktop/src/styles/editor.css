@@ -1,0 +1,217 @@
+/* Manuscript typography (editor and reading mode). Book content uses the serif tokens. */
+.prose-manuscript {
+  font-family: var(--font-book);
+}
+/* The editor card sets the author's chosen family inline; the text inherits it (not the default book font). */
+.prose-manuscript .ProseMirror {
+  outline: none;
+  font-family: inherit;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  min-height: 50dvh;
+}
+@media (min-width: 768px) {
+  .prose-manuscript .ProseMirror {
+    font-size: 1.1875rem;
+  }
+}
+.prose-manuscript .ProseMirror h1 {
+  font-size: 2.25rem;
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 1.25rem;
+}
+.prose-manuscript .ProseMirror h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 1.5rem 0 0.75rem;
+}
+.prose-manuscript .ProseMirror h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.25rem 0 0.5rem;
+}
+.prose-manuscript .ProseMirror p {
+  margin: 0 0 1em;
+}
+/* Mixed-direction books: each block takes its direction from its first strong character. */
+.prose-manuscript .ProseMirror > p,
+.prose-manuscript .ProseMirror > h1,
+.prose-manuscript .ProseMirror > h2,
+.prose-manuscript .ProseMirror > h3,
+.prose-manuscript .ProseMirror > blockquote > p {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+.prose-manuscript .ProseMirror blockquote {
+  margin: 1em 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 3px solid var(--border);
+  color: var(--ink-muted);
+}
+.prose-manuscript .ProseMirror pre {
+  margin: 1em 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-align: start;
+  unicode-bidi: plaintext;
+}
+.prose-manuscript .ProseMirror pre code {
+  font: inherit;
+  background: none;
+  padding: 0;
+}
+.prose-manuscript .ProseMirror ul,
+.prose-manuscript .ProseMirror ol {
+  margin: 0 0 1em;
+  padding-inline-start: 1.5rem;
+}
+.prose-manuscript .ProseMirror ul {
+  list-style: disc;
+}
+.prose-manuscript .ProseMirror ol {
+  list-style: decimal;
+}
+.prose-manuscript .ProseMirror ul[data-type="taskList"],
+.prose-page .ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-inline-start: 0.25rem;
+}
+.ProseMirror li[data-type="taskItem"] {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.ProseMirror li[data-type="taskItem"] > label {
+  flex: none;
+  user-select: none;
+  cursor: pointer;
+}
+.ProseMirror li[data-type="taskItem"] > label input {
+  pointer-events: none;
+  margin: 0.35em 0 0;
+}
+.ProseMirror li[data-type="taskItem"] > div {
+  flex: 1;
+  min-width: 0;
+}
+.ProseMirror li[data-type="taskItem"][data-checked="true"] > div {
+  opacity: 0.65;
+  text-decoration: line-through;
+}
+.ProseMirror dl {
+  margin: 0 0 1em;
+}
+.ProseMirror dt {
+  font-weight: 600;
+}
+.ProseMirror dd {
+  margin: 0 0 0.4em;
+  padding-inline-start: 1.5rem;
+}
+.prose-page .ProseMirror dd p {
+  margin: 0;
+  text-indent: 0;
+}
+.prose-manuscript .ProseMirror a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+/* Not by colour alone (WCAG 1.4.1): every match has an outline, the current one a heavier outline and an underline;
+   the outlines are real borders-in-outline so they also show in forced-colors mode. */
+.prose-manuscript .ProseMirror .search-match {
+  background: var(--accent-soft);
+  border-radius: 2px;
+  outline: 1px solid var(--accent);
+}
+.prose-manuscript .ProseMirror .search-match-current {
+  background: var(--accent);
+  color: var(--accent-ink);
+  outline: 2px solid var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+@media (forced-colors: active) {
+  .prose-manuscript .ProseMirror .search-match {
+    outline: 1px solid Highlight;
+  }
+  .prose-manuscript .ProseMirror .search-match-current {
+    outline: 3px solid Highlight;
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}
+.prose-manuscript .ProseMirror hr.scene-break {
+  border: 0;
+  margin: 1.5rem 0;
+  text-align: center;
+}
+.prose-manuscript .ProseMirror hr.scene-break::after {
+  content: "* * *";
+  color: var(--ink-muted);
+}
+/* A page break in Write view: a thin labelled rule, where the page ends. In Page view it is the page's own edge, so it takes no room. */
+.prose-manuscript .ProseMirror hr.page-break {
+  border: 0;
+  margin: 1.5rem 0;
+  text-align: center;
+}
+.prose-manuscript .ProseMirror hr.page-break::after {
+  content: "PAGE BREAK";
+  font-size: 0.7em;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+.prose-manuscript .ProseMirror table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.95em;
+}
+.prose-manuscript .ProseMirror th,
+.prose-manuscript .ProseMirror td {
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.55rem;
+  text-align: start;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  position: relative;
+}
+.prose-manuscript .ProseMirror th {
+  font-weight: 600;
+  background: color-mix(in srgb, var(--ink-muted) 10%, transparent);
+}
+.prose-manuscript .ProseMirror td > p,
+.prose-manuscript .ProseMirror th > p {
+  margin: 0;
+}
+.prose-manuscript .ProseMirror td > p + p,
+.prose-manuscript .ProseMirror th > p + p {
+  margin-top: 0.4em;
+}
+.prose-manuscript .ProseMirror .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0.15;
+  pointer-events: none;
+}
+.prose-manuscript .ProseMirror .small-caps {
+  font-variant: small-caps;
+}
+.prose-manuscript .ProseMirror .footnote {
+  color: var(--accent);
+  border-bottom: 1px dotted var(--accent);
+}

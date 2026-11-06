@@ -1,7 +1,4 @@
 {
-  "apps/desktop/e2e/a11y/a11y-errors.spec.ts": 899,
-  "apps/desktop/e2e/a11y/a11y-wcag-extra.spec.ts": 971,
-  "apps/desktop/e2e/support/a11yScreens.ts": 904,
   "apps/desktop/src-tauri/src/audio/download.rs": 664,
   "apps/desktop/src-tauri/src/audio/m4b.rs": 468,
   "apps/desktop/src-tauri/src/audio/render.rs": 491,
@@ -15,13 +12,10 @@
   "apps/desktop/src-tauri/src/project/references.rs": 655,
   "apps/desktop/src-tauri/src/typst/engine.rs": 572,
   "apps/desktop/src-tauri/tools/perf/src/bin/bookgen.rs": 598,
-  "apps/desktop/src/index.css": 764,
   "dir:apps/desktop/src/app/shell": 21,
   "dir:apps/desktop/src/editor": 31,
   "dir:apps/desktop/src/lib": 63,
   "dir:apps/desktop/src/state": 24,
   "dir:apps/desktop/src/state/project": 23,
-  "dir:apps/desktop/src/ui": 22,
-  "packages/export-rtf/src/__tests__/rtf.test.ts": 832,
-  "packages/format/src/__tests__/toc.test.ts": 1025
+  "dir:apps/desktop/src/ui": 22
 }

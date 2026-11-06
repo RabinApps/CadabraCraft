@@ -1,0 +1,181 @@
+/* Chapter ornament and label sit in the space --page-chapter-extra reserves above the title (as the PDF's chapter-start). */
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::before,
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  font-family: var(--page-font);
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  pointer-events: none;
+  user-select: none;
+}
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::before {
+  content: var(--page-chapter-ornament);
+  top: var(--page-chapter-ornament-top);
+  height: var(--page-chapter-ornament-h);
+  font-size: var(--page-chapter-ornament-size);
+  line-height: var(--page-chapter-ornament-h);
+  text-align: center;
+}
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::after {
+  content: var(--page-chapter-label);
+  top: var(--page-chapter-label-top);
+  height: var(--page-chapter-label-h);
+  font-size: var(--page-chapter-label-size);
+  line-height: var(--page-chapter-label-h);
+  letter-spacing: 0.12em;
+  text-align: var(--page-h1-align);
+}
+/* The ornament and the label are decoration: an empty alternative keeps them out of the heading's accessible name (WCAG 1.1.1). */
+@supports (content: "a" / "b") {
+  .prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::before {
+    content: var(--page-chapter-ornament) / "";
+  }
+  .prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::after {
+    content: var(--page-chapter-label) / "";
+  }
+}
+/* Drop cap on a chapter's first paragraph; min-height is the reservation when the paragraph is shorter than the cap. */
+.prose-page
+  .ProseMirror
+  > :is(h1:first-child, .pv-gap:first-child + h1)
+  + p:not([data-text-align]) {
+  display: flow-root;
+  min-height: var(--page-dropcap-height);
+}
+.prose-page
+  .ProseMirror
+  > :is(h1:first-child, .pv-gap:first-child + h1)
+  + p:not([data-text-align])::first-letter {
+  float: var(--page-dropcap-float);
+  font-size: var(--page-dropcap-size);
+  line-height: var(--page-dropcap-lh);
+  padding-right: var(--page-dropcap-gap);
+  margin-bottom: -0.06em; /* the float must not reach the 4th line */
+}
+.prose-page .ProseMirror h2 {
+  font-size: var(--page-h2-size);
+  font-weight: var(--page-h2-weight);
+  font-style: var(--page-h2-style);
+  font-variant: var(--page-h2-variant);
+  text-align: var(--page-h2-align);
+  margin: var(--page-h2-above) 0 var(--page-h2-below);
+}
+.prose-page .ProseMirror h3 {
+  font-size: var(--page-h3-size);
+  font-weight: var(--page-h3-weight);
+  font-style: var(--page-h3-style);
+  font-variant: var(--page-h3-variant);
+  text-align: var(--page-h3-align);
+  margin: var(--page-h3-above) 0 var(--page-h3-below);
+}
+/*
+ * Text alignment the author chose (the textAlign attribute, drawn as data-text-align). start and end are the logical sides, so a
+ * right-to-left page flips them. It wins over the template's alignment (justified body text, a centred heading), and an aligned
+ * paragraph has no first-line indent, like in the PDF. The doubled attribute raises the specificity above the page rules above
+ * and the editor's own, whatever the surface (editor, Page view, Read mode).
+ */
+.ProseMirror :is(p, h1, h2, h3)[data-text-align][data-text-align="start"] {
+  text-align: start;
+}
+.ProseMirror :is(p, h1, h2, h3)[data-text-align][data-text-align="center"] {
+  text-align: center;
+}
+.ProseMirror :is(p, h1, h2, h3)[data-text-align][data-text-align="end"] {
+  text-align: end;
+}
+.ProseMirror :is(p, h1, h2, h3)[data-text-align][data-text-align] {
+  text-indent: 0;
+}
+.prose-page .ProseMirror blockquote {
+  margin: var(--page-bq-space) 0;
+  padding: 0 var(--page-bq-indent);
+  border-inline-start: var(--page-bq-rule);
+  font-size: var(--page-bq-size);
+  font-style: var(--page-bq-style);
+  color: inherit;
+}
+.prose-page .ProseMirror blockquote p,
+.prose-page .ProseMirror li p,
+.prose-page .ProseMirror td > p,
+.prose-page .ProseMirror th > p {
+  margin: 0;
+  text-indent: 0;
+}
+.prose-page .ProseMirror ul,
+.prose-page .ProseMirror ol {
+  margin: 0 0 var(--page-para-space);
+  padding-inline-start: 1.4em;
+}
+.prose-page .ProseMirror hr.scene-break {
+  display: block;
+  margin: var(--page-scene-space) 0;
+  line-height: var(--page-line-height);
+  text-align: center;
+}
+.prose-page .ProseMirror hr.scene-break::after {
+  content: var(--page-scene-glyph);
+  color: inherit;
+}
+.prose-page .ProseMirror hr.page-break {
+  display: block;
+  height: 0;
+  margin: 0;
+  border: 0;
+}
+.prose-page .ProseMirror hr.page-break::after {
+  content: none;
+}
+.prose-page .ProseMirror pre {
+  margin: 1em 0;
+  font-size: 0.9em;
+}
+.prose-page .ProseMirror table {
+  margin: 1.2em 0;
+}
+.prose-page .ProseMirror figure.book-image {
+  margin: 1.2em 0;
+}
+/* Spacers between pages; hidden while the blocks are measured as one flow. */
+.prose-page .pv-gap {
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  text-indent: 0;
+}
+.prose-page .pv-gap.pv-gap-inline {
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+}
+.prose-page .ProseMirror.pv-natural .pv-gap {
+  display: none;
+}
+.prose-page .pv-verso {
+  position: relative;
+  left: var(--page-verso-shift);
+}
+
+/* The phone's writing surface: the pages' type without a page (no fixed width, minimum height, margins or chapter sink). */
+.prose-reflow .ProseMirror {
+  width: auto;
+  min-height: 0;
+  padding: 0;
+}
+.prose-reflow .ProseMirror > h1:first-child {
+  margin-top: var(--page-chapter-extra);
+}
+
+/* A picture taller than a page's text block is scaled down to it (the PDF does the same), not allowed to stretch the card. */
+.prose-page .ProseMirror figure.book-image img {
+  max-height: calc(var(--page-h) - var(--page-mt) - var(--page-mb) - 3em);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+/* The hyphen drawn at the foot of a page is not text: it must not be selected or copied. */
+.prose-page .pv-hyphen {
+  user-select: none;
+}
