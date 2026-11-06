@@ -4,6 +4,10 @@ import { countWords } from "@cadabracraft/shared";
 import { PAGE_GAP } from "./pagination/core";
 import { usePageLook } from "./PageFrame";
 import { ReadingSection } from "./ReadingSection";
+import { ReadFindBar } from "./reading/ReadFindBar";
+import { useReadFindState, useReadFindShortcut } from "./reading/useReadFind";
+import { READING_LINE, useReadingScroll } from "./reading/useReadingScroll";
+import { useFind } from "./findStore";
 import { useIsMd } from "../app/hooks/usePageView";
 import { usePaneWidth } from "../app/hooks/usePaneWidth";
 import { useMeasuredPages } from "../app/hooks/useMeasuredPages";
@@ -20,6 +24,7 @@ import {
   readingZoom,
   visibleIndex,
 } from "../lib/readingBook";
+import { locate } from "../lib/search/readFind";
 import { errText } from "../lib/projectError";
 import { attempt } from "../state/attempt";
 import { useSettings } from "../state/editorPrefs";
@@ -28,13 +33,17 @@ import { usePageMeasure } from "../state/pageMeasure";
 import { useProject } from "../state/project/index";
 import type { BookPage } from "../state/project/types";
 import { sizes, useReading, widths } from "../state/reading";
+import { useReadFind } from "../state/readFind";
+import {
+  flushReadingPosition,
+  rememberReadingPosition,
+  takeSavedPosition,
+} from "../state/readingMemory";
 import { setReadingPosition, useReadingPosition } from "../state/readingPosition";
 import { cx } from "../ui/cx";
 
 /** Chapters within this many px of the viewport (above and below) have a live editor; the rest are placeholders of the same height. */
 const PRELOAD_PX = 900;
-/** The reading line, as a fraction of the viewport height from its top: the chapter and page there is "where the reader is". */
-const LINE = 0.3;
 
 /**
  * Read mode: the whole book in one vertical scroller, front matter, chapters and back matter in reading order. At md and up each
@@ -43,6 +52,7 @@ const LINE = 0.3;
  */
 function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   const currentId = useProject((s) => s.currentId);
+  const root = useProject((s) => s.root);
   const selectChapter = useProject((s) => s.actions.selectChapter);
   const { size, width } = useReading();
   const manuscriptFont = useSettings((s) => s.manuscriptFont);
@@ -56,68 +66,30 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   const reportAt = usePageMeasure((s) => s.reportAt);
 
   const scroller = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<() => void>(() => {});
+  useReadFindShortcut();
+  const find = useReadFindState(pages);
+  const findOpen = useFind((s) => s.open);
+  const matchNumber = useReadFind((s) => s.index);
+  const currentMatch = useMemo(() => locate(find.hits, matchNumber), [find.hits, matchNumber]);
   const paneW = usePaneWidth(scroller);
   const gutter = readingGutter(width);
   const zoom = paged ? readingZoom(fitZoom(g, paneW || g.page.w + gutter, gutter), size) : 1;
 
-  // A chapter chosen elsewhere (the sidebar, Previous and Next) is scrolled to: to its opening page, not the blank page before it.
-  // Its pages are not laid out when it was far away or has just been mounted, so the scroll is repeated each time that chapter
-  // lays out, until the reader scrolls on their own (or a couple of seconds pass). The chapters above it are kept in place by the
-  // height compensation.
-  const pending = useRef<{ id: string } | null>(null);
-  const [alignTick, setAlignTick] = useState(0);
-  // What the reader is looking at, as the section at the top edge and how far below the edge it starts. WebKit has no scroll
-  // anchoring, so when a section changes height this puts that section back at the same offset (and does nothing if it did not move).
-  const anchor = useRef<{ el: HTMLElement; offset: number; top: number } | null>(null);
-  const capture = useCallback(() => {
-    const sc = scroller.current;
-    if (!sc) return;
-    let el: HTMLElement | undefined;
-    for (const e of sc.querySelectorAll<HTMLElement>("[data-reading-id]")) {
-      if (el && e.offsetTop > sc.scrollTop) break;
-      el = e;
-    }
-    anchor.current = el
-      ? {
-          el,
-          offset: el.getBoundingClientRect().top - sc.getBoundingClientRect().top,
-          top: sc.scrollTop,
-        }
-      : null;
-  }, []);
-  const restore = useCallback(() => {
-    const sc = scroller.current;
-    const a = anchor.current;
-    if (!sc || !a) return;
-    // The reader (or an alignment) moved the scroll since: that is the new position, not something to undo.
-    if (Math.abs(sc.scrollTop - a.top) > 1) return capture();
-    const drift = a.el.getBoundingClientRect().top - sc.getBoundingClientRect().top - a.offset;
-    if (Math.abs(drift) < 1) return;
-    sc.scrollTop += drift;
-    a.top = sc.scrollTop;
-  }, [capture]);
-  const align = useCallback(
-    (id: string) => {
-      const sc = scroller.current;
-      const el = sc?.querySelector<HTMLElement>(`[data-reading-id="${CSS.escape(id)}"]`);
-      if (!sc || !el) return;
-      const card = el.querySelector<HTMLElement>(".page-card:not([data-blank])");
-      const top = card
-        ? card.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop
-        : el.offsetTop;
-      sc.scrollTop = Math.max(0, top - parseFloat(getComputedStyle(sc).paddingTop));
-      capture();
-    },
-    [capture],
+  const { pending, restore, goTo, realign } = useReadingScroll(scroller, () =>
+    measureRef.current(),
   );
   // Pages each chapter has: from its words until its editor has laid it out.
   const perPage = bookWordsPerPage(book);
   const words = useMemo(() => pages.map((p) => countWords(p.doc)), [pages]);
   const [measured, setMeasured] = useState<Record<string, number>>({});
-  const onPages = useCallback((id: string, n: number) => {
-    setMeasured((m) => (m[id] === n ? m : { ...m, [id]: n }));
-    if (pending.current?.id === id) setAlignTick((t) => t + 1);
-  }, []);
+  const onPages = useCallback(
+    (id: string, n: number) => {
+      setMeasured((m) => (m[id] === n ? m : { ...m, [id]: n }));
+      realign(id);
+    },
+    [realign],
+  );
   const firstPages = useMemo(
     () =>
       chainFirstPages(
@@ -134,7 +106,15 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
   );
 
   // Which chapters are near the viewport (and so have an editor), and the last measured height of each.
-  const initialId = useRef(currentId ?? pages[0]?.id ?? "").current;
+  // The first time a book is read in a session it resumes where it was left (see state/readingMemory.ts).
+  const resume = useRef(
+    takeSavedPosition(
+      root,
+      currentId,
+      pages.map((p) => p.id),
+    ),
+  );
+  const initialId = useRef(resume.current?.id ?? currentId ?? pages[0]?.id ?? "").current;
   const [near, setNear] = useState<Set<string>>(() => new Set([initialId]));
   const [observer, setObserver] = useState<IntersectionObserver | null>(null);
   const heights = useRef(new Map<string, number>());
@@ -172,12 +152,12 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     const atEnd = sc.scrollTop > 0 && sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 2;
     const at = visibleIndex(
       els.map((e) => e.offsetTop),
-      sc.scrollTop + sc.clientHeight * LINE,
+      sc.scrollTop + sc.clientHeight * READING_LINE,
       atEnd,
     );
     const el = els[at];
     if (!el) return;
-    const lineY = sc.getBoundingClientRect().top + sc.clientHeight * LINE;
+    const lineY = sc.getBoundingClientRect().top + sc.clientHeight * READING_LINE;
     const cards = paged
       ? Array.from(el.querySelectorAll<HTMLElement>(".page-card")).map((c) => ({
           top: c.getBoundingClientRect().top,
@@ -186,13 +166,13 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
       : [];
     visible.current = el.dataset.readingId!;
     setReadingPosition(visible.current, pageAtLine(cards, lineY));
-  }, [paged, ready]);
-  useEffect(() => {
-    const sc = scroller.current!;
-    capture();
-    sc.addEventListener("scroll", capture, { passive: true });
-    return () => sc.removeEventListener("scroll", capture);
-  }, [capture]);
+    // While a jump is under way the scroll is not the reader's yet: the place to remember is where they are going.
+    if (root && !pending.current) {
+      const box = el.getBoundingClientRect();
+      rememberReadingPosition(root, visible.current, (lineY - box.top) / Math.max(1, box.height));
+    }
+  }, [paged, ready, root, pending]);
+  measureRef.current = measure;
   useEffect(() => {
     const sc = scroller.current!;
     let raf = 0;
@@ -215,7 +195,13 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     const raf = requestAnimationFrame(measure);
     return () => cancelAnimationFrame(raf);
   }, [measure, measured, firstPages]);
-  useEffect(() => () => setReadingPosition(null, null), []);
+  useEffect(
+    () => () => {
+      setReadingPosition(null, null);
+      flushReadingPosition();
+    },
+    [],
+  );
 
   // The open chapter follows the reader (after a pause, so scrolling does not reload it at every chapter boundary) ...
   const position = useReadingPosition((s) => s.id);
@@ -227,37 +213,34 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     }, 250);
     return () => clearTimeout(timer);
   }, [position, currentId, selectChapter]);
-  // ... and a chapter chosen elsewhere (the sidebar, Previous and Next) is scrolled to: to its opening page, not the blank page
-  // before it. Its pages are not laid out yet when it was far away, so the scroll is repeated as it and the chapters above it settle,
-  // until the reader scrolls on their own (or a couple of seconds pass). Only the chapter itself settling matters: the ones above it are kept in place by the height compensation.
-  useEffect(() => {
-    const sc = scroller.current!;
-    const stop = () => {
-      pending.current = null;
-    };
-    const events = ["wheel", "touchmove", "keydown", "pointerdown"] as const;
-    events.forEach((e) => sc.addEventListener(e, stop, { passive: true }));
-    return () => events.forEach((e) => sc.removeEventListener(e, stop));
-  }, []);
+  // ... and a chapter chosen elsewhere (the sidebar, Previous and Next) is scrolled to, as is the place the reader left off at last
+  // time (the first time this book is read) and the match Find is on.
   useLayoutEffect(() => {
     if (!currentId || !ready) return;
     if (echo.current === currentId) {
       echo.current = null;
       return;
     }
-    if (visible.current === currentId) return;
-    const mine = { id: currentId };
-    pending.current = mine;
-    align(currentId);
+    if (visible.current === currentId || pending.current?.id === currentId) return;
+    goTo({ id: currentId });
     measure();
-    const timer = setTimeout(() => {
-      if (pending.current === mine) pending.current = null;
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, [currentId, ready, measure, align]);
+  }, [currentId, ready, measure, goTo, pending]);
   useLayoutEffect(() => {
-    if (alignTick && pending.current) align(pending.current.id);
-  }, [alignTick, align]);
+    if (!resume.current || !ready) return;
+    const r = resume.current;
+    resume.current = null;
+    goTo({ id: r.id, fraction: r.fraction });
+    attempt(selectChapter(r.id));
+  }, [ready, goTo, selectChapter]);
+  const findTick = useReadFind((s) => s.tick);
+  useLayoutEffect(() => {
+    if (!findTick || !ready) return;
+    const at = locate(find.hits, useReadFind.getState().index);
+    if (!at) return;
+    goTo({ id: at.id, match: true });
+    if (at.id !== currentId) attempt(selectChapter(at.id));
+    // Only a new jump scrolls: the matches or the open chapter changing must not.
+  }, [findTick, ready]);
 
   const column = Math.min(widths[width], paneW || widths[width]) - 48;
   const gap = paged ? Math.round(PAGE_GAP * zoom) : 0;
@@ -267,54 +250,60 @@ function ReadingScroll({ pages }: { pages: readonly BookPage[] }) {
     return new Map(pages.map((p) => [p.id, p.section === "chapter" ? ++n : undefined]));
   }, [pages]);
   return (
-    <div
-      ref={scroller}
-      data-testid="reading-scroll"
-      data-paged={paged}
-      className={cx(
-        "relative min-h-0 flex-1 overflow-y-auto",
-        paged ? "overflow-x-auto bg-bg pb-12 pt-6" : "bg-paper",
-      )}
-      style={{
-        // Heights are kept right by hand when a section above the viewport changes (WebKit has no scroll anchoring).
-        overflowAnchor: "none",
-        ...(paged ? { paddingInline: gutter / 2 } : {}),
-      }}
-    >
-      {pages.map((page, i) => (
-        <ReadingSection
-          key={page.id}
-          page={page}
-          near={near.has(page.id)}
-          settled={!paged || measured[page.id] !== undefined}
-          placeholder={
-            heights.current.get(page.id) ??
-            (paged
-              ? pagedHeight(
-                  measured[page.id] ?? chapterPageCount(words[i]!, perPage),
-                  g.page.h,
-                  PAGE_GAP,
-                  zoom,
-                )
-              : plainHeight(words[i]!, sizes[size]!, column))
-          }
-          observer={observer}
-          onResize={restore}
-          heights={heights}
-          paged={paged}
-          first={i === 0}
-          look={look}
-          zoom={zoom}
-          firstPage={firstPages.get(page.id) ?? 1}
-          chapterNumber={chapterNumbers.get(page.id)}
-          size={size}
-          width={width}
-          gap={gap}
-          onPages={onPages}
-          report={report}
-          reportAt={reportAt}
-        />
-      ))}
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <div
+        ref={scroller}
+        data-testid="reading-scroll"
+        data-paged={paged}
+        className={cx(
+          "relative min-h-0 flex-1 overflow-y-auto",
+          paged ? "overflow-x-auto bg-bg pb-12 pt-6" : "bg-paper",
+        )}
+        style={{
+          // Heights are kept right by hand when a section above the viewport changes (WebKit has no scroll anchoring).
+          overflowAnchor: "none",
+          ...(paged ? { paddingInline: gutter / 2 } : {}),
+        }}
+      >
+        {pages.map((page, i) => (
+          <ReadingSection
+            key={page.id}
+            page={page}
+            near={near.has(page.id)}
+            settled={!paged || measured[page.id] !== undefined}
+            placeholder={
+              heights.current.get(page.id) ??
+              (paged
+                ? pagedHeight(
+                    measured[page.id] ?? chapterPageCount(words[i]!, perPage),
+                    g.page.h,
+                    PAGE_GAP,
+                    zoom,
+                  )
+                : plainHeight(words[i]!, sizes[size]!, column))
+            }
+            observer={observer}
+            onResize={restore}
+            heights={heights}
+            paged={paged}
+            first={i === 0}
+            look={look}
+            zoom={zoom}
+            firstPage={firstPages.get(page.id) ?? 1}
+            chapterNumber={chapterNumbers.get(page.id)}
+            size={size}
+            width={width}
+            gap={gap}
+            onPages={onPages}
+            report={report}
+            reportAt={reportAt}
+            search={find.applied}
+            matchIndex={currentMatch?.id === page.id ? currentMatch.local : -1}
+            onMatch={realign}
+          />
+        ))}
+      </div>
+      {findOpen && <ReadFindBar find={find} />}
     </div>
   );
 }

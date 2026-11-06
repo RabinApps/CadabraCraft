@@ -2,7 +2,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { EditorState, type Transaction } from "@tiptap/pm/state";
 import { getSchema, type Editor } from "@tiptap/react";
 import { extensions } from "@cadabracraft/editor-schema";
-import { Search, getSearchInfo, searchCommands, searchKey, type SearchCommands } from "../plugin";
+import {
+  Search,
+  getSearchInfo,
+  goToMatch,
+  searchCommands,
+  searchKey,
+  type SearchCommands,
+} from "../plugin";
 
 // A bare stand-in for the TipTap editor: the commands only need `state`, `view.dispatch` and `view.domAtPos`.
 const schema = getSchema(extensions);
@@ -98,6 +105,20 @@ describe("search commands", () => {
     expect(parent.scrollIntoView).toHaveBeenCalledOnce();
     node = { parentElement: null };
     expect(c.findNext()).toBe(true); // a detached text node: nothing to scroll
+  });
+
+  it("makes a match current without selecting it, and refuses a match that is not there", () => {
+    const f = fakeEditor(() => {
+      throw new Error("no DOM");
+    });
+    commandsOf(f).setSearch({ query: "cat" });
+    const selection = f.state().selection;
+    expect(goToMatch(f.editor, 2)).toBe(true);
+    expect(getSearchInfo(f.editor)).toEqual({ total: 3, index: 3 });
+    expect(f.state().selection.eq(selection)).toBe(true);
+    expect(goToMatch(f.editor, 3)).toBe(false);
+    expect(goToMatch(f.editor, -1)).toBe(false);
+    expect(getSearchInfo(f.editor).index).toBe(3);
   });
 
   it("exposes the commands through searchCommands", () => {

@@ -11,11 +11,13 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import type { PageReport } from "@cadabracraft/export-pdf";
 import { extensions } from "@cadabracraft/editor-schema";
 import { Pagination } from "./pagination/plugin";
+import { Search, goToMatch, searchCommands, type SearchSettings } from "./search/plugin";
 import { PageStack, type PageLook } from "./PageFrame";
 import { dirFor } from "../i18n/locales";
 import type { BookPage } from "../state/project/types";
 import { sizes, widths, type Width } from "../state/reading";
 import { reportChapterMarks } from "../lib/pageReport";
+import type { BookSearchOptions } from "../lib/search/bookSearch";
 import { cx } from "../ui/cx";
 
 export interface SectionProps {
@@ -43,6 +45,12 @@ export interface SectionProps {
   report: PageReport | null;
   /** Changes with `report`. */
   reportAt: number;
+  /** The find bar's search, highlighted in this chapter's editor; null while Find is closed. */
+  search: BookSearchOptions | null;
+  /** Which of this chapter's matches is the current one of the find bar, or -1 when it is in another chapter. */
+  matchIndex: number;
+  /** Called once this chapter's editor has marked its current match, so the reader can scroll to it. */
+  onMatch: (id: string) => void;
 }
 
 /** One chapter of the book: a section that is a placeholder until it is near the viewport, then a read-only editor. */
@@ -104,15 +112,30 @@ function ReadingChapter({
   onPages,
   report,
   reportAt,
+  search,
+  matchIndex,
+  onMatch,
 }: SectionProps) {
   const editor = useEditor({
-    extensions: paged ? [...extensions, Pagination] : extensions,
+    extensions: paged ? [...extensions, Search, Pagination] : [...extensions, Search],
     editable: false,
     content: page.doc,
     editorProps: {
       attributes: { lang: look.language, dir: dirFor(look.language), "aria-label": page.title },
     },
   });
+  // Find in Read mode: highlight the matches of the find bar, and mark the current one when it is in this chapter.
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    const s: SearchSettings = search
+      ? { ...search, replacement: "" }
+      : { query: "", replacement: "", matchCase: false, wholeWord: false };
+    searchCommands(editor).setSearch(s);
+  }, [editor, search]);
+  useEffect(() => {
+    if (!editor || editor.isDestroyed || !search || matchIndex < 0) return;
+    if (goToMatch(editor, matchIndex)) onMatch(page.id);
+  }, [editor, search, matchIndex, onMatch, page.id]);
   const onLayout = useCallback(
     (l: { pages: unknown[] }) => onPages(page.id, l.pages.length),
     [onPages, page.id],

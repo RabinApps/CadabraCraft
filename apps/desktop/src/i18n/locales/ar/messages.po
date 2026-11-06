@@ -951,6 +951,7 @@ msgstr "امسح البحث والمرشحات لإعادة الترتيب"
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Close"
 msgstr "إغلاق"
 
@@ -1588,6 +1589,7 @@ msgid "Filter by type"
 msgstr "التصفية حسب النوع"
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Find"
 msgstr "بحث"
 
@@ -1598,6 +1600,10 @@ msgstr "بحث واستبدال"
 #: src/app/shell/menuModel.ts
 msgid "Find and Replace…"
 msgstr "بحث واستبدال…"
+
+#: src/editor/reading/ReadFindBar.tsx
+msgid "Find in the book"
+msgstr "بحث في الكتاب"
 
 #: src/app/references/PdfSearch.tsx
 msgid "Find in this PDF"
@@ -1957,6 +1963,7 @@ msgid "Interface language"
 msgstr "لغة الواجهة"
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Invalid pattern"
 msgstr "نمط غير صالح"
 
@@ -2200,6 +2207,7 @@ msgid "Match {0} of {total}, page {1} ({onPage} on this page)"
 msgstr "التطابق {0} من {total}، الصفحة {1} ({onPage} في هذه الصفحة)"
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Match case"
 msgstr "مطابقة حالة الأحرف"
 
@@ -2337,6 +2345,7 @@ msgstr "الفصل التالي: {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Next match"
 msgstr "التطابق التالي"
 
@@ -2788,6 +2797,7 @@ msgstr "الفصل السابق: {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Previous match"
 msgstr "التطابق السابق"
 
@@ -2955,6 +2965,7 @@ msgid "References you remove from the book show up here, so you can bring them b
 msgstr "تظهر هنا المراجع التي تزيلها من الكتاب، لتتمكن من استعادتها."
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Regex"
 msgstr "Regex"
 
@@ -4150,6 +4161,7 @@ msgid "Whole book"
 msgstr "الكتاب كاملًا"
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Whole word"
 msgstr "الكلمة كاملة"
 

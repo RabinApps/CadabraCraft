@@ -951,6 +951,7 @@ msgstr "Suche und Filter löschen, um umzusortieren"
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Close"
 msgstr "Schließen"
 
@@ -1588,6 +1589,7 @@ msgid "Filter by type"
 msgstr "Nach Typ filtern"
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Find"
 msgstr "Suchen"
 
@@ -1598,6 +1600,10 @@ msgstr "Suchen und Ersetzen"
 #: src/app/shell/menuModel.ts
 msgid "Find and Replace…"
 msgstr "Suchen und Ersetzen…"
+
+#: src/editor/reading/ReadFindBar.tsx
+msgid "Find in the book"
+msgstr "Im Buch suchen"
 
 #: src/app/references/PdfSearch.tsx
 msgid "Find in this PDF"
@@ -1957,6 +1963,7 @@ msgid "Interface language"
 msgstr "Sprache der Oberfläche"
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Invalid pattern"
 msgstr "Ungültiges Muster"
 
@@ -2200,6 +2207,7 @@ msgid "Match {0} of {total}, page {1} ({onPage} on this page)"
 msgstr "Treffer {0} von {total}, Seite {1} ({onPage} auf dieser Seite)"
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Match case"
 msgstr "Groß-/Kleinschreibung beachten"
 
@@ -2337,6 +2345,7 @@ msgstr "Nächstes Kapitel: {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Next match"
 msgstr "Nächster Treffer"
 
@@ -2788,6 +2797,7 @@ msgstr "Vorheriges Kapitel: {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Previous match"
 msgstr "Vorheriger Treffer"
 
@@ -2955,6 +2965,7 @@ msgid "References you remove from the book show up here, so you can bring them b
 msgstr "Referenzen, die du aus dem Buch entfernst, erscheinen hier, damit du sie zurückholen kannst."
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Regex"
 msgstr "Regex"
 
@@ -4150,6 +4161,7 @@ msgid "Whole book"
 msgstr "Ganzes Buch"
 
 #: src/editor/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Whole word"
 msgstr "Ganzes Wort"
 

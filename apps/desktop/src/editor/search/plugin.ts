@@ -241,6 +241,18 @@ function step(editor: Editor, dir: 1 | -1, reveal: boolean): boolean {
   return true;
 }
 
+/** Makes match `index` (0-based) the current one, without selecting or scrolling to it. False when there is no such match. */
+export function goToMatch(editor: Editor, index: number): boolean {
+  const { matches } = get(editor.state);
+  if (index < 0 || index >= matches.length) return false;
+  editor.view.dispatch(
+    editor.state.tr
+      .setMeta(searchKey, { current: index } satisfies Meta)
+      .setMeta("addToHistory", false),
+  );
+  return true;
+}
+
 /** The commands `Search` adds to `editor.commands` (typed here because `@tiptap/core` is not a direct dependency to augment). */
 export interface SearchCommands {
   /** Merges settings and rescans (callers debounce typing). An empty query clears the matches. */
