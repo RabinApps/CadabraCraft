@@ -20,6 +20,236 @@ type Pending = "book" | "delete" | null;
 const NAME_ID = "snapshot-name";
 const ERROR_ID = "snapshot-error";
 
+type ErrorAbout = "name" | "take" | "other";
+
+/** The snapshots of the book, with the selected one; `onError` hears about a failed read. */
+function useSnapshotList(root: string | null, onError: (message: string) => void) {
+  const { t } = useLingui();
+  const [list, setList] = useState<BookSnapshotEntry[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const refresh = useCallback(
+    async (pick?: string) => {
+      if (!root) return;
+      const next = await bridge.listBookSnapshots(root);
+      setList(next);
+      setSelected(
+        (cur) => pick ?? (next.some((e) => e.path === cur) ? cur : (next[0]?.path ?? null)),
+      );
+    },
+    [root],
+  );
+  useEffect(() => {
+    let live = true;
+    setLoading(true);
+    refresh()
+      .catch((e) => {
+        if (live) {
+          onError(
+            t`Could not read the book snapshots (${causeText(e)}). Close this dialog and open History again to retry.`,
+          );
+        }
+      })
+      .finally(() => {
+        if (live) setLoading(false);
+      });
+    return () => {
+      live = false;
+    };
+  }, [refresh]);
+  return { list, selected, setSelected, loading, refresh };
+}
+
+/** The pick list of snapshots, or a hint when there are none. */
+function SnapshotList({
+  list,
+  loading,
+  selected,
+  onSelect,
+}: {
+  list: BookSnapshotEntry[];
+  loading: boolean;
+  selected: string | null;
+  onSelect: (path: string) => void;
+}) {
+  const { t, i18n } = useLingui();
+  const detail = (e: BookSnapshotEntry) =>
+    `${plural(e.pages.length, { one: "# page", other: "# pages" })} · ${plural(e.assets, { one: "# image", other: "# images" })}`;
+  if (list.length === 0 && !loading) {
+    return (
+      <p className="m-0 text-sm text-ink-muted">{t`No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now.`}</p>
+    );
+  }
+  return (
+    <ul
+      aria-label={t`Book snapshots`}
+      className="m-0 flex max-h-56 list-none flex-col gap-1 overflow-y-auto p-0"
+    >
+      {list.map((e) => {
+        const on = e.path === selected;
+        return (
+          <li key={e.path}>
+            <button
+              type="button"
+              aria-current={on ? "true" : undefined}
+              onClick={() => onSelect(e.path)}
+              className={cx(
+                "flex w-full flex-col gap-0.5 rounded-md px-3 py-2 text-start focus-visible:outline-2 focus-visible:outline-accent",
+                on ? "bg-accent-soft" : "hover:bg-accent-soft",
+              )}
+            >
+              <span className={cx("text-sm font-semibold", on ? "text-accent" : "text-ink")}>
+                {e.name}
+                {e.automatic && (
+                  <span className="ms-2 rounded-sm bg-warn-soft px-1.5 py-0.5 text-xs font-semibold text-warn">{t`Automatic`}</span>
+                )}
+              </span>
+              <span className="text-xs text-ink-muted">
+                {formatStamp(e.at, i18n.locale)} · {detail(e)}
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** The name field and the "Take snapshot" button. */
+function SnapshotNameForm({
+  name,
+  busy,
+  error,
+  errorAbout,
+  onName,
+  onTake,
+}: {
+  name: string;
+  busy: boolean;
+  error: string;
+  errorAbout: ErrorAbout;
+  onName: (name: string) => void;
+  onTake: () => void;
+}) {
+  const { t } = useLingui();
+  return (
+    <>
+      <form
+        className="flex flex-wrap items-end gap-2.5"
+        onSubmit={(ev) => {
+          ev.preventDefault();
+          if (!busy) onTake();
+        }}
+      >
+        <div className="min-w-0 flex-1 basis-56">
+          <Field
+            id={NAME_ID}
+            label={t`Snapshot name`}
+            placeholder={t`For example, Before the rewrite`}
+            maxLength={MAX_NAME}
+            value={name}
+            errorId={error && errorAbout === "name" ? ERROR_ID : undefined}
+            onChange={(ev) => onName(ev.target.value)}
+          />
+        </div>
+        <Button
+          type="submit"
+          variant="primary"
+          icon={Camera}
+          disabled={busy}
+          aria-describedby={error && errorAbout === "take" ? ERROR_ID : undefined}
+        >{t`Take snapshot`}</Button>
+      </form>
+      {error && (
+        <p id={ERROR_ID} role="alert" className="m-0 text-sm text-danger">
+          {error}
+        </p>
+      )}
+    </>
+  );
+}
+
+/** The delete / restore buttons under the list. */
+function SnapshotActions({
+  hasChosen,
+  hasPage,
+  busy,
+  onDelete,
+  onRestorePage,
+  onRestoreBook,
+}: {
+  hasChosen: boolean;
+  hasPage: boolean;
+  busy: boolean;
+  onDelete: () => void;
+  onRestorePage: () => void;
+  onRestoreBook: () => void;
+}) {
+  const { t } = useLingui();
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <p className="m-0 max-w-prose text-xs text-ink-muted">{t`Restoring the whole book first keeps the book as it is now as an automatic snapshot. Pages the snapshot does not have go to the trash, and images are never removed.`}</p>
+      <div className="flex flex-wrap gap-2.5">
+        <Button
+          icon={Trash2}
+          disabled={!hasChosen || busy}
+          onClick={onDelete}
+        >{t`Delete snapshot`}</Button>
+        {hasPage && (
+          <Button
+            icon={Undo2}
+            disabled={busy}
+            onClick={onRestorePage}
+          >{t`Restore this page only`}</Button>
+        )}
+        <Button
+          variant="primary"
+          icon={Undo2}
+          disabled={!hasChosen || busy}
+          onClick={onRestoreBook}
+        >{t`Restore whole book`}</Button>
+      </div>
+    </div>
+  );
+}
+
+/** The two confirmations: restore the whole book, delete a snapshot. */
+function SnapshotConfirms({
+  pending,
+  chosen,
+  onClose,
+  onRestoreBook,
+  onDelete,
+}: {
+  pending: Pending;
+  chosen: BookSnapshotEntry | undefined;
+  onClose: () => void;
+  onRestoreBook: () => void;
+  onDelete: () => void;
+}) {
+  const { t } = useLingui();
+  return (
+    <>
+      <Confirm
+        open={pending === "book"}
+        onOpenChange={(o) => !o && onClose()}
+        title={t`Restore the whole book?`}
+        description={t`Every chapter and the chapter list go back to “${chosen?.name ?? ""}”. The book as it is now is kept as an automatic snapshot first.`}
+        confirmLabel={t`Restore whole book`}
+        onConfirm={onRestoreBook}
+      />
+      <Confirm
+        open={pending === "delete"}
+        onOpenChange={(o) => !o && onClose()}
+        title={t`Delete this snapshot?`}
+        description={t`“${chosen?.name ?? ""}” is removed from this computer. Your chapters are not changed.`}
+        confirmLabel={t`Delete snapshot`}
+        onConfirm={onDelete}
+      />
+    </>
+  );
+}
+
 /**
  * Snapshots of the whole book: take a named one, restore the whole book (or just the page History was opened from) or delete one.
  * Restoring the book first keeps the book as it is as an automatic snapshot, listed here too.
@@ -32,50 +262,19 @@ export function BookSnapshotsPanel({
   /** The book or page was restored: close the dialog. */
   onDone: () => void;
 }) {
-  const { t, i18n } = useLingui();
+  const { t } = useLingui();
   const root = useProject((s) => s.root);
   const actions = useProject((s) => s.actions);
-  const [list, setList] = useState<BookSnapshotEntry[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
   const [name, setName] = useState("");
-  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   /** What the message is about: the name field (refused), the Take button (failed) or another action. */
-  const [errorAbout, setErrorAbout] = useState<"name" | "take" | "other">("other");
+  const [errorAbout, setErrorAbout] = useState<ErrorAbout>("other");
   const [pending, setPending] = useState<Pending>(null);
-
-  const refresh = useCallback(
-    async (pick?: string) => {
-      if (!root) return;
-      const next = await bridge.listBookSnapshots(root);
-      setList(next);
-      setSelected(
-        (cur) => pick ?? (next.some((e) => e.path === cur) ? cur : (next[0]?.path ?? null)),
-      );
-    },
-    [root],
-  );
-
-  useEffect(() => {
-    let live = true;
-    setLoading(true);
-    refresh()
-      .catch((e) => {
-        if (live) {
-          setErrorAbout("other");
-          setError(
-            t`Could not read the book snapshots (${causeText(e)}). Close this dialog and open History again to retry.`,
-          );
-        }
-      })
-      .finally(() => {
-        if (live) setLoading(false);
-      });
-    return () => {
-      live = false;
-    };
-  }, [refresh]);
+  const { list, selected, setSelected, loading, refresh } = useSnapshotList(root, (message) => {
+    setErrorAbout("other");
+    setError(message);
+  });
 
   /** Runs one action: the buttons stay off until it settles, and a failure is shown here. */
   const run = async (
@@ -148,118 +347,34 @@ export function BookSnapshotsPanel({
       (reason) => t`Could not delete the snapshot (${reason}). It is still in the list. Try again.`,
     );
 
-  const detail = (e: BookSnapshotEntry) =>
-    `${plural(e.pages.length, { one: "# page", other: "# pages" })} · ${plural(e.assets, { one: "# image", other: "# images" })}`;
-
   return (
     <div className="flex flex-col gap-4">
-      <form
-        className="flex flex-wrap items-end gap-2.5"
-        onSubmit={(ev) => {
-          ev.preventDefault();
-          if (!busy) take();
+      <SnapshotNameForm
+        name={name}
+        busy={busy}
+        error={error}
+        errorAbout={errorAbout}
+        onName={(value) => {
+          setName(value);
+          if (errorAbout === "name") setError("");
         }}
-      >
-        <div className="min-w-0 flex-1 basis-56">
-          <Field
-            id={NAME_ID}
-            label={t`Snapshot name`}
-            placeholder={t`For example, Before the rewrite`}
-            maxLength={MAX_NAME}
-            value={name}
-            errorId={error && errorAbout === "name" ? ERROR_ID : undefined}
-            onChange={(ev) => {
-              setName(ev.target.value);
-              if (errorAbout === "name") setError("");
-            }}
-          />
-        </div>
-        <Button
-          type="submit"
-          variant="primary"
-          icon={Camera}
-          disabled={busy}
-          aria-describedby={error && errorAbout === "take" ? ERROR_ID : undefined}
-        >{t`Take snapshot`}</Button>
-      </form>
-      {error && (
-        <p id={ERROR_ID} role="alert" className="m-0 text-sm text-danger">
-          {error}
-        </p>
-      )}
-      {list.length === 0 && !loading ? (
-        <p className="m-0 text-sm text-ink-muted">{t`No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now.`}</p>
-      ) : (
-        <ul
-          aria-label={t`Book snapshots`}
-          className="m-0 flex max-h-56 list-none flex-col gap-1 overflow-y-auto p-0"
-        >
-          {list.map((e) => {
-            const on = e.path === selected;
-            return (
-              <li key={e.path}>
-                <button
-                  type="button"
-                  aria-current={on ? "true" : undefined}
-                  onClick={() => setSelected(e.path)}
-                  className={cx(
-                    "flex w-full flex-col gap-0.5 rounded-md px-3 py-2 text-start focus-visible:outline-2 focus-visible:outline-accent",
-                    on ? "bg-accent-soft" : "hover:bg-accent-soft",
-                  )}
-                >
-                  <span className={cx("text-sm font-semibold", on ? "text-accent" : "text-ink")}>
-                    {e.name}
-                    {e.automatic && (
-                      <span className="ms-2 rounded-sm bg-warn-soft px-1.5 py-0.5 text-xs font-semibold text-warn">{t`Automatic`}</span>
-                    )}
-                  </span>
-                  <span className="text-xs text-ink-muted">
-                    {formatStamp(e.at, i18n.locale)} · {detail(e)}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="m-0 max-w-prose text-xs text-ink-muted">{t`Restoring the whole book first keeps the book as it is now as an automatic snapshot. Pages the snapshot does not have go to the trash, and images are never removed.`}</p>
-        <div className="flex flex-wrap gap-2.5">
-          <Button
-            icon={Trash2}
-            disabled={!chosen || busy}
-            onClick={() => setPending("delete")}
-          >{t`Delete snapshot`}</Button>
-          {hasPage && (
-            <Button
-              icon={Undo2}
-              disabled={busy}
-              onClick={() => void restorePage()}
-            >{t`Restore this page only`}</Button>
-          )}
-          <Button
-            variant="primary"
-            icon={Undo2}
-            disabled={!chosen || busy}
-            onClick={() => setPending("book")}
-          >{t`Restore whole book`}</Button>
-        </div>
-      </div>
-      <Confirm
-        open={pending === "book"}
-        onOpenChange={(o) => !o && setPending(null)}
-        title={t`Restore the whole book?`}
-        description={t`Every chapter and the chapter list go back to “${chosen?.name ?? ""}”. The book as it is now is kept as an automatic snapshot first.`}
-        confirmLabel={t`Restore whole book`}
-        onConfirm={() => void restoreBook()}
+        onTake={take}
       />
-      <Confirm
-        open={pending === "delete"}
-        onOpenChange={(o) => !o && setPending(null)}
-        title={t`Delete this snapshot?`}
-        description={t`“${chosen?.name ?? ""}” is removed from this computer. Your chapters are not changed.`}
-        confirmLabel={t`Delete snapshot`}
-        onConfirm={() => void remove()}
+      <SnapshotList list={list} loading={loading} selected={selected} onSelect={setSelected} />
+      <SnapshotActions
+        hasChosen={!!chosen}
+        hasPage={hasPage}
+        busy={busy}
+        onDelete={() => setPending("delete")}
+        onRestorePage={() => void restorePage()}
+        onRestoreBook={() => setPending("book")}
+      />
+      <SnapshotConfirms
+        pending={pending}
+        chosen={chosen}
+        onClose={() => setPending(null)}
+        onRestoreBook={() => void restoreBook()}
+        onDelete={() => void remove()}
       />
     </div>
   );
