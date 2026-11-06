@@ -36,7 +36,8 @@ export function para(inner: string, o: ParaOpts, ctx: Ctx): string {
   return `<w:p>${ppr ? `<w:pPr>${ppr}</w:pPr>` : ""}${inner}</w:p>`;
 }
 
-export function rPr(marks: Mark[], base: RunProps, ctx: Ctx, extraStyle?: string): string {
+/** The set of mark types and the language of a `lang` mark; throws on a mark Word cannot hold. */
+function scanMarks(marks: Mark[], ctx: Ctx): { types: Set<string>; lang: string } {
   const types = new Set<string>();
   let lang = "";
   for (const m of marks) {
@@ -50,6 +51,18 @@ export function rPr(marks: Mark[], base: RunProps, ctx: Ctx, extraStyle?: string
       lang = m.attrs.lang;
     }
   }
+  return { types, lang };
+}
+
+const vertAlign = (types: Set<string>): string =>
+  types.has("superscript")
+    ? '<w:vertAlign w:val="superscript"/>'
+    : types.has("subscript")
+      ? '<w:vertAlign w:val="subscript"/>'
+      : "";
+
+export function rPr(marks: Mark[], base: RunProps, ctx: Ctx, extraStyle?: string): string {
+  const { types, lang } = scanMarks(marks, ctx);
   if (types.has("superscript") && types.has("subscript"))
     fail(ctx, "Text cannot be both superscript and subscript", "superscript");
   const style = extraStyle ?? (types.has("link") ? "Hyperlink" : undefined);
@@ -62,11 +75,7 @@ export function rPr(marks: Mark[], base: RunProps, ctx: Ctx, extraStyle?: string
     (types.has("smallCaps") ? "<w:smallCaps/>" : "") +
     (types.has("strike") ? "<w:strike/>" : "") +
     (types.has("underline") ? '<w:u w:val="single"/>' : "") +
-    (types.has("superscript")
-      ? '<w:vertAlign w:val="superscript"/>'
-      : types.has("subscript")
-        ? '<w:vertAlign w:val="subscript"/>'
-        : "") +
+    vertAlign(types) +
     (lang ? `<w:lang w:val="${lang}"/>` : "")
   );
 }

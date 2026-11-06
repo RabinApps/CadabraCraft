@@ -55,7 +55,7 @@ export function buildTypstDocument(
     ctx.tocHeadings = tocHeadingKeys(options.toc.items);
   }
   const hasFront = chapters.some((c) => (c.section ?? "chapter") === "front");
-  const head = preamble(book, t, options, resolved, margins, hasFront);
+  const head = preamble(book, t, options, { fonts: resolved, margins, hasFront });
   const cover = options.cover === undefined ? "" : coverPage(options.cover, ctx);
   const body = bodyOf(
     chapters,

@@ -89,6 +89,27 @@ export function parsePageReport(json: string): PageReport {
   return { total: raw.total, starts, ...(blocks ? { blocks } : {}) };
 }
 
+/** Starts the block a "s" mark describes and files it under its entry; undefined when the mark is malformed. */
+function openBlock(
+  out: Record<string, BlockPages[]>,
+  starts: PageStart[],
+  [a, b, c, d]: unknown[],
+): BlockPages | undefined {
+  const entry = isCount(a) ? starts[a] : undefined;
+  if (!entry || !isCount(b) || !isKind(c) || !isCount(d)) return undefined;
+  const list = (out[entry.id] ??= []);
+  const last = list[list.length - 1];
+  const open: BlockPages = {
+    block: b,
+    leaf: last?.block === b ? last.leaf + 1 : 0,
+    kind: c,
+    page: d,
+    splits: [],
+  };
+  list.push(open);
+  return open;
+}
+
 /** The `marks` tuples as blocks per entry id; undefined when there are none or they do not form complete blocks (then the report says nothing about breaks inside chapters). */
 function parseMarks(marks: unknown, starts: PageStart[]): Record<string, BlockPages[]> | undefined {
   if (!Array.isArray(marks) || marks.length === 0) return undefined;
@@ -98,18 +119,8 @@ function parseMarks(marks: unknown, starts: PageStart[]): Record<string, BlockPa
     if (!Array.isArray(m)) return undefined;
     const [kind, a, b, c, d] = m as unknown[];
     if (kind === "s") {
-      const entry = isCount(a) ? starts[a] : undefined;
-      if (!entry || !isCount(b) || !isKind(c) || !isCount(d)) return undefined;
-      const list = (out[entry.id] ??= []);
-      const last = list[list.length - 1];
-      open = {
-        block: b,
-        leaf: last?.block === b ? last.leaf + 1 : 0,
-        kind: c,
-        page: d,
-        splits: [],
-      };
-      list.push(open);
+      open = openBlock(out, starts, [a, b, c, d]);
+      if (!open) return undefined;
     } else if (kind === "w" || kind === "l") {
       if (!open || !isCount(a) || !isCount(b)) return undefined;
       // Typst puts a mark that sits where a line breaks on the line before the break, so the first mark on a new page is the one

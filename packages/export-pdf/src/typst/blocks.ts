@@ -189,14 +189,52 @@ const startMark = (ctx: Ctx, kind: BlockMarkKind): string => {
 const marked = (ctx: Ctx, kind: BlockMarkKind, code: string): string =>
   ctx.mark ? `${startMark(ctx, kind)}\n\n${code}` : code;
 
+type ElementNode = Exclude<DocNode, { type: "text" }>;
+
+function paragraph(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  if (isBlank(kids)) return "#blank-line()";
+  const { mark, body } = leafText(kids, ctx, "p");
+  return aligned(n, `${mark}${body}`);
+}
+
+function orderedList(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  const start =
+    typeof n.attrs?.start === "number" && Number.isInteger(n.attrs.start)
+      ? `start: ${n.attrs.start}, `
+      : "";
+  return `#enum(${start}\n${listItems(kids, ctx)},\n)`;
+}
+
+function codeBlock(kids: DocNode[] | undefined, ctx: Ctx): string {
+  const text = (kids ?? [])
+    .map((k) => {
+      if (k.type !== "text")
+        throw new PdfExportError(`Unsupported node type in code block: ${k.type}`);
+      return k.text;
+    })
+    .join("");
+  const raw = `#raw(block: true, ${typstString(text)})`;
+  // Each line carries a mark of its own (the `raw.line` of Typst), so a block of code that runs onto the next page is seen.
+  return marked(ctx, "k", ctx.mark ? `#[#show raw.line: bm-line\n${raw}]` : raw);
+}
+
+function image(n: ElementNode, ctx: Ctx): string {
+  const a = n.attrs ?? {};
+  const src = String(a.src ?? "");
+  if (!src) throw new PdfExportError("Image without a source");
+  if (ctx.assets && !(src in ctx.assets)) throw new MissingAssetError([src]);
+  const path = imagePath(src, ctx);
+  const alt = a.alt && !a.decorative ? typstString(String(a.alt)) : "none";
+  const img = `fit-image(${typstString(path)}, ${alt}, ${inch(ctx.maxImageIn)})`;
+  const cap = a.title ? `, caption: [${escapeMarkup(String(a.title), { lineStart: true })}]` : "";
+  return marked(ctx, "i", `#figure(${img}${cap})`);
+}
+
 function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
-    case "paragraph": {
-      if (isBlank(kids)) return "#blank-line()";
-      const { mark, body } = leafText(kids, ctx, "p");
-      return aligned(n, `${mark}${body}`);
-    }
+    case "paragraph":
+      return paragraph(n, kids, ctx);
     case "heading":
       return heading(n, ctx);
     case "blockquote":
@@ -206,29 +244,14 @@ function block(n: DocNode, ctx: Ctx): string {
       return blocks(kids, ctx);
     case "bulletList":
       return `#list(\n${listItems(kids, ctx)},\n)`;
-    case "orderedList": {
-      const start =
-        typeof n.attrs?.start === "number" && Number.isInteger(n.attrs.start)
-          ? `start: ${n.attrs.start}, `
-          : "";
-      return `#enum(${start}\n${listItems(kids, ctx)},\n)`;
-    }
+    case "orderedList":
+      return orderedList(n, kids, ctx);
     case "taskList":
       return taskList(n, ctx);
     case "definitionList":
       return definitionList(n, ctx);
-    case "codeBlock": {
-      const text = (kids ?? [])
-        .map((k) => {
-          if (k.type !== "text")
-            throw new PdfExportError(`Unsupported node type in code block: ${k.type}`);
-          return k.text;
-        })
-        .join("");
-      const raw = `#raw(block: true, ${typstString(text)})`;
-      // Each line carries a mark of its own (the `raw.line` of Typst), so a block of code that runs onto the next page is seen.
-      return marked(ctx, "k", ctx.mark ? `#[#show raw.line: bm-line\n${raw}]` : raw);
-    }
+    case "codeBlock":
+      return codeBlock(kids, ctx);
     case "table":
       return tableBlock(n, ctx);
     case "sceneBreak":
@@ -236,19 +259,8 @@ function block(n: DocNode, ctx: Ctx): string {
     case "pageBreak":
       // A weak break does nothing at the top of a page, which is what "the next block starts on a new page" means.
       return "#pagebreak(weak: true)";
-    case "image": {
-      const a = n.attrs ?? {};
-      const src = String(a.src ?? "");
-      if (!src) throw new PdfExportError("Image without a source");
-      if (ctx.assets && !(src in ctx.assets)) throw new MissingAssetError([src]);
-      const path = imagePath(src, ctx);
-      const alt = a.alt && !a.decorative ? typstString(String(a.alt)) : "none";
-      const img = `fit-image(${typstString(path)}, ${alt}, ${inch(ctx.maxImageIn)})`;
-      const cap = a.title
-        ? `, caption: [${escapeMarkup(String(a.title), { lineStart: true })}]`
-        : "";
-      return marked(ctx, "i", `#figure(${img}${cap})`);
-    }
+    case "image":
+      return image(n, ctx);
     default:
       return unsupported(n.type);
   }

@@ -97,6 +97,23 @@ export function taskListXml(n: DocNode, ctx: Ctx, blockXml: BlockRenderer): stri
   return out;
 }
 
+/** One description of a definition list, indented one step. */
+function descriptionXml(k: DocNode, ctx: Ctx, base: number, blockXml: BlockRenderer): string[] {
+  const out: string[] = [];
+  const inner: Ctx = { ...ctx, quote: ctx.quote + 1 };
+  const [head, ...rest] = kidsOf(k);
+  if (head?.type !== "paragraph") fail(ctx, "A definition must start with a paragraph", k.type);
+  const opts = { style: "Definition", left: base + INDENT, firstLine: 0 };
+  out.push(para(inline(kidsOf(head!), ctx), { ...opts, jc: jcOf(head!, ctx) }, ctx));
+  for (const c of rest) {
+    if (c.type === "paragraph") {
+      const runs = inline(kidsOf(c), ctx);
+      if (runs !== "") out.push(para(runs, { ...opts, jc: jcOf(c, ctx) }, ctx));
+    } else out.push(...blockXml(c, inner));
+  }
+  return out;
+}
+
 /** Definition lists: "Definition Term" paragraphs (Word's own style names) followed by indented "Definition" paragraphs. */
 export function definitionListXml(n: DocNode, ctx: Ctx, blockXml: BlockRenderer): string[] {
   const out: string[] = [];
@@ -111,17 +128,7 @@ export function definitionListXml(n: DocNode, ctx: Ctx, blockXml: BlockRenderer)
         ),
       );
     } else if (k.type === "definitionDescription") {
-      const inner: Ctx = { ...ctx, quote: ctx.quote + 1 };
-      const [head, ...rest] = kidsOf(k);
-      if (head?.type !== "paragraph") fail(ctx, "A definition must start with a paragraph", k.type);
-      const opts = { style: "Definition", left: base + INDENT, firstLine: 0 };
-      out.push(para(inline(kidsOf(head!), ctx), { ...opts, jc: jcOf(head!, ctx) }, ctx));
-      for (const c of rest) {
-        if (c.type === "paragraph") {
-          const runs = inline(kidsOf(c), ctx);
-          if (runs !== "") out.push(para(runs, { ...opts, jc: jcOf(c, ctx) }, ctx));
-        } else out.push(...blockXml(c, inner));
-      }
+      out.push(...descriptionXml(k, ctx, base, blockXml));
     } else fail(ctx, `The node "${k.type}" cannot be written in a definition list`, k.type);
   }
   return out;
