@@ -1,5 +1,6 @@
 //! The document body: paragraphs, lists, quotes, code, definitions, tables (`docx/body.ts`).
-use super::blocks::{cell_paragraphs, definition_nodes, list_item_of, table_of, task_item_of, DefinitionEntry};
+use super::blocks::{cell_paragraphs, definition_nodes, table_of, DefinitionEntry};
+use super::lists::{build_lists, ListEntry};
 use super::ctx::{DCtx, PState};
 use super::node::{Attrs, Item, Node};
 use super::parts::{classify, Cls};
@@ -8,78 +9,6 @@ use super::text::{flatten_items, is_js_space, is_scene_break_text, js_max, js_mi
 use super::warnings::Severity;
 use super::xml::{attr, child, child_val, children_named, kids, on, raw_text, tag_of, XNode, MAX_XML_DEPTH};
 
-struct ListEntry {
-    ordered: bool,
-    level: f64,
-    content: Vec<Node>,
-    /// A task item (a paragraph that began with a checkbox control): whether it is ticked.
-    checked: Option<bool>,
-}
-
-fn list_type(e: &ListEntry) -> &'static str {
-    match (e.checked, e.ordered) {
-        (Some(_), _) => "taskList",
-        (None, true) => "orderedList",
-        (None, false) => "bulletList",
-    }
-}
-
-/// Nested list nodes from entries with a level each. Levels never jump by more than one; a different kind of list at the
-/// same level starts a new list. (Comparisons use `f64` so a nonsense level from the file behaves exactly as in JavaScript.)
-fn build_lists(entries: Vec<ListEntry>) -> Vec<Node> {
-    struct Frame {
-        level: f64,
-        ty: &'static str,
-        items: Vec<Node>,
-        /// Nested lists: (index of the item that holds it, index of its frame), in creation order.
-        nested: Vec<(usize, usize)>,
-    }
-    fn assemble(frames: &mut [Frame], idx: usize) -> Node {
-        let nested = std::mem::take(&mut frames[idx].nested);
-        let mut items = std::mem::take(&mut frames[idx].items);
-        for (at, child) in nested {
-            let list = assemble(frames, child);
-            if let Some(item) = items.get_mut(at) {
-                item.content.get_or_insert_with(Vec::new).push(list);
-            }
-        }
-        Node::with(frames[idx].ty, items)
-    }
-    let mut frames: Vec<Frame> = Vec::new();
-    let mut roots: Vec<usize> = Vec::new();
-    // The open frames, outermost first.
-    let mut stack: Vec<usize> = Vec::new();
-    for e in entries {
-        let level = js_min(e.level, stack.last().map_or(0.0, |i| frames[*i].level + 1.0));
-        while stack.last().is_some_and(|i| frames[*i].level > level) {
-            stack.pop();
-        }
-        if stack.last().is_some_and(|i| frames[*i].level == level && frames[*i].ty != list_type(&e)) {
-            stack.pop();
-        }
-        if stack.last().is_none_or(|i| frames[*i].level < level) {
-            let idx = frames.len();
-            frames.push(Frame { level, ty: list_type(&e), items: Vec::new(), nested: Vec::new() });
-            // A nested list goes inside the last item of the list around it.
-            match stack.last().copied() {
-                Some(p) if frames[p].items.last().is_some_and(|it| it.is("listItem") || it.is("taskItem")) => {
-                    let at = frames[p].items.len() - 1;
-                    frames[p].nested.push((at, idx));
-                }
-                _ => roots.push(idx),
-            }
-            stack.push(idx);
-        }
-        let item = match e.checked {
-            Some(c) => task_item_of(e.content, c),
-            None => list_item_of(e.content),
-        };
-        if let Some(top) = stack.last() {
-            frames[*top].items.push(item);
-        }
-    }
-    roots.into_iter().map(|r| assemble(&mut frames, r)).collect()
-}
 
 /// A paragraph's items as blocks: runs of inline content become paragraphs (empty ones dropped), lifted blocks stay blocks.
 fn split_items(items: &[Item]) -> (Vec<Node>, bool) {

@@ -131,13 +131,13 @@ msgid "{0} About {1} MB."
 msgstr ""
 
 #. placeholder {0}: ctx.titleIn(entry, manifest, language)
-#: src/state/project/project.ts
+#: src/state/project/book/external.ts
 msgid "{0} changed outside the app; saving will keep both versions"
 msgstr ""
 
 #. placeholder {0}: titleIn(entry, manifest, lang)
 #. placeholder {1}: w.conflict_copy
-#: src/state/project/pages.ts
+#: src/state/project/pages/edit.ts
 msgid "{0} changed outside the app; the other version was kept as {1}"
 msgstr ""
 
@@ -288,7 +288,7 @@ msgid "{0} was removed, but its file could not be moved to the trash: {1}. You c
 msgstr ""
 
 #. placeholder {0}: ctx.titleIn(entry, manifest, language)
-#: src/state/project/project.ts
+#: src/state/project/book/external.ts
 msgid "{0} was updated from outside the app"
 msgstr ""
 
@@ -317,7 +317,7 @@ msgstr ""
 #. placeholder {0}: nativeName(e.language)
 #. placeholder {1}: e.translated
 #. placeholder {2}: e.total
-#: src/app/export/AudioExport.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 msgid "{0}: {1} of {2} chapters"
 msgstr ""
 
@@ -370,12 +370,12 @@ msgstr ""
 msgid "{chapterTitle} · {0} words"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr ""
 
 #. placeholder {0}: w.conflict_copy
-#: src/state/project/context.ts
+#: src/state/project/context/writes.ts
 msgid "{file} changed outside the app; the other version was kept as {0}"
 msgstr ""
 
@@ -423,7 +423,7 @@ msgstr ""
 msgid "{n, plural, one {# match} other {# matches}}"
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr ""
 
@@ -443,7 +443,7 @@ msgstr ""
 msgid "{page} / {pages}"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{pdfPages, plural, one {# page in the PDF} other {# pages in the PDF}}"
 msgstr ""
 
@@ -459,7 +459,7 @@ msgstr ""
 msgid "{size} · breaks as in the PDF"
 msgstr ""
 
-#: src/state/project/history.ts
+#: src/state/project/travel/entries.ts
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr ""
 
@@ -537,7 +537,7 @@ msgstr ""
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/pasteFlow.ts
 msgid "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
 msgstr ""
 
@@ -561,7 +561,7 @@ msgstr ""
 msgid "+H1-H3"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "0.125 in"
 msgstr ""
 
@@ -569,7 +569,7 @@ msgstr ""
 msgid "A BCP 47 tag such as fr, fr-CA or zh-Hans. Screen readers and exports use it to pronounce and hyphenate the passage."
 msgstr ""
 
-#: src/state/project/project.ts
+#: src/state/project/book/external.ts
 msgid "A change made outside the app could not be read: {why}. The version you have open is kept; saving keeps a copy of the changed file. You can also restore an earlier version from History."
 msgstr ""
 
@@ -597,7 +597,7 @@ msgstr ""
 msgid "A page holds at most {MAX_COMMENT_THREADS} comments."
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/pdf.ts
 msgid "A PDF export is already running"
 msgstr ""
 
@@ -653,11 +653,11 @@ msgstr ""
 msgid "Add {count} scenes"
 msgstr ""
 
-#: src/state/project/pages.ts
+#: src/state/project/pages/add.ts
 msgid "Add {name}"
 msgstr ""
 
-#: src/state/project/pages.ts
+#: src/state/project/pages/add.ts
 msgid "Add {title}"
 msgstr ""
 
@@ -681,7 +681,7 @@ msgstr ""
 msgid "Add a tag"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Add bleed (0.125 in)"
 msgstr ""
 
@@ -748,7 +748,7 @@ msgstr ""
 msgid "Add story structure"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Add to book"
 msgstr ""
 
@@ -764,7 +764,7 @@ msgstr ""
 msgid "Added {n} scenes from {name} to {title}"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Added as the first page, with a blank page behind it, unless you turn it off in the export dialog. The page count above does not include them."
 msgstr ""
 
@@ -773,7 +773,7 @@ msgstr ""
 msgid "Adding {0}"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Adding…"
 msgstr ""
 
@@ -785,7 +785,7 @@ msgstr ""
 msgid "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file."
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr ""
 
@@ -814,7 +814,7 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 #: src/editor/find/FindBar.tsx
 msgid "All chapters"
 msgstr ""
@@ -848,11 +848,12 @@ msgid "An entry of your own, such as “Acknowledgments” or a part title. It t
 msgstr ""
 
 #: src/state/project/output/audio.ts
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/book.ts
+#: src/state/project/output/formats/manuscript.ts
 msgid "An export is already running"
 msgstr ""
 
-#: src/state/project/project.ts
+#: src/state/project/book/open.ts
 msgid "An import is already running"
 msgstr ""
 
@@ -884,7 +885,7 @@ msgstr ""
 msgid "Approximate: Typst is not available"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Ask each time"
 msgstr ""
 
@@ -898,7 +899,7 @@ msgstr ""
 msgid "Audio"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Audiobook"
 msgstr ""
 
@@ -915,8 +916,8 @@ msgstr ""
 msgid "Audiobook…"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/home/Home.tsx
 #: src/app/library/Library.tsx
 #: src/app/shell/Details.tsx
@@ -928,7 +929,7 @@ msgid "Automatic"
 msgstr ""
 
 #: src/app/board/SceneBoard.tsx
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
 #: src/app/settings/Settings.tsx
@@ -967,11 +968,11 @@ msgstr ""
 msgid "Backups"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/PasteDialog.tsx
 msgid "Becomes"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Before a save replaces different text, at most once every 10 minutes per chapter."
 msgstr ""
 
@@ -1008,11 +1009,11 @@ msgstr ""
 msgid "Blank page"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Bleed"
 msgstr ""
 
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Block quote"
 msgstr ""
 
@@ -1021,14 +1022,14 @@ msgstr ""
 msgid "Block Quote"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 #: src/app/export/Templates.tsx
 msgid "Body font"
 msgstr ""
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Bold"
 msgstr ""
 
@@ -1088,11 +1089,11 @@ msgstr ""
 msgid "Browse fonts…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Building EPUB…"
 msgstr ""
 
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Bulleted list"
 msgstr ""
 
@@ -1102,11 +1103,11 @@ msgid "Bulleted List"
 msgstr ""
 
 #. placeholder {0}: w.conflict_copy
-#: src/state/project/context.ts
+#: src/state/project/context/writes.ts
 msgid "cadabra.json changed outside the app; your previous copy was kept as {0}"
 msgstr ""
 
-#: src/state/project/project.ts
+#: src/state/project/book/external.ts
 msgid "cadabra.json was changed outside the app and could not be read; saving will keep a copy of that version. Restore the book's list from History if chapters are missing."
 msgstr ""
 
@@ -1135,9 +1136,9 @@ msgstr ""
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/export/AudioFooter.tsx
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/home/Home.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/app/toc/AddEntryDialog.tsx
@@ -1214,12 +1215,12 @@ msgid "Change contents parts"
 msgstr ""
 
 #. placeholder {0}: sourceTitleById(m, id)
-#: src/state/project/pages.ts
+#: src/state/project/pages/structure.ts
 msgid "Change first letter of {0}"
 msgstr ""
 
 #. placeholder {0}: sourceTitleById(m, id)
-#: src/state/project/pages.ts
+#: src/state/project/pages/structure.ts
 msgid "Change icon of {0}"
 msgstr ""
 
@@ -1228,7 +1229,7 @@ msgid "Change icon…"
 msgstr ""
 
 #. placeholder {0}: sourceTitleById(m, id)
-#: src/state/project/pages.ts
+#: src/state/project/pages/structure.ts
 msgid "Change page start of {0}"
 msgstr ""
 
@@ -1241,11 +1242,11 @@ msgid "Change template"
 msgstr ""
 
 #. placeholder {0}: sourceTitleById(m, id)
-#: src/state/project/pages.ts
+#: src/state/project/pages/structure.ts
 msgid "Change vertical position of {0}"
 msgstr ""
 
-#: src/state/project/project.ts
+#: src/state/project/book/external.ts
 msgid "Changes made outside the app may not be noticed. Saving still works."
 msgstr ""
 
@@ -1293,11 +1294,11 @@ msgstr ""
 msgid "Chapter {n}, {0}, stopped: {text}"
 msgstr ""
 
-#: src/state/project/project.ts
+#: src/state/project/book/external.ts
 msgid "Chapter list updated from outside the app"
 msgstr ""
 
-#: src/state/project/project.ts
+#: src/state/project/book/open.ts
 msgid "Chapter One"
 msgstr ""
 
@@ -1311,6 +1312,7 @@ msgstr ""
 
 #: src/app/dialogs/ImportChapterList.tsx
 #: src/app/export/AudioExport.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/shell/Details.tsx
 #: src/app/shell/Drawers.tsx
@@ -1327,7 +1329,7 @@ msgstr ""
 msgid "Chapters start as {sourceName} copies, marked Not translated yet."
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 msgid "Chapters to read"
 msgstr ""
 
@@ -1339,7 +1341,7 @@ msgstr ""
 msgid "Character"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Check for updates on launch"
 msgstr ""
 
@@ -1375,21 +1377,21 @@ msgstr ""
 msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control."
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/settings/FontsSection.tsx
 msgid "Choose file…"
 msgstr ""
 
 #. placeholder {0}: nativeName(blocked)
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Choose how to handle {0} to export it."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Choose image…"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/home/Home.tsx
 msgid "Choose…"
 msgstr ""
@@ -1562,7 +1564,7 @@ msgstr ""
 msgid "Continue writing"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/PasteDialog.tsx
 msgid "Convert"
 msgstr ""
 
@@ -1570,7 +1572,7 @@ msgstr ""
 msgid "Convert HTML in Selection to Styled Text"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Convert to styled text"
 msgstr ""
 
@@ -1624,11 +1626,11 @@ msgstr ""
 msgid "Could not choose that folder: {why}. Try again."
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/pasteFlow.ts
 msgid "Could not convert the HTML in the selection"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/pasteFlow.ts
 msgid "Could not convert the HTML, so it was pasted as text"
 msgstr ""
 
@@ -1649,7 +1651,7 @@ msgstr ""
 msgid "Could not install the update: {error}. Nothing was changed. Check your connection and choose Try again."
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Could not load {name}. The language stays as it was. Choose it again, or pick another language."
 msgstr ""
 
@@ -1683,7 +1685,7 @@ msgid "Could not read the book snapshots ({0}). Close this dialog and open Histo
 msgstr ""
 
 #. placeholder {0}: causeText(e)
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Could not read the file that way ({0}). Pick the other choice, or go back and choose a different file."
 msgstr ""
 
@@ -1750,7 +1752,7 @@ msgstr ""
 msgid "Could not save the reference: {0}. Try again."
 msgstr ""
 
-#: src/state/project/pages.ts
+#: src/state/project/pages/edit.ts
 msgid "Could not save: {why}. Your text is still in the editor and CadabraCraft will try again. Free some space or check the folder if it keeps failing."
 msgstr ""
 
@@ -1764,7 +1766,7 @@ msgid "Could not show this PDF: {error}"
 msgstr ""
 
 #. placeholder {0}: causeText(e)
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Could not split the file at that heading level ({0}). Pick another heading level, or go back and choose a different file."
 msgstr ""
 
@@ -1785,14 +1787,14 @@ msgstr ""
 msgid "Could not use the newer text ({0}). Your saved text was not changed. Try again, or choose Keep saved text."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 #: src/app/export/ApproxSpread.tsx
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/shell/Details.tsx
 msgid "Cover"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Cover preview"
 msgstr ""
 
@@ -1808,16 +1810,16 @@ msgstr ""
 msgid "Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Creates an EPUB 3 e-book in the exports folder."
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Crop marks"
 msgstr ""
 
@@ -1851,7 +1853,7 @@ msgstr ""
 msgid "Cut"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Dark"
 msgstr ""
@@ -1892,7 +1894,7 @@ msgstr ""
 msgid "Delete {0}"
 msgstr ""
 
-#. placeholder {0}: packName(p)
+#. placeholder {0}: packName(pack)
 #: src/app/settings/AudioSection.tsx
 msgid "Delete {0} from this computer?"
 msgstr ""
@@ -1929,7 +1931,7 @@ msgstr ""
 msgid "Describe the image, or tick \"This image is decorative\"."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Description"
 msgstr ""
 
@@ -2044,7 +2046,7 @@ msgstr ""
 msgid "Drag, or press the up and down arrow keys"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
 msgstr ""
 
@@ -2065,7 +2067,7 @@ msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or 
 msgstr ""
 
 #. placeholder {0}: p.max
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Each subject can have up to {0} characters."
 msgstr ""
 
@@ -2100,7 +2102,7 @@ msgstr ""
 msgid "Edited {when}"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 msgid "Edition"
 msgstr ""
 
@@ -2121,7 +2123,7 @@ msgstr ""
 msgid "Editor"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Embeds everything needed to open the file in the future."
 msgstr ""
 
@@ -2129,7 +2131,7 @@ msgstr ""
 msgid "Enjoying CadabraCraft?"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Enter a real date."
 msgstr ""
 
@@ -2137,7 +2139,7 @@ msgstr ""
 msgid "Enter Full Screen"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Enter the series name first."
 msgstr ""
 
@@ -2151,7 +2153,7 @@ msgstr ""
 msgid "Epigraph"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "EPUB 3"
 msgstr ""
 
@@ -2201,7 +2203,7 @@ msgstr ""
 msgid "Expand {heading}"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/shell/header/AppHeader.tsx
 #: src/app/shell/native/menuModel.ts
 msgid "Export"
@@ -2228,27 +2230,27 @@ msgstr ""
 msgid "Exported {0}"
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/book.ts
 msgid "Exported {dir}/book.epub"
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/book.ts
 msgid "Exported {dir}/book.md"
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/pdf.ts
 msgid "Exported {dir}/book.pdf"
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/manuscript.ts
 msgid "Exported {dir}/manuscript.docx"
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/manuscript.ts
 msgid "Exported {dir}/manuscript.rtf"
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/book.ts
 msgid "Exported {file}"
 msgstr ""
 
@@ -2256,7 +2258,7 @@ msgstr ""
 msgid "Exported the audiobook to {dir}"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Exporting…"
 msgstr ""
 
@@ -2272,7 +2274,7 @@ msgstr ""
 msgid "Feather"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/references/ReferenceRow.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
@@ -2323,7 +2325,7 @@ msgstr ""
 msgid "Find…"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Finding the page in your chapter…"
 msgstr ""
 
@@ -2331,7 +2333,7 @@ msgstr ""
 msgid "First letter"
 msgstr ""
 
-#: src/app/export/TypstSpread.tsx
+#: src/app/export/parts/SpreadControls.tsx
 #: src/app/references/ImagePreview.tsx
 msgid "Fit to window"
 msgstr ""
@@ -2368,7 +2370,7 @@ msgstr ""
 msgid "Folder not found. Remove it from the list or move it back."
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Follow the system or pick one."
 msgstr ""
 
@@ -2393,7 +2395,7 @@ msgid "Fonts are downloaded from Google Fonts only when you click Download. Noth
 msgstr ""
 
 #: src/app/shell/native/menuModel.ts
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Footnote"
 msgstr ""
 
@@ -2406,7 +2408,7 @@ msgstr ""
 msgid "For example, Before the rewrite"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "For example: © 2026 A. Writer. All rights reserved."
 msgstr ""
 
@@ -2419,13 +2421,13 @@ msgstr ""
 msgid "Foreword"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
 msgid "Format"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 msgid "Formats"
 msgstr ""
 
@@ -2464,11 +2466,11 @@ msgstr ""
 msgid "Ghost"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Give the book a title."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Give the book an author."
 msgstr ""
 
@@ -2476,31 +2478,31 @@ msgstr ""
 msgid "Group by series"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Heading 1"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Heading 2"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Heading 3"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Heading font"
 msgstr ""
 
@@ -2593,12 +2595,12 @@ msgstr ""
 msgid "Icon of “{title}” removed"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Identifier"
 msgstr ""
 
 #: src/app/references/ReferenceRow.tsx
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Image"
 msgstr ""
 
@@ -2643,7 +2645,7 @@ msgstr ""
 msgid "Images"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Import"
 msgstr ""
 
@@ -2685,16 +2687,16 @@ msgstr ""
 msgid "Imported"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Importing…"
 msgstr ""
 
 #. placeholder {0}: e.message
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/book.ts
 msgid "In “{where}”: {0}"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "In the .cadabra/backups folder inside your book folder."
 msgstr ""
 
@@ -2719,7 +2721,7 @@ msgstr ""
 msgid "Include parts"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Include the cover"
 msgstr ""
 
@@ -2764,7 +2766,7 @@ msgstr ""
 msgid "Installing…"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Interface language"
 msgstr ""
 
@@ -2772,7 +2774,7 @@ msgstr ""
 msgid "Invalid pattern"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 #: src/app/shell/Details.tsx
 msgid "ISBN"
 msgstr ""
@@ -2791,7 +2793,7 @@ msgstr ""
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Italic"
 msgstr ""
 
@@ -2811,8 +2813,8 @@ msgstr ""
 msgid "Keep"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
-#: src/editor/Editor.tsx
+#: src/app/settings/SettingsSections.tsx
+#: src/editor/paste/PasteDialog.tsx
 msgid "Keep as text"
 msgstr ""
 
@@ -2824,7 +2826,7 @@ msgstr ""
 msgid "Keep saved text"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Keep the line you are writing centered."
 msgstr ""
 
@@ -2867,13 +2869,13 @@ msgid "Label"
 msgstr ""
 
 #: src/app/dialogs/AddLanguageDialog.tsx
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 #: src/app/shell/Details.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Language"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Language of menus and dialogs."
 msgstr ""
 
@@ -2917,7 +2919,7 @@ msgstr ""
 msgid "Leave Focus Mode"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 msgid "Leaves them out of this audiobook; the list above says which."
 msgstr ""
 
@@ -2945,7 +2947,7 @@ msgstr ""
 msgid "Licenses…"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Light"
 msgstr ""
@@ -2958,7 +2960,7 @@ msgstr ""
 msgid "Line spacing"
 msgstr ""
 
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Link"
 msgstr ""
 
@@ -3016,7 +3018,7 @@ msgstr ""
 msgid "Looking for books…"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Looks for a new version when the app starts. Nothing else is sent."
 msgstr ""
 
@@ -3044,11 +3046,11 @@ msgstr ""
 msgid "Magic wand"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Makes each page larger by 0.125 in on the top, bottom and outside edges, as Amazon KDP asks for when artwork or images run to the edge. Margins stay measured from the trim."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded."
 msgstr ""
 
@@ -3064,7 +3066,7 @@ msgstr ""
 msgid "Manual order"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Manuscript"
 msgstr ""
 
@@ -3076,7 +3078,7 @@ msgstr ""
 msgid "Margins (in/out)"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Markdown"
 msgstr ""
 
@@ -3123,7 +3125,8 @@ msgstr ""
 msgid "Missing chapter file {0}"
 msgstr ""
 
-#: src/state/project/context.ts
+#: src/state/project/context/reads.ts
+#: src/state/project/context/words.ts
 msgid "Missing chapter file {file}"
 msgstr ""
 
@@ -3132,7 +3135,7 @@ msgstr ""
 msgid "Missing image file {0}. Add the image again or remove it from the page, then export again."
 msgstr ""
 
-#: src/state/project/context.ts
+#: src/state/project/context/reads.ts
 msgid "Missing image file {src}"
 msgstr ""
 
@@ -3167,13 +3170,13 @@ msgstr ""
 
 #. placeholder {0}: row.title || t`scene`
 #. placeholder {0}: sourceTitleById(m, id)
-#: src/state/project/pages.ts
+#: src/state/project/pages/structure.ts
 #: src/state/project/scenes.ts
 msgid "Move {0}"
 msgstr ""
 
 #. placeholder {0}: sourceTitle(removed, manifest.editions)
-#: src/state/project/pages.ts
+#: src/state/project/pages/structure.ts
 msgid "Move {0} to trash"
 msgstr ""
 
@@ -3273,7 +3276,7 @@ msgstr ""
 msgid "New book"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "New book folder"
 msgstr ""
 
@@ -3298,7 +3301,7 @@ msgstr ""
 msgid "Newest first"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Next"
 msgstr ""
 
@@ -3330,7 +3333,7 @@ msgstr ""
 msgid "Next page: {0}"
 msgstr ""
 
-#: src/app/export/TypstSpread.tsx
+#: src/app/export/parts/SpreadControls.tsx
 msgid "Next pages"
 msgstr ""
 
@@ -3371,7 +3374,7 @@ msgstr ""
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "No file chosen"
 msgstr ""
 
@@ -3379,7 +3382,7 @@ msgstr ""
 msgid "No file is chosen. Choose the file to import."
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/home/Home.tsx
 msgid "No folder chosen"
 msgstr ""
@@ -3392,7 +3395,7 @@ msgstr ""
 msgid "No heading or chapter matches “{q}”."
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/pasteFlow.ts
 msgid "No HTML found in the selection"
 msgstr ""
 
@@ -3453,7 +3456,7 @@ msgstr ""
 msgid "No status"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr ""
 
@@ -3463,7 +3466,7 @@ msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can down
 msgstr ""
 
 #: src/app/dialogs/IconDialog.tsx
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
 msgid "None"
 msgstr ""
@@ -3511,18 +3514,18 @@ msgstr ""
 #. placeholder {0}: nativeName(edition.language)
 #. placeholder {1}: edition.untranslated.join(", ")
 #. placeholder {1}: missing .map( (m) => m.titles[e.language] ?? m.titles[manifest.editions[0]!.language] ?? m.id, ) .join(", ")
-#: src/app/export/AudioExport.tsx
 #: src/app/export/EditionsChecklist.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 msgid "Not translated yet in {0}: {1}"
 msgstr ""
 
-#: src/state/project/output/audio.ts
+#: src/state/project/output/narration/pick.ts
 msgid "Not translated yet in {language}: {names}. Translate them or skip them."
 msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
 #: src/app/references/ReferenceDetails.tsx
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Note"
 msgstr ""
 
@@ -3567,7 +3570,7 @@ msgstr ""
 msgid "Nothing was lost or changed."
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/pasteFlow.ts
 msgid "Nothing was pasted here. Select text inside one paragraph or cell and try again"
 msgstr ""
 
@@ -3575,11 +3578,11 @@ msgstr ""
 msgid "Notice"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Number in series"
 msgstr ""
 
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Numbered list"
 msgstr ""
 
@@ -3592,7 +3595,7 @@ msgstr ""
 msgid "Off"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr ""
 
@@ -3608,7 +3611,7 @@ msgstr ""
 msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "One per line: BISAC codes such as FIC014000, or keywords."
 msgstr ""
 
@@ -3644,7 +3647,7 @@ msgstr ""
 msgid "Open folder"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Open Fonts"
 msgstr ""
 
@@ -3711,8 +3714,8 @@ msgstr ""
 msgid "Outdent list item"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
-#: src/app/export/ExportDialog.tsx
+#: src/app/dialogs/ImportSteps.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/scenes/labels.ts
 #: src/app/shell/header/AppHeader.tsx
@@ -3732,7 +3735,7 @@ msgstr ""
 msgid "Page {0} of {total}"
 msgstr ""
 
-#: src/app/export/TypstSpread.tsx
+#: src/app/export/parts/SpreadControls.tsx
 msgid "Page {first} of {total}"
 msgstr ""
 
@@ -3773,7 +3776,7 @@ msgstr ""
 msgid "Page numbers"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Page setup"
 msgstr ""
 
@@ -3797,13 +3800,13 @@ msgstr ""
 msgid "Page zoom"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/toc/TocPreview.tsx
 #: src/editor/reading/ReadingBook.tsx
 msgid "Pages"
 msgstr ""
 
-#: src/app/export/TypstSpread.tsx
+#: src/app/export/parts/SpreadControls.tsx
 msgid "Pages {first} and {last} of {total}"
 msgstr ""
 
@@ -3830,11 +3833,11 @@ msgstr ""
 msgid "Paste"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/PasteDialog.tsx
 msgid "Paste as styled text?"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/pasteFlow.ts
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr ""
 
@@ -3851,19 +3854,19 @@ msgstr ""
 msgid "PDF page {page}"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "PDF/A (archival)"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "PDF/UA (accessible)"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Pick an edition to export."
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Pick or create an empty folder. The imported book is stored there."
 msgstr ""
 
@@ -3892,7 +3895,7 @@ msgstr ""
 msgid "Place in the book"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
 msgstr ""
 
@@ -3965,7 +3968,7 @@ msgstr ""
 msgid "Previous page: {0}"
 msgstr ""
 
-#: src/app/export/TypstSpread.tsx
+#: src/app/export/parts/SpreadControls.tsx
 msgid "Previous pages"
 msgstr ""
 
@@ -3973,7 +3976,7 @@ msgstr ""
 msgid "Print checks"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Print PDF"
 msgstr ""
 
@@ -3981,7 +3984,7 @@ msgstr ""
 msgid "Print PDF…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/shell/App.tsx
 msgid "Print preview"
@@ -4001,11 +4004,11 @@ msgid "Programs and fonts"
 msgstr ""
 
 #. placeholder {0}: parsed.fromVersion
-#: src/state/project/project.ts
+#: src/state/project/book/opener.ts
 msgid "Project upgraded from format {0}; backup saved to {backup}"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Publication date"
 msgstr ""
 
@@ -4013,11 +4016,11 @@ msgstr ""
 msgid "Publish EPUB and print PDF"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Publisher"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Publishing details"
 msgstr ""
 
@@ -4029,7 +4032,7 @@ msgstr ""
 msgid "Quit CadabraCraft"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Raw HTML tags in pasted text: ask each time, turn them into formatting, or keep them as text."
 msgstr ""
 
@@ -4042,7 +4045,7 @@ msgstr ""
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Read this file as"
 msgstr ""
 
@@ -4054,12 +4057,12 @@ msgstr ""
 msgid "Reading time"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Reading your chapters…"
 msgstr ""
 
 #: src/app/board/BoardColumn.tsx
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/timeline/Timeline.tsx
 msgid "Reading…"
 msgstr ""
@@ -4077,13 +4080,12 @@ msgstr ""
 msgid "Recover newer text for “{0}”?"
 msgstr ""
 
-#. placeholder {0}: entry.label
-#: src/state/project/history.ts
-msgid "Redid: {0}"
+#: src/state/project/travel/entries.ts
+msgid "Redid: {label}"
 msgstr ""
 
 #: src/app/shell/native/menuModel.ts
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Redo"
 msgstr ""
 
@@ -4134,7 +4136,7 @@ msgstr ""
 msgid "Reload"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/PasteDialog.tsx
 msgid "Remember my choice"
 msgstr ""
 
@@ -4171,7 +4173,7 @@ msgstr ""
 msgid "Remove contents change"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Remove cover"
 msgstr ""
 
@@ -4211,7 +4213,7 @@ msgid "Rename"
 msgstr ""
 
 #. placeholder {0}: sourceTitleById(m, id)
-#: src/state/project/pages.ts
+#: src/state/project/pages/structure.ts
 msgid "Rename {0}"
 msgstr ""
 
@@ -4411,7 +4413,7 @@ msgstr ""
 msgid "Revised"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Rich Text (.rtf)"
 msgstr ""
 
@@ -4423,7 +4425,7 @@ msgstr ""
 msgid "Right-hand page"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Rights"
 msgstr ""
 
@@ -4435,7 +4437,7 @@ msgstr ""
 msgid "Rust libraries"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Same as body"
 msgstr ""
 
@@ -4458,31 +4460,31 @@ msgid "Save details"
 msgstr ""
 
 #: src/app/shell/header/AppHeader.tsx
-#: src/state/project/pages.ts
+#: src/state/project/pages/edit.ts
 msgid "Saved"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Saving {dir}/{outlineFile}…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Saving {dir}/book.epub…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Saving {dir}/book.md…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Saving {dir}/book.pdf…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Saving {dir}/manuscript.docx…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Saving {dir}/manuscript.rtf…"
 msgstr ""
 
@@ -4595,7 +4597,7 @@ msgstr ""
 msgid "Select All"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/pasteFlow.ts
 msgid "Select text inside one cell or paragraph to convert it"
 msgstr ""
 
@@ -4607,15 +4609,15 @@ msgstr ""
 msgid "Select the text first."
 msgstr ""
 
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Select the text you want to link first."
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 msgid "Selected chapters"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Series"
 msgstr ""
 
@@ -4631,7 +4633,7 @@ msgstr ""
 msgid "Session goal"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Session word goal"
 msgstr ""
 
@@ -4707,7 +4709,7 @@ msgstr ""
 msgid "Show in contents"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Show margins"
 msgstr ""
 
@@ -4716,7 +4718,7 @@ msgstr ""
 msgid "Show scenes of {0}"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Showing an approximate layout, because the real one could not be typeset:"
 msgstr ""
 
@@ -4732,8 +4734,8 @@ msgstr ""
 msgid "Skip to main content"
 msgstr ""
 
-#: src/app/export/AudioExport.tsx
 #: src/app/export/EditionsChecklist.tsx
+#: src/app/export/parts/AudioFieldParts.tsx
 msgid "Skip untranslated chapters"
 msgstr ""
 
@@ -4741,7 +4743,7 @@ msgstr ""
 msgid "Skull"
 msgstr ""
 
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Small caps"
 msgstr ""
 
@@ -4765,7 +4767,7 @@ msgstr ""
 msgid "Snapshots of the whole book. Take one before a big change; restore it to bring every chapter back."
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Snapshots to keep per chapter"
 msgstr ""
 
@@ -4818,7 +4820,7 @@ msgstr ""
 msgid "Sponsor CadabraCraft…"
 msgstr ""
 
-#: src/app/export/TypstSpread.tsx
+#: src/app/export/parts/SpreadControls.tsx
 msgid "Spread controls"
 msgstr ""
 
@@ -4834,7 +4836,7 @@ msgstr ""
 msgid "Start a new book"
 msgstr ""
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/ImportSteps.tsx
 msgid "Start a new chapter at"
 msgstr ""
 
@@ -4891,7 +4893,7 @@ msgstr ""
 msgid "Stopping…"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Stored in the EPUB for stores and libraries. Everything here is optional."
 msgstr ""
 
@@ -4938,7 +4940,7 @@ msgstr ""
 msgid "Structure"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Subjects"
 msgstr ""
 
@@ -4976,7 +4978,7 @@ msgstr ""
 msgid "Synopsis of {title}"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 #: src/editor/reading/ReadingSettings.tsx
 msgid "System"
 msgstr ""
@@ -4993,7 +4995,7 @@ msgstr ""
 msgid "Tags"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Tags headings, lists, tables and images so screen readers can read the file, and marks page numbers and running headers as decoration. Can be combined with PDF/A. Images need a description (alt text) in the editor."
 msgstr ""
 
@@ -5023,7 +5025,7 @@ msgstr ""
 msgid "Template Default"
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "Template default ({templateBody})"
 msgstr ""
 
@@ -5052,7 +5054,7 @@ msgstr ""
 msgid "Text size"
 msgstr ""
 
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "That address can't be used as a link."
 msgstr ""
 
@@ -5072,7 +5074,7 @@ msgstr ""
 msgid "That key cannot be used. Press another one."
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "That page is not in the book."
 msgstr ""
 
@@ -5088,7 +5090,7 @@ msgstr ""
 msgid "The big first letter setting could not be saved: {why}. Try again."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "The blurb shown in stores. Plain text."
 msgstr ""
 
@@ -5096,7 +5098,7 @@ msgstr ""
 msgid "The book has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/book.ts
 msgid "The book has no chapters to export yet. Add a chapter first."
 msgstr ""
 
@@ -5104,7 +5106,8 @@ msgstr ""
 msgid "The book has no chapters to read aloud yet. Add a chapter first."
 msgstr ""
 
-#: src/state/project/output/exports.ts
+#: src/state/project/output/formats/book.ts
+#: src/state/project/output/formats/manuscript.ts
 msgid "The book has no pages to export yet. Add a chapter first."
 msgstr ""
 
@@ -5161,15 +5164,15 @@ msgstr ""
 msgid "The contents page is not in the typeset book."
 msgstr ""
 
-#: src/state/project/context.ts
+#: src/state/project/context/reads.ts
 msgid "The cover image {cover} could not be read. Choose it again in Book details, or remove the cover."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "The cover image could not be read."
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "The cover is the first page, with a blank page behind it, unless you turn it off in the export dialog."
 msgstr ""
 
@@ -5223,15 +5226,15 @@ msgstr ""
 msgid "The font “{only}” is not on this computer. Download it in Settings, Fonts, or pick another font."
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "The font of the running text. It is saved with the book; the font file is not."
 msgstr ""
 
-#: src/app/export/PdfPanel.tsx
+#: src/app/export/parts/PdfPanelParts.tsx
 msgid "The font of titles and headings. Settings, Fonts has more."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "The identifier cannot be empty."
 msgstr ""
 
@@ -5256,11 +5259,11 @@ msgstr ""
 msgid "The page changed while searching, so nothing was replaced. Try again."
 msgstr ""
 
-#: src/state/project/history.ts
+#: src/state/project/travel/entries.ts
 msgid "the page is no longer in the trash"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "The page size of the print PDF. Changing it reflows the book and changes the page count; your text is not touched."
 msgstr ""
 
@@ -5268,11 +5271,11 @@ msgstr ""
 msgid "The part page moves to the project trash. Its chapters stay in the book, under the part before it. Nothing is permanently deleted."
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "The PDF gets the same bleed and crop marks. Set them here or in the export dialog."
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/pasteFlow.ts
 msgid "The selection is too large to convert"
 msgstr ""
 
@@ -5296,7 +5299,7 @@ msgstr ""
 msgid "The text this was attached to is gone; the comment is kept."
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/PasteDialog.tsx
 msgid "The text you pasted contains HTML tags. CadabraCraft can turn them into real formatting, or keep the tags as plain text."
 msgstr ""
 
@@ -5333,7 +5336,7 @@ msgstr ""
 msgid "The voices' licences are listed in Settings, Audio."
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Theme"
 msgstr ""
@@ -5359,7 +5362,7 @@ msgstr ""
 msgid "There is nothing to read aloud in this chapter."
 msgstr ""
 
-#: src/state/project/output/audio.ts
+#: src/state/project/output/narration/steps.ts
 msgid "There is nothing to read aloud, so there is no audiobook to build."
 msgstr ""
 
@@ -5380,7 +5383,7 @@ msgid "This .docx file has no document body. It may be damaged or not a Word doc
 msgstr ""
 
 #: src/state/project/editions.ts
-#: src/state/project/output/audio.ts
+#: src/state/project/output/narration/pick.ts
 msgid "This book has no {language} edition."
 msgstr ""
 
@@ -5495,8 +5498,8 @@ msgstr ""
 msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier New is the typewriter look some still prefer. The reader's computer needs any other font to see it."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
+#: src/app/dialogs/ImportSteps.tsx
 #: src/app/home/Home.tsx
 #: src/app/library/Library.tsx
 #: src/app/references/ReferenceDetails.tsx
@@ -5547,9 +5550,9 @@ msgstr ""
 msgid "Trash"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/PdfPanel.tsx
-#: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
 #: src/app/home/Home.tsx
 msgid "Trim size"
@@ -5575,15 +5578,15 @@ msgstr ""
 msgid "Type the name that should appear in the contents."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Typesetting the book with Typst…"
 msgstr ""
 
-#: src/app/export/PrintPreview.tsx
+#: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Typesetting the preview with Typst…"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Typewriter scrolling"
 msgstr ""
 
@@ -5609,17 +5612,16 @@ msgstr ""
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Underline"
 msgstr ""
 
-#. placeholder {0}: entry.label
-#: src/state/project/history.ts
-msgid "Undid: {0}"
+#: src/state/project/travel/entries.ts
+msgid "Undid: {label}"
 msgstr ""
 
 #: src/app/shell/native/menuModel.ts
-#: src/editor/toolbar/Toolbar.tsx
+#: src/editor/toolbar/useToolbarItems.ts
 msgid "Undo"
 msgstr ""
 
@@ -5642,7 +5644,7 @@ msgstr ""
 msgid "Undo: {0}"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Unique id stored in the EPUB. Change it only if a store or library asked you to."
 msgstr ""
 
@@ -5703,11 +5705,11 @@ msgstr ""
 msgid "Updating the preview"
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Use a number such as 1 or 2.5."
 msgstr ""
 
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Use a single line."
 msgstr ""
 
@@ -5716,12 +5718,12 @@ msgid "Use a whole number from 1 to {max}."
 msgstr ""
 
 #. placeholder {0}: p.max
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Use at most {0} characters."
 msgstr ""
 
 #. placeholder {0}: p.max
-#: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/BookDetailsFields.tsx
 msgid "Use at most {0} subjects."
 msgstr ""
 
@@ -5814,19 +5816,19 @@ msgstr ""
 msgid "What will be added"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/PasteDialog.tsx
 msgid "What you pasted"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "When pasting HTML"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "When snapshots are taken"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Where they are stored"
 msgstr ""
 
@@ -5851,7 +5853,7 @@ msgstr ""
 msgid "With bleed, KDP needs top, bottom and outside margins of at least {KDP_MIN_OUTER_BLEED_IN} in."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Word (.docx)"
 msgstr ""
 
@@ -5863,7 +5865,7 @@ msgstr ""
 msgid "Words"
 msgstr ""
 
-#: src/app/settings/Settings.tsx
+#: src/app/settings/SettingsSections.tsx
 msgid "Words to write each time you open a book. 0 turns it off."
 msgstr ""
 
@@ -5896,39 +5898,39 @@ msgstr ""
 msgid "Write, format and publish your book — everything stays on your computer."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writes the structure of the book (chapters and scenes with their notes) as an outline file in the exports folder. No chapter text is written. Nothing else is needed on this computer."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writing Markdown…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writing the outline…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writing the Rich Text file…"
 msgstr ""
 
-#: src/app/export/ExportDialog.tsx
+#: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writing the Word file…"
 msgstr ""
 
-#: src/editor/Editor.tsx
+#: src/editor/paste/PasteDialog.tsx
 msgid "You can change this later in Settings, Editor."
 msgstr ""
 
@@ -5969,13 +5971,13 @@ msgstr ""
 msgid "Zoom"
 msgstr ""
 
-#: src/app/export/TypstSpread.tsx
+#: src/app/export/parts/SpreadControls.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom in"
 msgstr ""
 
-#: src/app/export/TypstSpread.tsx
+#: src/app/export/parts/SpreadControls.tsx
 #: src/app/references/ImagePreview.tsx
 #: src/app/references/PdfPreview.tsx
 msgid "Zoom out"
