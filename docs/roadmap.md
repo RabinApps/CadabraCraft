@@ -39,12 +39,12 @@ UI is designed in `cadabracraft.pen`, see [design.md](design.md).
 
 ### Scene board
 
-- Built 2026-11-06 (see "Scene board: edits go through project actions" in architecture.md). Not built: a freeform canvas with free card placement and zoom; filtering or searching cards by POV, status or label; colour by label; multi-select and dragging several cards at once; adding a scene from the board (use the chapter list); a pointer drag that scrolls the board sideways near its edge (drop in another chapter on a narrow window uses the arrow keys or the card menu); a board per edition (it shows the open edition).
+- Built 2026-11-06 (see "Scene board: edits go through project actions" in architecture.md). Not built: a freeform canvas with free card placement and zoom; filtering and colour by label are built (2026-11-07, see "Scene filters" in architecture.md); multi-select and dragging several cards at once; adding a scene from the board (use the chapter list); a pointer drag that scrolls the board sideways near its edge (drop in another chapter on a narrow window uses the arrow keys or the card menu); a board per edition (it shows the open edition).
 - Fantasy and other invented calendars are not modelled: a scene's story date is a real `YYYY-MM-DD` (with an optional time), checked as a real day. A custom calendar (named months, an epoch) would need its own format and sort rule, and is better decided when the timeline needs it (the timeline, S02, sorts the real calendar only).
 
 ### Timeline
 
-- Built 2026-11-05 (see "Timeline: a view over the scenes" in architecture.md). Not built: a scale with real spacing between dates and zooming; grouping by day with a heading; a lane per POV or per chapter; filtering by POV, status or label; dragging a scene along the axis to change its date; remembering the order between visits; a timeline per edition (it shows the open edition).
+- Built 2026-11-05 (see "Timeline: a view over the scenes" in architecture.md); filtering by POV, status and label and colour by label or status built 2026-11-07 (see "Scene filters"). Not built: a scale with real spacing between dates and zooming; grouping by day with a heading; a lane per POV or per chapter; dragging a scene along the axis to change its date; remembering the order between visits; a timeline per edition (it shows the open edition).
 
 ### Parts
 

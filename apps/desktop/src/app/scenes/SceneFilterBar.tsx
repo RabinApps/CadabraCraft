@@ -46,12 +46,49 @@ function SelectedChip({
       onClick={onRemove}
       className="inline-flex items-center gap-1 rounded-full border border-accent bg-accent-soft px-2.5 py-0.5 text-micro font-semibold text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent max-md:min-h-11"
     >
-      <span>
-        {facet}: {text}
-      </span>
+      <span>{`${facet}: ${text}`}</span>
       <X size={12} aria-hidden />
       <span className="sr-only">{t`, remove this filter`}</span>
     </button>
+  );
+}
+
+type Chip = { f: FacetName; key: string; text: string };
+
+/** The selected values as removable chips, and on the board the caption that moving is off. Folded away with the controls on a phone. */
+function ChipRow({
+  chips,
+  names,
+  caption,
+  hidden,
+  onRemove,
+}: {
+  chips: Chip[];
+  names: Record<FacetName, string>;
+  caption: boolean;
+  hidden: boolean;
+  onRemove: (facet: FacetName, key: string) => void;
+}) {
+  const { t } = useLingui();
+  if (chips.length === 0 && !caption) return null;
+  return (
+    <div className={cx("flex flex-wrap items-center gap-2", hidden && "max-md:hidden")}>
+      {chips.map((c) => (
+        <SelectedChip
+          key={`${c.f}:${c.key}`}
+          facet={names[c.f]}
+          value={c.key}
+          text={c.text}
+          onRemove={() => onRemove(c.f, c.key)}
+        />
+      ))}
+      {caption && (
+        <p className="flex items-center gap-1.5 text-xs text-ink-muted">
+          <Lock size={12} aria-hidden />
+          {t`Moving scenes is off while a filter is on`}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -164,25 +201,13 @@ export function SceneFilterBar({ rows, shown, moveCaption = false }: Props) {
           </Button>
         )}
       </div>
-      {(chips.length > 0 || (moveCaption && filtering)) && (
-        <div className={cx("flex flex-wrap items-center gap-2", !open && "max-md:hidden")}>
-          {chips.map((c) => (
-            <SelectedChip
-              key={`${c.f}:${c.key}`}
-              facet={names[c.f]}
-              value={c.key}
-              text={c.text}
-              onRemove={() => toggle(c.f, c.key)}
-            />
-          ))}
-          {moveCaption && filtering && (
-            <p className="flex items-center gap-1.5 text-xs text-ink-muted">
-              <Lock size={12} aria-hidden />
-              {t`Moving scenes is off while a filter is on`}
-            </p>
-          )}
-        </div>
-      )}
+      <ChipRow
+        chips={chips}
+        names={names}
+        caption={moveCaption && filtering}
+        hidden={!open}
+        onRemove={toggle}
+      />
     </section>
   );
 }

@@ -1444,8 +1444,7 @@ msgstr "مسح"
 msgid "Clear all filters"
 msgstr "مسح كل المرشحات"
 
-#: src/app/board/SceneBoard.tsx
-#: src/app/timeline/Timeline.tsx
+#: src/app/scenes/NoMatch.tsx
 msgid "Clear filters"
 msgstr "مسح المرشحات"
 
@@ -3608,8 +3607,7 @@ msgstr "لا نتائج"
 msgid "No scene names it yet."
 msgstr "لا يذكره أي مشهد بعد."
 
-#: src/app/board/SceneBoard.tsx
-#: src/app/timeline/Timeline.tsx
+#: src/app/scenes/NoMatch.tsx
 msgid "No scenes match these filters."
 msgstr "لا توجد مشاهد تطابق هذه المرشحات."
 

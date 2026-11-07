@@ -1444,8 +1444,7 @@ msgstr "Clear"
 msgid "Clear all filters"
 msgstr "Clear all filters"
 
-#: src/app/board/SceneBoard.tsx
-#: src/app/timeline/Timeline.tsx
+#: src/app/scenes/NoMatch.tsx
 msgid "Clear filters"
 msgstr "Clear filters"
 
@@ -3608,8 +3607,7 @@ msgstr "No results"
 msgid "No scene names it yet."
 msgstr "No scene names it yet."
 
-#: src/app/board/SceneBoard.tsx
-#: src/app/timeline/Timeline.tsx
+#: src/app/scenes/NoMatch.tsx
 msgid "No scenes match these filters."
 msgstr "No scenes match these filters."
 

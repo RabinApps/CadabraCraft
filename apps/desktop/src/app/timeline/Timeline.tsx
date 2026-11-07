@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowLeft, CalendarRange, SearchX } from "lucide-react";
-import { Button, IconButton } from "../../ui/Button";
+import { ArrowLeft, CalendarRange } from "lucide-react";
+import { IconButton } from "../../ui/Button";
 import { Notice } from "../../ui/feedback/Notice";
 import { Segmented } from "../../ui/forms/Segmented";
 import { noticeIsAlert } from "../../state/project/util";
@@ -12,6 +12,7 @@ import { buildTimeline, formatStoryDay, type TimelineOrder } from "../../lib/sce
 import { useSceneFilter } from "../../state/view/sceneFilter";
 import { boardRows, filterTimeline } from "../../lib/scenes/sceneFilter";
 import { useBoardData } from "../board/useBoardData";
+import { NoMatch } from "../scenes/NoMatch";
 import { SceneFilterBar } from "../scenes/SceneFilterBar";
 import { TimelineRow } from "./TimelineRow";
 
@@ -151,11 +152,7 @@ export function Timeline({ onBack }: { onBack: () => void }) {
           ) : everyItem.length === 0 ? (
             <p className="text-sm text-ink-muted">{t`This book has no scenes yet.`}</p>
           ) : items.length === 0 ? (
-            <div className="flex flex-col items-start gap-3 text-sm text-ink-muted">
-              <SearchX size={24} aria-hidden />
-              <p>{t`No scenes match these filters.`}</p>
-              <Button onClick={clear}>{t`Clear filters`}</Button>
-            </div>
+            <NoMatch onClear={clear} />
           ) : (
             <ol aria-label={t`Scenes on the timeline`} className="m-0 flex list-none flex-col p-0">
               {items.map((item, i) => (

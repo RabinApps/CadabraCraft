@@ -1444,8 +1444,7 @@ msgstr "נקה"
 msgid "Clear all filters"
 msgstr "נקה את כל המסננים"
 
-#: src/app/board/SceneBoard.tsx
-#: src/app/timeline/Timeline.tsx
+#: src/app/scenes/NoMatch.tsx
 msgid "Clear filters"
 msgstr "נקה מסננים"
 
@@ -3608,8 +3607,7 @@ msgstr "אין תוצאות"
 msgid "No scene names it yet."
 msgstr "עדיין אין סצנה שמזכירה אותו."
 
-#: src/app/board/SceneBoard.tsx
-#: src/app/timeline/Timeline.tsx
+#: src/app/scenes/NoMatch.tsx
 msgid "No scenes match these filters."
 msgstr "אין סצנות שמתאימות למסננים האלה."
 

@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowLeft, Layers, SearchX } from "lucide-react";
+import { ArrowLeft, Layers } from "lucide-react";
 import { IconButton } from "../../ui/Button";
 import { Button } from "../../ui/Button";
 import { Notice } from "../../ui/feedback/Notice";
@@ -9,14 +9,14 @@ import { noticeIsAlert } from "../../state/project/util";
 import { useProject } from "../../state/project/index";
 import { useCodex } from "../../state/codex";
 import { useSceneView } from "../../state/view/sceneView";
-import { useSceneFilter } from "../../state/view/sceneFilter";
-import { boardRows, filterBoard, isFiltering } from "../../lib/scenes/sceneFilter";
 import { attempt } from "../../state/attempt";
 import { SceneFilterBar } from "../scenes/SceneFilterBar";
 import { BoardColumn } from "./BoardColumn";
 import { useSceneMoves } from "./useSceneMoves";
 import { StructureDialog } from "./StructureDialog";
-import { useBoardData, type BoardChapter } from "./useBoardData";
+import { useBoardFilter } from "./useBoardFilter";
+import { NoMatch } from "../scenes/NoMatch";
+import { useFlushed, useSaid, useBoardData, type BoardChapter } from "./useBoardData";
 
 function BoardHeader({
   chapters,
@@ -77,18 +77,7 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
   const actions = useProject((s) => s.actions);
   const root = useProject((s) => s.root);
   const entries = useCodex((s) => s.entries);
-  // The chapter files are read once typing in the open chapter has been written.
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    let live = true;
-    void actions
-      .flush()
-      .catch(() => {})
-      .then(() => live && setReady(true));
-    return () => {
-      live = false;
-    };
-  }, [actions]);
+  const ready = useFlushed();
   useEffect(() => {
     if (root) void useCodex.getState().load(root);
   }, [root]);
@@ -97,24 +86,19 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
     [entries],
   );
   const { chapters: all, duplicates } = useBoardData(ready);
-  const { filter, colourBy, clear } = useSceneFilter();
-  const filtering = isFiltering(filter);
   // The filter is a view: the moves below index the whole chapters, and are switched off while a filter is on.
-  const board = useMemo(
-    () => filterBoard({ chapters: all, duplicates }, filter),
-    [all, duplicates, filter],
-  );
+  const {
+    shown: filtered,
+    rows,
+    shownCount: shownRows,
+    filtering,
+    colourBy,
+    clear,
+  } = useBoardFilter(all, duplicates);
   const chapters = all;
-  const rows = useMemo(() => boardRows({ chapters: all, duplicates }), [all, duplicates]);
-  const shownRows = boardRows(board).length;
-  const [said, setSaid] = useState("");
+  const [said, setSaid] = useSaid();
   const [structureOpen, setStructureOpen] = useState(false);
   const gripHelp = useId();
-  useEffect(() => {
-    if (!said) return;
-    const timer = setTimeout(() => setSaid(""), 4000);
-    return () => clearTimeout(timer);
-  }, [said]);
   // A phone shows one chapter at a time.
   const [picked, setPicked] = useState<string | null>(null);
   const shown = chapters.find((c) => c.id === picked) ?? chapters[0];
@@ -164,10 +148,8 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
         {chapters.length === 0 ? (
           <p className="p-6 text-sm text-ink-muted">{t`This book has no chapters yet.`}</p>
         ) : filtering && shownRows === 0 && all.every((c) => c.loaded) ? (
-          <div className="flex flex-col items-start gap-3 p-6 text-sm text-ink-muted">
-            <SearchX size={24} aria-hidden />
-            <p>{t`No scenes match these filters.`}</p>
-            <Button onClick={clear}>{t`Clear filters`}</Button>
+          <div className="p-6">
+            <NoMatch onClear={clear} />
           </div>
         ) : (
           <div
@@ -175,7 +157,7 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
             aria-label={t`Chapters and their scenes`}
             className="flex min-h-0 flex-1 gap-4 overflow-x-auto overflow-y-hidden p-4"
           >
-            {board.chapters.map((c, at) => (
+            {filtered.map((c, at) => (
               <BoardColumn
                 key={c.id}
                 chapter={c}

@@ -41,7 +41,12 @@ describe("parseSaved", () => {
       "/a": {
         at: 3,
         colourBy: "label",
-        filter: { pov: ["mara", 4, "mara"], status: ["draft", "bogus", ""], label: "x", query: "q" },
+        filter: {
+          pov: ["mara", 4, "mara"],
+          status: ["draft", "bogus", ""],
+          label: "x",
+          query: "q",
+        },
       },
       "/b": { at: 1, colourBy: "rainbow", filter: "nope" },
     });
