@@ -10,10 +10,13 @@ export function useImageDialog(editor: Editor, chain: () => ReturnType<Editor["c
   const { t } = useLingui();
   const [image, setImage] = useState<ImageDraft | null>(null);
   const importImage = useProject((p) => p.actions.importImage);
-  const addImage = async () => {
-    const src = await importImage();
+  /** Imports the image at `path` (or asks for one) and opens the dialog on it; alt text is still required before it goes in. Resolves to whether the dialog opened. */
+  const startImageFromPath = async (path?: string) => {
+    const src = await importImage(path);
     if (src) setImage({ src, alt: "", caption: "", decorative: false, editing: false });
+    return !!src;
   };
+  const addImage = async () => void (await startImageFromPath());
   const editImage = () => {
     const a = editor.getAttributes("image");
     setImage({
@@ -40,5 +43,5 @@ export function useImageDialog(editor: Editor, chain: () => ReturnType<Editor["c
         .run();
     setImage(null);
   };
-  return { image, setImage, addImage, editImage, applyImage };
+  return { image, setImage, addImage, startImageFromPath, editImage, applyImage };
 }

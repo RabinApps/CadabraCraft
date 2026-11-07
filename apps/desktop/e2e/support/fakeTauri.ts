@@ -168,7 +168,8 @@ export async function fakeTauri(page: Page) {
               throw { kind: "io", message: "No space left on device" };
             disk[a.path] = a.contents;
             persist();
-            return { hash: h(a.contents), conflict_copy: null };
+            // A test can make a write report that the file changed outside the app: `__conflictCopy = (path) => copy name | null`.
+            return { hash: h(a.contents), conflict_copy: window.__conflictCopy?.(a.path) ?? null };
           // Raw bytes as the body, root and path in percent-encoded headers (like the Rust command).
           case "write_project_bytes":
             if (window.__failBytes) throw { kind: "io", message: "No space left on device" };
@@ -176,6 +177,7 @@ export async function fakeTauri(page: Page) {
             persist();
             return null;
           case "import_asset":
+            (window.__imports ??= []).push(a.source);
             if (window.__importError) throw window.__importError;
             disk["assets/pic.png"] = Array.from(atob(PIXEL), (c) => c.charCodeAt(0));
             persist();

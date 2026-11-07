@@ -75,13 +75,33 @@ describe("reference commands", () => {
         h({ payload });
       return unlisten;
     });
-    const seen: (boolean | string[])[] = [];
+    const seen: unknown[] = [];
     const un = await bridge.onFileDrag({
-      active: (over) => seen.push(over),
-      drop: (p) => seen.push(p),
+      active: (over, at) => seen.push([over, at]),
+      drop: (p, at) => seen.push([p, at]),
     });
-    expect(seen).toEqual([true, true, false, true, false, ["/a.pdf", "/b.png"]]);
+    const at = { x: 0, y: 0 };
+    expect(seen).toEqual([
+      [true, at],
+      [true, at],
+      [false, undefined],
+      [true, at],
+      [false, at],
+      [["/a.pdf", "/b.png"], at],
+    ]);
     un();
     expect(unlisten).toHaveBeenCalled();
+  });
+
+  it("reports the drag position in CSS pixels (Tauri sends physical ones)", async () => {
+    vi.stubGlobal("devicePixelRatio", 2);
+    onDragDropEvent.mockImplementation(async (h: (e: unknown) => void) => {
+      h({ payload: { type: "over", position: { x: 300, y: 150 } } });
+      return vi.fn();
+    });
+    const seen: unknown[] = [];
+    await bridge.onFileDrag({ active: (_o, at) => seen.push(at), drop: () => {} });
+    vi.unstubAllGlobals();
+    expect(seen).toEqual([{ x: 150, y: 75 }]);
   });
 });

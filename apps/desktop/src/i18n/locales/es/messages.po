@@ -465,6 +465,10 @@ msgstr "{size} · saltos como en el PDF"
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr "{skipped, plural, one {# página ya no está en el libro y se omitió} other {# páginas ya no están en el libro y se omitieron}}"
 
+#: src/editor/drop/useEditorFileDrop.ts
+msgid "{skipped, plural, one {Only one picture is added at a time. # other file was left out.} other {Only one picture is added at a time. # other files were left out.}}"
+msgstr "{skipped, plural, one {Solo se añade una imagen a la vez. Se dejó fuera # archivo más.} other {Solo se añade una imagen a la vez. Se dejaron fuera # archivos más.}}"
+
 #: src/state/project/history.ts
 msgid "{stuck, plural, one {# page could not be put back and is now in the other state.} other {# pages could not be put back and are now in the other state.}}"
 msgstr "{stuck, plural, one {No se pudo restaurar # página y ahora está en el otro estado.} other {No se pudieron restaurar # páginas y ahora están en el otro estado.}}"
@@ -2148,6 +2152,10 @@ msgstr "Arrastra, o pulsa las flechas arriba y abajo"
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
 msgstr "Dibuja marcas de corte fuera del sangrado y hace la página más grande por todos los lados. Amazon KDP no las acepta."
+
+#: src/editor/drop/EditorFileDrop.tsx
+msgid "Drop a picture to add it"
+msgstr "Suelta una imagen para añadirla"
 
 #: src/app/references/panel/PanelParts.tsx
 msgid "Drop files, links or text here"
@@ -5714,6 +5722,10 @@ msgstr "Este archivo es demasiado grande o está anidado a demasiada profundidad
 #: src/lib/import/importErrorText.ts
 msgid "This file is too large to import. Choose a smaller file."
 msgstr "Este archivo es demasiado grande para importarlo. Elige un archivo más pequeño."
+
+#: src/editor/drop/useEditorFileDrop.ts
+msgid "This file type can't be added here."
+msgstr "Este tipo de archivo no se puede añadir aquí."
 
 #: src/lib/font/fontErrors.ts
 msgid "This font is not available any more. Choose another font."

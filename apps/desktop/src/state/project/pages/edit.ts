@@ -8,7 +8,7 @@ import {
 } from "@cadabracraft/format";
 import { bridge } from "../../../lib/bridge";
 import { whyText } from "../../../lib/projectError";
-import { alertOf, AUTOSAVE_MS, AUTOSAVE_MAX_MS } from "../util";
+import { alertOf, AUTOSAVE_MS, AUTOSAVE_MAX_MS, SAVED_NOTICE_MS } from "../util";
 import type { PageActions } from "../types";
 import type { Ctx } from "../context";
 
@@ -20,6 +20,19 @@ export const createEditActions = (
   let autosave: ReturnType<typeof setTimeout> | undefined;
   /** Fires AUTOSAVE_MAX_MS after the first unsaved keystroke, so continuous typing is still written. */
   let maxWait: ReturnType<typeof setTimeout> | undefined;
+  /** Clears the app's own "Saved" notice SAVED_NOTICE_MS after the latest save (each save restarts the wait). */
+  let savedFade: ReturnType<typeof setTimeout> | undefined;
+  const showSaved = () => {
+    // Another notice (a failure, a conflict copy) is never replaced by "Saved" and stays until it is dismissed.
+    const saved = t`Saved`;
+    if (get().notice && get().notice !== saved) return;
+    set({ notice: saved });
+    clearTimeout(savedFade);
+    savedFade = setTimeout(() => {
+      // Only that exact notice: one that arrived meanwhile is left alone.
+      if (get().notice === saved) set({ notice: "" });
+    }, SAVED_NOTICE_MS);
+  };
   const runAutosave = () => {
     clearTimeout(autosave);
     clearTimeout(maxWait);
@@ -60,10 +73,11 @@ export const createEditActions = (
       );
       set({
         hashes: { ...get().hashes, [file]: w.hash },
-        notice: w.conflict_copy
-          ? t`${titleIn(entry, manifest, lang)} changed outside the app; the other version was kept as ${w.conflict_copy}`
-          : get().notice || t`Saved`,
+        ...(w.conflict_copy && {
+          notice: t`${titleIn(entry, manifest, lang)} changed outside the app; the other version was kept as ${w.conflict_copy}`,
+        }),
       });
+      if (!w.conflict_copy) showSaved();
       // Typing in a copy or blank page is the translation: the chapter stops being marked untranslated.
       const newFile = entryFile(entry, lang) === undefined;
       if (newFile || (entry.untranslated ?? []).includes(lang)) {

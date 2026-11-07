@@ -3,6 +3,18 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 import type { FileKind } from "../references/referenceKinds";
 import { binary, type RawBytes } from "./types";
 
+/** A point in the page, in CSS pixels from the top left of the viewport. */
+export interface DropPoint {
+  x: number;
+  y: number;
+}
+
+/** Tauri reports drag positions in physical pixels; the page's coordinates are CSS pixels. */
+const cssPoint = (p: DropPoint): DropPoint => {
+  const scale = globalThis.devicePixelRatio || 1;
+  return { x: p.x / scale, y: p.y / scale };
+};
+
 /** What `import_reference` reports (`ImportedReference` in src-tauri/src/project/references.rs). */
 export interface ImportedReference {
   file: string;
@@ -41,16 +53,18 @@ export const referencesBridge = {
   /** Opens an http or https address in the default browser. The backend refuses any other address. */
   openReferenceUrl: (url: string) => invoke<void>("open_reference_url", { url }),
   /**
-   * Follows files dragged over the window: `active(true)` while they are over it and `active(false)` when they leave or are
-   * dropped, `drop` with their absolute paths. Returns an unsubscribe function.
+   * Follows files dragged over the window: `active(true, at)` while they are over it and `active(false)` when they leave or
+   * are dropped, `drop` with their absolute paths. `at` is where the pointer is, in CSS pixels of the page (Tauri reports
+   * physical pixels), so a handler can tell which part of the page the files are over. Returns an unsubscribe function.
    */
   onFileDrag: (handlers: {
-    active: (over: boolean) => void;
-    drop: (paths: string[]) => void;
+    active: (over: boolean, at?: DropPoint) => void;
+    drop: (paths: string[], at: DropPoint) => void;
   }): Promise<() => void> =>
     getCurrentWebview().onDragDropEvent((e) => {
-      const { type } = e.payload;
-      handlers.active(type === "enter" || type === "over");
-      if (type === "drop") handlers.drop(e.payload.paths);
+      const p = e.payload;
+      const at = p.type === "leave" ? undefined : cssPoint(p.position);
+      handlers.active(p.type === "enter" || p.type === "over", at);
+      if (p.type === "drop") handlers.drop(p.paths, at!);
     }),
 };

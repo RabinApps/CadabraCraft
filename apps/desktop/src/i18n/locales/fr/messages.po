@@ -465,6 +465,10 @@ msgstr "{size} · sauts comme dans le PDF"
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr "{skipped, plural, one {# page n’est plus dans le livre et a été exclue} other {# pages ne sont plus dans le livre et ont été exclues}}"
 
+#: src/editor/drop/useEditorFileDrop.ts
+msgid "{skipped, plural, one {Only one picture is added at a time. # other file was left out.} other {Only one picture is added at a time. # other files were left out.}}"
+msgstr "{skipped, plural, one {Une seule image est ajoutée à la fois. # autre fichier a été laissé de côté.} other {Une seule image est ajoutée à la fois. # autres fichiers ont été laissés de côté.}}"
+
 #: src/state/project/history.ts
 msgid "{stuck, plural, one {# page could not be put back and is now in the other state.} other {# pages could not be put back and are now in the other state.}}"
 msgstr "{stuck, plural, one {# page n’a pas pu être rétablie et est maintenant dans l’autre état.} other {# pages n’ont pas pu être rétablies et sont maintenant dans l’autre état.}}"
@@ -2148,6 +2152,10 @@ msgstr "Faites glisser, ou appuyez sur les flèches haut et bas"
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
 msgstr "Dessine des traits de coupe en dehors du fond perdu et agrandit la page de tous les côtés. Amazon KDP ne les accepte pas."
+
+#: src/editor/drop/EditorFileDrop.tsx
+msgid "Drop a picture to add it"
+msgstr "Déposez une image pour l'ajouter"
 
 #: src/app/references/panel/PanelParts.tsx
 msgid "Drop files, links or text here"
@@ -5714,6 +5722,10 @@ msgstr "Ce fichier est trop volumineux ou trop imbriqué pour être importé."
 #: src/lib/import/importErrorText.ts
 msgid "This file is too large to import. Choose a smaller file."
 msgstr "Ce fichier est trop volumineux pour être importé. Choisissez un fichier plus petit."
+
+#: src/editor/drop/useEditorFileDrop.ts
+msgid "This file type can't be added here."
+msgstr "Ce type de fichier ne peut pas être ajouté ici."
 
 #: src/lib/font/fontErrors.ts
 msgid "This font is not available any more. Choose another font."

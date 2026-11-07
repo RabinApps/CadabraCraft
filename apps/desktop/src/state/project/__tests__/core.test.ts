@@ -164,6 +164,10 @@ describe("project store", () => {
     expect(await a().importImage()).toBe("assets/cover.png");
     expect(assets.has("assets/cover.png")).toBe(true);
   });
+  it("imports the image at a given path (a drop) without asking", async () => {
+    picked = null;
+    expect(await a().importImage("/drop/photo.jpg")).toBe("assets/photo.jpg");
+  });
   it("returns null when the picker is cancelled", async () => {
     picked = null;
     expect(await a().importImage()).toBeNull();

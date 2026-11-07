@@ -465,6 +465,10 @@ msgstr "{size} · الفواصل كما في PDF"
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr "{skipped, plural, one {لم تعد صفحة واحدة في الكتاب وقد حُذفت} two {لم تعد صفحتان في الكتاب وقد حُذفتا} few {لم تعد # صفحات في الكتاب وقد حُذفت} many {لم تعد # صفحة في الكتاب وقد حُذفت} other {لم تعد # صفحة في الكتاب وقد حُذفت}}"
 
+#: src/editor/drop/useEditorFileDrop.ts
+msgid "{skipped, plural, one {Only one picture is added at a time. # other file was left out.} other {Only one picture is added at a time. # other files were left out.}}"
+msgstr "{skipped, plural, zero {تُضاف صورة واحدة فقط في كل مرة.} one {تُضاف صورة واحدة فقط في كل مرة. تم استبعاد ملف آخر واحد.} two {تُضاف صورة واحدة فقط في كل مرة. تم استبعاد ملفين آخرين.} few {تُضاف صورة واحدة فقط في كل مرة. تم استبعاد # ملفات أخرى.} many {تُضاف صورة واحدة فقط في كل مرة. تم استبعاد # ملفًا آخر.} other {تُضاف صورة واحدة فقط في كل مرة. تم استبعاد # ملف آخر.}}"
+
 #: src/state/project/history.ts
 msgid "{stuck, plural, one {# page could not be put back and is now in the other state.} other {# pages could not be put back and are now in the other state.}}"
 msgstr "{stuck, plural, zero {لا صفحات} one {تعذّرت إعادة صفحة واحدة وهي الآن في الحالة الأخرى.} two {تعذّرت إعادة صفحتين وهما الآن في الحالة الأخرى.} few {تعذّرت إعادة # صفحات وهي الآن في الحالة الأخرى.} many {تعذّرت إعادة # صفحة وهي الآن في الحالة الأخرى.} other {تعذّرت إعادة # صفحة وهي الآن في الحالة الأخرى.}}"
@@ -2148,6 +2152,10 @@ msgstr "اسحب، أو اضغط على مفتاحي السهم لأعلى ول�
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
 msgstr "ترسم علامات القص خارج حافة القص وتجعل الصفحة أكبر من كل الجهات. لا يقبلها Amazon KDP."
+
+#: src/editor/drop/EditorFileDrop.tsx
+msgid "Drop a picture to add it"
+msgstr "أفلت صورة لإضافتها"
 
 #: src/app/references/panel/PanelParts.tsx
 msgid "Drop files, links or text here"
@@ -5714,6 +5722,10 @@ msgstr "هذا الملف كبير جدًا أو متداخل بعمق شديد 
 #: src/lib/import/importErrorText.ts
 msgid "This file is too large to import. Choose a smaller file."
 msgstr "هذا الملف كبير جدًا لاستيراده. اختر ملفًا أصغر."
+
+#: src/editor/drop/useEditorFileDrop.ts
+msgid "This file type can't be added here."
+msgstr "لا يمكن إضافة هذا النوع من الملفات هنا."
 
 #: src/lib/font/fontErrors.ts
 msgid "This font is not available any more. Choose another font."

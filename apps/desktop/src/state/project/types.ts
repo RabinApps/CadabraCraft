@@ -493,8 +493,8 @@ export interface ReplaceActions {
 export interface AssetActions {
   /** Asks for a cover image (png, jpg or webp), copies it into assets/ and returns `assets/<name>`. Null if cancelled or refused (refusals set `notice`). Does not change the manifest. */
   importCover: () => Promise<string | null>;
-  /** Asks for an image file, copies it into assets/, and returns `assets/<name>` (null if cancelled or refused; refusals set `notice`). */
-  importImage: () => Promise<string | null>;
+  /** Copies an image into assets/ and returns `assets/<name>`: the one at `path` (a file dropped on the editor, which the host already remembers) or, with no path, one the author is asked for. Null if cancelled or refused (refusals set `notice`). */
+  importImage: (path?: string) => Promise<string | null>;
 }
 
 /** Which edition an export reads (default: the source) and whether untranslated pages are left out instead of stopping it. Output goes to `exports/<language>/`. */

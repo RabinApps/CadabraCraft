@@ -155,6 +155,10 @@ declare global {
     __failBytes?: boolean;
     __failLicense?: boolean;
     __importError?: string;
+    /** Makes a project-file write answer that the file changed outside the app and the other version was kept as the returned name. */
+    __conflictCopy?: (path: string) => string | null;
+    /** The source paths `import_asset` was asked to copy, in order. */
+    __imports?: string[];
     __typstError?: FakeError;
     __compileError?: FakeError;
     /** Pages in the PDF `typst_compile` answers with (default 6). */
