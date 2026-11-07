@@ -15,6 +15,8 @@ import { TabKey } from "./tabKey";
 import { FootnoteA11y } from "./footnoteA11y";
 import { cleanPastedText } from "./paste/pasteClean";
 import { usePageView } from "../app/hooks/usePageView";
+import { EDITOR_DROP_ATTR } from "../lib/fileDrop";
+import { EditorFileDrop } from "./drop/EditorFileDrop";
 import { FindBar } from "./find/FindBar";
 import { useFind } from "./find/findStore";
 import { useCommentAnchoring } from "./useCommentAnchoring";
@@ -115,7 +117,7 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
   useRefocusOnSurfaceChange(editor, pageView.on);
   if (!editor) return null;
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
+    <div {...{ [EDITOR_DROP_ATTR]: "" }} className="relative flex min-h-0 flex-1 flex-col">
       {findOpen && <FindBar editor={editor} focusMode={focus} />}
       {!focus && <Toolbar editor={editor} />}
       <PasteDialog
@@ -128,15 +130,19 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
           editor.commands.focus();
         }}
       />
-      {pageView.on ? (
-        <PageFrame editor={editor}>
-          <EditorContent editor={editor} />
-        </PageFrame>
-      ) : (
-        <ReflowFrame>
-          <EditorContent editor={editor} />
-        </ReflowFrame>
-      )}
+      {/* The page area: files dragged over it show the drop highlight (a picture dropped here is added to the page). */}
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        {pageView.on ? (
+          <PageFrame editor={editor}>
+            <EditorContent editor={editor} />
+          </PageFrame>
+        ) : (
+          <ReflowFrame>
+            <EditorContent editor={editor} />
+          </ReflowFrame>
+        )}
+        <EditorFileDrop editor={editor} readOnly={!!readOnly} />
+      </div>
     </div>
   );
 }

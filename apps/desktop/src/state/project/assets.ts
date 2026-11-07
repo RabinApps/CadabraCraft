@@ -26,9 +26,9 @@ export const createAssetActions = (ctx: Ctx): AssetActions => {
         return null;
       }
     },
-    async importImage() {
+    async importImage(path) {
       const { root } = need();
-      const picked = await bridge.pickImage();
+      const picked = path ?? (await bridge.pickImage());
       if (!picked) return null;
       try {
         return await bridge.importAsset(root, picked);

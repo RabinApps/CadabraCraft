@@ -89,11 +89,21 @@ pub fn create_picked(picked: &PickedPaths, root: &str, manifest_json: &str) -> R
     crate::project::create_project(&picked.require(PickKind::Folder, Path::new(root))?, manifest_json)
 }
 
-/// Remembers files dropped on the window as picked references (folders and anything that is not there are skipped; a drop
-/// is the author's own choice, delivered by the operating system, so it is as good as a pick in a dialog).
+/// True when the file name ends in one of the image types `import_asset` accepts.
+fn is_image_name(path: &Path) -> bool {
+    path.extension().and_then(|e| e.to_str()).is_some_and(|e| crate::project::IMAGE_EXTENSIONS.contains(&e.to_ascii_lowercase().as_str()))
+}
+
+/// Remembers files dropped on the window as picked references, and the first image among them as a picked image (the
+/// editor imports one picture per drop). Folders and anything that is not there are skipped; a drop is the author's own
+/// choice, delivered by the operating system, so it is as good as a pick in a dialog.
 pub fn record_drop(picked: &PickedPaths, paths: &[PathBuf]) {
-    for p in paths.iter().filter(|p| p.is_file()) {
+    let files: Vec<&PathBuf> = paths.iter().filter(|p| p.is_file()).collect();
+    for p in &files {
         let _ = picked.record(PickKind::Reference, p);
+    }
+    if let Some(image) = files.iter().find(|p| is_image_name(p)) {
+        let _ = picked.record(PickKind::Image, image);
     }
 }
 
@@ -224,7 +234,29 @@ mod tests {
         record_drop(&picked, &[file.clone(), folder.clone(), dir.path().join("gone.pdf")]);
         assert!(picked.require(PickKind::Reference, &file).is_ok());
         assert!(picked.require(PickKind::Reference, &folder).is_err());
-        assert!(picked.require(PickKind::Image, &file).is_err(), "a drop is for references only");
+        assert!(picked.require(PickKind::Image, &file).is_err(), "a drop of a PDF is not an image");
+    }
+
+    #[test]
+    fn the_first_dropped_image_is_also_remembered_as_an_image() {
+        let (dir, picked) = (tempfile::tempdir().unwrap(), PickedPaths::default());
+        let (first, second, doc) = (dir.path().join("a.PNG"), dir.path().join("b.jpg"), dir.path().join("c.txt"));
+        for f in [&first, &second, &doc] {
+            std::fs::write(f, "x").unwrap();
+        }
+        record_drop(&picked, &[doc.clone(), first.clone(), second.clone()]);
+        assert!(picked.require(PickKind::Image, &first).is_ok(), "an upper-case extension counts");
+        assert!(picked.require(PickKind::Image, &second).is_err(), "one picture per drop");
+        assert!(picked.require(PickKind::Image, &doc).is_err());
+        assert!(picked.require(PickKind::Reference, &first).is_ok(), "it is still a reference candidate");
+        let folder = dir.path().join("pics.png");
+        std::fs::create_dir(&folder).unwrap();
+        record_drop(&picked, &[folder.clone()]);
+        assert!(picked.require(PickKind::Image, &folder).is_err(), "a folder named like an image is not one");
+        let noext = dir.path().join("noext");
+        std::fs::write(&noext, "x").unwrap();
+        record_drop(&picked, &[noext.clone()]);
+        assert!(picked.require(PickKind::Image, &noext).is_err());
     }
 
     #[test]

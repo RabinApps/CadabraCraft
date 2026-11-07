@@ -465,6 +465,10 @@ msgstr "{size} · מעברי העמודים כמו ב־PDF"
 msgid "{skipped, plural, one {# page is no longer in the book and was left out} other {# pages are no longer in the book and were left out}}"
 msgstr "{skipped, plural, one {עמוד # כבר אינו בספר והושמט} other {# עמודים כבר אינם בספר והושמטו}}"
 
+#: src/editor/drop/useEditorFileDrop.ts
+msgid "{skipped, plural, one {Only one picture is added at a time. # other file was left out.} other {Only one picture is added at a time. # other files were left out.}}"
+msgstr "{skipped, plural, one {מתווספת תמונה אחת בכל פעם. קובץ נוסף אחד הושמט.} other {מתווספת תמונה אחת בכל פעם. # קבצים נוספים הושמטו.}}"
+
 #: src/state/project/history.ts
 msgid "{stuck, plural, one {# page could not be put back and is now in the other state.} other {# pages could not be put back and are now in the other state.}}"
 msgstr "{stuck, plural, one {דף # לא הוחזר ועכשיו הוא במצב השני.} two {# דפים לא הוחזרו ועכשיו הם במצב השני.} other {# דפים לא הוחזרו ועכשיו הם במצב השני.}}"
@@ -2098,6 +2102,10 @@ msgstr "גרור, או לחץ על מקשי החצים למעלה ולמטה"
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Draws trim marks outside the bleed and makes the page larger on every side. Amazon KDP does not accept them."
 msgstr "מצייר סימני חיתוך מחוץ לשולי החיתוך ומגדיל את העמוד מכל צד. Amazon KDP אינה מקבלת אותם."
+
+#: src/editor/drop/EditorFileDrop.tsx
+msgid "Drop a picture to add it"
+msgstr "שחררו תמונה כדי להוסיף אותה"
 
 #: src/app/references/panel/PanelParts.tsx
 msgid "Drop files, links or text here"
@@ -5572,6 +5580,10 @@ msgstr "הקובץ הזה גדול מדי או מקונן עמוק מדי כדי
 #: src/lib/import/importErrorText.ts
 msgid "This file is too large to import. Choose a smaller file."
 msgstr "הקובץ הזה גדול מדי לייבוא. בחרו קובץ קטן יותר."
+
+#: src/editor/drop/useEditorFileDrop.ts
+msgid "This file type can't be added here."
+msgstr "לא ניתן להוסיף כאן סוג קובץ זה."
 
 #: src/lib/font/fontErrors.ts
 msgid "This font is not available any more. Choose another font."
