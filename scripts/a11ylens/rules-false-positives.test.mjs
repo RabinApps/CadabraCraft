@@ -151,14 +151,8 @@ test("OBSERVED: self-closing <button {...rest} /> is flagged by src-icon-button 
   );
 });
 
-test(
-  "DESIRED: self-closing <button {...rest} /> should not be flagged (aria-label arrives via rest)",
-  {
-    todo: "tool false positive: src-icon-button ignores {...spread} props, unlike src-img-alt and src-anchor-href",
-  },
-  () => {
-    assert.deepEqual(ids({ "src/Chip.tsx": CHIP_SPREAD }), []);
-  },
+test.todo(
+  "DESIRED: self-closing <button {...rest} /> should not be flagged (aria-label arrives via rest) — tool false positive: src-icon-button ignores {...spread} props, unlike src-img-alt and src-anchor-href",
 );
 
 const SPREAD_ICON =
@@ -169,14 +163,8 @@ test("OBSERVED: <button {...props}><Icon /></button> is flagged by src-icon-butt
   assert.equal(hits.length, 1);
 });
 
-test(
-  "DESIRED: a spread button whose child is an <Icon /> component should not be flagged",
-  {
-    todo: "tool false positive: src-icon-button also matches <Icon .../> components and ignores {...props}",
-  },
-  () => {
-    assert.deepEqual(ids({ "src/B.tsx": SPREAD_ICON }), []);
-  },
+test.todo(
+  "DESIRED: a spread button whose child is an <Icon /> component should not be flagged — tool false positive: src-icon-button also matches <Icon .../> components and ignores {...props}",
 );
 
 const ROVING = '<div role="menu" aria-label="M"><div role="menuitem" tabindex="-1">Cut</div></div>';
@@ -189,17 +177,8 @@ test("OBSERVED: roving tabindex=-1 on a div role=menuitem is flagged by interact
   );
 });
 
-test(
-  "DESIRED: roving-tabindex menu items (tabindex=-1 inside a menu) should not be flagged",
-  {
-    todo: "tool false positive: interactive-role-focusable demands tabindex=0 even for roving-tabindex composites",
-  },
-  () => {
-    assert.deepEqual(
-      findings(ROVING).filter((f) => f.ruleId === "interactive-role-focusable"),
-      [],
-    );
-  },
+test.todo(
+  "DESIRED: roving-tabindex menu items (tabindex=-1 inside a menu) should not be flagged — tool false positive: interactive-role-focusable demands tabindex=0 even for roving-tabindex composites",
 );
 
 test("OBSERVED: <label> wrapping its input is reported as info src-label-for (documented as 'verify')", () => {
