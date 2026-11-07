@@ -5,7 +5,7 @@ import {
   forgetLoadedFonts,
   toDataUrl,
   type FontEnv,
-} from "../loadFont";
+} from "../font/loadFont";
 
 vi.mock("../bridge", () => ({ bridge: {} }));
 

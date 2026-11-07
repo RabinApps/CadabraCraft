@@ -1,10 +1,10 @@
-import { sourceEdition } from "@cadabracraft/format";
+import { chaptersOf, sourceEdition } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import type { Manifest } from "@cadabracraft/format";
 import { getTemplate, hasTemplate, DEFAULT_TEMPLATE_ID } from "@cadabracraft/templates";
 import { Pencil } from "lucide-react";
-import { readingMinutes } from "../../lib/readingTime";
+import { readingMinutes } from "../../lib/reading/readingTime";
 import { Button } from "../../ui/Button";
 import { useProject } from "../../state/project";
 import { SectionHeading } from "../../ui/SectionHeading";
@@ -28,9 +28,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5 text-sm">
       <dt className="text-ink-muted">{label}</dt>
-      <dd className="min-w-0 truncate text-end font-medium" title={value}>
-        {value}
-      </dd>
+      <dd className="min-w-0 break-words text-end font-medium">{value}</dd>
     </div>
   );
 }
@@ -82,7 +80,7 @@ export function Details({
           />
           <Row label={t`ISBN`} value={edition.isbn ?? "-"} />
           <Row label={t`Cover`} value={edition.cover?.replace("assets/", "") ?? "-"} />
-          <Row label={t`Chapters`} value={String(manifest.chapters.length)} />
+          <Row label={t`Chapters`} value={String(chaptersOf(manifest).length)} />
         </dl>
         <Button
           className="mt-3 w-full"

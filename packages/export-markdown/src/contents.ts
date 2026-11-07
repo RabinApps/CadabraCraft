@@ -1,4 +1,10 @@
 import type { ChapterDoc, DocNode } from "@cadabracraft/shared";
+import {
+  contentsTitle,
+  type ContentsNode,
+  nestContents,
+  visibleTocItems,
+} from "@cadabracraft/format";
 import { escapeText, linkDestination } from "./escape";
 
 /**
@@ -11,6 +17,8 @@ export interface MarkdownContentsItem {
   entryId?: string;
   /** 0 for a page, 1-3 for a heading; sets the nesting. */
   level: number;
+  /** Display depth under a part divider; absent means `level` sets the nesting. */
+  indent?: number;
   title: string;
   /** Headings: position among the page's headings (`OutlineItem.index` of `extractOutline`). */
   index?: number;
@@ -66,23 +74,6 @@ export function slugger(): (text: string) => string {
   };
 }
 
-interface Node {
-  item: MarkdownContentsItem;
-  kids: Node[];
-}
-
-function tree(items: readonly MarkdownContentsItem[]): Node[] {
-  const roots: Node[] = [];
-  const path: Node[] = [];
-  for (const item of items) {
-    const node: Node = { item, kids: [] };
-    while (path.length > 0 && path[path.length - 1]!.item.level >= item.level) path.pop();
-    (path.length > 0 ? path[path.length - 1]!.kids : roots).push(node);
-    path.push(node);
-  }
-  return roots;
-}
-
 /** A page as the list needs it: its id and the anchors of its headings, in order ("" = none). */
 export interface ContentsPage {
   id: string;
@@ -97,7 +88,7 @@ export function contentsMarkdown(
   contents: MarkdownContents,
   pages: ReadonlyMap<string, ContentsPage>,
 ): string {
-  const visible = contents.items.filter((i) => i.hidden !== true);
+  const visible = visibleTocItems(contents.items);
   const href = (item: MarkdownContentsItem): string | undefined => {
     const page = item.entryId === undefined ? undefined : pages.get(item.entryId);
     if (page === undefined) return undefined;
@@ -110,9 +101,9 @@ export function contentsMarkdown(
     return `${encodeURI(page.file)}${slug === "" ? "" : `#${slug}`}`;
   };
   const lines: string[] = [];
-  const render = (nodes: Node[], depth: number) => {
+  const render = (nodes: ContentsNode<MarkdownContentsItem>[], depth: number) => {
     for (const { item, kids } of nodes) {
-      const title = item.title.replace(/\s+/g, " ").trim() || item.entryId?.trim() || "(untitled)";
+      const title = contentsTitle({ ...item, title: item.title.replace(/\s+/g, " ").trim() });
       const target = href(item);
       const label =
         target === undefined
@@ -122,6 +113,6 @@ export function contentsMarkdown(
       render(kids, depth + 1);
     }
   };
-  render(tree(visible), 0);
+  render(nestContents(visible), 0);
   return lines.join("\n");
 }

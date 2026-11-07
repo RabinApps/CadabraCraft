@@ -101,6 +101,8 @@ const menu = async (page: Page, id: string, arg?: string) => {
 
 const editor = (page: Page) => page.locator(".ProseMirror");
 const notice = (page: Page) => page.locator("header [role=status]");
+/** The alerts that have a message: the header's own alert region stays in the tree when empty. */
+const alerts = (page: Page) => page.getByRole("alert").filter({ hasText: /./ });
 
 test("book menu commands act on the open book", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -200,7 +202,7 @@ test("Help > Check for updates reports each outcome", async ({ page }) => {
     await newProject(page);
     await page.evaluate((k) => ((window as unknown as W).__updates = k), kind);
     await menu(page, "help.updates");
-    if (kind === "error") await expect(page.getByRole("alert")).toContainText(text);
+    if (kind === "error") await expect(alerts(page)).toContainText(text);
     else await expect(notice(page)).toHaveText(text);
     await menu(page, "file.close");
     await expect(page.getByRole("button", { name: "New project" })).toBeVisible();
@@ -250,16 +252,16 @@ test("menu failures show in the page's error banner", async ({ page }) => {
   await page.keyboard.type("x");
   await page.evaluate(() => (window.__failWrite = () => true));
   await menu(page, "file.save");
-  await expect(page.getByRole("alert")).toContainText("No space left on device");
+  await expect(alerts(page)).toContainText("No space left on device");
   await menu(page, "file.close");
-  await expect(page.getByRole("alert")).toContainText("No space left on device");
+  await expect(alerts(page)).toContainText("No space left on device");
   await page.evaluate(() => (window.__failWrite = undefined));
 
   await page.evaluate(() => ((window as unknown as W).__pickRoot = "/gone"));
   await menu(page, "file.open");
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(alerts(page)).toBeVisible();
   await menu(page, "file.openRecent", "/gone");
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(alerts(page)).toBeVisible();
 });
 
 test("closing the window waits for the unsaved text, and a failed save keeps it open once", async ({
@@ -286,9 +288,15 @@ test("closing the window waits for the unsaved text, and a failed save keeps it 
   await page.keyboard.type("more");
   await page.evaluate(() => (window.__failWrite = () => true));
   expect(await close()).toBe(2); // the save failed: the window stays open
-  await expect(notice(page)).toContainText("Your last changes could not be saved");
+  await expect(page.locator("header [role=alert]")).toContainText(
+    "Your last changes could not be saved",
+  );
   expect(await close()).toBe(3); // asking again leaves anyway
   await page.evaluate(() => (window.__failWrite = undefined));
+  // A save no longer replaces a message the author has not dismissed.
+  await page.getByRole("button", { name: "Dismiss message" }).click();
+  await editor(page).click();
+  await page.keyboard.press("ControlOrMeta+End");
 
   // The best-effort writes of a closing page.
   await page.keyboard.type("last");
@@ -316,8 +324,6 @@ test("session goal footer waits for the book count, then shows progress", async 
       "cadabracraft.settings",
       JSON.stringify({
         sessionGoal: 500,
-        manuscriptFont: "newsreader",
-        writingWidth: "medium",
         typewriterScroll: false,
       }),
     );

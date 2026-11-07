@@ -1,4 +1,4 @@
-import { wordStarts, type DocNode } from "@cadabracraft/shared";
+import { parseTextAlign, wordStarts, type DocNode } from "@cadabracraft/shared";
 import { escapeMarkup, typstString } from "../escape";
 import { MissingAssetError, PdfExportError } from "../errors";
 import { unsupported, type Ctx } from "./ctx";
@@ -6,6 +6,13 @@ import { inline, nodeSize, type WordMarks } from "./inline";
 import { inch } from "./units";
 
 const IMAGE_EXT = new Set(["png", "jpg", "jpeg", "gif", "svg", "webp"]);
+
+/**
+ * A paragraph with no text at all: the blank line the author left. The page view and the EPUB give it the height of a line, so the PDF
+ * sets it as one too (`#blank-line`), and it is no leaf of the page marks: there is no text to find there.
+ */
+export const isBlank = (kids: DocNode[] | undefined): boolean =>
+  (kids ?? []).every((k) => k.type === "text" && k.text.trim() === "");
 
 export function imagePath(src: string, ctx: Ctx): string {
   const known = ctx.images.get(src);
@@ -130,6 +137,28 @@ export function leafText(
   };
 }
 
+/** The alignment the author chose for a paragraph or heading (`textAlign`), null when the template decides. */
+function alignOf(n: Exclude<DocNode, { type: "text" }>): "start" | "center" | "end" | null {
+  const align = parseTextAlign(n.attrs?.textAlign);
+  if (align === undefined)
+    throw new PdfExportError(
+      `Text alignment ${JSON.stringify(n.attrs?.textAlign)} is not allowed (start, center or end)`,
+    );
+  return align;
+}
+
+/**
+ * A paragraph with the alignment the author chose, or `text` as it is when there is none (the template's own). The paragraph is set
+ * in a scope of its own: aligned, with no first-line indent and not justified (justified text has no side to align to, and an indent
+ * would push a centred line off centre). `start` and `end` follow the book's text direction, like CSS.
+ */
+function aligned(n: Exclude<DocNode, { type: "text" }>, text: string): string {
+  const align = alignOf(n);
+  return align === null
+    ? text
+    : `#[#set align(${align})\n#set par(first-line-indent: 0pt, justify: false)\n${text}]`;
+}
+
 function heading(n: Exclude<DocNode, { type: "text" }>, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   const level = Number(n.attrs?.level ?? 1);
@@ -142,7 +171,11 @@ function heading(n: Exclude<DocNode, { type: "text" }>, ctx: Ctx): string {
   const key = ctx.headingKeys?.get(ctx.headingNo);
   ctx.headingNo++;
   const toc = key === undefined ? "" : `#mark("toc-heading", info: (key: ${typstString(key)}))`;
-  return `#heading(level: ${level})[${toc}${mark}${body}]`;
+  // The template's heading rule sets the alignment inside its own block, so a heading says what it wants through its `supplement`
+  // (read by `heading-align` in the preamble; a heading is never referenced, so the supplement is free).
+  const align = alignOf(n);
+  const supplement = align === null ? "" : `, supplement: [ha-${align}]`;
+  return `#heading(level: ${level}${supplement})[${toc}${mark}${body}]`;
 }
 
 /** The start mark of the block being marked (see `markedBlocks`): where a leaf of text, an image or a code block begins. */
@@ -156,59 +189,78 @@ const startMark = (ctx: Ctx, kind: BlockMarkKind): string => {
 const marked = (ctx: Ctx, kind: BlockMarkKind, code: string): string =>
   ctx.mark ? `${startMark(ctx, kind)}\n\n${code}` : code;
 
+type ElementNode = Exclude<DocNode, { type: "text" }>;
+
+function paragraph(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  if (isBlank(kids)) return "#blank-line()";
+  const { mark, body } = leafText(kids, ctx, "p");
+  return aligned(n, `${mark}${body}`);
+}
+
+function orderedList(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  const start =
+    typeof n.attrs?.start === "number" && Number.isInteger(n.attrs.start)
+      ? `start: ${n.attrs.start}, `
+      : "";
+  return `#enum(${start}\n${listItems(kids, ctx)},\n)`;
+}
+
+function codeBlock(kids: DocNode[] | undefined, ctx: Ctx): string {
+  const text = (kids ?? [])
+    .map((k) => {
+      if (k.type !== "text")
+        throw new PdfExportError(`Unsupported node type in code block: ${k.type}`);
+      return k.text;
+    })
+    .join("");
+  const raw = `#raw(block: true, ${typstString(text)})`;
+  // Each line carries a mark of its own (the `raw.line` of Typst), so a block of code that runs onto the next page is seen.
+  return marked(ctx, "k", ctx.mark ? `#[#show raw.line: bm-line\n${raw}]` : raw);
+}
+
+function image(n: ElementNode, ctx: Ctx): string {
+  const a = n.attrs ?? {};
+  const src = String(a.src ?? "");
+  if (!src) throw new PdfExportError("Image without a source");
+  if (ctx.assets && !(src in ctx.assets)) throw new MissingAssetError([src]);
+  const path = imagePath(src, ctx);
+  const alt = a.alt && !a.decorative ? typstString(String(a.alt)) : "none";
+  const img = `fit-image(${typstString(path)}, ${alt}, ${inch(ctx.maxImageIn)})`;
+  const cap = a.title ? `, caption: [${escapeMarkup(String(a.title), { lineStart: true })}]` : "";
+  return marked(ctx, "i", `#figure(${img}${cap})`);
+}
+
 function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
-    case "paragraph": {
-      const { mark, body } = leafText(kids, ctx, "p");
-      return body.trim() === "" ? "" : `${mark}${body}`;
-    }
+    case "paragraph":
+      return paragraph(n, kids, ctx);
     case "heading":
       return heading(n, ctx);
     case "blockquote":
       return `#quote(block: true)[\n${blocks(kids, ctx)}\n]`;
+    // A scene is structure inside the app: its notes never print, and its blocks print as they are.
+    case "scene":
+      return blocks(kids, ctx);
     case "bulletList":
       return `#list(\n${listItems(kids, ctx)},\n)`;
-    case "orderedList": {
-      const start =
-        typeof n.attrs?.start === "number" && Number.isInteger(n.attrs.start)
-          ? `start: ${n.attrs.start}, `
-          : "";
-      return `#enum(${start}\n${listItems(kids, ctx)},\n)`;
-    }
+    case "orderedList":
+      return orderedList(n, kids, ctx);
     case "taskList":
       return taskList(n, ctx);
     case "definitionList":
       return definitionList(n, ctx);
-    case "codeBlock": {
-      const text = (kids ?? [])
-        .map((k) => {
-          if (k.type !== "text")
-            throw new PdfExportError(`Unsupported node type in code block: ${k.type}`);
-          return k.text;
-        })
-        .join("");
-      const raw = `#raw(block: true, ${typstString(text)})`;
-      // Each line carries a mark of its own (the `raw.line` of Typst), so a block of code that runs onto the next page is seen.
-      return marked(ctx, "k", ctx.mark ? `#[#show raw.line: bm-line\n${raw}]` : raw);
-    }
+    case "codeBlock":
+      return codeBlock(kids, ctx);
     case "table":
       return tableBlock(n, ctx);
     case "sceneBreak":
       return marked(ctx, "s", "#scene-break()");
-    case "image": {
-      const a = n.attrs ?? {};
-      const src = String(a.src ?? "");
-      if (!src) throw new PdfExportError("Image without a source");
-      if (ctx.assets && !(src in ctx.assets)) throw new MissingAssetError([src]);
-      const path = imagePath(src, ctx);
-      const alt = a.alt ? typstString(String(a.alt)) : "none";
-      const img = `fit-image(${typstString(path)}, ${alt}, ${inch(ctx.maxImageIn)})`;
-      const cap = a.title
-        ? `, caption: [${escapeMarkup(String(a.title), { lineStart: true })}]`
-        : "";
-      return marked(ctx, "i", `#figure(${img}${cap})`);
-    }
+    case "pageBreak":
+      // A weak break does nothing at the top of a page, which is what "the next block starts on a new page" means.
+      return "#pagebreak(weak: true)";
+    case "image":
+      return image(n, ctx);
     default:
       return unsupported(n.type);
   }

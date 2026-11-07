@@ -132,7 +132,8 @@
       {
        "type": "heading",
        "attrs": {
-        "level": 1
+        "level": 1,
+        "textAlign": "center"
        },
        "content": [
         {
@@ -246,7 +247,10 @@
           }
          ]
         }
-       ]
+       ],
+       "attrs": {
+        "textAlign": "center"
+       }
       },
       {
        "type": "image",
@@ -274,7 +278,10 @@
               }
              ]
             }
-           ]
+           ],
+           "attrs": {
+            "textAlign": "center"
+           }
           },
           {
            "type": "paragraph",
@@ -292,7 +299,10 @@
              "type": "text",
              "text": "ABcafé"
             }
-           ]
+           ],
+           "attrs": {
+            "textAlign": "center"
+           }
           }
          ]
         }

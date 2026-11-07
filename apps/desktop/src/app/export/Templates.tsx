@@ -12,8 +12,10 @@ import {
 import { Button, IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { useProject } from "../../state/project/index";
-import { errText } from "../../lib/projectError";
-import { Notice } from "../../ui/Notice";
+import { whyText } from "../../lib/projectError";
+import { Notice } from "../../ui/feedback/Notice";
+import { Segmented } from "../../ui/forms/Segmented";
+import { useKindLabels } from "../shell/useKindLabels";
 
 const PREVIEW_LINES = [0, 1, 2, 3, 4, 5, 6, 7];
 
@@ -34,6 +36,173 @@ function MiniPage({ template }: { template: Template }) {
   );
 }
 
+/** The radio group of template cards; the arrow keys move the choice. */
+function TemplateGallery({
+  templates,
+  selected,
+  current,
+  onSelect,
+}: {
+  templates: Template[];
+  selected: string;
+  /** The template the book uses now. */
+  current: string;
+  onSelect: (id: string) => void;
+}) {
+  const { t } = useLingui();
+  return (
+    <div
+      role="radiogroup"
+      aria-label={t`Templates`}
+      className="flex flex-wrap gap-4"
+      onKeyDown={(e) => {
+        // ArrowRight moves toward the visual right, which is backwards in a right-to-left layout.
+        const fwd =
+          getComputedStyle(e.currentTarget).direction === "rtl" ? "ArrowLeft" : "ArrowRight";
+        const back = fwd === "ArrowRight" ? "ArrowLeft" : "ArrowRight";
+        const step =
+          e.key === fwd || e.key === "ArrowDown"
+            ? 1
+            : e.key === back || e.key === "ArrowUp"
+              ? -1
+              : 0;
+        if (!step) return;
+        e.preventDefault();
+        const at = templates.findIndex((x) => x.id === selected);
+        const next = templates[(at + step + templates.length) % templates.length];
+        if (!next) return;
+        onSelect(next.id);
+        e.currentTarget.querySelector<HTMLElement>(`[data-template="${next.id}"]`)?.focus();
+      }}
+    >
+      {templates.map((tpl) => {
+        const on = tpl.id === selected;
+        return (
+          <button
+            key={tpl.id}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            tabIndex={on ? 0 : -1}
+            data-template={tpl.id}
+            onClick={() => onSelect(tpl.id)}
+            className={cx(
+              "flex w-62.5 flex-col items-center gap-3 rounded-lg border bg-surface p-4 text-start transition-colors focus-visible:outline-2 focus-visible:outline-accent",
+              on
+                ? "border-accent bg-accent-soft/40"
+                : "border-border-strong hover:bg-accent-soft/40",
+            )}
+          >
+            <MiniPage template={tpl} />
+            <span className="flex w-full flex-col gap-0.5">
+              <span className="text-sm font-semibold">
+                {tpl.name}
+                {tpl.id === current ? ` · ${t`In use`}` : ""}
+              </span>
+              <span className="text-xs text-ink-muted">{tpl.description}</span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** The numbers of the chosen template and the book-wide "Big first letter" choice. */
+function TemplateDetails({
+  chosen,
+  onError,
+}: {
+  chosen: Template;
+  /** Shows (or, with an empty string, clears) the page's error message. */
+  onError: (message: string) => void;
+}) {
+  const { t } = useLingui();
+  const manifest = useProject((s) => s.manifest);
+  const setBookDropCap = useProject((s) => s.actions.setBookDropCap);
+  const kindLabels = useKindLabels();
+  const { print } = chosen;
+  const trim = TRIM_SIZES[print.defaults.trimSize];
+  const { marginsIn } = print.defaults;
+  const dropCap = manifest?.dropCap === undefined ? "default" : manifest.dropCap ? "on" : "off";
+  const [dropCapSaid, setDropCapSaid] = useState("");
+  const chooseDropCap = (v: "default" | "on" | "off") => {
+    onError("");
+    setBookDropCap(v === "default" ? null : v === "on").then(
+      () =>
+        setDropCapSaid(
+          v === "default"
+            ? t`Big first letter: template default`
+            : v === "on"
+              ? t`Big first letter: on`
+              : t`Big first letter: off`,
+        ),
+      (e) => {
+        const why = whyText(e);
+        onError(t`The big first letter setting could not be saved: ${why}. Try again.`);
+      },
+    );
+  };
+  const centred = print.matter.verticalCenter;
+  const rows: [string, string][] = [
+    [t`Trim size`, `${trim.w} × ${trim.h} in`],
+    [t`Body font`, `${print.bodyFonts[0]} ${print.fontSizePt} pt`],
+    [t`Line spacing`, `${print.leadingEm} em`],
+    [t`Margins (in/out)`, `${marginsIn.inside} / ${marginsIn.outside} in`],
+    [
+      t`Chapter opener`,
+      print.chapterOpening.startOn === "recto" ? t`Right-hand page` : t`Any page`,
+    ],
+    [t`Scene break`, print.sceneBreak.glyph],
+    [
+      t`Pages centred on the page`,
+      centred.length === 0 ? t`None` : centred.map((k) => kindLabels[k]).join(", "),
+    ],
+  ];
+  return (
+    <aside
+      aria-labelledby="template-details"
+      className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-t border-border bg-surface p-5 lg:w-[360px] lg:border-s lg:border-t-0"
+    >
+      <h2 id="template-details" className="font-book text-lg font-semibold">
+        {chosen.name}
+      </h2>
+      <dl className="flex flex-col divide-y divide-border">
+        {rows.map(([label, value]) => (
+          <div key={label} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
+            <dt className="text-ink-muted">{label}</dt>
+            <dd className="min-w-0 break-words text-end font-medium">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="flex flex-col gap-2">
+        <h3 className="text-sm font-semibold">{t`Big first letter`}</h3>
+        <Segmented
+          label={t`Big first letter`}
+          value={dropCap}
+          onChange={chooseDropCap}
+          items={[
+            {
+              value: "default",
+              label: print.chapterOpening.dropCap
+                ? t`Template default (on)`
+                : t`Template default (off)`,
+            },
+            { value: "on", label: t`On` },
+            { value: "off", label: t`Off` },
+          ]}
+        />
+        <p className="text-xs text-ink-muted">
+          {t`Applies to every chapter that has no choice of its own. Set one chapter from its menu in the chapter list.`}
+        </p>
+        <p role="status" className="sr-only">
+          {dropCapSaid}
+        </p>
+      </div>
+    </aside>
+  );
+}
+
 /** Choose the book's template. The chosen template is saved in cadabra.json when the book uses it. */
 export function Templates({ onBack }: { onBack: () => void }) {
   const { t } = useLingui();
@@ -48,30 +217,18 @@ export function Templates({ onBack }: { onBack: () => void }) {
     current === "nonfiction" ? [...GALLERY_TEMPLATE_IDS, current] : [...GALLERY_TEMPLATE_IDS];
   const templates = ids.map((id) => getTemplate(id));
   const chosen = getTemplate(selected);
-  const { print } = chosen;
-  const trim = TRIM_SIZES[print.defaults.trimSize];
-  const { marginsIn } = print.defaults;
   const apply = async () => {
     setError("");
     try {
       await setTemplate(selected);
       onBack();
     } catch (e) {
-      setError(errText(e));
+      const why = whyText(e);
+      setError(
+        t`The template could not be applied: ${why}. Try again, or choose another template.`,
+      );
     }
   };
-  const rows: [string, string][] = [
-    [t`Trim size`, `${trim.w} × ${trim.h} in`],
-    [t`Body font`, `${print.bodyFonts[0]} ${print.fontSizePt} pt`],
-    [t`Line spacing`, `${print.leadingEm} em`],
-    [t`Margins (in/out)`, `${marginsIn.inside} / ${marginsIn.outside} in`],
-    [
-      t`Chapter opener`,
-      print.chapterOpening.startOn === "recto" ? t`Right-hand page` : t`Any page`,
-    ],
-    [t`Scene break`, print.sceneBreak.glyph],
-  ];
-
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
       <header className="flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-2">
@@ -92,81 +249,20 @@ export function Templates({ onBack }: { onBack: () => void }) {
         </Notice>
       )}
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8">
-          <h2 className="font-book text-2xl font-semibold">{t`Choose a look for your book`}</h2>
-          <div
-            role="radiogroup"
-            aria-label={t`Templates`}
-            className="flex flex-wrap gap-4"
-            onKeyDown={(e) => {
-              // ArrowRight moves toward the visual right, which is backwards in a right-to-left layout.
-              const fwd =
-                getComputedStyle(e.currentTarget).direction === "rtl" ? "ArrowLeft" : "ArrowRight";
-              const back = fwd === "ArrowRight" ? "ArrowLeft" : "ArrowRight";
-              const step =
-                e.key === fwd || e.key === "ArrowDown"
-                  ? 1
-                  : e.key === back || e.key === "ArrowUp"
-                    ? -1
-                    : 0;
-              if (!step) return;
-              e.preventDefault();
-              const at = templates.findIndex((x) => x.id === selected);
-              const next = templates[(at + step + templates.length) % templates.length];
-              if (!next) return;
-              setSelected(next.id);
-              e.currentTarget.querySelector<HTMLElement>(`[data-template="${next.id}"]`)?.focus();
-            }}
-          >
-            {templates.map((tpl) => {
-              const on = tpl.id === selected;
-              return (
-                <button
-                  key={tpl.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={on}
-                  tabIndex={on ? 0 : -1}
-                  data-template={tpl.id}
-                  onClick={() => setSelected(tpl.id)}
-                  className={cx(
-                    "flex w-[250px] flex-col items-center gap-3 rounded-lg border bg-surface p-4 text-start transition-colors focus-visible:outline-2 focus-visible:outline-accent",
-                    on
-                      ? "border-accent bg-accent-soft/40"
-                      : "border-border-strong hover:bg-accent-soft/40",
-                  )}
-                >
-                  <MiniPage template={tpl} />
-                  <span className="flex w-full flex-col gap-0.5">
-                    <span className="text-sm font-semibold">
-                      {tpl.name}
-                      {tpl.id === current ? ` · ${t`In use`}` : ""}
-                    </span>
-                    <span className="text-xs text-ink-muted">{tpl.description}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </main>
-        <aside
-          aria-labelledby="template-details"
-          className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-t border-border bg-surface p-5 lg:w-[360px] lg:border-s lg:border-t-0"
+        <main
+          id="main"
+          tabIndex={-1}
+          className="outline-none flex min-w-0 flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8"
         >
-          <h2 id="template-details" className="font-book text-lg font-semibold">
-            {chosen.name}
-          </h2>
-          <dl className="flex flex-col divide-y divide-border">
-            {rows.map(([label, value]) => (
-              <div key={label} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
-                <dt className="text-ink-muted">{label}</dt>
-                <dd className="min-w-0 truncate text-end font-medium" title={value}>
-                  {value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </aside>
+          <h2 className="font-book text-2xl font-semibold">{t`Choose a look for your book`}</h2>
+          <TemplateGallery
+            templates={templates}
+            selected={selected}
+            current={current}
+            onSelect={setSelected}
+          />
+        </main>
+        <TemplateDetails chosen={chosen} onError={setError} />
       </div>
     </div>
   );

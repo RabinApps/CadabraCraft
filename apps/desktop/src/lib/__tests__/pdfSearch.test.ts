@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countsByPage, findMatches, toScreen, type PdfTextItem } from "../pdfSearch";
+import { countsByPage, findMatches, toScreen, type PdfTextItem } from "../export/pdfSearch";
 
 const item = (str: string, x = 0, width = str.length * 10): PdfTextItem => ({
   str,

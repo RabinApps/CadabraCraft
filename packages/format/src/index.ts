@@ -10,3 +10,7 @@ export * from "./references";
 export * from "./publishing";
 export * from "./outline";
 export * from "./toc";
+export * from "./contents";
+export * from "./icons";
+export * from "./comments";
+export * from "./codex";

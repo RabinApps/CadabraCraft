@@ -1,9 +1,9 @@
 //! Audit edge cases for font import and storage: damaged font files, awkward names, special files and path segments.
 //! Windows-only behaviour is not exercised here (unverified locally).
-use super::import::tests::{font_with_names, ttf, utf16};
-use super::import::{family_name, import_font, slug};
 #[cfg(unix)]
 use super::import::read_font;
+use super::import::tests::{font_with_names, ttf, utf16};
+use super::import::{family_name, import_font, slug};
 use super::store::{family_dir, is_safe_segment};
 use std::fs;
 use std::path::Path;
@@ -70,7 +70,9 @@ fn name_tables_that_lie_about_their_size_are_refused_or_skipped() {
 fn a_family_name_that_would_be_a_path_becomes_a_safe_folder_or_is_refused() {
     let d = tempfile::tempdir().unwrap();
     let src = tempfile::tempdir().unwrap();
-    for (family, expect) in [("../../escape", Some("escape")), ("a/b\\c:d", Some("a-b-c-d")), ("CON", Some("con")), ("..", None), ("\u{202e}\u{200b}", None), ("日本語", None)] {
+    for (family, expect) in
+        [("../../escape", Some("escape")), ("a/b\\c:d", Some("a-b-c-d")), ("CON", Some("con")), ("..", None), ("\u{202e}\u{200b}", None), ("日本語", None)]
+    {
         let path = src.path().join("f.ttf");
         fs::write(&path, ttf(family)).unwrap();
         let r = import_font(&path, d.path());

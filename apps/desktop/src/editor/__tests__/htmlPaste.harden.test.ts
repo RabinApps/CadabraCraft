@@ -11,7 +11,7 @@ import {
   safeLooksLikeHtml,
   truncate,
   tryConvertHtmlText,
-} from "../htmlPaste";
+} from "../paste/htmlPaste";
 import { budget, cpuClock } from "../../test/perf";
 
 const base = {

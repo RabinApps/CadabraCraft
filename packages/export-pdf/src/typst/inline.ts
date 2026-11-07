@@ -1,7 +1,26 @@
-import { safeHref, type DocNode, type Mark } from "@cadabracraft/shared";
+import { isLangTag, langAndRegion, safeHref, type DocNode, type Mark } from "@cadabracraft/shared";
 import { escapeMarkup, typstString } from "../escape";
 import { PdfExportError } from "../errors";
 import { unsupported, type Ctx } from "./ctx";
+
+function linkMark(content: string, m: Mark): string {
+  const href = m.attrs?.href?.trim() ?? "";
+  // Anything but http(s)/mailto keeps its text and loses the link (the href is written as typed, not re-serialized).
+  return safeHref(href) === null ? content : `#link(${typstString(href)})[${content}]`;
+}
+
+function langMark(content: string, m: Mark): string {
+  const tag = m.attrs?.lang;
+  if (!isLangTag(tag))
+    throw new PdfExportError(
+      `The language of a passage must be a BCP 47 tag (letters, digits and hyphens, at most 35 characters), not ${JSON.stringify(tag ?? null)}`,
+    );
+  // Typst takes a 2 or 3 letter language and a 2 letter region; a tag with neither (a private-use "x-..." tag) keeps its text unmarked.
+  const lr = langAndRegion(tag);
+  if (!lr) return content;
+  const region = lr.region ? `, region: ${typstString(lr.region)}` : "";
+  return `#text(lang: ${typstString(lr.lang)}${region})[${content}]`;
+}
 
 function wrapMark(content: string, m: Mark): string {
   switch (m.type) {
@@ -22,11 +41,13 @@ function wrapMark(content: string, m: Mark): string {
     // Inline code is emitted as a raw string by `inline`, which has the unescaped text.
     case "code":
       return content;
-    case "link": {
-      const href = m.attrs?.href?.trim() ?? "";
-      // Anything but http(s)/mailto keeps its text and loses the link (the href is written as typed, not re-serialized).
-      return safeHref(href) === null ? content : `#link(${typstString(href)})[${content}]`;
-    }
+    case "link":
+      return linkMark(content, m);
+    case "lang":
+      return langMark(content, m);
+    case "comment":
+      // Comments are a writing tool, never printed: the text stays and the mark goes.
+      return content;
     default:
       return unsupported(`mark:${String((m as { type: unknown }).type)}`);
   }

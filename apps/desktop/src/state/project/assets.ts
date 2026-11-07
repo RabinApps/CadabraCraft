@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { bridge } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
+import { whyText } from "../../lib/projectError";
+import { alertOf } from "./util";
 import { COVER_EXTENSIONS, type AssetActions } from "./types";
 import type { Ctx } from "./context";
 
@@ -14,13 +15,14 @@ export const createAssetActions = (ctx: Ctx): AssetActions => {
       if (!picked) return null;
       const ext = picked.slice(picked.lastIndexOf(".") + 1).toLowerCase();
       if (!COVER_EXTENSIONS.includes(ext)) {
-        set({ notice: t`A cover must be a PNG, JPEG or WebP image.` });
+        set(alertOf(t`A cover must be a PNG, JPEG or WebP image. Choose another file.`));
         return null;
       }
       try {
         return await bridge.importAsset(root, picked);
       } catch (e) {
-        set({ notice: t`Could not add the cover: ${errText(e)}` });
+        const why = whyText(e);
+        set(alertOf(t`Could not add the cover: ${why}. Choose another image and try again.`));
         return null;
       }
     },
@@ -31,7 +33,8 @@ export const createAssetActions = (ctx: Ctx): AssetActions => {
       try {
         return await bridge.importAsset(root, picked);
       } catch (e) {
-        set({ notice: t`Could not add the image: ${errText(e)}` });
+        const why = whyText(e);
+        set(alertOf(t`Could not add the image: ${why}. Choose another image and try again.`));
         return null;
       }
     },

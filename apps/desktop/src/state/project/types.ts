@@ -1,19 +1,32 @@
-import type { Manifest, Outlines, Reference, Tree, TocDepth, TocItem } from "@cadabracraft/format";
+import type {
+  CommentThread,
+  Manifest,
+  Outlines,
+  Reference,
+  Tree,
+  TocDepth,
+  TocItem,
+} from "@cadabracraft/format";
 import type { AudioFormat } from "@cadabracraft/export-audio";
+import type { OutlineFormat } from "@cadabracraft/outline";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
-import type { ChapterDoc, MatterKind } from "@cadabracraft/shared";
-import type { PublishingForm } from "../../lib/publishingForm";
-import type { ImportChoices, ImportReport } from "../../lib/importBook";
+import type { ChapterDoc, EntryKind, MatterKind } from "@cadabracraft/shared";
+import type { PublishingForm } from "../../lib/export/publishingForm";
+import type { ImportChoices, ImportReport } from "../../lib/import/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
+import type { SceneNodeJson, ScenePatch } from "../../lib/scenes/sceneMoves";
 import type { ManuscriptFont } from "@cadabracraft/export-docx";
-import type { AudioUiError } from "../../lib/audioErrors";
-import type { FontUiError } from "../../lib/fontErrors";
-import type { RemovedReference } from "../../lib/referenceKinds";
-import type { PreviewTarget } from "../../lib/previewTarget";
+import type { AudioUiError } from "../../lib/audio/audioErrors";
+import type { FontUiError } from "../../lib/font/fontErrors";
+import type { RemovedReference } from "../../lib/references/referenceKinds";
+import type { DroppedItem } from "../../lib/references/dropped";
+import type { PreviewTarget } from "../../lib/export/previewTarget";
 
 export interface PdfExportOptions extends ExportScope {
   trimSize: TrimSize;
   pdfA: boolean;
+  /** Tagged PDF/UA-1 (accessible); can be combined with `pdfA`. Default false. */
+  pdfUa?: boolean;
   /** Template id; saved in the manifest when it differs from the current one. */
   template: string;
   /** Put the book's cover (if it has one) first, as a full-page image. Default true. */
@@ -37,6 +50,8 @@ export interface AudioExportOptions {
   language?: string;
   /** Leave out chapters that are not translated into `language` yet. Without it they stop the export, like the other formats. */
   skipUntranslated?: boolean;
+  /** Also save a plain-text transcript of the book and WebVTT captions per chapter, made from the text the voice reads. */
+  transcript?: boolean;
 }
 
 export interface AudioChapterState {
@@ -57,6 +72,8 @@ export interface AudioJob {
   cancelling: boolean;
   durationSec: number;
   files: number;
+  /** Transcript files saved next to the audio (project-relative paths), in the order written. */
+  transcripts: string[];
   /** The folder the files go to (`exports/<language>/audio`). */
   dir: string;
   /** Every chapter is rendered and the book's M4B is being joined and encoded. */
@@ -166,7 +183,24 @@ export interface BookPage {
   title: string;
   doc: ChapterDoc;
   section: "front" | "chapter" | "back";
-  kind?: MatterKind;
+  kind?: EntryKind;
+  /** Chapters only: the author's big-first-letter choice (the chapter's own, else the book's). Absent follows the template. */
+  dropCap?: boolean;
+  /** Front and back matter only: the author's own vertical position choice, centred (true) or at the top (false). Absent follows the template's kinds (`resolveVerticalCenter`). */
+  verticalCenter?: boolean;
+  /** Front and back matter only: true starts on the next page, left-hand page or not, so no blank page goes before it; false starts on a right-hand page, with a blank page before it when needed. Absent follows the book's rules. */
+  startOnNext?: boolean;
+}
+/** The words of one page of the book, with what the page numbering needs to know about it. */
+export interface EntryWords {
+  id: string;
+  section: "front" | "chapter" | "back";
+  kind?: EntryKind | undefined;
+  /** The author's own vertical position choice for a matter page (see `BookPage.verticalCenter`). */
+  verticalCenter?: boolean | undefined;
+  /** The author's start for a matter page (see `BookPage.startOnNext`). */
+  startOnNext?: boolean | undefined;
+  words: number;
 }
 /** The whole project store: the open book, what is in progress, and the actions that change them. */
 export interface ProjectState {
@@ -178,6 +212,8 @@ export interface ProjectState {
   /** Loaded content of the current chapter; the editor owns edits until saveCurrent. */
   currentDoc: ChapterDoc | null;
   notice: string;
+  /** The `notice` text when it reports a failure or lost data: the header announces it assertively (role alert), everything else politely. */
+  alertNotice: string;
   hashes: Record<string, string>;
   /** Unsaved editor content for the current chapter; flushed before switching chapters or exporting. */
   draft: ChapterDoc | null;
@@ -207,12 +243,17 @@ export interface ProjectState {
   referenceImport: ReferenceImport | null;
   /** Pages offered for recovery when the book was opened, one dialog at a time; entries leave when restored or dismissed. */
   recovery: Recovery[];
+  /** The open page's comment threads, as `comments/<page-id>.json` holds them. */
+  comments: CommentThread[];
+  /** The page `comments` belong to; null when no page is open. */
+  commentsPageId: string | null;
   actions: ProjectActions &
     PageActions &
     HistoryActions &
     TrashActions &
     SnapshotActions &
     ReplaceActions &
+    SceneActions &
     AssetActions &
     ReferenceActions &
     TocActions &
@@ -220,26 +261,51 @@ export interface ProjectState {
     AudioActions &
     VoiceActions &
     FontActions &
-    EditionActions;
+    EditionActions &
+    CommentActions;
 }
 
 export interface ReferenceActions {
   /** Imports files into `references/` and lists them in the book. Without `paths` it asks the author to pick files. Duplicates and refused files become `referenceNotices`; nothing throws. */
   addReferences: (paths?: string[]) => Promise<void>;
-  /** Changes a reference's title, note, tags or linked pages. Failures set `notice`. */
+  /** Adds a web link; returns a message when it cannot be added (not an http or https address, or already in the book), otherwise null. */
+  addLink: (url: string, title?: string) => Promise<string | null>;
+  /** Changes a link's address; returns a message when it is not an http or https address or cannot be saved, otherwise null. */
+  updateLink: (id: string, url: string) => Promise<string | null>;
+  /** Adds a text note; returns a message when it cannot be added, otherwise null. */
+  addNote: (text: string, title?: string) => Promise<string | null>;
+  /** Adds what was dropped on the panel (links and a note); problems come back as `referenceNotices`. */
+  addDropped: (items: DroppedItem[], tooLong?: boolean) => Promise<void>;
   /** Reads the project trash for removed reference files. Failures leave the list as it was. */
   refreshRemovedReferences: () => Promise<void>;
   /** Moves a removed reference file back and lists it again, titled from its file name. Returns the error text to show, or null when it worked. */
   restoreReference: (trashPath: string) => Promise<string | null>;
   /** Puts a reference at position `to` of the list and saves. */
   moveReference: (id: string, to: number) => Promise<void>;
+  /** Changes a reference's title, note, tags or linked pages (a link's address, a note's text). Failures set `notice`. */
   updateReference: (
     id: string,
-    patch: Partial<Pick<Reference, "title" | "note" | "tags" | "chapters">>,
+    patch: Partial<Pick<Reference, "title" | "note" | "tags" | "chapters">> & {
+      url?: string;
+      text?: string;
+    },
   ) => Promise<void>;
   /** Takes a reference out of the book and moves its file to the project trash. */
   removeReference: (id: string) => Promise<void>;
   dismissReferenceNotices: () => void;
+}
+
+export interface CommentActions {
+  /** Reads `comments/<page-id>.json` into `comments`: a missing file is an empty list, an unreadable one sets `notice`. */
+  loadComments: (pageId: string | null) => Promise<void>;
+  /** Adds a thread anchored to the text that carries `comment` mark `threadId`, and writes the file. */
+  addComment: (threadId: string, body: string) => Promise<void>;
+  /** Adds a reply to a thread, with the time it was written. */
+  replyComment: (threadId: string, body: string) => Promise<void>;
+  /** Marks a thread dealt with (or reopens it); the words stay either way. */
+  resolveComment: (threadId: string, resolved: boolean) => Promise<void>;
+  /** Forgets the threads in memory (the file is untouched); the next page load reads them again. */
+  dismissComments: () => void;
 }
 
 export interface TocActions {
@@ -248,6 +314,8 @@ export interface TocActions {
   /** How many heading levels the contents page lists below each page (0 lists pages only). Failures set `notice`. */
   setTocDepth: (contentsId: string, depth: TocDepth) => Promise<void>;
   setTocPageNumbers: (contentsId: string, on: boolean) => Promise<void>;
+  /** Whether the contents page lists the book's parts (default true) or leaves them out. */
+  setTocParts: (contentsId: string, on: boolean) => Promise<void>;
   /** Renames an item in the shown language; an empty text goes back to the generated one. */
   renameTocItem: (contentsId: string, key: string, title: string) => Promise<void>;
   hideTocItem: (contentsId: string, key: string) => Promise<void>;
@@ -298,6 +366,8 @@ export interface ProjectActions {
   dismissImportReport: () => void;
   /** Sets the book's template (cadabra.json). A no-op when it is already set. */
   setTemplate: (id: string) => Promise<void>;
+  /** Sets the book's big first letter on chapter openings (`manifest.dropCap`): true, false, or null to follow the template. A no-op when nothing changes. */
+  setBookDropCap: (dropCap: boolean | null) => Promise<void>;
   /** Saves the book's print fonts (`manifest.fonts`). A missing or empty key means the template's own font; no key at all removes `fonts`. A no-op when nothing changes. */
   setBookFonts: (fonts: { body?: string; heading?: string }) => Promise<void>;
   /** Saves the book details (cadabra.json) of `edition` (default: the source; a translation keeps its language). Trims text; an empty ISBN becomes null. Throws (a message for the author) when the title, author, language or identifier is empty or the cover is not an `assets/` image. */
@@ -312,18 +382,34 @@ export interface PageActions {
   setDraft: (doc: ChapterDoc) => void;
   saveCurrent: (doc: ChapterDoc) => Promise<void>;
   add: (title: string) => Promise<void>;
+  /** Adds a part divider after the open page (or at the end of the chapters) and opens its page. */
+  addPart: (title: string) => Promise<void>;
+  /** Adds a part divider before chapter `id` and opens its page, so that chapter starts the new part. */
+  startPart: (id: string, title: string) => Promise<void>;
   /** Adds a front or back matter page of `kind` with generated starter content and opens it. Throws when a limited kind (title page, copyright) already exists. */
   addMatter: (section: "front" | "back", kind: MatterKind, title?: string) => Promise<void>;
+  /** Adds a blank page right after the open page, in whatever part of the book it is in. */
+  addBlank: () => Promise<void>;
   /** Rename, move and remove work on chapters, front matter and back matter alike (`id` decides). */
   rename: (id: string, title: string) => Promise<void>;
   move: (id: string, delta: number) => Promise<void>;
+  /** Moves a part with its chapters past the previous or next part; clamped at the first and last part. */
+  movePart: (id: string, delta: number) => Promise<void>;
+  /** Sets the sidebar icon of a page (a name from the format package's `ENTRY_ICONS`), or removes it with null. Not exported; undoable. */
+  setIcon: (id: string, icon: string | null) => Promise<void>;
+  /** Sets a chapter's own big first letter: true, false, or null to follow the book. Undoable. */
+  setChapterDropCap: (id: string, dropCap: boolean | null) => Promise<void>;
+  /** Sets a front or back matter page's own vertical position: true centres it between the margins, false keeps it at the top, null follows the template. Undoable. */
+  setVerticalCenter: (id: string, verticalCenter: boolean | null) => Promise<void>;
+  /** Lets a front or back matter page start on the next page, left-hand page or not (true), or puts it back under the book's rules (null). Undoable. */
+  setStartOnNext: (id: string, startOnNext: boolean | null) => Promise<void>;
   remove: (id: string) => Promise<void>;
   /** Every page in reading order (of `language`, default the open edition) with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
   readPages: (language?: string) => Promise<BookPage[]>;
   /** Words in all chapters (front and back matter excluded). Pages whose file is unchanged since they were last counted are not read again; the open page is counted from memory. */
   bookWords: () => Promise<number>;
-  /** Words of each chapter before the entry `id` in reading order (front and back matter excluded), for Page view's page numbers. */
-  chapterWordsBefore: (id: string) => Promise<number[]>;
+  /** The words of every page in reading order (front and back matter included), for the page numbers: pages with no text in the open language are left out. Same cache as `bookWords`. */
+  entryWords: () => Promise<EntryWords[]>;
 }
 
 export interface HistoryActions {
@@ -351,6 +437,27 @@ export interface SnapshotActions {
   restoreBook: (snapshot: string) => Promise<void>;
   /** Stops offering a page for recovery until the book is opened again. */
   dismissRecovery: (id: string) => void;
+}
+
+export interface SceneActions {
+  /**
+   * Changes a scene's notes in any chapter of the open edition, open or not, and returns false when the chapter or the scene is
+   * not there. Writes the chapter file (backup, temp file and rename) and records one book undo step. The scene's `id` never changes.
+   */
+  patchSceneIn: (chapterId: string, sceneId: string, patch: ScenePatch) => Promise<boolean>;
+  /**
+   * Moves a scene, with everything in it, to `index` among the scenes of chapter `toChapterId` (its place once the scene is lifted
+   * out when the chapter is its own). Returns false when nothing moved. Across chapters the destination is written first, then the
+   * source, so a failure never loses the scene; one book undo step covers both files.
+   */
+  moveScene: (sceneId: string, toChapterId: string, index: number) => Promise<boolean>;
+  /** Wraps the text that sits outside every scene of a chapter into scenes with empty notes; returns their ids (none when there was nothing to wrap). */
+  wrapUnsortedIn: (chapterId: string) => Promise<string[]>;
+  /**
+   * Adds new scenes after everything in a chapter of the open edition, open or not, and returns their ids (none when the chapter is
+   * not there or `scenes` is empty). Only adds: no existing block or scene changes. One book undo step. The story-structure templates use it.
+   */
+  addScenesIn: (chapterId: string, scenes: SceneNodeJson[]) => Promise<string[]>;
 }
 
 export interface ReplaceActions {
@@ -384,6 +491,8 @@ export interface ExportActions {
   exportEpub: (scope?: ExportScope) => Promise<void>;
   /** Writes the whole book as exports/<language>/book.md. With `htmlMarks` false it throws `MarkdownExportError` (naming the chapter) at the first underline, small caps, superscript or subscript. */
   exportMarkdown: (options: { htmlMarks: boolean } & ExportScope) => Promise<void>;
+  /** Writes the book's chapters and scenes (titles, synopses and the scene fields, never the text) as exports/<language>/outline.opml, outline.md or outline.csv. The codex names the scene cast. Throws when the book has no chapters. */
+  exportOutline: (options: { format: OutlineFormat } & ExportScope) => Promise<void>;
   /** Writes the whole book as exports/<language>/manuscript.docx in standard manuscript format. Throws a `DocxExportError` message that names the page (and node) it cannot write. */
   exportDocx: (options: { font: ManuscriptFont } & ExportScope) => Promise<void>;
   /** Writes the whole book as exports/<language>/manuscript.rtf in the same manuscript format. Throws an `RtfExportError` message that names the page (and node) it cannot write, for example a GIF, WebP or SVG image. */

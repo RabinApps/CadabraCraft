@@ -6,6 +6,12 @@ CadabraCraft is a desktop app for writing a book and turning it into an e-book (
 
 ## Getting started
 
+### The welcome screen
+
+The first time you open CadabraCraft it shows a welcome screen instead of the start screen: what the app can do, and that it is 100% supported by sponsors. **Get started** takes you to the start screen. **Sponsor CadabraCraft** opens the sponsorship page in your browser; nothing is sent from the app itself, and nothing in your book changes.
+
+You see it once. To read it again, choose **Help > Welcome to CadabraCraft…**. **Get started** then brings you back to where you were.
+
 ### Make or open a book
 
 On the start screen choose:
@@ -15,6 +21,19 @@ On the start screen choose:
 - **Import…** to start a book from a Word, Markdown or HTML file (see [Importing](#importing-a-manuscript)).
 
 Books you opened before appear under **Recent projects**. File > Open Recent lists them too.
+
+### The Library
+
+**View all books** on Home (or File > Library…, or the command palette) opens the Library: every book the app knows about, not only the newest eight.
+
+- **Covers or List.** Books show their cover picture, or the title on a colour when there is none. Pick the layout with the Covers and List buttons.
+- **Sort by** last edited, title, author, most words or series order. Books with no author go last under Author; books you have not opened yet have no word count and go last under Most words.
+- **Search** matches the letters you type in order against the title, the author and the series, so `tso` finds "The Salt Orchard". The count under the title reads "3 of 12 books" while you search.
+- **Group by series.** Books whose Book details name a series sit together under its name, in reading order by their number, with a "Book 2" tag on each. Books with no series follow under "Not in a series". Switch grouping off to see one list.
+- **Add a folder of books…** looks in a folder you choose (and up to three folders inside it) for books and lists what it finds. It reads only each book's `cadabra.json`, so a book found this way shows no word count until you open it. A folder whose `cadabra.json` is damaged is skipped and counted in the message.
+- **Remove** (the x on a book) takes it off the list. It never touches the book's folder. If a book's folder was moved or deleted, opening it says "Folder not found"; remove it or move the folder back.
+
+Your choices (sort, layout, grouping) are remembered. The list of known books and the cover thumbnails live in this app on this computer, not in your book folders.
 
 ### Your book is a folder
 
@@ -27,7 +46,7 @@ MyBook/
   front-matter/    title page, copyright page, dedication...
   back-matter/     acknowledgments, about the author...
   assets/          your images and cover
-  exports/         the EPUB, PDF and Markdown files you make
+  exports/         the EPUB, PDF, Markdown and outline files you make
   .cadabra/        the app's own safety copies and trash
 ```
 
@@ -48,7 +67,9 @@ Click a chapter in the list on the left to edit it. Changes are saved automatica
 The toolbar and the **Format** and **Insert** menus offer:
 
 - Bold, italic, underline, small caps, strikethrough, code, superscript and subscript
+- Language of selection (the **More formatting** button at the end of the toolbar, the **Format** menu or the command palette): marks a passage in another language than the book's, such as a French phrase in an English book, so screen readers pronounce it right and the exports carry it. Pick a language or type any tag such as `fr-CA`; **Clear language** removes it. Markdown carries it only when the HTML marks option is on; the audiobook reads every passage with the edition's voice
 - Heading 1, 2 and 3
+- Text alignment (the align button in the toolbar, Format > Alignment, or Cmd/Ctrl+Shift+L, +C and +R): **Align to Start**, **Centre**, **Align to End** and **Template Default**. It applies to the paragraph or heading where the cursor is, or to every paragraph you have selected, including paragraphs in quotes, lists and table cells. The wording is start and end because that is what it does in a right-to-left book: start is the left in an English book and the right in a Hebrew or Arabic one. A centred or aligned paragraph is set without the first-line indent and without justification, as in the finished book, and an aligned first paragraph of a chapter has no large first letter. **Template Default** puts the block back to what the template does (indented, justified body text). Markdown has no way to say it: the alignment appears in a Markdown export only when you turn on HTML marks
 - Block quote, bulleted list and numbered list
 - Links (http, https or mailto addresses only)
 - Task lists (Format > Task List; click a box to tick it) and definition lists (Insert > Definition List: a term line, then its description)
@@ -57,7 +78,7 @@ The toolbar and the **Format** and **Insert** menus offer:
 
 ### Chapter headings and scene breaks
 
-Use **Heading 1** for a chapter title; headings 2 and 3 are for sections inside a chapter. A **scene break** (Insert > Scene Break, or the asterisk button) marks a shift in time or place. In the finished book it is shown with the template's own ornament, so you never have to type rows of asterisks.
+Use **Heading 1** for a chapter title; headings 2 and 3 are for sections inside a chapter. A **scene break** (Insert > Scene Break, or **More formatting** at the end of the toolbar) marks a shift in time or place. In the finished book it is shown with the template's own ornament, so you never have to type rows of asterisks.
 
 ### Footnotes
 
@@ -70,7 +91,7 @@ Insert > Image… lets you pick a picture (png, jpg, gif, webp or svg, up to 25 
 ### Focus mode, typewriter scrolling and a word goal
 
 - **Focus mode** (View > Focus Mode, Cmd/Ctrl+Shift+F) hides everything but the page. Press Escape or click the button at the top right to leave.
-- **Typewriter scrolling** keeps the line you are writing in the middle of the screen. Turn it on in Settings, Editor.
+- **Typewriter scrolling** keeps the line you are writing in the middle of the screen: the text moves up under the caret as you type, press Enter or use the arrow keys. Turn it on in View > Typewriter Scrolling (Cmd/Ctrl+Alt+T), in the command palette, or in Settings, Editor. It is off by default and is a setting of the app, not of the book. Clicking with the mouse, scrolling with the wheel or the trackpad, Find and the outline never move the page by themselves; the next key you type brings the line back to the middle. The first lines of a chapter stay near the top (the page cannot scroll above its start), and extra space at the end lets the last line reach the middle. Nothing animates, so the page does not glide when you have asked your system for less motion.
 - **Session word goal** (Settings, Editor) is the number of words you want to write each time you open a book. While it is above 0, a small progress bar at the bottom of the window shows how many words you have written since you opened the book. Set it to 0 to turn it off.
 - Settings, Editor also has the manuscript font, the width of the writing column and what to do when you paste text that contains HTML tags.
 
@@ -94,14 +115,24 @@ Turn on **Page view** (the page button in the header, or View, Page View, Cmd/Ct
 
 Page breaks are approximate, which is why the chip above the pages says so: the PDF is the reference, and its breaks can differ by a line or two (and a few pages in a long book). The pages are set in your template's print font when that font is on this computer; otherwise your manuscript font is used, and the chip's tooltip tells you which. Page numbers count from the word counts of the chapters before this one. Page view is for Write mode on a computer-sized window, not on a phone and not in Read mode.
 
+Write mode scrolls on through the book: when you reach the last page of the open front matter page, chapter or back matter page and keep scrolling, the next one opens at its first page. Scrolling up at its first page goes back to the previous one and shows its last page. Each page is still its own file, so undo, find, the word counts and page breaks stay per page; only the scrolling carries on from one to the next. A page that fits on the screen hands over with one wheel notch at its end. The phone's plain reading text does the same.
+
 ## Organising your book
 
 The list on the left has three parts: front matter, chapters and back matter. Reading order is simply the order of this list.
 
-- **Add chapter** adds a new one at the end. **Add page** adds front or back matter: title page, copyright page, dedication, epigraph, contents, foreword, preface (front), and acknowledgments, about the author, also by, colophon (back), or a custom page. A book has at most one title page, one copyright page and one contents page (see [Contents page](#contents-page)).
-- The `...` menu next to each entry lets you **Rename**, **Move up**, **Move down** or **Move to trash**.
+On a window at least 1024 px wide you can widen or narrow the list by dragging the divider between it and the page; it stops at its minimum and maximum widths. Focus the divider and use the left and right arrows to change the width, or Home and End for the limits. The app remembers the width. On a narrower window the list opens as a sheet, which has its own fixed width and no divider.
+
+- **Add chapter** adds a new one at the end. **Add page** adds front or back matter: title page, copyright page, dedication, epigraph, contents, foreword, preface (front), and acknowledgments, about the author, also by, colophon (back), or a custom page. A book has at most one title page, one copyright page and one contents page (see [Contents page](#contents-page)). The arrow beside **Front matter** or **Back matter** collapses that section in the list and shows it again; it does not change the book.
+- The `...` menu next to each entry lets you **Rename**, **Change icon**, **Move up**, **Move down** or **Move to trash**. Chapters also have a **First letter** choice, and front and back matter pages (except contents and copyright) have a **Vertical position** choice (see [Vertical position of front and back matter](#vertical-position-of-front-and-back-matter)). Front and back matter pages also have a **Page start** choice (see [Blank pages and where a page starts](#blank-pages-and-where-a-page-starts)).
 - **Trash** (bottom of the list) shows pages you moved to the trash. **Restore** puts one back at the end of its section. Nothing is ever permanently deleted by the app; trashed files stay in `.cadabra/trash/` inside your book folder until you delete them yourself.
 - **Book undo and redo** (the arrows at the bottom of the list, or Edit > Undo ... / Redo ..., Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z) reverse changes to the structure: adding, renaming, moving, trashing and restoring. The button says what it will undo. They do not undo typing (normal Cmd/Ctrl+Z does that) and they start fresh each time you open the book.
+
+### Parts
+
+**Add part** puts a divider in the chapters list: the chapters after it, up to the next part, belong to it, and the list indents them under the part with a chapter count. **Start part here** in an existing chapter's `...` menu puts the divider before that chapter instead, so the chapter and the pages after it start the new part. A part is a real page in the book, so it opens on a right-hand page with its title centred between the margins, no running head and no page number; in the print PDF, EPUB, Word, RTF and Markdown it is its own page. The audiobook and outline exports skip it.
+
+Choose the part in the list and type its title as you would a chapter's. The arrow at the start of a part row hides its chapters in the list and shows them again; it changes only the list, not the book. Its `...` menu has **Rename** (the sidebar label), **Move part up** and **Move part down** (the part and all its chapters move together) and **Remove part**. Removing a part removes only the divider; its chapters stay in the book under the part before it, and the divider page goes to the project trash. A part cannot be dragged with the grip, because dragging the divider alone would silently regroup its chapters.
 
 ### Contents page
 
@@ -109,15 +140,86 @@ The list on the left has three parts: front matter, chapters and back matter. Re
 
 - **Chapters, +H1, +H1-H2, +H1-H3** choose how much to list: only the chapters, or also the headings inside them down to that level.
 - **Page numbers** switches the numbers (and, in print, the dot leaders) on or off. They show the page the PDF will print: from the real layout when the book has been typeset, otherwise an estimate from the word counts marked with "≈". Heading numbers need the real layout and show a dash until it is known. The numbers apply to the print PDF only; an e-book has none.
-- Each entry has a **grip** (drag to reorder) and a `...` menu: **Rename** (or double-click the title), **Move up**, **Move down** (the keyboard and touch way to reorder), **Hide from contents** / **Show in contents** and, for an entry you changed, **Reset this entry**. Your changes are layered on top of the generated list; the chapter itself is never renamed or moved.
+- **Include parts** lists your part dividers at the top level of the contents, with their chapters nested under them (on by default). Switch it off to leave the part rows out without losing the renames or hidden choices you made on them; the chapters then sit flat, and switching it back on restores both the part rows and the nesting.
+- Each entry has a **grip** (drag to reorder) and a `...` menu: **Rename** (or double-click the title), **Move up**, **Move down** (the keyboard and touch way to reorder), **Hide from contents** / **Show in contents** and, for an entry you changed, **Reset this entry**. Moving a part row takes its chapters, headings and custom entries with it; a chapter stays inside its part. Your changes are layered on top of the generated list; the chapter itself is never renamed or moved.
 - **Add custom entry** adds a line of your own (for example a part title): where it goes, and which entry it points at, which is where its page number comes from.
-- **Reset to outline** (after a confirmation) removes every rename, hidden entry, custom entry and new order, and keeps the depth and the page-number switch.
+- **Reset to outline** (after a confirmation) removes every rename, hidden entry, custom entry and new order, and keeps the depth, page-number and **Include parts** switches.
 - A change that points at a chapter or heading that is gone or was edited is kept and listed under **Changes that no longer match**, with a **Remove** button; a custom entry whose target is gone shows a **Stale** badge. Nothing is dropped without you removing it.
 - **Preview** shows the contents page as it will be printed, at your book's trim size, next to the list (on a window at least 1280 px wide) or behind an **Edit | Preview** switch under the title (on narrower windows; the app remembers which one you left open). It follows every change you make a moment after you make it. The heading says where it comes from: **Exact pages from Typst** means it is the real page from the same layout as the PDF, so the numbers and line breaks match (roman numerals in the front matter, arabic in the body, no numbers or dot leaders when **Page numbers** is off, more pages when the list is long). Without Typst on your computer the preview says **Approximate: Typst is not available** and draws the same list itself: numbers marked "≈" are estimates and the line breaks are only close. **Could not draw the preview** has a **Retry** button and keeps the last page on screen. Nothing is made while the preview is hidden.
 
-Changes to the contents page are part of **Book undo and redo**. In a translation edition each entry has its own title for that language. The contents page shows its list in Read mode, in the print preview and in every export (see [Exporting](#exporting)); Page view shows the page's own title only.
+Changes to the contents page are part of **Book undo and redo**. In a translation edition each entry has its own title for that language. Read mode draws the contents page the way the preview does: the same entries in the same order (renames, hidden entries and depth applied), dot leaders and page numbers (Typst's when the book has been measured, marked "≈" when estimated, none when **Page numbers** is off), mirrored in a right-to-left book. Each entry is a link: choose it (or press Enter on it) and the reader scrolls to that chapter or heading. The list also appears in the print preview and in every export (see [Exporting](#exporting)); Page view shows the page's own title only.
 
 Book details (File > Book Details…, or the book icon at the top) hold the title, author, language, ISBN, identifier and cover image. The cover is a PNG, JPEG or WebP image up to 25 MB; portrait and about 1600 x 2400 pixels works best. Change the look of the printed book on the **Templates** page (Change template in the details panel). The Novel, Nonfiction and Modern templates are included.
+
+### Vertical position of front and back matter
+
+Short pages look best in the middle of the page. The title page, dedication and epigraph are **centred** by default: their text sits halfway between the top and bottom margins, in the editor's page view, in Read mode, in the print PDF and in the EPUB. Every other page starts at the top, like the first page of a chapter.
+
+To change one page, open its `...` menu in the list and choose **Vertical position**:
+
+- **Default** follows the template (the Templates page lists "Pages centred on the page" for each template).
+- **Centred** puts the page's text in the middle of the page, for example a short foreword or an "About the author" page.
+- **Top** keeps it at the top, for example a long epigraph or a title page you want at the top.
+
+The choice goes through book undo and redo, and the screen reader hears it ("Dedication: centred on the page"). A page that is longer than one page is never centred, so nothing is pushed off the page; it simply starts at the top. In the PDF the text sits exactly between the margins. An EPUB is reflowable, so the e-reader decides: most readers centre the page on the screen, and the others leave a margin above the text. On a phone-sized window the editor shows plain reading text, which is never centred. Word, RTF and Markdown exports have no page layout, so this choice does not change them.
+
+### Blank pages and where a page starts
+
+A printed book opens its title page, contents page, dedication and epigraph on a right-hand page, and it starts the page after a dedication or an epigraph on a right-hand page too. To make that happen the book puts a blank left-hand page in between when it needs one. Those blanks are part of the book, not pages you wrote: you cannot type in them, rename them or delete them, and in the PDF they are blank.
+
+Two quotes in a row, or a dedication followed by a short epigraph, can therefore leave blank pages between front matter pages. Every front and back matter page has a **Page start** choice in its `...` menu, with three answers:
+
+- **Follows the book** (the default) lets the rules above decide, blank pages included.
+- **Start on the next page** makes the page follow the one before it, left-hand or right-hand, so no blank page goes before it.
+- **Start on a right-hand page** gives the page a blank left-hand page when it would otherwise land on a left-hand one, for example a disclaimer or a quote page that should open on the right.
+
+All three change the page view, Read mode and the exported PDF. The choice goes through book undo and redo, and the screen reader hears it ("Epigraph: starts on the next page", "Disclaimer: starts on a right-hand page").
+
+Every page can be given a blank page or have one taken away, whatever the rules above would do with it: a page that already follows on can be put on a right-hand page this way, and a page whose blank you no longer want can be told to start on the next page. Chapters have no such choice.
+
+A blank page of your own is a page like any other: choose **Add page**, then **Blank page** at the top of the menu (or **Insert**, then **Blank page**), and it is added straight after the page you have open, wherever that page is: in the front matter, between two chapters, or in the back matter. Move it with the grip or **Move up** and **Move down** to put it where you want it; an open page puts it next to itself, so to add one between chapters open the chapter before it. It holds no text, so there is nothing to type into it and nothing to translate; it prints no page number and no running head, and it is left out of the contents page and of the EPUB, Word, RTF and Markdown exports, which have no fixed pages. It is a page in Page view, in Read mode and in the printed PDF, and two of them put two empty pages between the pages on either side of them.
+
+A **page break** puts the next paragraph on a fresh page without adding a page of its own: choose **Insert**, then **Page break** (or **Page break** in the More formatting menu at the end of the toolbar), and the block after it starts at the top of the next page. It prints nothing but the break, so two in a row leave an empty page inside the chapter — the same two sides of the paper apply, and the second break is what makes the empty page. A break that lands where the page already ended asks for nothing. The break itself shows in Write view as a thin **PAGE BREAK** rule, which you can click and delete like any other block; Page view shows the page ending there, with no line on the paper. Word and Rich Text get a real page break, the EPUB breaks there for readers that paginate, and the Markdown export leaves it out because it has no pages.
+
+In a printed book a sheet of paper has two sides, so blank pages come in pairs: two blank pages are one blank leaf. A page that has to open on a right-hand side after them needs an even number of them, and the book still inserts its own blank page if the rules call for one.
+
+Chapter openings follow the template's own setting instead (the Templates page says whether chapters open on a right-hand page); a chapter always starts exactly where its page cards say it does.
+
+## Planning on the scene board
+
+A **scene** is a stretch of a chapter with its own notes: a title, a synopsis, a point of view (POV), a status and a target length. Add one with **+ Scene** under a chapter in the chapter list; the scene's notes open beside the text. Scene titles and notes are for you: they never print.
+
+Open the **scene board** from the grid button in the top bar, **View**, **Scene Board** (or the command palette). Every chapter is a column of cards, in book order. Each card shows the scene's title, its synopsis, its POV, its status and its words against the target.
+
+- **Edit in place.** Click a synopsis to edit it; the change is saved when you click away, and **Escape** cancels. POV suggests the characters in your codex, and accepts any other name. Status is one of Outline, Draft, Revised and Final. The chapter does not need to be open: the board changes the chapter's own file.
+- **Move a scene.** Drag the grip at the left of a card to another place in its chapter or into another chapter; a line shows where it will land. Without a mouse, focus the grip and press the up and down arrows to move within the chapter and the left and right arrows to move into the next or previous chapter, or open the card's **...** menu and choose **Move earlier**, **Move later** or **Move to chapter**. The move is announced to screen readers. Everything in the scene moves with it, and each move is one step of **Edit**, **Undo** (undoing a move between chapters puts both chapters back at once).
+- **Unsorted.** Text that sits outside every scene (a chapter written before you used scenes, or typed above the first scene) appears as a dashed **Unsorted** card at the bottom of its chapter, with its word count. **Wrap into a scene** wraps it, so it can be moved like any other scene.
+- **Story structure.** The **Story structure** button at the top of the board adds a ready-made outline to a chapter: Three-act structure, Hero's Journey, Save the Cat, Romancing the Beat or Story Circle. Choose one, choose the chapter, and **Add scenes** makes one scene for each beat, with the beat's name as its title, a short note on what it is for as its synopsis, the stage (such as "Act two") as its label and the status Outline. The scenes have no text yet, so write into them or rename and reorder them like any other scene. They are added after everything the chapter already holds; nothing there is changed or removed, and **Undo** takes all of the new scenes away in one step. The beat names and notes are in English whatever the app's language.
+- **Open scene** closes the board and shows the scene in the editor.
+
+On a tablet the columns scroll sideways. On a phone the board shows one chapter at a time; choose the chapter from the list at the top.
+
+Scene dates are the real calendar (`YYYY-MM-DD`); invented calendars are not supported. Set them on the timeline, below.
+
+## Seeing scenes on a timeline
+
+Open the **timeline** from the calendar button in the top bar, **View**, **Timeline** (or the command palette). It lists every scene of the book on one vertical line, with the chapter, the words, the synopsis, the POV and the status of each.
+
+- **Book order or Story date.** **Book order** is the order the book reads in. **Story date** puts scenes in the order they happen: each scene with a date goes by its date, and a scene without a date stays behind the scene before it in the book, so a few dates do not scramble the rest. The choice is for looking only; it changes nothing in the book and is not remembered.
+- **Set a date.** Each scene has a date field and a time field. Dates are the real calendar (`YYYY-MM-DD`); the time is optional and needs a date. The change is saved when you leave the field or press **Enter**, in the chapter's own file (the chapter does not need to be open), and is one step of **Edit**, **Undo**. **Clear** removes the date and the time.
+- **Move scenes** on the scene board; the timeline does not change the book's order. **Open** closes the timeline and shows the scene in the editor.
+
+On a phone the date sits above each card instead of beside the line.
+
+## Keeping a codex
+
+Open **Codex**, under **Book snapshots** in the chapter list. An entry is a person, a place, an object or a piece of lore: a name, a kind, a one-line summary, optional aliases and links, and as many notes as you like.
+
+- **Aliases** are the other names your manuscript uses ("Mara Vane" for Mara), one per line. A scene's point of view counts as naming the entry when it is the entry's name, its id or one of its aliases, in any case, so a chapter written before you kept a codex still appears.
+- **Links** are web addresses, one per line.
+- **New entry** adds one and selects it; the **Delete** button beside the name removes it. There is no undo inside the panel: the file is rewritten at once, so a deletion is final.
+
+The codex is `codex.json` in your book's folder, beside the book, so it travels with the folder and a sync client copies it with everything else. Entries are notes for you, not manuscript: no export prints them, and nothing in the panel reaches the page.
 
 ## History, backups and keeping your work safe
 
@@ -159,6 +261,7 @@ File > Import… (Cmd/Ctrl+Shift+I) or **Import…** on the start screen creates
 - a Word file (`.docx`)
 - a Markdown file (`.md`)
 - an HTML file (`.html` or `.htm`)
+- an outline (`.opml`, `.csv` or a Markdown outline), see [Importing an outline](#importing-an-outline)
 
 Choose the file, a title, an author and an empty folder for the new book. The next step shows the chapters the app found. You can choose which heading level starts a new chapter (Heading 1, 2 or 3), rename chapters and leave some out. Your original file is never changed.
 
@@ -166,11 +269,23 @@ After the import an **Import report** lists anything that could not be kept exac
 
 You cannot import into a book that is already open; import into a new book, then copy over what you need.
 
+## Importing an outline
+
+An outline is the structure of a book without its text: chapters, each with its scenes. The same **Import…** wizard (File > Import… for a new book, File > **Import into This Book…** to add to the open one) reads three kinds of outline file:
+
+- **OPML (`.opml`)**, which most outliners can export (OmniOutliner, Bike, Workflowy, Dynalist and others). The top-level rows become chapters and their children scenes; a row's note becomes the scene's synopsis. An OPML file written by CadabraCraft also carries point of view, status, label, target and story date, and these are kept. Rows nested deeper than a scene are left out, and the report says how many.
+- **CSV (`.csv`)** from a spreadsheet. The first row names the columns: `chapter` and `title` (or `scene`) are the ones that matter, and `synopsis` (or `summary`), `pov`, `status`, `label`, `target_words`, `date` and `cast` are used when present, in any order, with commas, semicolons or tabs between cells. Rows with the same chapter name in a row form one chapter. A row that names a chapter and no scene adds a chapter with no scenes. Without a `chapter` column the scenes go into one chapter called Untitled.
+- **Markdown (`.md`)**: a `#` heading starts a chapter, a `##` heading a scene, and the text below it is the synopsis. A Markdown file is read as a manuscript unless you choose **Outline** under **Read this file as** in the preview step.
+
+The preview shows each chapter with its number of scenes. As for a manuscript you can rename, skip, reorder and merge chapters before anything is written. Each chapter is added with its scenes (title, synopsis and, where the file has them, point of view, status, label, target and story date), each with an empty paragraph to write in. A status that is not Outline, Draft, Revised or Final, a date that is not `YYYY-MM-DD`, or a text that is too long is cleaned and listed in the **Import report**. The cast is not imported (add characters to the codex and choose them in the scene), and the report says so.
+
+Nothing in the book is overwritten: chapters are added after the last one, every scene gets a new id (so importing the same file twice adds a second copy instead of replacing the first), and your original file is never changed. A file that is damaged, not an outline, empty, too large (5 MB) or with more than 1,000 chapters or 20,000 scenes is refused with a message and nothing is written.
+
 ## Exporting
 
 File > Export opens the Export dialog (or use the shortcuts below). Files are saved in the `exports/` folder of your book as `book.epub`, `book.pdf` and `book.md`. Exporting again replaces the previous file of the same name, so move one elsewhere if you want to keep it. The `exports/` folder is safe to delete; the app can always make the files again.
 
-A contents page appears in every format that has pages to put it on: EPUB, print PDF, Markdown, and the Word and Rich Text manuscripts (the manuscripts list the titles indented by level, without page numbers or links). The audiobook skips it.
+A contents page appears in every format that has pages to put it on: EPUB, print PDF, Markdown, and the Word and Rich Text manuscripts (the manuscripts list the titles indented by level, with a part's chapters nested under it, without page numbers or links). The audiobook skips it.
 
 ### EPUB (e-book)
 
@@ -186,13 +301,23 @@ Above the options a list of **Print checks** compares your book with Amazon KDP 
 
 Below the template, **Body font** and **Heading font** let you pick the fonts of the PDF. "Template default" uses the template's own font, and "Same as body" sets headings in the body font. The choice is saved with the book. The font file is not: if you open the book on a computer that does not have the font, the export stops and says so, with an **Open Fonts** button that takes you to Settings, Fonts (see [Fonts](#fonts)). CadabraCraft never swaps in a different font for you.
 
-A contents page is typeset as a list with dot leaders and the printed page numbers (roman numerals in the front matter, then arabic), indented by level; turn **Page numbers** off on the contents page for a plain list. The numbers come from the same layout as the PDF, so they match its pages.
+A contents page is typeset as a list with dot leaders and the printed page numbers (roman numerals in the front matter, then arabic), indented by depth: a part's chapters sit under it and their headings below them. Turn **Page numbers** off on the contents page for a plain list. The numbers come from the same layout as the PDF, so they match its pages.
 
 The PDF is built by Typst. Installers are meant to ship with it (see Troubleshooting for builds from source).
 
 ### Markdown
 
 Writes the whole book as one Markdown file in reading order. A contents page becomes a nested list of links to the chapters and headings. Underline, small caps, superscript and subscript have no Markdown form, so by default the export stops and names the chapter; tick **Keep underline and small caps** to write them as HTML tags instead.
+
+### Outline
+
+Writes the structure of the book without its text: each chapter with its scenes, and for every scene the title, synopsis, point of view, status, label, target, word count, story date and the names of the cast (from the codex). Pick **Outline** in the Export dialog, then a file type:
+
+- **OPML (.opml)** opens in outliners such as OmniOutliner or Bike. The synopsis is the note of each row, and the other fields travel as extra attributes that a plain outliner ignores.
+- **Markdown (.md)** has a heading for each chapter and scene with the synopsis below it, and a line of fields.
+- **CSV (.csv)** has one row per scene (and one row for a chapter without scenes), for a spreadsheet. A cell that starts with `=`, `+`, `-` or `@` gets a leading apostrophe so a spreadsheet cannot run it as a formula. It is a generic spreadsheet shape, not a format of any particular planning app.
+
+The file is `outline.opml`, `outline.md` or `outline.csv` in `exports/<language>/`. Front and back matter are left out. To read an outline back in, see [Importing an outline](#importing-an-outline).
 
 After an export finishes the app may offer a sponsor dialog; you can say "Maybe later" or "Don't show again".
 
@@ -252,6 +377,7 @@ On Windows and Linux use Ctrl where the table says Cmd.
 | Find and replace          | Cmd/Ctrl+Alt+F                            |
 | New chapter               | Cmd/Ctrl+Shift+N                          |
 | Focus mode                | Cmd/Ctrl+Shift+F                          |
+| Typewriter scrolling      | Cmd/Ctrl+Alt+T                            |
 | Page view                 | Cmd/Ctrl+Shift+P                          |
 | Previous page / next page | Cmd/Ctrl+[ and Cmd/Ctrl+]                 |
 | Undo / redo typing        | the usual Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z |
@@ -259,6 +385,7 @@ On Windows and Linux use Ctrl where the table says Cmd.
 | Leave focus mode          | Escape                                    |
 | Bold, italic, underline   | Cmd/Ctrl+B, Cmd/Ctrl+I, Cmd/Ctrl+U        |
 | Inline code               | Cmd/Ctrl+E                                |
+| Align start, centre, end  | Cmd/Ctrl+Shift+L, +C, +R                  |
 
 Everything else is in the menus.
 

@@ -1,27 +1,30 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { exportDir, sourceEdition } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
-import { FileText, Printer } from "lucide-react";
-import type { ManuscriptFont } from "@cadabracraft/export-docx";
-import { PdfUiError } from "../../lib/pdfErrors";
+import { PdfUiError } from "../../lib/export/pdfErrors";
 import { errText } from "../../lib/projectError";
-import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Segmented } from "../../ui/Segmented";
-import { useSponsor } from "../../state/sponsor";
-import { bleedInches } from "../../state/printSetup";
+import { useSponsor } from "../../state/app/sponsor";
 import { useProject } from "../../state/project";
-import { AudioFooter } from "./AudioFooter";
-import { AudioPanel } from "./AudioPanel";
-import { EditionsChecklist, untranslatedIn } from "./EditionsChecklist";
-import { nativeName } from "../shell/EditionSwitcher";
-import { EpubPanel } from "./EpubPanel";
-import { ManuscriptPanel } from "./ManuscriptPanel";
-import { MarkdownPanel } from "./MarkdownPanel";
-import { PdfPanel, usePdfOptions } from "./PdfPanel";
+import { EditionsChecklist } from "./EditionsChecklist";
+import { OUTLINE_FORMATS } from "@cadabracraft/outline";
+import { usePdfOptions } from "./PdfPanel";
 import { useAudioExport } from "./useAudioExport";
 import type { ExportFormat } from "./exportFormat";
-import { Notice } from "../../ui/Notice";
+import {
+  ExportStatus,
+  type FormatChoices,
+  DEFAULT_CHOICES,
+  DialogFooter,
+  exportedFile,
+  FormatChecks,
+  FormatSwitcher,
+  FormatPanel,
+  useFormatDescription,
+  useStageText,
+} from "./parts/ExportDialogParts";
+import { runExport } from "./parts/exportRunner";
+import { useEditionPicks } from "./parts/useEditionPicks";
 
 interface Props {
   open: boolean;
@@ -49,71 +52,22 @@ export function ExportDialog({
   const { t } = useLingui();
   const manifest = useProject((s) => s.manifest);
   const stage = useProject((s) => s.exportStage);
-  const exportEpub = useProject((s) => s.actions.exportEpub);
-  const exportMarkdown = useProject((s) => s.actions.exportMarkdown);
-  const exportDocx = useProject((s) => s.actions.exportDocx);
-  const exportRtf = useProject((s) => s.actions.exportRtf);
-  const exportPdf = useProject((s) => s.actions.exportPdf);
+  const actions = useProject((s) => s.actions);
   const activeLanguage = useProject((s) => s.activeLanguage);
-  const [htmlMarks, setHtmlMarks] = useState(false);
-  const [font, setFont] = useState<ManuscriptFont>("times");
+  const [choices, setChoices] = useState<FormatChoices>(DEFAULT_CHOICES);
   const [error, setError] = useState<PdfUiError | null>(null);
   const current = activeLanguage ?? (manifest ? sourceEdition(manifest.editions).language : "");
-  // The editions to export (the open one until the author picks others) and the ones whose untranslated pages are left out.
-  const [picked, setPicked] = useState<string[]>([]);
-  const [skipped, setSkipped] = useState<string[]>([]);
   const [exporting, setExporting] = useState<string | null>(null);
-  useEffect(() => {
-    if (open) {
-      setPicked(current ? [current] : []);
-      setSkipped([]);
-    }
-    // Reset only when the dialog opens.
-  }, [open]);
-  const many = !!manifest && manifest.editions.length > 1;
-  // The checks and the page estimate follow the first picked edition.
-  const language = picked[0] ?? current;
-  const scopeOf = (l: string) => ({ language: l, skipUntranslated: skipped.includes(l) });
+  const picks = useEditionPicks(open, manifest, current);
+  const { picked, skipped, many, language, scopeOf, blocked, nothingPicked } = picks;
   const scope = scopeOf(language);
   const dir = exportDir(exporting ?? language);
-  const blocked = manifest
-    ? picked.find((l) => untranslatedIn(manifest, l).length > 0 && !skipped.includes(l))
-    : undefined;
-  const nothingPicked = many && picked.length === 0;
+  const outlineFile = OUTLINE_FORMATS[choices.outlineFormat].file;
   const pdf = usePdfOptions(manifest);
   const audio = useAudioExport({ active: open && format === "audiobook", setError });
   const running = stage !== null;
-  const stageText =
-    format === "epub"
-      ? {
-          preparing: t`Reading your chapters…`,
-          rendering: t`Building EPUB…`,
-          saving: t`Saving ${dir}/book.epub…`,
-        }
-      : format === "markdown"
-        ? {
-            preparing: t`Reading your chapters…`,
-            rendering: t`Writing Markdown…`,
-            saving: t`Saving ${dir}/book.md…`,
-          }
-        : format === "docx"
-          ? {
-              preparing: t`Reading your chapters…`,
-              rendering: t`Writing the Word file…`,
-              saving: t`Saving ${dir}/manuscript.docx…`,
-            }
-          : format === "rtf"
-            ? {
-                preparing: t`Reading your chapters…`,
-                rendering: t`Writing the Rich Text file…`,
-                saving: t`Saving ${dir}/manuscript.rtf…`,
-              }
-            : {
-                preparing: t`Reading your chapters…`,
-                rendering: t`Typesetting the book with Typst…`,
-                saving: t`Saving ${dir}/book.pdf…`,
-              };
-
+  const stageText = useStageText(format, dir, outlineFile);
+  const description = useFormatDescription(format);
   const change = (o: boolean) => {
     if (running) return; // an export cannot be cancelled; keep the dialog until it ends
     if (!o) {
@@ -131,37 +85,11 @@ export function ExportDialog({
       // One edition after the other; the first failure stops the rest and is shown.
       for (const l of languages) {
         setExporting(l);
-        const s = scopeOf(l);
-        if (format === "epub") await exportEpub(s);
-        else if (format === "markdown") await exportMarkdown({ htmlMarks, ...s });
-        else if (format === "docx") await exportDocx({ font, ...s });
-        else if (format === "rtf") await exportRtf({ font, ...s });
-        else
-          await exportPdf({
-            trimSize: pdf.trimSize,
-            pdfA: pdf.pdfA,
-            cover: pdf.withCover,
-            template: pdf.current,
-            bleedIn: bleedInches(pdf.bleed),
-            cropMarks: pdf.cropMarks,
-            ...s,
-          });
+        await runExport(actions, format, scopeOf(l), { ...choices, pdf });
       }
       const last = exportDir(languages.at(-1)!);
       change(false);
-      useSponsor
-        .getState()
-        .offer(
-          format === "epub"
-            ? `${last}/book.epub`
-            : format === "markdown"
-              ? `${last}/book.md`
-              : format === "docx"
-                ? `${last}/manuscript.docx`
-                : format === "rtf"
-                  ? `${last}/manuscript.rtf`
-                  : `${last}/book.pdf`,
-        );
+      useSponsor.getState().offer(`${last}/${exportedFile(format, outlineFile)}`);
     } catch (e) {
       setError(e instanceof PdfUiError ? e : new PdfUiError("other", errText(e)));
     } finally {
@@ -174,19 +102,7 @@ export function ExportDialog({
       open={open}
       onOpenChange={change}
       title={t`Export book`}
-      description={
-        format === "audiobook"
-          ? t`Makes one audio file per chapter with a voice that runs on your computer. Nothing is uploaded.`
-          : format === "epub"
-            ? t`Creates an EPUB 3 e-book in the exports folder.`
-            : format === "markdown"
-              ? t`Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer.`
-              : format === "docx"
-                ? t`Writes the whole book as a Word file in standard manuscript format, in the exports folder: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Nothing else is needed on this computer.`
-                : format === "rtf"
-                  ? t`Writes the whole book as a Rich Text file in standard manuscript format, in the exports folder, for word processors and submission systems that ask for RTF: double spaced, 12 pt, 1 inch margins, a title page and a running header with your surname. Images must be PNG or JPEG. Nothing else is needed on this computer.`
-                  : t`Creates a print-ready PDF in the exports folder. Typst, the PDF engine, comes with the app.`
-      }
+      description={description}
     >
       <form
         className="flex flex-col gap-4"
@@ -195,21 +111,12 @@ export function ExportDialog({
           void submit();
         }}
       >
-        <Segmented<ExportFormat>
-          label={t`Format`}
-          value={format}
+        <FormatSwitcher
+          format={format}
           onChange={(f) => {
             setError(null);
             onFormatChange(f);
           }}
-          items={[
-            { value: "epub", label: t`EPUB 3` },
-            { value: "pdf", label: t`Print PDF` },
-            { value: "markdown", label: t`Markdown` },
-            { value: "docx", label: t`Word (.docx)` },
-            { value: "rtf", label: t`Rich Text (.rtf)` },
-            { value: "audiobook", label: t`Audiobook` },
-          ]}
         />
         {format !== "audiobook" && many && manifest && (
           <EditionsChecklist
@@ -217,89 +124,38 @@ export function ExportDialog({
             current={current}
             picked={picked}
             skipped={skipped}
-            onPicked={setPicked}
-            onSkipped={setSkipped}
+            onPicked={picks.setPicked}
+            onSkipped={picks.setSkipped}
             disabled={running}
           />
         )}
-        {format === "audiobook" ? (
-          <AudioPanel audio={audio} />
-        ) : format === "epub" ? (
-          <EpubPanel {...scope} />
-        ) : format === "docx" || format === "rtf" ? (
-          <ManuscriptPanel font={font} onFont={setFont} disabled={running} />
-        ) : format === "markdown" ? (
-          <MarkdownPanel htmlMarks={htmlMarks} onHtmlMarks={setHtmlMarks} disabled={running} />
-        ) : (
-          <PdfPanel
-            options={pdf}
-            running={running}
-            onChangeTrimSize={onChangeTrimSize}
-            {...scope}
-          />
-        )}
-        {running && (
-          <div className="flex flex-col gap-2">
-            <p role="status" className="text-sm text-ink-muted">
-              {stageText[stage]}
-            </p>
-            <div className="h-1.5 overflow-hidden rounded-full bg-border" aria-hidden>
-              <div className="h-full w-1/3 animate-pulse rounded-full bg-accent motion-reduce:animate-none" />
-            </div>
-          </div>
-        )}
-        {error && (
-          <div className="flex flex-col items-start gap-2.5">
-            <Notice role="alert" className="w-full whitespace-pre-wrap wrap-break-word">
-              {error.message}
-            </Notice>
-            {error.code === "font" && onOpenFonts && (
-              <Button
-                onClick={() => {
-                  change(false);
-                  onOpenFonts();
-                }}
-              >{t`Open Fonts`}</Button>
-            )}
-          </div>
-        )}
-        {format === "audiobook" ? (
-          <AudioFooter
-            audio={audio}
-            onClose={() => change(false)}
-            onKeepWorking={() => onOpenChange(false)}
-          />
-        ) : (
-          <div className="flex flex-wrap items-center justify-between gap-2.5">
-            {onPreview && format !== "markdown" && format !== "docx" && format !== "rtf" ? (
-              <Button
-                disabled={running}
-                onClick={onPreview}
-                icon={Printer}
-              >{t`Print preview`}</Button>
-            ) : (
-              <span />
-            )}
-            <div className="flex items-center gap-2.5">
-              {(blocked || nothingPicked) && !running && (
-                <p role="status" className="text-sm text-danger">
-                  {blocked
-                    ? t`Choose how to handle ${nativeName(blocked)} to export it.`
-                    : t`Pick an edition to export.`}
-                </p>
-              )}
-              <Button disabled={running} onClick={() => change(false)}>{t`Cancel`}</Button>
-              <Button
-                type="submit"
-                variant="primary"
-                icon={FileText}
-                disabled={running || !!blocked || nothingPicked}
-              >
-                {running ? t`Exporting…` : t`Export`}
-              </Button>
-            </div>
-          </div>
-        )}
+        <FormatPanel
+          format={format}
+          audio={audio}
+          scope={scope}
+          running={running}
+          choices={choices}
+          onChoices={(patch) => setChoices({ ...choices, ...patch })}
+          pdf={pdf}
+          onChangeTrimSize={onChangeTrimSize}
+        />
+        <FormatChecks format={format} scope={scope} />
+        <ExportStatus
+          progress={running ? stageText[stage] : null}
+          error={error}
+          onOpenFonts={onOpenFonts}
+          onClose={() => change(false)}
+        />
+        <DialogFooter
+          format={format}
+          audio={audio}
+          running={running}
+          blocked={blocked}
+          nothingPicked={nothingPicked}
+          onPreview={onPreview}
+          onCancel={() => change(false)}
+          onKeepWorking={() => onOpenChange(false)}
+        />
       </form>
     </Modal>
   );

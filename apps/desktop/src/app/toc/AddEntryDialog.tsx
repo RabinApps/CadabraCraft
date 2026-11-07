@@ -3,8 +3,12 @@ import { useLingui } from "@lingui/react/macro";
 import type { TocItem } from "@cadabracraft/format";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Field } from "../../ui/Input";
-import { Select } from "../../ui/Select";
+import { Field, focusField } from "../../ui/forms/Input";
+import { Notice } from "../../ui/feedback/Notice";
+import { Select } from "../../ui/forms/Select";
+
+const TITLE_ID = "toc-entry-title";
+const ERROR_ID = "toc-entry-error";
 
 interface Props {
   open: boolean;
@@ -20,25 +24,37 @@ export function AddEntryDialog({ open, onOpenChange, items, onAdd }: Props) {
   const [title, setTitle] = useState("");
   const [after, setAfter] = useState("");
   const [target, setTarget] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const last = items.at(-1)?.key ?? "";
-  const label = (i: TocItem) => `${"  ".repeat(i.level)}${i.title}`;
-  const submit = () => {
-    const text = title.trim();
-    if (!text) return;
-    onOpenChange(false);
+  const label = (i: TocItem) => `${"  ".repeat(i.indent ?? i.level)}${i.title}`;
+  /** Closing by any route (Cancel, Escape, a new entry) clears the form, so the next time starts empty. */
+  const close = (next: boolean) => {
+    onOpenChange(next);
+    if (next) return;
     setTitle("");
     setTarget("");
     setAfter("");
+    setError(null);
+  };
+  const submit = () => {
+    const text = title.trim();
+    if (!text) {
+      setError(t`The entry has no title.`);
+      focusField(TITLE_ID);
+      return;
+    }
+    close(false);
     void onAdd({ title: text, after: after || last, ...(target ? { target } : {}) });
   };
   return (
     <Modal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={close}
       title={t`Add custom entry`}
       description={t`An entry of your own, such as “Acknowledgments” or a part title. It takes its page number from the entry it points at.`}
     >
       <form
+        noValidate
         className="flex flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault();
@@ -49,7 +65,13 @@ export function AddEntryDialog({ open, onOpenChange, items, onAdd }: Props) {
           label={t`Entry title`}
           value={title}
           autoFocus
-          onChange={(e) => setTitle(e.target.value)}
+          id={TITLE_ID}
+          errorId={error ? ERROR_ID : undefined}
+          hint={t`Type the name that should appear in the contents.`}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            setError(null);
+          }}
         />
         <Select
           label={t`Place after`}
@@ -77,9 +99,14 @@ export function AddEntryDialog({ open, onOpenChange, items, onAdd }: Props) {
               </option>
             ))}
         </Select>
+        {error && (
+          <Notice id={ERROR_ID} role="alert">
+            {error}
+          </Notice>
+        )}
         <div className="flex justify-end gap-2.5">
-          <Button onClick={() => onOpenChange(false)}>{t`Cancel`}</Button>
-          <Button type="submit" variant="primary" disabled={title.trim() === ""}>
+          <Button onClick={() => close(false)}>{t`Cancel`}</Button>
+          <Button type="submit" variant="primary">
             {t`Add entry`}
           </Button>
         </div>

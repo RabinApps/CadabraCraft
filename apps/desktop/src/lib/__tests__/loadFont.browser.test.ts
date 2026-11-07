@@ -6,7 +6,7 @@ const bridge = vi.hoisted(() => ({
 }));
 vi.mock("../bridge", () => ({ bridge }));
 
-import { ensureFontLoaded, forgetLoadedFonts } from "../loadFont";
+import { ensureFontLoaded, forgetLoadedFonts } from "../font/loadFont";
 
 const lora = { id: "lora", family: "Lora", source: "downloaded", files: ["Lora-Regular.ttf"] };
 

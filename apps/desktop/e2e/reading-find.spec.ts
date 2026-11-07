@@ -52,8 +52,8 @@ test("finds across every chapter, counts them and jumps to a match in a chapter 
   await expect(bar(page).getByText("1 of 3")).toBeVisible();
   const rows = bar(page).getByRole("list", { name: "Results by page" });
   await expect(rows.getByRole("listitem")).toHaveCount(2);
-  await expect(rows.getByRole("button", { name: "Chapter One, 1 match" })).toBeVisible();
-  await expect(rows.getByRole("button", { name: "Chapter Three, 2 matches" })).toBeVisible();
+  await expect(rows.getByRole("button", { name: "Chapter One 1 match" })).toBeVisible();
+  await expect(rows.getByRole("button", { name: "Chapter Three 2 matches" })).toBeVisible();
   // The first match is the one at the reading line, in chapter one, and is marked in its editor.
   await expect(page.locator(".search-match-current")).toHaveCount(1);
   await expect(page.locator('[data-reading-id="chapter-1"] .search-match-current')).toBeVisible();
@@ -85,7 +85,7 @@ test("finds across every chapter, counts them and jumps to a match in a chapter 
   await expect(bar(page).getByText("3 of 3")).toBeVisible();
 
   // A row of the results list goes to the first match of that chapter.
-  await rows.getByRole("button", { name: "Chapter One, 1 match" }).click();
+  await rows.getByRole("button", { name: "Chapter One 1 match" }).click();
   await expect(bar(page).getByText("1 of 3")).toBeVisible();
   await expect(
     page.locator('[data-reading-id="chapter-1"] .search-match-current'),

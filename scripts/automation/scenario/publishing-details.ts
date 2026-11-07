@@ -23,17 +23,14 @@ const WANT = {
   published: "2026-03-15",
 };
 
-/** Book details, "Publishing details": fill, save, check cadabra.json (formatVersion 6), export EPUB, check the OPF and EPUBCheck. */
-export async function publishingDetailsSteps({
-  app,
-  book,
-  repo,
-  dlg,
-  exportVia,
-  status,
-  shot,
-  step,
-}: Context) {
+/** Book details, "Publishing details": fill, save, check cadabra.json (formatVersion 8), export EPUB, check the OPF and EPUBCheck. */
+export async function publishingDetailsSteps(ctx: Context) {
+  await publishingDetailsPart1(ctx);
+  await publishingDetailsPart2(ctx);
+}
+
+async function publishingDetailsPart1(ctx: Context) {
+  const { app, book, dlg, shot, step } = ctx;
   const manifest = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
   const setField = (label: string, value: string) =>
     dlg(`const l = [...d.querySelectorAll("label")].find((l) => l.textContent.trim().startsWith(${JSON.stringify(label)}));
@@ -89,7 +86,7 @@ export async function publishingDetailsSteps({
   );
 
   await step(
-    "Book details: Publishing details saved to cadabra.json as formatVersion 6",
+    "Book details: Publishing details saved to cadabra.json as formatVersion 8",
     async () => {
       await openDetails();
       for (const [label, value] of Object.entries(FIELDS)) await setField(label, value);
@@ -108,7 +105,7 @@ export async function publishingDetailsSteps({
         "dialog did not close",
       );
       const m = manifest();
-      assert(m.formatVersion === 6, `formatVersion is ${m.formatVersion}, expected 6`);
+      assert(m.formatVersion === 8, `formatVersion is ${m.formatVersion}, expected 8`);
       const got = m.editions[0].publishing;
       assert(
         got &&
@@ -116,10 +113,13 @@ export async function publishingDetailsSteps({
             JSON.stringify(Object.entries(WANT).sort()),
         `publishing wrong: ${JSON.stringify(got)}`,
       );
-      return "formatVersion 6, editions[0].publishing has the 7 trimmed values";
+      return "formatVersion 8, editions[0].publishing has the 7 trimmed values";
     },
   );
+}
 
+async function publishingDetailsPart2(ctx: Context) {
+  const { app, book, repo, exportVia, status, step } = ctx;
   await step(
     "EPUB export carries the publishing details in the OPF and passes EPUBCheck",
     async () => {

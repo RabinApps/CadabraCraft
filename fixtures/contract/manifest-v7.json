@@ -1,0 +1,122 @@
+{
+  "formatVersion": 7,
+  "template": "novel",
+  "editions": [
+    {
+      "language": "en",
+      "title": "The Long Quay",
+      "author": "A. Writer",
+      "identifier": "urn:uuid:5b1d1d2c-6f0a-4c43-9a55-1f0d3c8d3a11",
+      "isbn": "978-3-16-148410-0",
+      "cover": null,
+      "publishing": {
+        "publisher": "Quay Press",
+        "description": "A keeper, a storm and a disputed light.\nBook one of the Harbour Lights.",
+        "subjects": [
+          "FIC014000",
+          "Lighthouses"
+        ],
+        "series": "Harbour Lights",
+        "seriesNumber": "1",
+        "rights": "© 2026 A. Writer. All rights reserved.",
+        "published": "2026-11-03"
+      }
+    },
+    {
+      "language": "fr",
+      "title": "Le Long Quai",
+      "author": "A. Writer",
+      "identifier": "urn:uuid:9c2e4f1a-3b7d-4e8a-8f01-6d2b5a7c9e14",
+      "isbn": null,
+      "cover": null
+    }
+  ],
+  "frontMatter": [
+    {
+      "id": "title-page",
+      "kind": "title-page",
+      "titles": {
+        "en": "Title Page"
+      },
+      "files": {
+        "en": "front-matter/title-page.json"
+      }
+    },
+    {
+      "id": "fm-9",
+      "kind": "contents",
+      "titles": {
+        "en": "Contents"
+      },
+      "files": {
+        "en": "front-matter/09-contents.json"
+      },
+      "toc": {
+        "depth": 1,
+        "pageNumbers": true,
+        "hidden": [],
+        "titles": {},
+        "custom": []
+      }
+    }
+  ],
+  "chapters": [
+    {
+      "id": "ch-1",
+      "titles": {
+        "en": "Chapter One",
+        "fr": "Chapitre un"
+      },
+      "files": {
+        "en": "manuscript/001-chapter-one.json",
+        "fr": "manuscript/fr/001-chapitre-un.json"
+      }
+    },
+    {
+      "id": "ch-2",
+      "titles": {
+        "en": "Chapter Two"
+      },
+      "files": {
+        "en": "manuscript/002-chapter-two.json"
+      }
+    }
+  ],
+  "backMatter": [
+    {
+      "id": "about",
+      "kind": "about-the-author",
+      "titles": {
+        "en": "About the Author"
+      },
+      "files": {
+        "en": "back-matter/about-the-author.json"
+      }
+    }
+  ],
+  "references": [
+    {
+      "id": "ref-1",
+      "file": "references/lighthouse-history.pdf",
+      "title": "Lighthouse history",
+      "note": "Dates for the keeper dispute.",
+      "tags": [
+        "history",
+        "1893"
+      ],
+      "chapters": [
+        "ch-1"
+      ],
+      "addedAt": "2026-10-28T09:30:00.000Z"
+    },
+    {
+      "id": "ref-2",
+      "file": "references/harbour-at-dusk.mp4",
+      "title": "Harbour at dusk",
+      "note": "",
+      "tags": [],
+      "chapters": [],
+      "addedAt": "2026-10-28T09:41:12.000Z"
+    }
+  ]
+}

@@ -5,6 +5,16 @@ import type { RecordedCall } from "./globals";
 
 // The shared fakeTauri (support/fakeTauri.ts) fakes the project commands. On top of it, the import specs fake the
 // "source files" that the native picker would have returned, and record every command so we can assert the source is never written.
+/** An outline in each format the import reads: two chapters, three scenes, one with a cast the import cannot keep. */
+export const OUTLINE_OPML =
+  '<?xml version="1.0" encoding="UTF-8"?><opml version="2.0" xmlns:cc="urn:cadabracraft:outline"><head><title>Salt</title></head><body>' +
+  '<outline text="Arrival"><outline text="The quay at dusk" _note="Mara waits &amp; hides." cc:pov="Mara" cc:status="draft" cc:target="1200" cc:date="2024-05-01" cc:cast="mara"/>' +
+  '<outline text="The letter" _note="She reads it twice."/></outline>' +
+  '<outline text="Departure"><outline text="Low tide" cc:status="outline"/></outline></body></opml>';
+export const OUTLINE_MD =
+  "# Arrival\n\n## The quay at dusk\n\nMara waits.\n\n> pov: Mara; status: draft; date: 2024-05-01\n\n## The letter\n\nShe reads it twice.\n\n# Departure\n\n## Low tide\n";
+export const OUTLINE_CSV =
+  "chapter,title,summary,pov,status\r\nArrival,The quay at dusk,Mara waits.,Mara,draft\r\nArrival,The letter,She reads it twice.,,\r\nDeparture,Low tide,,,outline\r\n";
 export const THREE_MD = "# One\n\nFirst text.\n\n# Two\n\nSecond text.\n\n# Three\n\nThird text.\n";
 
 /**
@@ -84,6 +94,9 @@ interface Fixtures {
   docxReplies: Record<string, number[]>;
   png: number[];
   html: number[];
+  opml: number[];
+  outlineMd: number[];
+  csv: number[];
 }
 const fixtures = (): Fixtures => ({
   md: Array.from(new TextEncoder().encode(TINY_MD)),
@@ -91,6 +104,9 @@ const fixtures = (): Fixtures => ({
   docx: Array.from(tinyDocx({ image: true })),
   docxReplies: { "1": docxReply(1), "2": docxReply(2), "3": docxReply(3) },
   png: Array.from(PNG_BYTES),
+  opml: Array.from(new TextEncoder().encode(OUTLINE_OPML)),
+  outlineMd: Array.from(new TextEncoder().encode(OUTLINE_MD)),
+  csv: Array.from(new TextEncoder().encode(OUTLINE_CSV)),
   html: Array.from(
     new TextEncoder().encode(
       "<html><head><title>Web Page</title><script>stealCookies()</script></head><body><h1>Gamma</h1><p>Plain and <strong>strong</strong> text. <blink>x</blink></p></body></html>",
@@ -98,7 +114,8 @@ const fixtures = (): Fixtures => ({
   ),
 });
 
-export type ImportPick = "md" | "md3" | "docx" | "html" | "broken";
+export type ImportPick =
+  "md" | "md3" | "docx" | "html" | "broken" | "opml" | "outlineMd" | "csv" | "badOpml";
 
 export async function fakeImportTauri(page: Page, pick: ImportPick, importFolder = true) {
   await fakeTauri(page);
@@ -115,6 +132,10 @@ export async function fakeImportSources(page: Page, pick: ImportPick, importFold
         "/src/book.docx": f.docx,
         "/src/page.html": f.html,
         "/src/broken.docx": Array.from(new TextEncoder().encode("not a zip")),
+        "/src/outline.opml": f.opml,
+        "/src/outline.md": f.outlineMd,
+        "/src/outline.csv": f.csv,
+        "/src/bad.opml": Array.from(new TextEncoder().encode("<opml><body><outline")),
       };
       const picked: Record<string, string> = {
         md: "/src/My_Book.md",
@@ -122,6 +143,10 @@ export async function fakeImportSources(page: Page, pick: ImportPick, importFold
         docx: "/src/book.docx",
         html: "/src/page.html",
         broken: "/src/broken.docx",
+        opml: "/src/outline.opml",
+        outlineMd: "/src/outline.md",
+        csv: "/src/outline.csv",
+        badOpml: "/src/bad.opml",
       };
       const pickedSource = picked[which]!;
       const calls: RecordedCall[] = [];

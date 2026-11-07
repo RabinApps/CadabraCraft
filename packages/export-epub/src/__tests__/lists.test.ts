@@ -15,7 +15,7 @@ const term = (...content: DocNode[]): DocNode => ({ type: "definitionTerm", cont
 const desc = (...content: DocNode[]): DocNode => ({ type: "definitionDescription", content });
 
 describe("task lists", () => {
-  it("writes a disabled checkbox before the first paragraph of each item", () => {
+  it("writes a disabled checkbox, named by a label around the item's text, in each item (hidden when the item is empty)", () => {
     expect(
       body({
         type: "taskList",
@@ -23,9 +23,9 @@ describe("task lists", () => {
       }),
     ).toBe(
       '<ul class="task-list">' +
-        '<li class="task-item"><p><input type="checkbox" disabled="disabled" checked="checked"/> done</p></li>' +
-        '<li class="task-item"><p><input type="checkbox" disabled="disabled"/> todo</p></li>' +
-        '<li class="task-item"><p><input type="checkbox" disabled="disabled"/> </p></li></ul>',
+        '<li class="task-item"><p><label><input type="checkbox" disabled="disabled" checked="checked"/> done</label></p></li>' +
+        '<li class="task-item"><p><label><input type="checkbox" disabled="disabled"/> todo</label></p></li>' +
+        '<li class="task-item"><p><input type="checkbox" disabled="disabled" aria-hidden="true"/></p></li></ul>',
     );
   });
   it("nests and keeps the other blocks of an item", () => {
@@ -41,7 +41,7 @@ describe("task lists", () => {
       ],
     });
     expect(out).toContain(
-      '<p><input type="checkbox" disabled="disabled"/> a</p><ul class="task-list">',
+      '<p><label><input type="checkbox" disabled="disabled"/> a</label></p><ul class="task-list">',
     );
     expect(out).toContain("<p>more</p></li>");
   });

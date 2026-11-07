@@ -62,7 +62,7 @@ test("Settings, Fonts says so when a file cannot be imported, and ignores a canc
     window.__fontImportError = { kind: "invalid_font", message: "no family name" };
   });
   await page.getByRole("button", { name: "Choose file…" }).click();
-  await expect(page.getByRole("alert")).toHaveText(
+  await expect(page.getByRole("alert")).toContainText(
     "That file is not a usable font. Choose a .ttf or .otf file.",
   );
   await page.evaluate(() => {
@@ -102,7 +102,7 @@ test("the catalog downloads a font with progress, can cancel it, shows a failure
     window.__fontError = { kind: "network", message: "offline" };
   });
   await lora.getByRole("button", { name: "Download Lora" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText(
+  await expect(dialog.getByRole("alert")).toContainText(
     "The download failed. Check your connection and try again.",
   );
   await lora.getByRole("button", { name: "Try again to download Lora" }).click();
@@ -112,28 +112,6 @@ test("the catalog downloads a font with progress, can cancel it, shows a failure
   await dialog.getByRole("button", { name: "Close", exact: true }).click();
   await expect(page.getByTestId("font-Lora")).toContainText("Downloaded");
   expect(await page.evaluate(() => window.__fontDownloads)).toEqual(["lora", "lora", "lora"]);
-});
-
-test("a downloaded font can be the manuscript font and is applied to the editor", async ({
-  page,
-}) => {
-  await withLora(page);
-  await newProject(page);
-  const page_ = page.locator(".prose-manuscript");
-  await expect(page_).toHaveAttribute("style", /var\(--font-book\)/);
-  await openSettings(page);
-  await page.getByLabel("Manuscript font").selectOption("Lora");
-  await expect(page.getByLabel("Manuscript font")).toHaveValue("Lora");
-  await page.getByRole("button", { name: "Back", exact: true }).click();
-  await expect(page_).toHaveAttribute("style", /font-family: "?Lora"?, var\(--font-book\)/);
-  // The text itself takes the family (a stylesheet rule once pinned it to the default book font).
-  await expect(page.locator(".ProseMirror h1")).toHaveCSS("font-family", /^"?Lora"?,/);
-  // Its bytes were asked for; the fake sends no real font, so the editor keeps the serif behind it.
-  expect(await page.evaluate(() => window.__fontDataCalls)).toContain("lora/Lora.ttf");
-  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
-  // The choice is an app preference and survives a reload.
-  const stored = await page.evaluate(() => localStorage.getItem("cadabracraft.settings"));
-  expect(JSON.parse(stored!).manuscriptFont).toBe("Lora");
 });
 
 const openPdfPanel = async (page: Page) => {
@@ -189,7 +167,7 @@ test("Export PDF explains a missing font and Open Fonts goes to Settings, Fonts"
     window.__fontsInstalled = [];
   });
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toHaveText(
+  await expect(dialog.getByRole("alert")).toContainText(
     "The font “Lora” is not on this computer. Download it in Settings, Fonts, or pick another font.",
   );
   // The book's font stays selectable, so the notice and the select agree.

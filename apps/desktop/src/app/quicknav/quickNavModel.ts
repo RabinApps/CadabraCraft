@@ -1,6 +1,6 @@
 import { rank } from "../../lib/fuzzy";
 import type { OutlineItem } from "../../lib/outline";
-import type { MenuEntry } from "../shell/menuModel";
+import type { MenuEntry } from "../shell/native/menuModel";
 
 /**
  * What the command palette and the outline navigator list, as plain data. Both are built from data the app already has: the

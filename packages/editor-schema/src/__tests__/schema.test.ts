@@ -35,6 +35,7 @@ describe("v1 editor schema", () => {
       "codeBlock",
       "image",
       "sceneBreak",
+      "pageBreak",
       "footnote",
       "table",
       "tableRow",
@@ -52,6 +53,7 @@ describe("v1 editor schema", () => {
       "superscript",
       "subscript",
       "link",
+      "lang",
     ])
       expect(schema.marks[m], m).toBeDefined();
   });
@@ -328,6 +330,42 @@ describe("task lists and definition lists", () => {
     ).not.toBeNull();
     expect(chapterDocProblem(doc({ type: "taskList", content: [] }))).not.toBeNull();
     expect(chapterDocProblem(doc(task(false, p("a"))))).not.toBeNull();
+  });
+  it("accepts an image with a boolean decorative value and rejects any other type", () => {
+    const img = (decorative: unknown) =>
+      doc({ type: "image", attrs: { src: "assets/a.png", alt: "", decorative } });
+    expect(chapterDocProblem(img(true))).toBeNull();
+    expect(chapterDocProblem(img(undefined))).toBeNull();
+    expect(chapterDocProblem(img("yes"))).toMatch(/decorative/);
+    const n = Node.fromJSON(schema, doc({ type: "image", attrs: { src: "assets/a.png" } }));
+    expect(n.firstChild!.attrs.decorative).toBe(false);
+  });
+  describe("lang mark", () => {
+    const withLang = (attrs: unknown) =>
+      doc({
+        type: "paragraph",
+        content: [{ type: "text", text: "x", marks: [{ type: "lang", attrs }] }],
+      });
+    it("accepts a BCP 47 tag and keeps it", () => {
+      expect(chapterDocProblem(withLang({ lang: "fr-CA" }))).toBeNull();
+      const n = Node.fromJSON(schema, withLang({ lang: "fr" }));
+      expect(n.firstChild!.firstChild!.marks[0]!.attrs.lang).toBe("fr");
+    });
+    it("refuses a missing, non-string, malformed or too long tag", () => {
+      for (const attrs of [
+        {},
+        undefined,
+        { lang: 5 },
+        { lang: "fr_CA" },
+        { lang: "a b" },
+        { lang: "a".repeat(36) },
+      ])
+        expect(chapterDocProblem(withLang(attrs)), JSON.stringify(attrs)).toMatch(/language/);
+    });
+    it("is not inclusive and replaces another lang mark", () => {
+      expect(schema.marks.lang!.spec.inclusive).toBe(false);
+      expect(schema.marks.lang!.excludes(schema.marks.lang!)).toBe(true);
+    });
   });
   const term = (text: string) => ({ type: "definitionTerm", content: [{ type: "text", text }] });
   const desc = (...content: unknown[]) => ({ type: "definitionDescription", content });

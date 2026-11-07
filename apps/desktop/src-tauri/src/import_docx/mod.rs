@@ -16,6 +16,7 @@ mod ctx;
 mod drawings;
 pub mod error;
 pub mod frame;
+mod lists;
 pub mod node;
 mod parts;
 mod runs;
@@ -59,7 +60,16 @@ pub struct Options {
 
 impl Default for Options {
     fn default() -> Options {
-        Options { split_heading_level: 1, untitled_title: "Untitled".into(), max_decompressed_bytes: 200 * 1024 * 1024, max_entries: 10_000, max_document_bytes: 64 * 1024 * 1024, max_xml_part_bytes: 16 * 1024 * 1024, xml: XmlLimits::default(), max_nesting_depth: 32 }
+        Options {
+            split_heading_level: 1,
+            untitled_title: "Untitled".into(),
+            max_decompressed_bytes: 200 * 1024 * 1024,
+            max_entries: 10_000,
+            max_document_bytes: 64 * 1024 * 1024,
+            max_xml_part_bytes: 16 * 1024 * 1024,
+            xml: XmlLimits::default(),
+            max_nesting_depth: 32,
+        }
     }
 }
 

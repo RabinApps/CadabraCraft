@@ -19,7 +19,7 @@ async function fresh(stored: string | null) {
     },
   });
   vi.resetModules();
-  const { useUpdates } = await import("../updates");
+  const { useUpdates } = await import("../app/updates");
   return { data, store: useUpdates };
 }
 
@@ -140,7 +140,7 @@ describe("installing", () => {
     await store.getState().install();
     expect(update.downloadAndInstall).not.toHaveBeenCalled();
     expect(bridge.relaunch).not.toHaveBeenCalled();
-    expect(store.getState().status).toEqual({ kind: "error", message: "disk full" });
+    expect(store.getState().status).toMatchObject({ kind: "error", message: "disk full" });
   });
 
   it("a failed install keeps the dialog open with the error", async () => {
@@ -153,6 +153,19 @@ describe("installing", () => {
     expect(store.getState().status.kind).toBe("error");
     expect(store.getState().dialogOpen).toBe(true);
     expect(bridge.relaunch).not.toHaveBeenCalled();
+  });
+
+  it("a failed install can be tried again without checking first", async () => {
+    const { store } = await fresh(null);
+    const update = found();
+    update.downloadAndInstall.mockRejectedValueOnce(new Error("offline"));
+    bridge.checkForUpdate.mockResolvedValue(update);
+    await store.getState().check(false);
+    await store.getState().install();
+    expect(store.getState().status).toMatchObject({ kind: "error", update });
+    await store.getState().install();
+    expect(update.downloadAndInstall).toHaveBeenCalledTimes(2);
+    expect(bridge.relaunch).toHaveBeenCalled();
   });
 
   it("Later closes the dialog and does not install", async () => {

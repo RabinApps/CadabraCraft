@@ -1,0 +1,227 @@
+import { expect, test, type Locator, type Page } from "./support/coverage";
+import { fakeTauri } from "./support/fakeTauri";
+import { addPage, manifestOf, newProject, sidebar } from "./support/helpers";
+import { opening, writeCards } from "./support/pageCards";
+
+// Two writing-surface fixes: a front matter page that the book's rules push to a right-hand page can follow on instead (no blank
+// page the author cannot delete), and scrolling on past the last page of a section opens the next one (and up from the top, the
+// previous one), so front matter and chapters read as one flow while writing.
+
+const open = async (page: Page, title: string) => {
+  const entry = sidebar(page).getByRole("button", { name: title, exact: true });
+  await entry.click();
+  await expect(entry).toHaveAttribute("aria-current", "true");
+};
+const menu = (page: Page) => page.getByRole("menu");
+const startItem = (page: Page) =>
+  menu(page).getByRole("menuitemradio", { name: "Start on the next page" });
+const rightItem = (page: Page) =>
+  menu(page).getByRole("menuitemradio", { name: "Start on a right-hand page" });
+const bookItem = (page: Page) =>
+  menu(page).getByRole("menuitemradio", { name: "Follows the book" });
+const cardsAre = (page: Page, n: number) =>
+  expect.poll(async () => (await writeCards(page)).length).toBe(n);
+
+/** The page stack's scroller, hovered so the wheel events land on it. */
+const hoverScroll = async (page: Page, testId = "page-scroll") => {
+  const box = (await page.getByTestId(testId).boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+};
+const scrollTop = (page: Page, testId = "page-scroll") =>
+  page.getByTestId(testId).evaluate((el) => Math.round(el.scrollTop));
+const atBottom = (page: Page, testId = "page-scroll") =>
+  page.getByTestId(testId).evaluate((el) => el.scrollTop >= el.scrollHeight - el.clientHeight - 2);
+
+test.beforeEach(async ({ page }) => {
+  await fakeTauri(page);
+});
+
+test("a dedication's blank page is gone once its row says it starts on the next page, and undo brings it back", async ({
+  page,
+}) => {
+  await newProject(page);
+  await addPage(page, "Title page");
+  await addPage(page, "Dedication");
+  await open(page, "Dedication");
+  // The book opens a dedication on a right-hand page, after the title page: a blank left-hand page comes before it, and nobody
+  // typed it.
+  await cardsAre(page, 2);
+  const withBlank = await writeCards(page);
+  expect(withBlank[0]?.blank).toBe(true);
+  expect(opening(withBlank)?.physical).toBe(3);
+
+  await page.getByRole("button", { name: "Actions for Dedication" }).click();
+  const item = startItem(page);
+  await expect(item).not.toBeChecked();
+  await item.click();
+  await expect(page.getByText("Dedication: starts on the next page")).toBeAttached();
+  const dedication = async () =>
+    (await manifestOf(page)).frontMatter.find((e: { kind: string }) => e.kind === "dedication");
+  await expect.poll(async () => (await dedication())?.startOnNext).toBe(true);
+  await cardsAre(page, 1);
+  const alone = await writeCards(page);
+  expect(alone[0]?.blank).toBe(false);
+  expect(opening(alone)?.physical).toBe(2);
+
+  // It is a page setting like any other: undo puts the blank page back.
+  await page.getByRole("button", { name: /^Undo: Change page start/ }).click();
+  await expect.poll(async () => (await dedication())?.startOnNext).toBeUndefined();
+  await cardsAre(page, 2);
+  await page.getByRole("button", { name: "Actions for Dedication" }).click();
+  await expect(bookItem(page)).toBeChecked();
+  await page.keyboard.press("Escape");
+});
+
+test("a page the book leaves on the next one gets a blank page before it when its row starts it on a right-hand page", async ({
+  page,
+}) => {
+  await newProject(page);
+  await addPage(page, "Title page");
+  await addPage(page, "Preface");
+  await open(page, "Preface");
+  // Laid out centred, a preface does not open like a chapter, so the book puts it straight after the title page: page 2, no blank.
+  await page.getByRole("button", { name: "Actions for Preface" }).click();
+  await menu(page).getByRole("menuitemradio", { name: "Centred" }).click();
+  await cardsAre(page, 1);
+  const flush = await writeCards(page);
+  expect(flush[0]?.blank).toBe(false);
+  expect(opening(flush)?.physical).toBe(2);
+
+  // The choice inserts the empty page the author asked for and the preface opens on the right-hand page after it.
+  await page.getByRole("button", { name: "Actions for Preface" }).click();
+  await expect(bookItem(page)).toBeChecked();
+  await rightItem(page).click();
+  await expect(page.getByText("Preface: starts on a right-hand page")).toBeAttached();
+  await expect.poll(async () => (await manifestOf(page)).frontMatter[1].startOnNext).toBe(false);
+  await cardsAre(page, 2);
+  const withBlank = await writeCards(page);
+  expect(withBlank[0]?.blank).toBe(true);
+  expect(opening(withBlank)?.physical).toBe(3);
+
+  // And back to the book's rules, which takes the empty page away again.
+  await page.getByRole("button", { name: "Actions for Preface" }).click();
+  await bookItem(page).click();
+  await expect
+    .poll(async () => (await manifestOf(page)).frontMatter[1].startOnNext)
+    .toBeUndefined();
+  await cardsAre(page, 1);
+  const alone = await writeCards(page);
+  expect(alone[0]?.blank).toBe(false);
+  expect(opening(alone)?.physical).toBe(2);
+});
+
+test("the page start choice is kept when the book is opened again, and chapters have none", async ({
+  page,
+}) => {
+  await newProject(page);
+  await addPage(page, "Title page");
+  await addPage(page, "Epigraph");
+  await page.getByRole("button", { name: "Actions for Epigraph" }).click();
+  await startItem(page).click();
+  await expect.poll(async () => (await manifestOf(page)).frontMatter[1].startOnNext).toBe(true);
+  await page.reload();
+  await page.getByRole("button", { name: "Open folder" }).click();
+  await open(page, "Epigraph");
+  await expect.poll(async () => (await writeCards(page)).length).toBe(1);
+
+  // A chapter opens where the template says and has no such choice.
+  await open(page, "Chapter One");
+  await page.getByRole("button", { name: "Actions for Chapter One" }).click();
+  await expect(menu(page)).toBeVisible();
+  await expect(menu(page).getByRole("group", { name: "Page start" })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+});
+
+/** A book of two chapters, the first open. */
+async function twoChapters(page: Page) {
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await open(page, "Chapter One");
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+}
+
+test("a blank page added while a chapter is open goes between the chapters, read-only and with no page number", async ({
+  page,
+}) => {
+  await twoChapters(page);
+  // The Add page menu offers the blank page for the whole book, not only for the matter: it goes straight after the open page, so
+  // opening a chapter puts it between that chapter and the next.
+  await addPage(page, "Blank page");
+  await expect
+    .poll(async () =>
+      (await manifestOf(page)).chapters.map((c: { kind?: string }) => c.kind ?? null),
+    )
+    .toEqual([null, "blank", null]);
+  const rows = sidebar(page).getByRole("button", { name: "Blank page", exact: true });
+  await expect(rows).toHaveCount(1);
+  await rows.click();
+  await expect(rows).toHaveAttribute("aria-current", "true");
+  // Nothing can be typed into a page the PDF prints empty.
+  await expect(page.locator(".ProseMirror")).toHaveAttribute("contenteditable", "false");
+  // It is one empty page of its own with no number printed on it, and no text to type.
+  const cards = await writeCards(page);
+  expect(cards).toHaveLength(1);
+  expect(cards[0]?.blank).toBe(false);
+  expect(cards[0]?.folio ?? "").toBe("");
+});
+
+test("scrolling on past the last page of a chapter opens the next one, and back up the previous one's last page", async ({
+  page,
+}) => {
+  await twoChapters(page);
+  // A short window: the page stack is taller than the pane, so a wheel at the top only scrolls it.
+  await page.setViewportSize({ width: 1280, height: 420 });
+  const scroller: Locator = page.getByTestId("page-scroll");
+  await expect(scroller).toBeVisible();
+  await hoverScroll(page);
+  await page.mouse.wheel(0, 100);
+  await expect.poll(() => scrollTop(page)).toBeGreaterThan(0);
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+
+  // A wheel at the end of its last page opens the next section.
+  await scroller.evaluate((el) => {
+    el.scrollTop = el.scrollHeight;
+  });
+  await expect.poll(() => atBottom(page)).toBe(true);
+  await page.mouse.wheel(0, 160);
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+  await expect.poll(() => scrollTop(page)).toBe(0);
+
+  // Scrolling up at its first page goes back, and the previous chapter shows its last page.
+  await hoverScroll(page);
+  await expect.poll(() => scrollTop(page)).toBe(0);
+  await page.mouse.wheel(0, -160);
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+  await expect.poll(() => atBottom(page)).toBe(true);
+});
+
+test("scrolling on from the last front matter page opens the first chapter, and the book's last page has no next", async ({
+  page,
+}) => {
+  await newProject(page);
+  await addPage(page, "Title page");
+  await expect(page.locator(".ProseMirror h1")).toHaveText("E2E Book");
+  await hoverScroll(page);
+  await page.mouse.wheel(0, 4000);
+  await page.mouse.wheel(0, 200);
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+
+  // The last section of the book has nothing after it: a wheel there stays put.
+  await open(page, "Chapter One");
+  await hoverScroll(page);
+  await page.mouse.wheel(0, 4000);
+  await page.mouse.wheel(0, 200);
+  await page.mouse.wheel(0, 200);
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+});
+
+test("a phone's reflowed page scrolls on into the next section too", async ({ page }) => {
+  await twoChapters(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByTestId("reflow-scroll")).toBeVisible();
+  await hoverScroll(page, "reflow-scroll");
+  await page.mouse.wheel(0, 4000);
+  await page.mouse.wheel(0, 200);
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
+});

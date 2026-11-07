@@ -83,6 +83,12 @@ const NODE_SAMPLES: Record<string, ChapterDoc> = {
   hardBreak: doc(p(t("one"), { type: "hardBreak" }, t("two"))),
   image: doc({ type: "image", attrs: { src: "assets/a.png", alt: "alt", title: "Caption" } }),
   sceneBreak: doc({ type: "sceneBreak" }),
+  scene: doc({
+    type: "scene",
+    attrs: { id: "sc-1", title: "Opening", pov: "Mara", status: "draft", target: 800 },
+    content: [p(t("In the scene."))],
+  }),
+  pageBreak: doc({ type: "pageBreak" }),
   footnote: doc(p(t("claim"), { type: "footnote", content: [t("the note")] })),
   table: doc({
     type: "table",
@@ -106,6 +112,7 @@ const NODE_SAMPLES: Record<string, ChapterDoc> = {
 };
 
 const MARK_SAMPLES: Record<string, Mark> = {
+  comment: { type: "comment", attrs: { id: "t-1" } },
   bold: { type: "bold" },
   italic: { type: "italic" },
   underline: { type: "underline" },
@@ -115,6 +122,7 @@ const MARK_SAMPLES: Record<string, Mark> = {
   superscript: { type: "superscript" },
   subscript: { type: "subscript" },
   link: { type: "link", attrs: { href: "https://example.com/" } },
+  lang: { type: "lang", attrs: { lang: "fr-CA" } },
 };
 const markDoc = (m: Mark): ChapterDoc => doc(p(t("marked", [m])));
 

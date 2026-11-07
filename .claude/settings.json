@@ -10,6 +10,17 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"Before presenting this plan, make sure it ends with a Quality gates section per /quality-gates: feature completeness, typecheck, lint, i18n, ADA and test coverage, each marked applies (with the command) or not applicable (with the reason).\"}}'"
+          }
+        ]
+      }
     ]
   }
 }

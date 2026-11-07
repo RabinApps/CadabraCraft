@@ -8,8 +8,8 @@ use std::path::{Component, Path, PathBuf};
 
 type Result<T> = std::result::Result<T, ProjectError>;
 
-/// Document types the importer understands.
-pub const IMPORT_EXTENSIONS: [&str; 6] = ["docx", "md", "markdown", "html", "htm", "txt"];
+/// Document types the importer understands: manuscripts and, for the outline import (parsed in the webview, so only read here), `opml` and `csv`.
+pub const IMPORT_EXTENSIONS: [&str; 8] = ["docx", "md", "markdown", "html", "htm", "txt", "opml", "csv"];
 /// Largest source document accepted, in bytes.
 pub const MAX_IMPORT_BYTES: u64 = 200 * 1024 * 1024;
 
@@ -42,9 +42,8 @@ pub fn read_relative_image(source_file: &Path, reference: &str) -> Result<Vec<u8
     require_absolute(source_file)?;
     let shown: String = reference.chars().take(80).collect();
     let rel = Path::new(reference);
-    let safe = !reference.is_empty()
-        && !reference.contains(['\\', ':', '\0'])
-        && rel.components().all(|c| matches!(c, Component::Normal(_) | Component::CurDir));
+    let safe =
+        !reference.is_empty() && !reference.contains(['\\', ':', '\0']) && rel.components().all(|c| matches!(c, Component::Normal(_) | Component::CurDir));
     if !safe {
         return Err(ProjectError::ImageRefNotAllowed { reference: shown });
     }
@@ -74,11 +73,11 @@ mod tests {
     #[test]
     fn reads_allowed_sources_and_leaves_them_untouched() {
         let d = tempfile::tempdir().unwrap();
-        for n in ["a.docx", "b.MD", "c.markdown", "d.txt", "e.html", "f.HTM"] {
+        for n in ["a.docx", "b.MD", "c.markdown", "d.txt", "e.html", "f.HTM", "g.opml", "h.CSV"] {
             fs::write(d.path().join(n), b"x").unwrap();
             assert_eq!(read_source(&d.path().join(n)).unwrap(), b"x", "{n}");
         }
-        assert_eq!(fs::read_dir(d.path()).unwrap().count(), 6, "no files were added");
+        assert_eq!(fs::read_dir(d.path()).unwrap().count(), 8, "no files were added");
     }
 
     #[test]
@@ -151,7 +150,7 @@ mod tests {
             fs::write(d.path().join(n), b"x").unwrap();
             assert!(read_source(&d.path().join(n)).is_ok(), "{n} should be allowed");
         }
-        for n in ["a.html.exe", ".html", ".md", "noext", "a.", "a.md.", "a.md ", "a. md", "a.html~", "a.docx.zip"] {
+        for n in ["a.html.exe", ".html", ".md", "noext", "a.", "a.md.", "a.md ", "a. md", "a.html~", "a.docx.zip", "a.csv.exe", "a.opml.bak", "a.csv "] {
             fs::write(d.path().join(n), b"x").unwrap();
             assert_eq!(read_source(&d.path().join(n)).unwrap_err(), ProjectError::UnsupportedDocument { name: n.into() }, "{n}");
         }
@@ -254,13 +253,8 @@ mod tests {
     fn empty_and_odd_encodings_come_back_byte_for_byte() {
         // Decoding is the importer's job (TypeScript); the native layer never alters, strips or rejects text bytes.
         let d = tempfile::tempdir().unwrap();
-        let cases: [(&str, &[u8]); 5] = [
-            ("empty.md", b""),
-            ("bom.md", b"\xef\xbb\xbf# Title"),
-            ("utf16.txt", b"\xff\xfeH\x00i\x00"),
-            ("latin1.html", b"caf\xe9"),
-            ("nul.md", b"a\0b"),
-        ];
+        let cases: [(&str, &[u8]); 5] =
+            [("empty.md", b""), ("bom.md", b"\xef\xbb\xbf# Title"), ("utf16.txt", b"\xff\xfeH\x00i\x00"), ("latin1.html", b"caf\xe9"), ("nul.md", b"a\0b")];
         for (n, b) in cases {
             fs::write(d.path().join(n), b).unwrap();
             assert_eq!(read_source(&d.path().join(n)).unwrap(), b, "{n}");
@@ -314,8 +308,19 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let md = d.path().join("book.md");
         for bad in [
-            "C:/x.png", "C:\\x.png", "c:x.png", "//server/share/x.png", "\\\\server\\share\\x.png", "/abs.png", "file:///etc/x.png", "a/../b.png",
-            "./../x.png", "a/./../../x.png", "x.png:stream", "\0.png", "a\0.png",
+            "C:/x.png",
+            "C:\\x.png",
+            "c:x.png",
+            "//server/share/x.png",
+            "\\\\server\\share\\x.png",
+            "/abs.png",
+            "file:///etc/x.png",
+            "a/../b.png",
+            "./../x.png",
+            "a/./../../x.png",
+            "x.png:stream",
+            "\0.png",
+            "a\0.png",
         ] {
             assert!(matches!(read_relative_image(&md, bad), Err(ProjectError::ImageRefNotAllowed { .. })), "{bad:?}");
         }

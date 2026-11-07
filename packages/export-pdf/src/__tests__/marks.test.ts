@@ -69,7 +69,7 @@ describe("page marks in the source", () => {
     expect(
       markedBlocks(
         undefined,
-        { images: new Map(), headingNo: 0, maxImageIn: 1, assets: undefined },
+        { images: new Map(), headingNo: 0, maxImageIn: 1, assets: undefined, coverAlt: "Cover" },
         0,
       ),
     ).toBe("");
@@ -347,5 +347,30 @@ describe("parsePageReport marks", () => {
       ["s"],
     ])
       expect(parse(bad)).toBeUndefined();
+  });
+});
+
+describe("comment marks", () => {
+  it("writes the text and drops the mark", () => {
+    const mark: Mark = { type: "comment", attrs: { id: "t-1" } };
+    const src = buildTypst(book, [
+      chapter({ type: "paragraph", content: [t("the storm", [mark])] }),
+    ]);
+    expect(src).toContain("the storm");
+    expect(src).not.toContain("t-1");
+  });
+});
+
+describe("scenes", () => {
+  it("prints a scene's blocks and none of its notes", () => {
+    const source = buildTypst(book, [
+      chapter({
+        type: "scene",
+        attrs: { id: "sc-1", title: "Secret title", synopsis: "Plans", target: 800 },
+        content: [p(t("In the scene."))],
+      }),
+    ]);
+    expect(source).toContain("In the scene.");
+    expect(source).not.toContain("Secret title");
   });
 });

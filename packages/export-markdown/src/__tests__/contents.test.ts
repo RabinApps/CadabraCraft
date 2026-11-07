@@ -100,6 +100,21 @@ describe("Markdown contents page", () => {
     );
   });
 
+  it("nests a part's chapters and their headings by indent", () => {
+    const chapters: MarkdownChapter[] = [
+      { id: "pt-1", title: "Part One", doc: doc(h(1, "Part One")) },
+      ...pages(),
+    ];
+    const items: MarkdownContentsItem[] = [
+      page("pt-1", "Part One"),
+      { ...page("ch-1", "One"), indent: 1 },
+      { ...head("ch-1", 1, "One", 0), indent: 2 },
+    ];
+    expect(tocOf(chaptersToMarkdown(book, chapters, {}, { items }))).toBe(
+      "# Contents\n\n- [Part One](#part-one)\n  - [One](#one)\n    - [One](#one)\n",
+    );
+  });
+
   it("applies hidden, renamed, reordered and custom entries as given, stale ones ignored", () => {
     const items: MarkdownContentsItem[] = [
       { ...page("ch-2", "Zwei"), hidden: true },
@@ -254,5 +269,21 @@ describe("Markdown contents page", () => {
     expect(headingTexts(d)).toEqual(["In quote", "x"]);
     const slug = slugger();
     expect([slug("A b"), slug("a B"), slug("a b")]).toEqual(["a-b", "a-b-1", "a-b-2"]);
+  });
+
+  it("is a real list of links with a text label each, no page numbers or leaders, after front matter with the language", () => {
+    const items = [page("ch-1", "One"), head("ch-1", 2, "Storm", 1), page("ch-2", "Two")];
+    const md = bookToMarkdown(
+      { ...book, language: "fr" },
+      pages(),
+      { frontMatter: true },
+      { items },
+    );
+    expect(md.startsWith('---\ntitle: "B"\nlang: "fr"\n---\n\n# Contents\n\n- [One]')).toBe(true);
+    const list = md.slice(md.indexOf("- [One]"), md.indexOf("\n\n", md.indexOf("- [One]")));
+    const rows = list.split("\n");
+    expect(rows).toHaveLength(3);
+    for (const r of rows) expect(r).toMatch(/^ *- \[[^\]]+\]\(#[^)]+\)$/);
+    expect(list).not.toMatch(/\.{3}|\t|\d+$/);
   });
 });

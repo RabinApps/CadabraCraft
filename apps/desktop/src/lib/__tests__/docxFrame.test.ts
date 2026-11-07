@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decodeDocxImport } from "../docxFrame";
+import { decodeDocxImport } from "../export/docxFrame";
 
 /** The writer of `import_docx::frame::encode` in Rust, for the tests: header length (little endian), JSON header, image bytes. */
 function frame(header: unknown, ...images: number[][]): Uint8Array {

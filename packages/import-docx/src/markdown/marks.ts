@@ -1,4 +1,4 @@
-import type { DocNode, Mark } from "@cadabracraft/shared";
+import { isLangTag, type DocNode, type Mark } from "@cadabracraft/shared";
 import type { Definition, FootnoteDefinition, Nodes, PhrasingContent } from "mdast";
 import {
   AssetRegistry,
@@ -36,17 +36,22 @@ export function toText(n: Nodes): string {
   return "";
 }
 
-/** The inline HTML tags `export-markdown` writes for `htmlMarks`: `<u>`, `<span class="small-caps">`, `<sup>`, `<sub>`. */
+/** The inline HTML tags `export-markdown` writes for `htmlMarks`: `<u>`, `<span class="small-caps">`, `<span lang="xx">`, `<sup>`, `<sub>`. */
 const HTML_MARK = /^<(\/)?(u|sup|sub|span)(\s[^>]*)?>$/i;
 function htmlMark(value: string): { close: boolean; tag: string; mark: Mark } | null {
   const m = HTML_MARK.exec(value.trim());
   if (!m) return null;
   const tag = m[2]!.toLowerCase();
   const close = !!m[1];
-  if (tag === "span")
-    return /^\s+class\s*=\s*["']small-caps["']\s*$/i.test(m[3] ?? "") || (close && !m[3])
-      ? { close, tag, mark: { type: "smallCaps" } }
-      : null;
+  if (tag === "span") {
+    // A close tag has no attributes and pairs with the nearest open span of any kind (its mark is not used).
+    if ((close && !m[3]) || /^\s+class\s*=\s*["']small-caps["']\s*$/i.test(m[3] ?? ""))
+      return { close, tag, mark: { type: "smallCaps" } };
+    const lang = /^\s+lang\s*=\s*(?:"([^"]*)"|'([^']*)')\s*$/i.exec(m[3] ?? "");
+    const value = lang?.[1] ?? lang?.[2];
+    // (CommonMark only parses attributes on an opening tag, so a close tag never reaches here with a lang.)
+    return isLangTag(value) ? { close, tag, mark: { type: "lang", attrs: { lang: value } } } : null;
+  }
   if (m[3]) return null;
   return {
     close,
@@ -77,129 +82,171 @@ function pairedHtmlMarks(nodes: PhrasingContent[]): Set<number> {
   return paired;
 }
 
+interface InlineState {
+  ctx: Ctx;
+  baseMarks: Mark[];
+  inNote: boolean;
+  /** Indexes of the HTML nodes that are balanced mark tags. */
+  paired: Set<number>;
+  openMarks: { tag: string; mark: Mark }[];
+  /** The marks in force: the base marks and the ones of the HTML tags open here. */
+  marks: Mark[];
+}
+
+const one = (t: DocNode | null | undefined): Item[] => (t ? [t] : []);
+
+/** An inline node that only adds a mark to its children (emphasis, strong, delete). */
+const MARKED_CHILDREN = { emphasis: "italic", strong: "bold", delete: "strike" } as const;
+
+function linkItems(
+  n: Extract<PhrasingContent, { type: "link" | "linkReference" }>,
+  st: InlineState,
+): Item[] {
+  const { ctx, marks, inNote } = st;
+  const url = n.type === "link" ? n.url : ctx.defs.get(n.identifier.toLowerCase())?.url;
+  const href = url === undefined ? null : safeHref(url);
+  if (href) return inlines(n.children, ctx, [...marks, { type: "link", attrs: { href } }], inNote);
+  ctx.warn.at(
+    "unsafe-link",
+    "warning",
+    `Link removed (only http, https and mailto are kept): ${(url ?? "unresolved reference").slice(0, 80)}`,
+    lineOf(n),
+  );
+  return inlines(n.children, ctx, marks, inNote);
+}
+
+function imageNodeItems(
+  n: Extract<PhrasingContent, { type: "image" | "imageReference" }>,
+  st: InlineState,
+): Item[] {
+  const { ctx, marks } = st;
+  const d = n.type === "imageReference" ? ctx.defs.get(n.identifier.toLowerCase()) : undefined;
+  const url = n.type === "image" ? n.url : d?.url;
+  const title = n.type === "image" ? n.title : d?.title;
+  if (url === undefined) return one(textNode(n.alt ?? "", marks));
+  return imageItems(url, n.alt ?? "", title, lineOf(n), ctx);
+}
+
+/** A raw HTML node: a balanced mark tag changes the marks in force, anything else is kept as literal text. */
+function htmlItems(
+  n: Extract<PhrasingContent, { type: "html" }>,
+  index: number,
+  st: InlineState,
+): Item[] {
+  const h = st.paired.has(index) ? htmlMark(n.value) : null;
+  if (!h) {
+    st.ctx.warn.at(
+      "html",
+      "warning",
+      "Raw HTML is not supported; its text was kept literally.",
+      lineOf(n),
+    );
+    return one(textNode(n.value, st.marks));
+  }
+  if (!h.close) st.openMarks.push({ tag: h.tag, mark: h.mark });
+  else {
+    const at = st.openMarks.map((o) => o.tag).lastIndexOf(h.tag);
+    // pairedHtmlMarks only pairs a close tag with an earlier open tag of the same name, so `at` is always found.
+    /* v8 ignore else -- @preserve */
+    if (at >= 0) st.openMarks.splice(at, 1);
+  }
+  st.marks = [...st.baseMarks, ...st.openMarks.map((o) => o.mark)];
+  return [];
+}
+
+function footnoteItems(
+  n: Extract<PhrasingContent, { type: "footnoteReference" }>,
+  st: InlineState,
+): Item[] {
+  const { ctx } = st;
+  const def = ctx.footnotes.get(n.identifier.toLowerCase());
+  if (st.inNote) {
+    ctx.warn.at(
+      "footnote-nested",
+      "warning",
+      "A footnote reference inside a footnote was dropped.",
+      lineOf(n),
+    );
+    return [];
+  }
+  if (!def) {
+    ctx.warn.at(
+      "footnote-undefined",
+      "warning",
+      `Footnote [^${n.label ?? n.identifier}] has no definition.`,
+      lineOf(n),
+    );
+    return [];
+  }
+  ctx.usedFootnotes.add(n.identifier.toLowerCase());
+  return [footnoteNode(def, ctx)];
+}
+
+function inlineItems(n: PhrasingContent, index: number, st: InlineState): Item[] {
+  const { ctx, marks, inNote } = st;
+  switch (n.type) {
+    case "text":
+      return one(textNode(n.value.replace(/\n/g, " "), marks));
+    case "emphasis":
+    case "strong":
+    case "delete":
+      return inlines(n.children, ctx, [...marks, { type: MARKED_CHILDREN[n.type] }], inNote);
+    case "inlineCode":
+      return one(textNode(n.value, [...marks, { type: "code" }]));
+    case "link":
+    case "linkReference":
+      return linkItems(n, st);
+    case "break":
+      return [{ sep: "break" }];
+    case "image":
+    case "imageReference":
+      return imageNodeItems(n, st);
+    case "html":
+      return htmlItems(n, index, st);
+    case "footnoteReference":
+      return footnoteItems(n, st);
+    default:
+      ctx.warn.at(
+        "unsupported-node",
+        "warning",
+        `Unsupported inline element "${(n as { type: string }).type}" was kept as text.`,
+        lineOf(n),
+      );
+      return one(textNode(toText(n), marks));
+  }
+}
+
 export function inlines(
   nodes: PhrasingContent[],
   ctx: Ctx,
   baseMarks: Mark[],
   inNote = false,
 ): Item[] {
+  const st: InlineState = {
+    ctx,
+    baseMarks,
+    inNote,
+    paired: pairedHtmlMarks(nodes),
+    openMarks: [],
+    marks: baseMarks,
+  };
   const out: Item[] = [];
-  const paired = pairedHtmlMarks(nodes);
-  const openMarks: { tag: string; mark: Mark }[] = [];
-  let marks = baseMarks;
-  for (const [index, n] of nodes.entries()) {
-    switch (n.type) {
-      case "text": {
-        const t = textNode(n.value.replace(/\n/g, " "), marks);
-        if (t) out.push(t);
-        break;
-      }
-      case "emphasis":
-        out.push(...inlines(n.children, ctx, [...marks, { type: "italic" }], inNote));
-        break;
-      case "strong":
-        out.push(...inlines(n.children, ctx, [...marks, { type: "bold" }], inNote));
-        break;
-      case "delete":
-        out.push(...inlines(n.children, ctx, [...marks, { type: "strike" }], inNote));
-        break;
-      case "inlineCode": {
-        const t = textNode(n.value, [...marks, { type: "code" }]);
-        if (t) out.push(t);
-        break;
-      }
-      case "link":
-      case "linkReference": {
-        const url = n.type === "link" ? n.url : ctx.defs.get(n.identifier.toLowerCase())?.url;
-        const href = url === undefined ? null : safeHref(url);
-        if (href)
-          out.push(
-            ...inlines(n.children, ctx, [...marks, { type: "link", attrs: { href } }], inNote),
-          );
-        else {
-          ctx.warn.at(
-            "unsafe-link",
-            "warning",
-            `Link removed (only http, https and mailto are kept): ${(url ?? "unresolved reference").slice(0, 80)}`,
-            lineOf(n),
-          );
-          out.push(...inlines(n.children, ctx, marks, inNote));
-        }
-        break;
-      }
-      case "break":
-        out.push({ sep: "break" });
-        break;
-      case "image":
-      case "imageReference": {
-        const d =
-          n.type === "imageReference" ? ctx.defs.get(n.identifier.toLowerCase()) : undefined;
-        const url = n.type === "image" ? n.url : d?.url;
-        const title = n.type === "image" ? n.title : d?.title;
-        if (url === undefined) {
-          const t = textNode(n.alt ?? "", marks);
-          if (t) out.push(t);
-        } else out.push(...imageItems(url, n.alt ?? "", title, lineOf(n), ctx));
-        break;
-      }
-      case "html": {
-        const h = paired.has(index) ? htmlMark(n.value) : null;
-        if (h) {
-          if (!h.close) openMarks.push({ tag: h.tag, mark: h.mark });
-          else {
-            const at = openMarks.map((o) => o.tag).lastIndexOf(h.tag);
-            // pairedHtmlMarks only pairs a close tag with an earlier open tag of the same name, so `at` is always found.
-            /* v8 ignore else -- @preserve */
-            if (at >= 0) openMarks.splice(at, 1);
-          }
-          marks = [...baseMarks, ...openMarks.map((o) => o.mark)];
-          break;
-        }
-        ctx.warn.at(
-          "html",
-          "warning",
-          "Raw HTML is not supported; its text was kept literally.",
-          lineOf(n),
-        );
-        const t = textNode(n.value, marks);
-        if (t) out.push(t);
-        break;
-      }
-      case "footnoteReference": {
-        const def = ctx.footnotes.get(n.identifier.toLowerCase());
-        if (inNote) {
-          ctx.warn.at(
-            "footnote-nested",
-            "warning",
-            "A footnote reference inside a footnote was dropped.",
-            lineOf(n),
-          );
-        } else if (!def) {
-          ctx.warn.at(
-            "footnote-undefined",
-            "warning",
-            `Footnote [^${n.label ?? n.identifier}] has no definition.`,
-            lineOf(n),
-          );
-        } else {
-          ctx.usedFootnotes.add(n.identifier.toLowerCase());
-          out.push(footnoteNode(def, ctx));
-        }
-        break;
-      }
-      default: {
-        ctx.warn.at(
-          "unsupported-node",
-          "warning",
-          `Unsupported inline element "${(n as { type: string }).type}" was kept as text.`,
-          lineOf(n),
-        );
-        const t = textNode(toText(n), marks);
-        if (t) out.push(t);
-      }
-    }
-  }
+  for (const [index, n] of nodes.entries()) out.push(...inlineItems(n, index, st));
   return out;
+}
+
+/** Adds the text of a note paragraph's inline items to `parts`; says whether any item was not plain text. */
+function appendNoteInlines(parts: DocNode[], items: Item[]): boolean {
+  let complex = false;
+  for (const it of items) {
+    // Inlines inside a note are only text or separators, so the final "otherwise" is unreachable.
+    /* v8 ignore else -- @preserve */
+    if (isSep(it)) {
+      complex = true;
+      if (it.sep === "break") parts.push({ type: "text", text: " " });
+    } else if (it.type === "text") parts.push(it);
+  }
+  return complex;
 }
 
 function footnoteNode(def: FootnoteDefinition, ctx: Ctx): DocNode {
@@ -208,14 +255,7 @@ function footnoteNode(def: FootnoteDefinition, ctx: Ctx): DocNode {
   for (const child of def.children) {
     if (parts.length) parts.push({ type: "text", text: " " });
     if (child.type === "paragraph") {
-      for (const it of inlines(child.children, ctx, [], true)) {
-        // Inlines inside a note are only text or separators, so the final "otherwise" is unreachable.
-        /* v8 ignore else -- @preserve */
-        if (isSep(it)) {
-          complex = true;
-          if (it.sep === "break") parts.push({ type: "text", text: " " });
-        } else if (it.type === "text") parts.push(it);
-      }
+      complex = appendNoteInlines(parts, inlines(child.children, ctx, [], true)) || complex;
     } else {
       complex = true;
       const t = textNode(toText(child).replace(/\s+/g, " ").trim());

@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import type { MenuEntry } from "../menuModel";
+import type { MenuEntry } from "../native/menuModel";
 import {
   createNativeMenu,
   showNativeMenu,
   structureOf,
   tauriMenuApi,
   type MenuApi,
-} from "../nativeMenu";
+} from "../native/nativeMenu";
 
 const tauriMenuMocks = vi.hoisted(() => ({
   menu: vi.fn(async (_options: { items: unknown[] }) => ({
@@ -157,7 +157,7 @@ describe("Tauri menu API adapter", () => {
         throw new Error("native menu unavailable");
       },
     }));
-    const { showNativeMenu: showUnavailableMenu } = await import("../nativeMenu");
+    const { showNativeMenu: showUnavailableMenu } = await import("../native/nativeMenu");
     await expect(showUnavailableMenu(entries(), vi.fn())).resolves.toBeUndefined();
     expect((globalThis as { __cadabraMenu?: { error?: string } }).__cadabraMenu?.error).toBe(
       "native menu unavailable",

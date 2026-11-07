@@ -1,4 +1,4 @@
-import type { DocNode, Mark } from "@cadabracraft/shared";
+import { isLangTag, type DocNode, type Mark } from "@cadabracraft/shared";
 import {
   cellParagraphs,
   flattenItems,
@@ -7,7 +7,7 @@ import {
   isSep,
   listNodes,
   cleanText,
-  paragraphOf,
+  alignFrom,
   safeHref,
   tableOf,
   textNode,
@@ -21,6 +21,7 @@ import {
   MARK_TAGS,
   PLAIN_INLINE,
   SKIP,
+  alignOf,
   attr,
   collapse,
   hasClass,
@@ -35,6 +36,7 @@ import {
   type PNode,
 } from "./dom";
 import { flush, newFlow, trimRun, type Flow } from "./run";
+import { checkboxOf, tooDeep } from "./leaf";
 
 // The helpers below moved to ./dom; they are re-exported so importers of this module are unaffected.
 export {
@@ -48,197 +50,199 @@ export {
   type PText,
 } from "./dom";
 
-function blocksIn(
-  nodes: readonly PNode[],
-  ctx: HtmlCtx,
-  marks: Mark[],
-  depth: number,
-  dom: number,
-): DocNode[] {
+/** Where a node sits: the shared context, the marks in force, how many lists and quotes deep (`depth`) and how many elements deep (`dom`). */
+interface Scope {
+  ctx: HtmlCtx;
+  marks: Mark[];
+  depth: number;
+  dom: number;
+}
+
+/** The scope `levels` lists/quotes and `elements` DOM levels further in. */
+const deeper = (s: Scope, levels: number, elements: number): Scope => ({
+  ...s,
+  depth: s.depth + levels,
+  dom: s.dom + elements,
+});
+
+const marked = (s: Scope, marks: Mark[]): Scope => ({ ...s, marks });
+
+function blocksIn(nodes: readonly PNode[], s: Scope): DocNode[] {
   const f = newFlow();
-  flow(nodes, ctx, marks, f, depth, dom);
-  flush(f, ctx);
+  flow(nodes, s, f);
+  flush(f, s.ctx);
   return f.out;
 }
 
-function flow(
-  nodes: readonly PNode[],
-  ctx: HtmlCtx,
-  marks: Mark[],
-  f: Flow,
-  depth: number,
-  dom: number,
-): void {
-  if (dom > MAX_DOM_DEPTH)
+function flow(nodes: readonly PNode[], s: Scope, f: Flow): void {
+  if (s.dom > MAX_DOM_DEPTH)
     throw new ImportError("too-deeply-nested", "The HTML is nested too deeply to import.");
   for (const n of nodes) {
     if (isText(n)) {
-      const t = textNode(collapse(n.value), marks);
+      const t = textNode(collapse(n.value), s.marks);
       if (t) f.run.push(t);
-    } else if (isElement(n)) element(n, ctx, marks, f, depth, dom + 1);
+    } else if (isElement(n)) element(n, deeper(s, 0, 1), f);
   }
 }
 
-function element(
-  el: PElement,
-  ctx: HtmlCtx,
-  marks: Mark[],
-  f: Flow,
-  depth: number,
-  dom: number,
-): void {
-  const tag = el.tagName;
-  if (SKIP.has(tag)) return;
-  const mark = MARK_TAGS[tag];
-  if (mark) return flow(el.childNodes, ctx, withMark(marks, mark), f, depth, dom);
-  if (/^h[1-6]$/.test(tag)) return heading(el, ctx, marks, f, depth, dom);
-  switch (tag) {
-    case "p":
-      flush(f, ctx);
-      flow(el.childNodes, ctx, marks, f, depth, dom);
-      flush(f, ctx);
-      return;
-    case "br":
+/** Handles an element of one tag. `false` means "not mine after all": the element is then read as a container or inline element. */
+type TagHandler = (el: PElement, s: Scope, f: Flow) => void | false;
+
+/** A block that holds blocks: closes the text before it and gives the alignment it has to the blocks in it that have none. */
+function container(el: PElement, s: Scope, f: Flow): void {
+  flush(f, s.ctx);
+  const from = f.out.length;
+  flow(el.childNodes, s, f);
+  flush(f, s.ctx);
+  alignFrom(f.out, from, alignOf(el));
+}
+
+function link(el: PElement, s: Scope, f: Flow): void {
+  const href = attr(el, "href");
+  if (href === undefined || href.trim().startsWith("#")) return flow(el.childNodes, s, f);
+  const safe = safeHref(href);
+  if (safe)
+    return flow(el.childNodes, marked(s, [...s.marks, { type: "link", attrs: { href: safe } }]), f);
+  s.ctx.warn.at(
+    "unsafe-link",
+    "warning",
+    `Link removed (only http, https and mailto are kept): ${href.slice(0, 80)}`,
+  );
+  return flow(el.childNodes, s, f);
+}
+
+function span(el: PElement, s: Scope, f: Flow): void {
+  if (hasClass(el, "footnote")) {
+    const text = textOf(el);
+    f.run.push(
+      text
+        ? { type: "footnote", content: [{ type: "text", text: cleanText(text) }] }
+        : { type: "footnote" },
+    );
+    return;
+  }
+  const small =
+    hasClass(el, "small-caps") ||
+    /font-variant(?:-caps)?\s*:\s*(?:all-)?small-caps/i.test(attr(el, "style") ?? "");
+  // A passage in another language (what the editor writes as span[lang] and the Markdown exporter as <span lang>).
+  const lang = attr(el, "lang")?.trim();
+  const spanMarks: Mark[] = [
+    ...s.marks,
+    ...(small ? [{ type: "smallCaps" } as const] : []),
+    ...(isLangTag(lang) ? [{ type: "lang", attrs: { lang } } as const] : []),
+  ];
+  return flow(el.childNodes, marked(s, spanMarks), f);
+}
+
+function blockquote(el: PElement, s: Scope, f: Flow): void {
+  flush(f, s.ctx);
+  if (s.depth >= s.ctx.maxDepth) return tooDeep(el, s.ctx, f);
+  const inner = blocksIn(el.childNodes, deeper(s, 1, 0));
+  f.out.push({ type: "blockquote", content: inner.length ? inner : [{ type: "paragraph" }] });
+}
+
+function codeBlock(el: PElement, s: Scope, f: Flow): void {
+  flush(f, s.ctx);
+  const code = el.childNodes.find((c): c is PElement => isElement(c) && c.tagName === "code");
+  const lang = /(?:^|\s)(?:language|lang)-([A-Za-z0-9_+#.-]{1,32})(?:\s|$)/.exec(
+    attr(code ?? el, "class") ?? "",
+  )?.[1];
+  const text = cleanText(preText(el));
+  f.out.push({
+    type: "codeBlock",
+    ...(lang ? { attrs: { language: lang } } : {}),
+    ...(text ? { content: [{ type: "text", text }] } : {}),
+  });
+}
+
+/** A block that cannot nest without limit (a list or a definition list): refuses past `maxDepth`. */
+const nesting =
+  (build: (el: PElement, s: Scope, f: Flow) => void): TagHandler =>
+  (el, s, f) => {
+    flush(f, s.ctx);
+    if (s.depth >= s.ctx.maxDepth) return tooDeep(el, s.ctx, f);
+    return build(el, s, f);
+  };
+
+const TAG_HANDLERS = new Map<string, TagHandler>([
+  ["p", container],
+  [
+    "br",
+    (_el, _s, f) => {
       f.run.push({ sep: "break" });
-      return;
-    case "hr":
-      flush(f, ctx);
+    },
+  ],
+  [
+    "hr",
+    (_el, s, f) => {
+      flush(f, s.ctx);
       f.out.push({ type: "sceneBreak" });
-      return;
-    case "img":
+    },
+  ],
+  [
+    "img",
+    (el, s, f) => {
       f.run.push(
         ...imageItems(
           attr(el, "src") ?? "",
           collapse(attr(el, "alt") ?? "").trim(),
           attr(el, "title"),
           undefined,
-          ctx,
+          s.ctx,
         ),
       );
-      return;
-    case "a": {
-      const href = attr(el, "href");
-      if (href === undefined || href.trim().startsWith("#"))
-        return flow(el.childNodes, ctx, marks, f, depth, dom);
-      const safe = safeHref(href);
-      if (safe)
-        return flow(
-          el.childNodes,
-          ctx,
-          [...marks, { type: "link", attrs: { href: safe } }],
-          f,
-          depth,
-          dom,
-        );
-      ctx.warn.at(
-        "unsafe-link",
-        "warning",
-        `Link removed (only http, https and mailto are kept): ${href.slice(0, 80)}`,
-      );
-      return flow(el.childNodes, ctx, marks, f, depth, dom);
-    }
-    case "span": {
-      if (hasClass(el, "footnote")) {
-        const text = textOf(el);
-        f.run.push(
-          text
-            ? { type: "footnote", content: [{ type: "text", text: cleanText(text) }] }
-            : { type: "footnote" },
-        );
-        return;
-      }
-      const small =
-        hasClass(el, "small-caps") ||
-        /font-variant(?:-caps)?\s*:\s*(?:all-)?small-caps/i.test(attr(el, "style") ?? "");
-      return flow(
-        el.childNodes,
-        ctx,
-        small ? [...marks, { type: "smallCaps" }] : marks,
-        f,
-        depth,
-        dom,
-      );
-    }
-    case "blockquote": {
-      flush(f, ctx);
-      if (depth >= ctx.maxDepth) return tooDeep(el, ctx, f);
-      const inner = blocksIn(el.childNodes, ctx, marks, depth + 1, dom);
-      f.out.push({ type: "blockquote", content: inner.length ? inner : [{ type: "paragraph" }] });
-      return;
-    }
-    case "ul":
-    case "ol":
-      flush(f, ctx);
-      if (depth >= ctx.maxDepth) return tooDeep(el, ctx, f);
-      return list(el, ctx, marks, f, depth, dom);
-    case "pre": {
-      flush(f, ctx);
-      const code = el.childNodes.find((c): c is PElement => isElement(c) && c.tagName === "code");
-      const lang = /(?:^|\s)(?:language|lang)-([A-Za-z0-9_+#.-]{1,32})(?:\s|$)/.exec(
-        attr(code ?? el, "class") ?? "",
-      )?.[1];
-      const text = cleanText(preText(el));
-      f.out.push({
-        type: "codeBlock",
-        ...(lang ? { attrs: { language: lang } } : {}),
-        ...(text ? { content: [{ type: "text", text }] } : {}),
-      });
-      return;
-    }
-    case "table":
-      flush(f, ctx);
-      return table(el, ctx, marks, f, depth, dom);
-    case "dl":
-      flush(f, ctx);
-      if (depth >= ctx.maxDepth) return tooDeep(el, ctx, f);
-      return definitions(el, ctx, marks, f, depth, dom);
-    case "input":
-      // A checkbox is read as the state of its task item (see `checkboxOf`); one anywhere else carries no text.
-      if (attr(el, "type")?.toLowerCase() === "checkbox") return;
-      break;
-  }
-  if (CONTAINERS.has(tag)) {
-    flush(f, ctx);
-    flow(el.childNodes, ctx, marks, f, depth, dom);
-    flush(f, ctx);
-    return;
-  }
+    },
+  ],
+  ["a", link],
+  ["span", span],
+  ["blockquote", blockquote],
+  ["ul", nesting(list)],
+  ["ol", nesting(list)],
+  ["pre", codeBlock],
+  [
+    "table",
+    (el, s, f) => {
+      flush(f, s.ctx);
+      return table(el, s, f);
+    },
+  ],
+  ["dl", nesting(definitions)],
+  [
+    "input",
+    // A checkbox is read as the state of its task item (see `checkboxOf`); one anywhere else carries no text.
+    (el) => (attr(el, "type")?.toLowerCase() === "checkbox" ? undefined : false),
+  ],
+]);
+
+function element(el: PElement, s: Scope, f: Flow): void {
+  const tag = el.tagName;
+  if (SKIP.has(tag)) return;
+  const mark = MARK_TAGS[tag];
+  if (mark) return flow(el.childNodes, marked(s, withMark(s.marks, mark)), f);
+  if (/^h[1-6]$/.test(tag)) return heading(el, s, f);
+  const handler = TAG_HANDLERS.get(tag);
+  if (handler && handler(el, s, f) !== false) return;
+  if (CONTAINERS.has(tag)) return container(el, s, f);
   if (!PLAIN_INLINE.has(tag))
-    ctx.warn.tally(
+    s.ctx.warn.tally(
       "unsupported-element",
       "warning",
       "Unsupported HTML elements were ignored; their text was kept.",
       `<${tag}>`,
     );
-  flow(el.childNodes, ctx, marks, f, depth, dom);
+  flow(el.childNodes, s, f);
 }
 
-function tooDeep(el: PElement, ctx: HtmlCtx, f: Flow): void {
-  ctx.warn.at(
-    "nesting-too-deep",
-    "warning",
-    `Nesting deeper than ${ctx.maxDepth} levels was flattened to text.`,
-  );
-  const t = textNode(textOf(el));
-  if (t) f.out.push(paragraphOf([t]));
-}
-
-function heading(
-  el: PElement,
-  ctx: HtmlCtx,
-  marks: Mark[],
-  f: Flow,
-  depth: number,
-  dom: number,
-): void {
-  flush(f, ctx);
+function heading(el: PElement, s: Scope, f: Flow): void {
+  flush(f, s.ctx);
+  const from = f.out.length;
   let level = Number(el.tagName[1]);
   if (level > 3) {
-    ctx.warn.at("heading-clamped", "warning", `Heading level ${level} was changed to level 3.`);
+    s.ctx.warn.at("heading-clamped", "warning", `Heading level ${level} was changed to level 3.`);
     level = 3;
   }
   const inner = newFlow();
-  flow(el.childNodes, ctx, marks, inner, depth, dom);
+  flow(el.childNodes, s, inner);
   const items = trimRun(inner.run);
   const content = flattenItems(items);
   f.out.push(
@@ -248,33 +252,12 @@ function heading(
   );
   for (const i of items) if (isSep(i) && i.sep === "block") f.out.push(i.node);
   f.out.push(...inner.out);
+  alignFrom(f.out, from, alignOf(el));
 }
 
-/** The checkbox that makes a list item a task item: an `<input type=checkbox>` first in the item, alone or inside a `<label>`. */
-function checkboxOf(li: PElement): boolean | null {
-  for (const c of li.childNodes) {
-    if (isText(c) && c.value.trim() === "") continue;
-    if (!isElement(c)) return null;
-    const input =
-      c.tagName === "input"
-        ? c
-        : c.tagName === "label"
-          ? c.childNodes.find((k): k is PElement => isElement(k) && k.tagName === "input")
-          : undefined;
-    if (!input || attr(input, "type")?.toLowerCase() !== "checkbox") return null;
-    return attr(input, "checked") !== undefined || attr(li, "data-checked") === "true";
-  }
-  return null;
-}
-
-function list(
-  el: PElement,
-  ctx: HtmlCtx,
-  marks: Mark[],
-  f: Flow,
-  depth: number,
-  dom: number,
-): void {
+function list(el: PElement, s: Scope, f: Flow): void {
+  const { ctx } = s;
+  const inside = deeper(s, 1, 1);
   const items: ListEntry[] = [];
   let loose: Flow | null = null;
   const endLoose = () => {
@@ -286,15 +269,12 @@ function list(
   for (const c of el.childNodes) {
     if (isElement(c) && c.tagName === "li") {
       endLoose();
-      items.push({
-        content: blocksIn(c.childNodes, ctx, marks, depth + 1, dom + 1),
-        checked: checkboxOf(c),
-      });
+      items.push({ content: blocksIn(c.childNodes, inside), checked: checkboxOf(c) });
     } else if (isText(c) && c.value.trim() === "") continue;
     else {
       // Stray content directly inside the list: keep it as an item of its own.
       loose ??= newFlow();
-      flow([c], ctx, marks, loose, depth + 1, dom + 1);
+      flow([c], inside, loose);
     }
   }
   endLoose();
@@ -315,21 +295,15 @@ function list(
 }
 
 /** `<dl>`: `<dt>` terms and `<dd>` descriptions, directly or inside `<div>` groups. */
-function definitions(
-  el: PElement,
-  ctx: HtmlCtx,
-  marks: Mark[],
-  f: Flow,
-  depth: number,
-  dom: number,
-): void {
+function definitions(el: PElement, s: Scope, f: Flow): void {
+  const inside = deeper(s, 1, 1);
   const entries: DefinitionEntry[] = [];
   const walkDl = (nodes: readonly PNode[], level: number) => {
     for (const c of nodes) {
       if (!isElement(c)) continue;
       if (c.tagName === "dt") {
         const inner = newFlow();
-        flow(c.childNodes, ctx, marks, inner, depth + 1, dom + 1);
+        flow(c.childNodes, inside, inner);
         const items = trimRun(inner.run);
         entries.push({ kind: "term", content: flattenItems(items) });
         // Block-level content inside a term (an image, a list) cannot live in a term: it follows as the term's description.
@@ -338,10 +312,7 @@ function definitions(
         extra.push(...inner.out);
         if (extra.length) entries.push({ kind: "desc", content: extra });
       } else if (c.tagName === "dd")
-        entries.push({
-          kind: "desc",
-          content: blocksIn(c.childNodes, ctx, marks, depth + 1, dom + 1),
-        });
+        entries.push({ kind: "desc", content: blocksIn(c.childNodes, inside) });
       else if (c.tagName === "div" && level < 2) walkDl(c.childNodes, level + 1);
     }
   };
@@ -349,14 +320,8 @@ function definitions(
   f.out.push(...definitionNodes(entries));
 }
 
-function table(
-  el: PElement,
-  ctx: HtmlCtx,
-  marks: Mark[],
-  f: Flow,
-  depth: number,
-  dom: number,
-): void {
+function table(el: PElement, s: Scope, f: Flow): void {
+  const { ctx } = s;
   const rows: { tr: PElement; head: boolean }[] = [];
   for (const c of el.childNodes) {
     if (!isElement(c)) continue;
@@ -364,8 +329,7 @@ function table(
     if (c.tagName === "thead" || c.tagName === "tbody" || c.tagName === "tfoot") {
       for (const r of c.childNodes)
         if (isElement(r) && r.tagName === "tr") rows.push({ tr: r, head: c.tagName === "thead" });
-    } else if (c.tagName === "caption")
-      f.out.push(...blocksIn(c.childNodes, ctx, marks, depth, dom + 1));
+    } else if (c.tagName === "caption") f.out.push(...blocksIn(c.childNodes, deeper(s, 0, 1)));
   }
   let flattened = false;
   let merged = false;
@@ -381,7 +345,7 @@ function table(
         (Number.parseInt(attr(cell, "rowspan") ?? "", 10) || 1) > 1
       )
         merged = true;
-      const r = cellParagraphs(blocksIn(cell.childNodes, ctx, marks, depth + 1, dom + 2));
+      const r = cellParagraphs(blocksIn(cell.childNodes, deeper(s, 1, 2)));
       flattened ||= r.flattened;
       return r.paragraphs;
     }),
@@ -408,7 +372,7 @@ function table(
 
 /** Convert parsed nodes into top-level blocks. */
 export const convert = (nodes: readonly PNode[], ctx: HtmlCtx): DocNode[] =>
-  guarded(() => blocksIn(nodes, ctx, [], 0, 0));
+  guarded(() => blocksIn(nodes, { ctx, marks: [], depth: 0, dom: 0 }));
 
 /** Blocks for an HTML snippet, sharing the caller's warnings and asset registry (used by the Markdown importer). */
 export function htmlSnippetBlocks(html: string, ctx: HtmlCtx): DocNode[] {

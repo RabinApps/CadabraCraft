@@ -1,5 +1,5 @@
 import { t } from "@lingui/core/macro";
-import { buildMenuModel, type MenuEntry, type PredefinedKind } from "../shell/menuModel";
+import { buildMenuModel, type MenuEntry, type PredefinedKind } from "../shell/native/menuModel";
 
 /**
  * The list behind Settings > Shortcuts. One source of truth, two inputs:
@@ -130,6 +130,9 @@ export function editorShortcuts(): Shortcut[] {
     s("editor.h1", "format", t`Heading 1`, "Mod+Alt+1"),
     s("editor.h2", "format", t`Heading 2`, "Mod+Alt+2"),
     s("editor.h3", "format", t`Heading 3`, "Mod+Alt+3"),
+    s("editor.alignLeft", "format", t`Align to Start`, "Mod+Shift+L"),
+    s("editor.alignCenter", "format", t`Centre`, "Mod+Shift+C"),
+    s("editor.alignRight", "format", t`Align to End`, "Mod+Shift+R"),
     s("editor.quote", "format", t`Block Quote`, "Mod+Shift+B"),
     s("editor.bullets", "format", t`Bulleted List`, "Mod+Shift+8"),
     s("editor.numbers", "format", t`Numbered List`, "Mod+Shift+7"),

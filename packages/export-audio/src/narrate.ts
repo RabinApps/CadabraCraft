@@ -1,6 +1,11 @@
 import type { ChapterDoc, DocNode } from "@cadabracraft/shared";
 import { UnsupportedNodeError } from "./errors";
 
+/*
+ * Narration reads text only: marks (including `lang`, a passage in another language) are ignored, so a foreign phrase is read
+ * by the edition's voice. Switching voices per passage is not supported.
+ */
+
 /** A unit of speech. A `pause` has no text; it is a longer silence (scene break). */
 export type NarrationBlock =
   { type: "paragraph" | "heading"; text: string } | { type: "pause"; text: "" };
@@ -33,6 +38,7 @@ const SKIPPED = new Set([
   "tableRow",
   "tableCell",
   "tableHeader",
+  "pageBreak",
 ]);
 
 const squash = (s: string): string => s.replace(/\s+/g, " ").trim();

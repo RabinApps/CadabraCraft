@@ -1,7 +1,7 @@
 import { expect, test } from "./support/coverage";
 import { covBackend, failOn, stopFailing } from "./support/cov";
 import { fakeTauri } from "./support/fakeTauri";
-import { chapterAction, manifestOf, newProject, sidebar } from "./support/helpers";
+import { chapterAction, manifestOf, newProject, sidebar, focusEnd } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -20,13 +20,12 @@ test("a named snapshot is taken, listed, restored for the whole book and deleted
   page,
 }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type(" and the first draft");
   let dialog = await openBookSnapshots(page);
   await expect(dialog).toContainText("No book snapshots yet");
   const take = dialog.getByRole("button", { name: "Take snapshot" });
-  await expect(take).toBeDisabled();
+  await expect(take).toBeEnabled();
   await dialog.getByLabel("Snapshot name").fill("Before the rewrite");
   await take.click();
   const list = dialog.getByRole("list", { name: "Book snapshots" });
@@ -43,8 +42,7 @@ test("a named snapshot is taken, listed, restored for the whole book and deleted
   await page.getByRole("button", { name: "Add chapter" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
   await page.getByRole("button", { name: "Chapter One", exact: true }).click();
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type(" plus a rewrite");
   await expect(page.getByRole("button", { name: "Chapter 2", exact: true })).toBeVisible();
 
@@ -125,8 +123,7 @@ test("History of a chapter has a Whole book view that restores just that chapter
   page,
 }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type(" old words");
   await chapterAction(page, "Chapter One", "History");
   const dialog = page.getByRole("dialog", { name: "History · Chapter One" });
@@ -141,8 +138,7 @@ test("History of a chapter has a Whole book view that restores just that chapter
 
   await page.getByRole("button", { name: "Add chapter" }).click();
   await page.getByRole("button", { name: "Chapter One", exact: true }).click();
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type(" new words");
   await chapterAction(page, "Chapter One", "History");
   await dialog.getByRole("radio", { name: "Whole book" }).click();
@@ -183,5 +179,7 @@ test("a failed snapshot or restore is shown in the dialog and nothing else chang
   await failOn(page, "list_book_snapshots", "listing broke");
   await page.keyboard.press("Escape");
   dialog = await openBookSnapshots(page);
-  await expect(dialog.getByRole("alert")).toHaveText("listing broke");
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Could not read the book snapshots (listing broke)",
+  );
 });

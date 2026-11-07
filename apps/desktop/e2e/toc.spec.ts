@@ -85,7 +85,7 @@ test("Contents is a single-use front-matter page; selecting it shows the list in
   await expect(contents(page)).toBeVisible();
   await expect(page.locator(".ProseMirror")).toHaveCount(0);
   const m = await manifestOf(page);
-  expect(m.formatVersion).toBe(7);
+  expect(m.formatVersion).toBe(12);
   expect(m.frontMatter.map((e: { kind: string }) => e.kind)).toEqual(["contents"]);
   expect(await entryTitles(page)).toEqual(["Arrival", "Storm", "Calm"]);
   // A second one cannot be added.
@@ -259,7 +259,9 @@ test("a custom entry takes its page number from the entry it points at; it can b
   await openContents(page);
   await contents(page).getByRole("button", { name: "Add custom entry" }).click();
   const dialog = page.getByRole("dialog", { name: "Add custom entry" });
-  await expect(dialog.getByRole("button", { name: "Add entry" })).toBeDisabled();
+  // An empty title is refused with a message, not by a dead button (see a11y-errors.spec.ts).
+  await dialog.getByRole("button", { name: "Add entry" }).click();
+  await expect(dialog.getByRole("alert")).toBeVisible();
   await dialog.getByLabel("Entry title").fill("Afterword");
   await dialog.getByLabel("Place after").selectOption({ label: "Storm" });
   await dialog.getByLabel("Points to").selectOption({ label: "Calm" });
@@ -329,7 +331,14 @@ test("Reset to outline asks first; cancel keeps the changes, confirm clears them
   await reset.click();
   await confirm.getByRole("button", { name: "Reset to outline" }).click();
   const toc = (await tocOf(page)).toc;
-  expect(toc).toEqual({ depth: 1, pageNumbers: false, hidden: [], titles: {}, custom: [] });
+  expect(toc).toEqual({
+    depth: 1,
+    pageNumbers: false,
+    parts: true,
+    hidden: [],
+    titles: {},
+    custom: [],
+  });
   expect(await entryTitles(page)).toEqual(["Arrival", "Arrival", "Storm", "Storm", "Calm", "Calm"]);
 });
 
@@ -340,7 +349,7 @@ test("page numbers: Typst's report when it has one, an estimate with ≈ otherwi
   await openContents(page);
   const pageOf = (title: string) => row(page, title).locator("[data-toc-page]");
   // No report (the fake Typst answers with an empty book): the word-count estimate, marked.
-  await expect(pageOf("Arrival")).toHaveText("≈ 1");
+  await expect(pageOf("Arrival")).toContainText("≈ 1");
   await expect(pageOf("Calm")).toContainText("≈");
   const m = await manifestOf(page);
   const ids = m.chapters.map((c: { id: string }) => c.id) as string[];
@@ -375,7 +384,9 @@ test("page numbers: Typst's report when it has one, an estimate with ≈ otherwi
   await expect(pageOf("Arrival")).toHaveText("1", { timeout: 15_000 });
   await expect(pageOf("Storm")).toHaveText("9");
   await expect(pageOf("Calm")).toHaveText("27");
-  await expect(pageOf("Chapter 4")).toContainText("≈");
+  // The chapter added after the report is not in it, so its own length is an estimate; where it starts is not, because the three
+  // chapters before it are measured: 27 + 10 pages, so 37, with no "≈".
+  await expect(pageOf("Chapter 4")).toHaveText("37");
   await depth(page, "+H1-H2");
   // Headings: Arrival 1; The harbour (page 6 -> 2); The inn (page 10 -> 6).
   await expect(row(page, "The harbour").first().locator("[data-toc-page]")).toHaveText("2", {
@@ -540,48 +551,192 @@ test("Markdown carries the list as nested links", async ({ page }) => {
   expect(md).not.toContain("[Calm]"); // hidden
 });
 
-test("Read mode shows the generated list on the Contents page", async ({ page }) => {
+const typstMissing = (page: Page) =>
+  page.evaluate(() => {
+    window.__typstError = { kind: "not_found", message: "The typst program was not found." };
+  });
+const readMode = (page: Page) => page.getByRole("radio", { name: "Read" }).click();
+const writeMode = (page: Page) => page.getByRole("radio", { name: "Write" }).click();
+/** The first reading section: the Contents page. */
+const readContents = (page: Page) => page.getByTestId("reading-contents");
+/** The printed lines of the Contents page as drawn (the preview in Write mode, the reader in Read mode): title and number of each. */
+const printed = (scope: ReturnType<Page["locator"]>) =>
+  scope
+    .locator("[data-preview-line]")
+    .evaluateAll((els) =>
+      els.map((el) => [
+        el.querySelector("a, span")?.textContent?.trim() ?? "",
+        el.querySelector("[data-number]")?.textContent?.trim() ?? null,
+        el.getAttribute("data-preview-line"),
+      ]),
+    );
+
+test("Read mode draws the Contents page as Write mode does: same entries, order, renames, hidden entries and numbers", async ({
+  page,
+}) => {
   await threeChapters(page);
+  await typstMissing(page);
   await openContents(page);
-  await depth(page, "+H1");
+  await depth(page, "+H1-H2");
   await row(page, "Storm").getByText("Storm").first().dblclick();
   await page.getByLabel("Entry title").fill("The Great Storm");
   await page.keyboard.press("Enter");
   await expect(row(page, "The Great Storm")).toBeVisible();
-  await page.getByRole("radio", { name: "Read" }).click();
-  const section = page.locator("[data-reading-id]").first();
-  await expect(section).toContainText("The Great Storm");
-  await expect(section).toContainText("Arrival");
-  await expect(section).toContainText("Calm");
+  await menuOf(page, "The inn").click();
+  await page.getByRole("menuitem", { name: "Hide from contents" }).click();
+  await expect(row(page, "The inn")).toContainText("Hidden");
+  const preview = page.getByRole("region", { name: "Preview" });
+  const titlesOf = () => printed(preview).then((l) => l.map((x) => x[0]));
+  await expect.poll(titlesOf).toContain("The Great Storm");
+  await expect.poll(titlesOf).not.toContain("The inn");
+  const written = await printed(preview);
+  expect(written.length).toBeGreaterThan(5);
+  expect(written.every((l) => /^(≈\d+|–)$/.test(l[1] ?? ""))).toBe(true);
+  await readMode(page);
+  await expect(readContents(page)).toBeVisible();
+  // The same lines (keys included), in the same order, with the same estimated numbers.
+  expect(await printed(readContents(page))).toEqual(written);
+  // One list with an accessible name, whose entries are links.
+  await expect(page.getByRole("navigation", { name: "Contents entries" })).toBeVisible();
+  await expect(readContents(page).getByRole("list", { name: "Printed entries" })).toBeVisible();
+  await expect(readContents(page).getByRole("link", { name: "The Great Storm" })).toBeVisible();
+  // Back in Write mode nothing has changed.
+  await writeMode(page);
+  await expect(row(page, "The Great Storm")).toBeVisible();
 });
 
-test("Read mode indents the nested entries of the generated list, one step deeper per level", async ({
+test("Read mode prints Typst's page numbers where the report has them, and none when they are switched off", async ({
   page,
 }) => {
   await threeChapters(page);
   await openContents(page);
-  await depth(page, "+H1-H3");
-  await page.getByRole("radio", { name: "Read" }).click();
-  const section = page.locator("[data-reading-id]").first();
-  await expect(section).toContainText("Gulls");
-  // Where the text starts: the left edge of the entry's own characters, past any indent.
-  const left = (title: string) =>
-    section.evaluate((root, wanted) => {
-      for (const p of root.querySelectorAll("p")) {
-        const node = p.firstChild;
-        if (node?.nodeType !== Node.TEXT_NODE || node.textContent?.trim() !== wanted) continue;
-        const text = node.textContent!;
-        const range = document.createRange();
-        range.setStart(node, text.length - wanted.length);
-        range.setEnd(node, text.length);
-        return range.getBoundingClientRect().left - p.getBoundingClientRect().left;
-      }
-      throw new Error(`no entry ${wanted}`);
-    }, title);
-  const [h1, h2, h3] = [await left("Arrival"), await left("The harbour"), await left("Gulls")];
-  // (The page style may indent every paragraph's first line, so only the steps between levels are compared.)
-  expect(h2).toBeGreaterThan(h1 + 8);
-  expect(h3).toBeGreaterThan(h2 + 8);
+  const m = await manifestOf(page);
+  const ids = m.chapters.map((c: { id: string }) => c.id) as string[];
+  const contentsId = m.frontMatter[0].id as string;
+  await page.evaluate(
+    ([c, [a, b, d]]) => {
+      window.__typstQueryResult = JSON.stringify({
+        total: 40,
+        starts: [
+          { id: c, kind: "contents", page: 3, end: 3, number: "iii" },
+          { id: a, kind: "chapter", page: 5, end: 12, number: "1" },
+          { id: b, kind: "chapter", page: 13, end: 30, number: "9" },
+          { id: d, kind: "chapter", page: 31, end: 40, number: "27" },
+        ],
+      });
+    },
+    [contentsId, ids] as const,
+  );
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await sidebar(page).getByRole("button", { name: "Contents", exact: true }).click();
+  await expect(row(page, "Calm").locator("[data-toc-page]")).toHaveText("27", {
+    timeout: 15_000,
+  });
+  await readMode(page);
+  const numbers = () => printed(readContents(page)).then((l) => l.map((x) => [x[0], x[1]]));
+  await expect.poll(numbers, { timeout: 15_000 }).toEqual([
+    ["Arrival", "1"],
+    ["Storm", "9"],
+    ["Calm", "27"],
+    ["Chapter 4", expect.stringMatching(/^≈\d+$/)],
+  ]);
+  await writeMode(page);
+  await contents(page).getByRole("switch", { name: "Page numbers" }).click();
+  await readMode(page);
+  await expect(readContents(page).locator("[data-preview-line]")).toHaveCount(4);
+  await expect(readContents(page).locator("[data-number], [data-leader]")).toHaveCount(0);
+});
+
+test("Read mode: the entries are links that scroll the reader to the chapter and to the heading", async ({
+  page,
+}) => {
+  await threeChapters(page);
+  await typstMissing(page);
+  await openContents(page);
+  await depth(page, "+H1-H2");
+  await readMode(page);
+  // Where the target is: in the upper half of the reader (it was scrolled to, not just somewhere on a tall page).
+  const nearTop = (el: ReturnType<Page["locator"]>) =>
+    el.evaluate((node) => {
+      const sc = document.querySelector('[data-testid="reading-scroll"]')!.getBoundingClientRect();
+      const top = node.getBoundingClientRect().top;
+      return top >= sc.top - 1 && top < sc.top + sc.height / 2;
+    });
+  // A chapter's link scrolls to its opening page; the title sits lower on that page (the opener's drop), so measure the page
+  // the title starts on: the last page card that begins at or above it.
+  const pageOf = (el: ReturnType<Page["locator"]>) =>
+    el.evaluate((node) => {
+      const sc = document.querySelector('[data-testid="reading-scroll"]')!.getBoundingClientRect();
+      const y = node.getBoundingClientRect().top;
+      const tops = [...document.querySelectorAll('[data-testid="reading-scroll"] .page-card')]
+        .map((c) => c.getBoundingClientRect().top)
+        .filter((t) => t <= y + 1);
+      const top = Math.max(...tops);
+      return top >= sc.top - 1 && top < sc.top + sc.height / 2;
+    });
+  const h = (tag: string, text: string) => page.locator(`.ProseMirror ${tag}`, { hasText: text });
+  const toContents = () =>
+    sidebar(page).getByRole("button", { name: "Contents", exact: true }).click();
+  await readContents(page).getByRole("link", { name: "Calm", exact: true }).first().click();
+  await expect.poll(() => pageOf(h("h1", "Calm"))).toBe(true);
+  // The contents page again, then an entry for a heading: the reader lands on that heading, not the top of its chapter.
+  await toContents();
+  await expect(readContents(page)).toBeVisible();
+  await readContents(page).getByRole("link", { name: "The inn" }).click();
+  await expect.poll(() => nearTop(h("h2", "The inn"))).toBe(true);
+  // Keyboard: a link takes focus and Enter follows it.
+  await toContents();
+  await expect(readContents(page)).toBeVisible();
+  const storm = readContents(page).getByRole("link", { name: "Storm", exact: true }).first();
+  await storm.focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(() => pageOf(h("h1", "Storm"))).toBe(true);
+});
+
+test("Read mode mirrors the Contents page in a right-to-left book", async ({ page }) => {
+  await threeChapters(page);
+  await openContents(page);
+  await page.evaluate(() => {
+    const disk = window.__disk;
+    disk["cadabra.json"] = (disk["cadabra.json"] as string).replaceAll('"en"', '"he"');
+    sessionStorage.setItem("disk", JSON.stringify(disk));
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Open folder" }).click();
+  // The book reopens on its first chapter and Read mode scrolls to the open page, which would leave the Contents page (and its
+  // lines, once they are out of the preload range) off screen: open the Contents page first.
+  await page
+    .getByRole("navigation", { name: "Chapters" })
+    .getByText("Contents", { exact: true })
+    .click();
+  await expect(contents(page)).toBeVisible();
+  await readMode(page);
+  const nav = readContents(page);
+  await expect(nav).toHaveAttribute("dir", "rtl");
+  const line = nav.locator("[data-preview-line]").first();
+  const [title, number] = await Promise.all([
+    line.locator("a").boundingBox(),
+    line.locator("[data-number]").boundingBox(),
+  ]);
+  // The title starts at the right edge and the number is at the far left.
+  expect(title && number && number.x + number.width <= title.x).toBe(true);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
+  ).toBe(true);
+});
+
+test("Read mode on a phone shows the plain Contents list with links", async ({ page }) => {
+  await threeChapters(page);
+  await typstMissing(page);
+  await openContents(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await readMode(page);
+  const nav = readContents(page);
+  await expect(nav.getByRole("heading", { name: "Contents" })).toBeVisible();
+  await expect(nav.getByRole("link")).toHaveCount(3);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
+  ).toBe(true);
 });
 
 for (const size of [
@@ -612,7 +767,7 @@ test("the contents page has no accessibility violations a screen reader would hi
   await threeChapters(page);
   await openContents(page);
   await depth(page, "+H1");
-  // Every control is named, the list is a list, and the drag grip is hidden from assistive technology as a presentation role.
+  // Every control is named (the drag grip is a keyboard button, see a11y-dragging.spec.ts) and the list is a list.
   const unnamed = await contents(page).evaluate((root) =>
     [...root.querySelectorAll("button, [role=switch], [role=radio], input, select")]
       .filter(

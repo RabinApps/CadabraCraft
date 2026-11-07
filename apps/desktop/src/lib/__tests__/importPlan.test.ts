@@ -10,7 +10,7 @@ import {
   mergePlanItemUp,
   movePlanItem,
   splitPlanItem,
-} from "../importPlan";
+} from "../import/importPlan";
 
 const para = (text: string) => ({ type: "paragraph", content: [{ type: "text", text }] });
 const img = (src: string) => ({ type: "image", attrs: { src, alt: null } });
@@ -99,6 +99,18 @@ describe("merging and splitting", () => {
       { sources: [0], title: "Whole", include: true },
       { sources: [1], title: "B", include: true },
       { sources: [2], title: "C", include: true },
+    ]);
+  });
+  it("keeps the author's title for a chapter the parser gave no title", () => {
+    const merged = mergePlanItemUp(mergePlanItemUp(plan, 1), 1).map((p) => ({
+      ...p,
+      title: "Whole",
+    }));
+    const untitled = { ...result(), chapters: [] };
+    expect(splitPlanItem(merged, 0, untitled).map((p) => p.title)).toEqual([
+      "Whole",
+      "Whole",
+      "Whole",
     ]);
   });
   it("does not split a single chapter or a missing row", () => {

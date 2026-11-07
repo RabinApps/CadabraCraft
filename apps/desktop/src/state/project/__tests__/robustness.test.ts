@@ -87,6 +87,8 @@ describe("autosave", () => {
     a().setDraft(doc("keep me"));
     await vi.advanceTimersByTimeAsync(AUTOSAVE_MS);
     expect(s().notice).toContain("Could not save");
+    expect(s().alertNotice).toBe(s().notice);
+    expect(s().notice).toMatch(/still in the editor/);
     expect(s().draft).not.toBeNull();
     hooks.failWrites = false;
     await vi.advanceTimersByTimeAsync(AUTOSAVE_MS);

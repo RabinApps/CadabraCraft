@@ -4,6 +4,7 @@ import type { BookSearchOptions } from "../../lib/search/bookSearch";
 import { isInvalidRegex } from "../../lib/search/match";
 import {
   firstIndexOf,
+  locate,
   noMatches,
   readMatches,
   startIndex,
@@ -11,11 +12,11 @@ import {
   type ReadMatches,
 } from "../../lib/search/readFind";
 import { pressed } from "../../app/settings/shortcutBindings";
-import { modalOpen, useRegisterCommands } from "../../state/commands";
+import { modalOpen, useRegisterCommands } from "../../state/app/commands";
 import type { BookPage } from "../../state/project/types";
-import { goToReadMatch, setReadMatch, useReadFind } from "../../state/readFind";
-import { useReadingPosition } from "../../state/readingPosition";
-import { useFind } from "../findStore";
+import { goToReadMatch, setReadMatch, useReadFind } from "../../state/view/readFind";
+import { useReadingPosition } from "../../state/view/readingPosition";
+import { useFind } from "../find/findStore";
 
 /** Typing waits this long before the book is searched again. */
 const DEBOUNCE_MS = 120;
@@ -74,7 +75,9 @@ export function useReadFindState(pages: readonly BookPage[]) {
     [hits],
   );
   const invalid = regex && isInvalidRegex(query, matchCase);
-  return { applied: found.opts, hits, total, index, invalid, step, openPage };
+  const currentMatch = useMemo(() => locate(hits, index), [hits, index]);
+  useReadFindShortcut();
+  return { applied: found.opts, hits, total, index, invalid, step, openPage, open, currentMatch };
 }
 
 /** Cmd/Ctrl+F (and the menu's Find) opens the find bar in Read mode, with the selected text as the query when it is one short line. */

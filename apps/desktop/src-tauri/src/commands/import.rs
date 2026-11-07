@@ -40,23 +40,38 @@ fn docx_picked(picked: &PickedPaths, path: &str, split_heading_level: u8) -> Res
     frame::encode(&result).map_err(|e| ProjectError::Io { message: e.to_string() })
 }
 
-/// Bytes of a document the user picked for import (`pick_import_source`; .docx/.md/.markdown/.html/.htm/.txt, at most 200 MB). Read-only.
+/// Bytes of a document the user picked for import (`pick_import_source`; .docx/.md/.markdown/.html/.htm/.txt, or an outline: .opml/.csv, at most 200 MB). Read-only; the webview parses it.
 #[tauri::command]
 pub async fn read_import_source(picked: State<'_, PickedPaths>, path: String) -> Result<Response, ProjectError> {
-    blocking({ let picked = picked.inner().clone(); move || source_picked(&picked, &path) }).await.map(Response::new)
+    blocking({
+        let picked = picked.inner().clone();
+        move || source_picked(&picked, &path)
+    })
+    .await
+    .map(Response::new)
 }
 
 /// Bytes of an image a picked Markdown file references, resolved inside that file's folder. Read-only.
 #[tauri::command]
 pub async fn read_import_image(picked: State<'_, PickedPaths>, source_file: String, reference: String) -> Result<Response, ProjectError> {
-    blocking({ let picked = picked.inner().clone(); move || image_picked(&picked, &source_file, &reference) }).await.map(Response::new)
+    blocking({
+        let picked = picked.inner().clone();
+        move || image_picked(&picked, &source_file, &reference)
+    })
+    .await
+    .map(Response::new)
 }
 
 /// Imports a picked `.docx` (`pick_import_source`) into chapters, warnings and images, in Rust. Reply: `import_docx::frame`
 /// (header length, JSON header, image bytes). Fails with `import_docx { code }` for a file that is not a readable Word document.
 #[tauri::command]
 pub async fn import_docx_source(picked: State<'_, PickedPaths>, path: String, split_heading_level: u8) -> Result<Response, ProjectError> {
-    blocking({ let picked = picked.inner().clone(); move || docx_picked(&picked, &path, split_heading_level) }).await.map(Response::new)
+    blocking({
+        let picked = picked.inner().clone();
+        move || docx_picked(&picked, &path, split_heading_level)
+    })
+    .await
+    .map(Response::new)
 }
 
 #[cfg(test)]

@@ -30,8 +30,9 @@ const text = (
       | "code"
       | "superscript"
       | "subscript"
-      | "link";
-    attrs?: { href?: string };
+      | "link"
+      | "lang";
+    attrs?: { href?: string; lang?: string };
   }[],
 ): DocNode => ({
   type: "text",
@@ -56,6 +57,22 @@ describe("buildTypst content", () => {
   it("is deterministic", () => {
     expect(buildTypst(book, [{ id: "ch1", title: "Chapter One", doc: sample }])).toBe(src);
   });
+  it("writes a page break where the author put one, and nothing else on the page", () => {
+    const out = buildTypst(
+      book,
+      ch(para(text("Before.")), { type: "pageBreak" } as DocNode, para(text("After."))),
+    );
+    expect(out).toContain("#pagebreak(weak: true)");
+    // A break is invisible in the book: no rule, no text, no scene break of its own.
+    expect(out).not.toContain("#scene-break()");
+  });
+
+  it("drops a break that is the chapter's first block, so it adds no page", () => {
+    const breakFirst = buildTypst(book, ch({ type: "pageBreak" } as DocNode, para(text("First."))));
+    // `#chapter-start` puts the opening on the page; a break kept here would fire after it and leave the ornament alone on a page.
+    expect(breakFirst).toBe(buildTypst(book, ch(para(text("First.")))));
+  });
+
   it("renders tables with a repeating header row and escaped cells", () => {
     expect(src).toContain(
       "#table(\n  columns: (1fr, 1fr),\n  table.header([Item], [Cost & note]),",
@@ -96,6 +113,133 @@ describe("buildTypst content", () => {
     expect(plain.usesDropCap).toBe(false);
     expect(plain.source).not.toContain("dropcap");
   });
+  it("lets each chapter turn the drop cap on or off whatever the template says", () => {
+    const two = (a?: boolean, b?: boolean): PdfChapter[] => [
+      {
+        id: "a",
+        title: "A",
+        doc: { type: "doc", content: [para(text("Alpha opens."))] },
+        ...(a === undefined ? {} : { dropCap: a }),
+      },
+      {
+        id: "b",
+        title: "B",
+        doc: { type: "doc", content: [para(text("Beta opens."))] },
+        ...(b === undefined ? {} : { dropCap: b }),
+      },
+    ];
+    const novel = buildTypstDocument(book, two(false), { template: "novel" }).source;
+    expect(novel).not.toContain("[Alpha opens.]");
+    expect(novel).toContain("#dropcap(height: 3, gap: 0.12em)[Beta opens.]");
+    const poetry = buildTypstDocument(book, two(true), { template: "poetry" }).source;
+    expect(poetry).toContain("#dropcap(height: 3, gap: 0.12em)[Alpha opens.]");
+    expect(poetry).not.toContain("[Beta opens.]");
+    expect(buildTypstDocument(book, two(false, false), { template: "novel" }).usesDropCap).toBe(
+      false,
+    );
+  });
+  it("puts the drop cap under a chapter's own title heading, where Page view and the EPUB put it", () => {
+    const h1 = (t: string): DocNode => ({
+      type: "heading",
+      attrs: { level: 1 },
+      content: [text(t)],
+    });
+    const doc = buildTypstDocument(book, ch(h1("The Quay"), para(text("Once upon a time."))), {
+      template: "novel",
+    });
+    expect(doc.usesDropCap).toBe(true);
+    expect(doc.source).toContain("#dropcap(height: 3, gap: 0.12em)[Once upon a time.]");
+    expect(doc.source).toContain("#heading(level: 1)[The Quay]");
+    // A heading with no attributes is still the title: `level` is optional, and a missing one is level 1.
+    expect(
+      buildTypstDocument(
+        book,
+        ch({ type: "heading", content: [text("Bare")] }, para(text("Once."))),
+        {
+          template: "novel",
+        },
+      ).usesDropCap,
+    ).toBe(true);
+    // A blank line after the cap keeps its place, and the indent goes to the first paragraph that has text (novel indents by 1.4 em).
+    const spaced = buildTypstDocument(
+      book,
+      ch(
+        h1("The Quay"),
+        para(text("Once upon a time.")),
+        { type: "paragraph" },
+        para(text("Second.")),
+      ),
+      { template: "novel" },
+    ).source;
+    expect(spaced).toContain(
+      "#dropcap(height: 3, gap: 0.12em)[Once upon a time.]\n\n#blank-line()\n\n#h(1.4em)Second.",
+    );
+    // A second-level heading opens nothing: the cap stays on the first paragraph, as in the page view (`h1 + p`).
+    const h2: DocNode = { type: "heading", attrs: { level: 2 }, content: [text("A Section")] };
+    expect(
+      buildTypstDocument(book, ch(h2, para(text("Once upon a time."))), { template: "novel" })
+        .usesDropCap,
+    ).toBe(false);
+  });
+  it("sets a paragraph the author left empty as one line of the body, with no page mark", () => {
+    const blanks = ch(para(text("First.")), para(), para(text("Last.")));
+    const blank = buildTypstDocument(book, blanks, { template: "poetry" });
+    expect(blank.source).toContain("// A paragraph the author left empty is one line of the body");
+    expect(blank.source).toContain("#let blank-line() = context v(measure([a\\ b]).height");
+    expect(blank.source).toContain("First.\n\n#blank-line()\n\nLast.");
+    // A blank line is no leaf: marked source carries a start mark for the two paragraphs and none for the blank between them.
+    const marked = buildTypstDocument(book, blanks, { template: "poetry", blockMarks: true });
+    expect(marked.source).toContain('#bm-s(0, 0, "p")');
+    expect(marked.source).toContain('#bm-s(0, 2, "p")');
+    expect(marked.source).not.toContain('#bm-s(0, 1, "p")');
+  });
+  it("never sets a drop cap on a matter page, whatever it says", () => {
+    const page: PdfChapter = {
+      id: "d",
+      title: "D",
+      doc: { type: "doc", content: [para(text("For you."))] },
+      section: "front",
+      kind: "dedication",
+      dropCap: true,
+    };
+    expect(buildTypstDocument(book, [page], { template: "novel" }).usesDropCap).toBe(false);
+  });
+  it("starts a matter page at the top margin when it has no level-1 title heading", () => {
+    const h2: DocNode = { type: "heading", attrs: { level: 2 }, content: [text("Notice")] };
+    const matter = (id: string, kind: "custom" | "foreword", ...content: DocNode[]): PdfChapter =>
+      ({ id, title: id, section: "front", kind, doc: { type: "doc", content } }) as PdfChapter;
+    // A heading 2 is a section title, not the page's title: no sink, ornament or label above it (as in Page view and the EPUB).
+    const disclaimer = buildTypstDocument(book, [matter("d", "custom", h2, para(text("Body.")))], {
+      template: "modern",
+    }).source;
+    expect(disclaimer).toContain(
+      '#chapter-start("d", none, id: "d", kind: "custom", opening: false)',
+    );
+    // A page that opens with its own level-1 heading keeps the template's opening.
+    const foreword = buildTypstDocument(
+      book,
+      [
+        matter(
+          "f",
+          "foreword",
+          { type: "heading", attrs: { level: 1 }, content: [text("F")] },
+          para(text("Body.")),
+        ),
+      ],
+      { template: "modern" },
+    ).source;
+    expect(foreword).toContain('#chapter-start("f", none, id: "f", kind: "foreword")');
+    // A heading with no attributes is a level 1 heading here too, so the page keeps its opening.
+    expect(
+      buildTypstDocument(
+        book,
+        [matter("b", "custom", { type: "heading", content: [text("Bare")] }, para(text("Body.")))],
+        { template: "modern" },
+      ).source,
+    ).toContain('#chapter-start("b", none, id: "b", kind: "custom")');
+    // A chapter always opens a chapter, heading or not: its label and ornament are the template's, not the document's.
+    expect(buildTypst(book, ch(para(text("Body."))))).toContain('#chapter-start("C", 1,');
+  });
   it("skips the drop cap when the chapter does not open with a plain-text paragraph", () => {
     expect(
       buildTypstDocument(book, ch(para(text("Bold start", [{ type: "bold" }]))), {
@@ -131,6 +275,22 @@ describe("buildTypst content", () => {
     expect(out).toContain('#chapter-start("Afterword", 4,');
     expect(out).toContain('lang: "en", region: "GB"');
   });
+  it("draws a part divider with part-page and does not count it as a chapter", () => {
+    const out = buildTypst(book, [
+      {
+        id: "pt",
+        title: "Part One",
+        kind: "part",
+        doc: {
+          type: "doc",
+          content: [{ type: "heading", attrs: { level: 1 }, content: [text("Part One")] }],
+        },
+      },
+      { id: "c", title: "One", doc: { type: "doc", content: [para(text("Body."))] } },
+    ]);
+    expect(out).toContain('#part-page("pt", "part")');
+    expect(out).toContain('#chapter-start("One", 1,');
+  });
   it("makes only http(s) and mailto links; others keep their text", () => {
     const out = buildTypst(
       book,
@@ -146,6 +306,22 @@ describe("buildTypst content", () => {
     expect(out).not.toContain("javascript");
     expect(out).toContain(" bad none");
   });
+  it("sets the language of a passage with text(lang:, region:), like the book's own", () => {
+    const lang = (tag: string) => para(text("bonjour", [{ type: "lang", attrs: { lang: tag } }]));
+    expect(buildTypst(book, ch(lang("fr-CA")))).toContain(
+      '#text(lang: "fr", region: "CA")[bonjour]',
+    );
+    expect(buildTypst(book, ch(lang("DE")))).toContain('#text(lang: "de")[bonjour]');
+    // A tag with no 2 or 3 letter language keeps its text, unmarked.
+    const out = buildTypst(book, ch(lang("x-klingon")));
+    expect(out).toContain("bonjour");
+    expect(out).not.toContain('#text(lang: "x');
+    for (const attrs of [undefined, { lang: 'fr")' }]) {
+      expect(() =>
+        buildTypst(book, ch(para(text("x", [{ type: "lang", ...(attrs ? { attrs } : {}) }])))),
+      ).toThrow(/BCP 47/);
+    }
+  });
   it("stacks marks", () => {
     const out = buildTypst(
       book,
@@ -153,10 +329,16 @@ describe("buildTypst content", () => {
     );
     expect(out).toContain("#underline[#emph[#strong[x]]]");
   });
-  it("skips empty paragraphs and empty text", () => {
-    const out = buildTypst(book, ch(para(), para(text("")), para(text("kept"))));
-    expect(out).toContain("kept");
-    expect(out.split("#chapter-start")[1]).not.toMatch(/\n\n\n\n/);
+  it("sets an empty paragraph as a blank line and skips an empty text run", () => {
+    const out = buildTypst(
+      book,
+      ch(para(), { type: "paragraph" }, para(text("")), para(text(""), text("kept"))),
+    );
+    const body = out.split("#chapter-start")[1];
+    // An empty paragraph is one line of the body, whether it has no content at all or an empty text node.
+    expect(body).toContain("#blank-line()\n\n#blank-line()\n\n#blank-line()\n\nkept");
+    // An empty text run inside a paragraph that has text is skipped, leaving no gap in the source.
+    expect(body).not.toMatch(/\n\n\n\n/);
   });
 });
 
@@ -249,6 +431,14 @@ describe("escaping inside documents", () => {
     expect(out).toContain('#link("https://x.test/\\"quote")[l]');
     expect(out).toContain('"alt \\"x\\""');
     expect(out).toContain("caption: [Cap \\#1 \\*b\\*]");
+  });
+  it("gives a decorative image no alt text whatever alt holds", () => {
+    const out = buildTypst(
+      book,
+      ch({ type: "image", attrs: { src: "a.png", alt: "ignored", decorative: true } } as DocNode),
+    );
+    expect(out).toMatch(/#figure\(fit-image\([^)]*, none,/);
+    expect(out).not.toContain("ignored");
   });
   it("protects text right after an inline call", () => {
     const out = buildTypst(book, ch(para(text("a", [{ type: "bold" }]), text(".b (c)"))));
@@ -424,5 +614,65 @@ describe("resolveFonts", () => {
     expect(() => resolveFonts({ template: "modern" }, ["Libertinus Serif"])).toThrow(
       /Inter.*Helvetica Neue.*Helvetica.*Arial/,
     );
+  });
+});
+
+describe("text alignment", () => {
+  const withAlign = (type: "paragraph" | "heading", textAlign: unknown, t: string): DocNode => ({
+    type,
+    attrs:
+      type === "heading"
+        ? { level: 2, textAlign: textAlign as string }
+        : { textAlign: textAlign as string },
+    content: [text(t)],
+  });
+  const scope = (align: string, body: string): string =>
+    `#[#set align(${align})\n#set par(first-line-indent: 0pt, justify: false)\n${body}]`;
+
+  it("sets an aligned paragraph in a scope with no indent and no justification, and leaves the others alone", () => {
+    const src = buildTypst(
+      book,
+      ch(
+        withAlign("paragraph", "center", "Middle"),
+        withAlign("paragraph", "end", "Right"),
+        withAlign("paragraph", "start", "Left"),
+        para(text("Plain")),
+        { type: "paragraph", attrs: { textAlign: null }, content: [text("Default")] },
+      ),
+    );
+    expect(src).toContain(scope("center", "Middle"));
+    expect(src).toContain(scope("end", "Right"));
+    expect(src).toContain(scope("start", "Left"));
+    expect(src).toContain("\n\nPlain\n\n");
+    expect(src).toContain("\n\nDefault");
+  });
+  it("aligns headings, quotes, list items and table cells the same way", () => {
+    const src = buildTypst(
+      book,
+      ch(withAlign("heading", "center", "Title"), {
+        type: "blockquote",
+        content: [withAlign("paragraph", "end", "Quoted")],
+      }),
+    );
+    // A heading says its alignment through its supplement: the template's heading rule sets the alignment inside its own block.
+    expect(src).toContain("#heading(level: 2, supplement: [ha-center])[Title]");
+    expect(src).toContain("#let heading-align(it, template)");
+    expect(src).toContain("set align(heading-align(it, center))");
+    expect(src).toContain(`#quote(block: true)[\n${scope("end", "Quoted")}\n]`);
+  });
+  it("refuses an alignment that is not start, center or end", () => {
+    expect(() => buildTypst(book, ch(withAlign("paragraph", "justify", "x")))).toThrow(
+      /Text alignment "justify" is not allowed/,
+    );
+    expect(() => buildTypst(book, ch(withAlign("heading", 3, "x")))).toThrow(PdfExportError);
+  });
+  it("gives an aligned first paragraph no drop cap", () => {
+    const doc = buildTypstDocument(
+      book,
+      ch(withAlign("paragraph", "center", "Once upon a time."), para(text("Second."))),
+      { template: "novel" },
+    );
+    expect(doc.usesDropCap).toBe(false);
+    expect(doc.source).toContain(scope("center", "Once upon a time."));
   });
 });

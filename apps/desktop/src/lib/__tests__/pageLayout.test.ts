@@ -15,7 +15,7 @@ import {
   sideMargins,
   type BlockKind,
   type MeasuredBlock,
-} from "../pageLayout";
+} from "../page/pageLayout";
 
 const BUILTIN = ["novel", "nonfiction", "modern", "poetry"];
 const px = (v: string | undefined): number => parseFloat(v ?? "NaN");
@@ -58,6 +58,14 @@ describe("pageGeometry", () => {
   it("falls back to the default template for an unknown one", () => {
     expect(pageGeometry({ template: "gone" })).toEqual(pageGeometry({ template: "novel" }));
     expect(pageCssVars({ template: "gone" })).toEqual(pageCssVars({ template: "novel" }));
+  });
+});
+
+describe("sideMargins in a right-to-left book", () => {
+  it("binds on the right: inside is the right margin of a recto page, and the other way on a verso", () => {
+    const g = pageGeometry({ template: "novel", trimSize: undefined });
+    expect(sideMargins(g, 1, true)).toEqual({ left: g.margins.outside, right: g.margins.inside });
+    expect(sideMargins(g, 2, true)).toEqual({ left: g.margins.inside, right: g.margins.outside });
   });
 });
 
@@ -168,6 +176,9 @@ describe("pageCssVars", () => {
     "--page-dropcap-lh",
     "--page-dropcap-gap",
     "--page-dropcap-height",
+    "--page-imprint-size",
+    "--page-imprint-space",
+    "--page-narrow-inset",
     "--page-bq-indent",
     "--page-bq-size",
     "--page-bq-space",
@@ -235,6 +246,21 @@ describe("pageCssVars", () => {
     expect(v.hyphens).toBe("auto");
     expect(v["--page-h1-size"]).toBe("1.7em");
     expect(v["--page-h1-align"]).toBe("center");
+  });
+
+  it("sizes the copyright page's imprint and the block of a centred page as the PDF does", () => {
+    const v = pageCssVars({ template: "novel" });
+    const p = getTemplate("novel").print;
+    const fontPx = (p.fontSizePt * 96) / 72;
+    // `copyright-page`: 0.85 em text, 0.7 em between paragraphs (net of the trailing leading a CSS line box already holds).
+    expect(px(v["--page-imprint-size"])).toBeCloseTo(fontPx * 0.85, 2);
+    expect(px(v["--page-imprint-space"])).toBeCloseTo(0.7 - p.leadingEm, 3);
+    // `centered-page`: a block 78 % of the text width, so 11 % of it is inset on each side.
+    const g = pageGeometry({ template: "novel" });
+    expect(px(v["--page-narrow-inset"])).toBeCloseTo(g.text.w * 0.11, 2);
+    expect(pageCssVars({ template: "modern" })["--page-imprint-space"]).toBe(
+      `${Math.round((0.7 - getTemplate("modern").print.leadingEm) * 1000) / 1000}em`,
+    );
   });
 
   it("derives paragraph space from spacing minus leading, and allows a negative value", () => {
@@ -357,6 +383,45 @@ describe("paginate: basics", () => {
       breaks: [{ block: 0, linesBefore: 0, blankBefore: true }, forced[0]],
       pageCount: 3,
     });
+  });
+
+  it("starts the block after a page break on a new page, and two breaks in a row leave an empty page", () => {
+    const pb = () => ({
+      ...para(1),
+      kind: "pageBreak" as const,
+      height: 0,
+      lines: 0,
+      lineHeight: 0,
+    });
+    // Four lines of ten fit a page: without the break both paragraphs share it.
+    expect(paginate([para(4), para(4)], H, plain)).toEqual({ breaks: [], pageCount: 1 });
+    expect(paginate([para(4), pb(), para(4)], H, plain)).toEqual({
+      breaks: [brk(2)],
+      pageCount: 2,
+    });
+    // The second break falls at the top of the page the first one started: that page stays empty.
+    expect(paginate([para(4), pb(), pb(), para(4)], H, plain)).toEqual({
+      breaks: [brk(2), brk(3)],
+      pageCount: 3,
+    });
+    // A break that is already at the top of a page asks for nothing.
+    expect(paginate([pb(), para(4)], H, plain)).toEqual({ breaks: [], pageCount: 1 });
+  });
+
+  it("breaks the page at every page break wherever it sits, including before the chapter title", () => {
+    const pb = () => ({
+      ...para(1),
+      kind: "pageBreak" as const,
+      height: 0,
+      lines: 0,
+      lineHeight: 0,
+    });
+    expect(
+      paginate([pb(), pb(), block("chapterTitle", 2), pb(), para(1)], H, {
+        ...plain,
+        opensChapter: true,
+      }),
+    ).toEqual({ breaks: [brk(2), brk(4)], pageCount: 3 });
   });
 
   it("keeps a short chapter on one page", () => {
@@ -638,5 +703,20 @@ describe("paginate: oversized and empty blocks", () => {
     const r = paginate([para(3), heading()], 0, plain);
     expect(r.pageCount).toBeGreaterThan(0);
     expect(r.pageCount).toBe(r.breaks.length + 1);
+  });
+});
+
+describe("drop cap choice", () => {
+  const lines = (template: string, dropCap?: boolean) =>
+    pageCssVars({ template }, 1, dropCap)["--page-dropcap-lines"];
+  it("follows the template when the author has not chosen", () => {
+    expect(lines("novel")).toBe("3");
+    expect(lines("poetry")).toBe("0");
+  });
+  it("the author's choice wins over the template either way", () => {
+    expect(lines("novel", false)).toBe("0");
+    expect(lines("poetry", true)).toBe("3");
+    expect(pageCssVars({ template: "novel" }, 1, false)["--page-dropcap-float"]).toBe("none");
+    expect(pageCssVars({ template: "poetry" }, 1, true)["--page-dropcap-float"]).toBe("left");
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMb, mergeFonts, printFamilies } from "../fontList";
+import { formatMb, mergeFonts, printFamilies } from "../font/fontList";
 
 const kept = [
   { id: "lora", family: "Lora", source: "downloaded" as const, files: ["Lora.ttf"] },

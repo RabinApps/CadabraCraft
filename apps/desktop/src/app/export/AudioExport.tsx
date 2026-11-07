@@ -1,26 +1,23 @@
 import { plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
-import {
-  Circle,
-  CircleAlert,
-  CircleCheck,
-  CircleX,
-  Download,
-  Info,
-  LoaderCircle,
-} from "lucide-react";
+import { Circle, CircleAlert, CircleCheck, CircleX, Download, LoaderCircle } from "lucide-react";
 import type { AudioFormat, VoiceInfo } from "@cadabracraft/export-audio";
-import { Checkbox } from "../../ui/Checkbox";
-import { Segmented } from "../../ui/Segmented";
-import { Select } from "../../ui/Select";
+import { Checkbox } from "../../ui/forms/Checkbox";
+import { Segmented } from "../../ui/forms/Segmented";
+import { Select } from "../../ui/forms/Select";
 import { cx } from "../../ui/cx";
 import type { VoicePack } from "../../lib/bridge";
-import { AUDIO_FORMATS, AUDIO_SPEEDS, mb, toggleAudioFormat } from "../../lib/audioFormats";
-import { nativeName } from "../shell/EditionSwitcher";
+import { AUDIO_SPEEDS, mb } from "../../lib/audio/audioFormats";
+import { nativeName } from "../shell/header/EditionSwitcher";
 import { useAudioLabels } from "../hooks/useAudioLabels";
 import type { AudioJob, VoiceDownload } from "../../state/project/index";
-import { Notice } from "../../ui/Notice";
-import { ProgressBar } from "../../ui/ProgressBar";
+import { Notice } from "../../ui/feedback/Notice";
+import { ProgressBar } from "../../ui/feedback/ProgressBar";
+import {
+  AudioChapterPicker,
+  AudioEditionPicker,
+  AudioFormatsFieldset,
+} from "./parts/AudioFieldParts";
 
 /** Which edition the audiobook reads, and what to do about its chapters that are not translated yet. */
 export interface AudioEditionChoice {
@@ -44,6 +41,8 @@ export function AudioFields({
   onSpeed,
   formats,
   onFormats,
+  transcript,
+  onTranscript,
   chapters,
   picked,
   onPicked,
@@ -61,6 +60,9 @@ export function AudioFields({
   onSpeed: (s: number) => void;
   formats: AudioFormat[];
   onFormats: (f: AudioFormat[]) => void;
+  /** Also save a transcript of the text the voice reads. */
+  transcript: boolean;
+  onTranscript: (on: boolean) => void;
   chapters: { id: string; title: string }[];
   /** Chapter ids to read, or null for every chapter. */
   picked: string[] | null;
@@ -75,36 +77,7 @@ export function AudioFields({
   const installed = (voices ?? []).filter((v) => v.installed);
   return (
     <>
-      {edition && (
-        <>
-          <Select
-            label={t`Edition`}
-            value={edition.language}
-            disabled={disabled}
-            onChange={(e) => edition.onLanguage(e.target.value)}
-          >
-            {edition.editions.map((e) => (
-              <option key={e.language} value={e.language}>
-                {t`${nativeName(e.language)}: ${e.translated} of ${e.total} chapters`}
-              </option>
-            ))}
-          </Select>
-          {edition.untranslated.length > 0 && (
-            <div className="flex flex-col gap-2 rounded-md bg-warn-soft px-3 py-2.5 text-sm">
-              <p className="text-ink">
-                {t`Not translated yet in ${nativeName(edition.language)}: ${edition.untranslated.join(", ")}`}
-              </p>
-              <Checkbox
-                label={t`Skip untranslated chapters`}
-                hint={t`Leaves them out of this audiobook; the list above says which.`}
-                checked={edition.skip}
-                disabled={disabled}
-                onChange={(ev) => edition.onSkip(ev.target.checked)}
-              />
-            </div>
-          )}
-        </>
-      )}
+      {edition && <AudioEditionPicker edition={edition} disabled={disabled} />}
       <Select
         label={t`Voice`}
         value={voice}
@@ -119,8 +92,7 @@ export function AudioFields({
         ))}
       </Select>
       {voices && installed.length === 0 && edition && (
-        <Notice tone="warn" role="status" className="-mt-2 flex items-start gap-2">
-          <Info size={16} className="mt-0.5 shrink-0" aria-hidden />
+        <Notice tone="warn" role="status" className="-mt-2">
           {t`No voice on this computer reads ${nativeName(edition.language)} yet. The voices CadabraCraft can download read English only.`}
         </Notice>
       )}
@@ -137,65 +109,27 @@ export function AudioFields({
         onChange={(v) => onSpeed(Number(v))}
         items={AUDIO_SPEEDS.map((s) => ({ value: String(s), label: `${s}×` }))}
       />
-      <fieldset className="flex flex-col gap-2.5" disabled={disabled}>
-        <legend className="mb-1 text-xs font-semibold text-ink-muted">{t`Formats`}</legend>
-        {AUDIO_FORMATS.map((f) => {
-          const { label, hint } = names.format(f);
-          const on = formats.includes(f);
-          return (
-            <Checkbox
-              key={f}
-              label={label}
-              hint={hint}
-              checked={on}
-              disabled={disabled}
-              onChange={(e) => {
-                const next = toggleAudioFormat(formats, f, e.target.checked);
-                if (next) onFormats(next); // at least one format stays chosen
-              }}
-            />
-          );
-        })}
-      </fieldset>
-      <Select
-        label={t`Chapters`}
-        value={picked ? "some" : "all"}
+      <AudioFormatsFieldset formats={formats} onFormats={onFormats} disabled={disabled} />
+      <Checkbox
+        label={t`Save a transcript`}
+        hint={t`A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated.`}
+        checked={transcript}
         disabled={disabled}
-        onChange={(e) => onPicked(e.target.value === "all" ? null : chapters.map((c) => c.id))}
-      >
-        <option value="all">{t`All chapters`}</option>
-        <option value="some">{t`Selected chapters`}</option>
-      </Select>
-      {picked && (
-        <fieldset
-          className="flex flex-col gap-2 rounded-lg border border-border p-3"
-          disabled={disabled}
-        >
-          <legend className="sr-only">{t`Chapters to read`}</legend>
-          {chapters.map((c) => (
-            <Checkbox
-              key={c.id}
-              label={c.title}
-              checked={picked.includes(c.id)}
-              onChange={(e) =>
-                onPicked(
-                  chapters
-                    .map((x) => x.id)
-                    .filter((id) => (id === c.id ? e.target.checked : picked.includes(id))),
-                )
-              }
-            />
-          ))}
-        </fieldset>
-      )}
+        onChange={(e) => onTranscript(e.target.checked)}
+      />
+      <AudioChapterPicker
+        chapters={chapters}
+        picked={picked}
+        onPicked={onPicked}
+        disabled={disabled}
+      />
       <p className="text-sm text-ink-muted">
         {plural(picked ? picked.length : chapters.length, {
           one: "Reads # chapter, as one audio file. Front and back matter are not read.",
           other: "Reads # chapters, one audio file each. Front and back matter are not read.",
         })}
       </p>
-      <Notice tone="warn" className="flex items-start gap-2">
-        <Info size={16} className="mt-0.5 shrink-0" aria-hidden />
+      <Notice tone="warn">
         {t`Some audiobook stores do not accept synthetic voices. Check their rules before you upload.`}
       </Notice>
     </>
@@ -261,6 +195,18 @@ export function AudioJobView({ job }: { job: AudioJob }) {
             {t`Your audiobook is ready`}
           </p>
           <p className="text-sm text-ink-muted">{t`${job.files} files, ${minutes} min. Saved in ${job.dir}.`}</p>
+          {job.transcripts.length > 0 && (
+            <ul
+              aria-label={t`Transcript files`}
+              className="mt-1 flex flex-col gap-0.5 text-sm text-ink-muted"
+            >
+              {job.transcripts.map((p) => (
+                <li key={p} className="break-all">
+                  {p.slice(job.dir.length + 1)}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
       {job.status === "error" &&

@@ -1,6 +1,13 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { chapterDoc, manifestOf, newProject, seedChapters, sidebar } from "./support/helpers";
+import {
+  chapterDoc,
+  manifestOf,
+  newProject,
+  seedChapters,
+  sidebar,
+  focusEnd,
+} from "./support/helpers";
 import { bigChapter } from "../src/test/bigBook";
 
 test.beforeEach(async ({ page }) => {
@@ -29,8 +36,7 @@ const book = (page: Page) =>
 test("word count follows typing", async ({ page }) => {
   await newProject(page);
   await expect(page.getByText("2 words in this chapter")).toBeVisible(); // the "Chapter One" heading
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("one two three");
   await expect(page.getByText("5 words in this chapter")).toBeVisible();
 });
@@ -41,8 +47,7 @@ test("reading mode is read-only, shows unsaved typing and scrolls through every 
   await newProject(page);
   await page.getByRole("button", { name: "Add chapter" }).click();
   await page.getByRole("button", { name: "Chapter One", exact: true }).click();
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Hello reading");
   await read(page);
   // Both chapters are in the one scroller, one read-only editor each (the second is mounted once it is near the viewport).
@@ -140,15 +145,26 @@ test("a wide window reads the book as trim-size pages: cards, running heads, cha
   await expect.poll(() => cards(0).count()).toBeGreaterThan(3);
   const numbers = async (i: number) =>
     (await cards(i).locator(".page-number").allTextContents()).map(Number);
-  const first = await numbers(0);
-  const second = await numbers(1);
-  expect(first).toEqual(first.map((_, k) => k + 1));
-  expect(second[0]).toBe(first.at(-1)! + 1);
-  expect(second).toEqual(second.map((_, k) => second[0]! + k));
-  const openNo = Number(
-    await section(page, 1).locator('.page[data-kind="open"] .page-number').textContent(),
-  );
-  expect(openNo === second[0] || openNo === second[0]! + 1).toBe(true);
+  const openNo = async () =>
+    Number(
+      (await section(page, 1).locator('.page[data-kind="open"] .page-number').textContent()) ?? NaN,
+    );
+  // Each section counts up from its own first page and its first card follows the one before it. The reader lays a section out as
+  // it comes near the viewport and the book's layout settles behind it, so read every number in one pass and retry until they are
+  // the settled ones rather than catching a section halfway drawn.
+  await expect
+    .poll(async () => {
+      const [first, second] = await Promise.all([numbers(0), numbers(1)]);
+      const open = await openNo();
+      const last = first.at(-1);
+      return {
+        rising: first.every((v, k) => v === k + 1) && second.every((v, k) => v === second[0]! + k),
+        chained: last === undefined ? null : second[0]! - last,
+        // The opening card is the section's first, or its second behind a blank left-hand page.
+        opensChapter: open - second[0]! === 0 || open - second[0]! === 1,
+      };
+    })
+    .toEqual({ rising: true, chained: 1, opensChapter: true });
   // The footer says which page the reader is on.
   await expect(page.getByText(/Chapter 2 of 3 · Page \d+/)).toBeVisible();
   // Dropping the Write-mode preference changes nothing: Read always draws pages.
@@ -267,4 +283,49 @@ test("a large book mounts only the chapters near the viewport", async ({ page })
   await page.waitForTimeout(500);
   expect(await mounted()).toBeLessThanOrEqual(10);
   expect(await mounted()).toBeGreaterThan(0);
+});
+
+test("read-only chapter text is a named document, not a textbox", async ({ page }) => {
+  await newProject(page);
+  await read(page);
+  const text = sections(page).first().locator(".ProseMirror");
+  await expect(text).toHaveAttribute("role", "document");
+  await expect(text).toHaveAttribute("aria-label", "Chapter One");
+  await expect(page.getByRole("textbox", { name: "Chapter One" })).toHaveCount(0);
+});
+
+test("Read mode has the same page zoom select as Write mode, and the two share the choice", async ({
+  page,
+}) => {
+  await newProject(page);
+  await book(page);
+  await read(page);
+  const select = page.getByLabel("Page zoom");
+  const zoom = async () =>
+    Number(await page.locator(".page-stack").first().getAttribute("data-zoom"));
+  await expect(select).toBeVisible();
+  await expect(select).toHaveValue("fit");
+  await expect(select.locator("option")).toHaveText(["Fit width", "75%", "100%", "125%"]);
+  await select.selectOption({ label: "75%" });
+  await expect.poll(zoom).toBeCloseTo(0.75, 2);
+  await select.selectOption({ label: "125%" });
+  await expect.poll(zoom).toBeCloseTo(1.25, 2);
+  // The text size still scales on top of the chosen zoom.
+  await page.getByRole("button", { name: "Reading settings" }).click();
+  await page.getByRole("menuitem", { name: "Larger text" }).click();
+  await page.keyboard.press("Escape");
+  await expect.poll(zoom).toBeGreaterThan(1.25);
+  // Write mode shows the same choice.
+  await page.getByRole("radio", { name: "Write" }).click();
+  await expect(select).toHaveValue("1.25");
+});
+
+test("a phone has no page zoom in Read mode, because the book is not drawn as pages", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 780 });
+  await newProject(page);
+  await read(page);
+  await expect(scroller(page)).toBeVisible();
+  await expect(page.getByLabel("Page zoom")).toHaveCount(0);
 });

@@ -86,14 +86,11 @@ describe("options edge cases", () => {
     const fonts = { body: "B", heading: "H" };
     const margins = { top: 1, bottom: 1, inside: 1, outside: 1 };
     expect(() =>
-      preamble(
-        book,
-        getTemplate("novel"),
-        { trimSize: "bogus" } as unknown as PdfOptions,
+      preamble(book, getTemplate("novel"), { trimSize: "bogus" } as unknown as PdfOptions, {
         fonts,
         margins,
-        false,
-      ),
+        hasFront: false,
+      }),
     ).toThrow(/Unknown trim size "bogus"/);
   });
   it("omits lang for a missing or unparseable language", () => {
@@ -211,10 +208,14 @@ describe.skipIf(process.platform === "win32")("node runner with fake typst binar
   it("returns the PDF a successful compile wrote, asking for PDF/A only when requested", async () => {
     // The last argument is the output path; the arguments are written into the "PDF" so they can be read back.
     const ok = sh("pdfok", 'for a in "$@"; do out="$a"; done; echo "$@" > "$out"');
-    const run = (pdfA: boolean) =>
-      createNodeRunner({ typstPath: ok }).compile("x", new Map(), { pdfA });
-    expect(new TextDecoder().decode(await run(true))).toContain("--pdf-standard a-2b");
-    expect(new TextDecoder().decode(await run(false))).not.toContain("--pdf-standard");
+    const run = (pdfA: boolean, pdfUa?: boolean) =>
+      createNodeRunner({ typstPath: ok }).compile("x", new Map(), { pdfA, pdfUa });
+    const args = async (pdfA: boolean, pdfUa?: boolean) =>
+      new TextDecoder().decode(await run(pdfA, pdfUa));
+    expect(await args(true)).toContain("--pdf-standard a-2b ");
+    expect(await args(false)).not.toContain("--pdf-standard");
+    expect(await args(false, true)).toContain("--pdf-standard ua-1 ");
+    expect(await args(true, true)).toContain("--pdf-standard a-2b,ua-1 ");
   });
   it("queries with the selector and font path, writing the files into a temp dir that is removed afterwards", async () => {
     // Prints its arguments and the sibling file it was given, and records the working folder.

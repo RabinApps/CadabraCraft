@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   addBackMatter,
+  addBlank,
   addChapter,
   addFrontMatter,
   canAddMatter,
+  chaptersOf,
   createManifest,
   moveChapter,
   moveMatter,
@@ -15,11 +17,15 @@ import {
   sectionOf,
   validateManifest,
   FormatError,
+  isTranslated,
+  starterDoc,
+  starterTitle,
 } from "../index";
 
 const empty = () => createManifest({ title: "T", author: "A", identifier: "urn:uuid:x" });
 const book = () => addChapter(empty(), "One").manifest;
 const ids = (list: { id: string }[]) => list.map((e) => e.id);
+const bookFor = () => ({ title: "T", author: "A", language: "en", isbn: null, year: 2026 });
 
 describe("front matter edits", () => {
   it("adds pages with kind, unique ids and front-matter/NN-slug.json files", () => {
@@ -39,6 +45,28 @@ describe("front matter edits", () => {
     expect(new Set(readingOrder(r.manifest).map((e) => e.id)).size).toBe(4);
     expect(() => validateManifest(r.manifest)).not.toThrow();
   });
+  it("adds a blank page straight after the page it was added from, with no text to type into", () => {
+    let m = book();
+    m = addFrontMatter(m, "epigraph", "Epigraph").manifest;
+    m = addFrontMatter(m, "preface", "Preface").manifest;
+    const preface = m.frontMatter.find((e) => e.kind === "preface")!;
+    const r = addFrontMatter(m, "blank", "Blank page", preface.id);
+    expect(r.manifest.frontMatter.map((e) => e.kind)).toEqual(["epigraph", "preface", "blank"]);
+    expect(r.entry.kind).toBe("blank");
+    expect(() => validateManifest(r.manifest)).not.toThrow();
+    // A blank page has nothing in it: the PDF prints an empty page, and no exporter finds text to write.
+    expect(starterDoc("blank", bookFor())).toEqual({
+      type: "doc",
+      content: [{ type: "paragraph" }],
+    });
+    expect(starterTitle("blank", "en")).toBe("Blank page");
+  });
+
+  it("leaves a blank page in a translation edition's exports instead of asking for a translation", () => {
+    const m = addFrontMatter(book(), "blank", "Blank page").manifest;
+    expect(isTranslated(m.frontMatter[0]!, "fr", m.editions)).toBe(true);
+  });
+
   it("places pages in conventional order but keeps customs at the end", () => {
     let m = book();
     for (const k of [
@@ -211,5 +239,63 @@ describe("contents page", () => {
     expect(() => addBackMatter(book(), "contents" as never, "x")).toThrow(/back matter/);
     const { manifest, entry } = addFrontMatter(book(), "contents", "Contents");
     expect(canAddMatter(removeMatter(manifest, entry.id).manifest, "contents")).toBe(true);
+  });
+});
+
+describe("a blank page the author adds anywhere", () => {
+  it("goes between two chapters, after the page it was added after, and stays a page rather than a chapter", () => {
+    const m = addChapter(addChapter(book(), "Two").manifest, "Three").manifest;
+    const [one, two, three] = [m.chapters[0]!.id, m.chapters[1]!.id, m.chapters[2]!.id];
+    const r = addBlank(m, one!, "Blank page");
+    expect(ids(r.manifest.chapters)).toEqual([one, r.entry.id, two, three]);
+    expect(r.entry).toMatchObject({ kind: "blank", titles: { en: "Blank page" } });
+    expect(sectionOf(r.manifest, r.entry.id)).toBe("chapter");
+    expect(Object.values(r.entry.files)[0]).toMatch(/^manuscript\/\d{3}-blank-page\.json$/);
+    expect(chaptersOf(r.manifest)).toHaveLength(3);
+    expect(() => validateManifest(r.manifest)).not.toThrow();
+  });
+
+  it("goes in the front matter when the page it follows is there, and at the end of the chapters with no page open", () => {
+    const m = addFrontMatter(book(), "preface", "Preface").manifest;
+    const preface = m.frontMatter[0]!;
+    expect(sectionOf(addBlank(m, preface.id, "Blank page").manifest, m.frontMatter[0]!.id)).toBe(
+      "front",
+    );
+    expect(ids(addBlank(m, preface.id, "Blank page").manifest.frontMatter)).toHaveLength(2);
+    const end = addBlank(m, undefined, "Blank page");
+    expect(ids(end.manifest.chapters)).toEqual([m.chapters[0]!.id, end.entry.id]);
+    expect(sectionOf(end.manifest, end.entry.id)).toBe("chapter");
+  });
+
+  it("goes in the back matter when the page it follows is there", () => {
+    const m = addBackMatter(book(), "acknowledgments", "Back page").manifest;
+    const last = m.backMatter[0]!;
+    const r = addBlank(m, last.id, "Blank page");
+    expect(ids(r.manifest.backMatter)).toEqual([last.id, r.entry.id]);
+    expect(sectionOf(r.manifest, r.entry.id)).toBe("back");
+    expect(() => validateManifest(r.manifest)).not.toThrow();
+  });
+
+  it("steps past an id and a file name already taken elsewhere in the book", () => {
+    const m = addChapter(addChapter(book(), "Two").manifest, "Three").manifest;
+    const taken = {
+      ...m,
+      frontMatter: [
+        {
+          id: "ch-4",
+          kind: "custom" as const,
+          titles: { en: "Taken" },
+          files: { en: "manuscript/004-blank-page.json" },
+        },
+      ],
+    };
+    const r = addBlank(taken, undefined, "Blank page");
+    expect(r.entry.id).toBe("ch-5");
+    expect(Object.values(r.entry.files)[0]).toBe("manuscript/005-blank-page.json");
+  });
+
+  it("has an empty document, so no edition has to translate it", () => {
+    const r = addBlank(book(), undefined, "Blank page");
+    expect(isTranslated(r.entry, "fr", r.manifest.editions)).toBe(true);
   });
 });

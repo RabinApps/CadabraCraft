@@ -7,7 +7,7 @@ import {
   setMeasured,
   setMeasureError,
   usePageMeasure,
-} from "../pageMeasure";
+} from "../pages/pageMeasure";
 
 const report = { total: 3, starts: [{ id: "a", kind: "chapter", page: 1, end: 1, number: "1" }] };
 

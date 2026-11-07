@@ -66,6 +66,7 @@ export interface SampleCall {
 export interface TypstCall {
   source: string;
   pdfA: boolean;
+  pdfUa?: boolean;
   [field: string]: unknown;
 }
 
@@ -120,6 +121,26 @@ declare global {
       unregisterListener: (event: string, eventId: number) => void;
     };
     __opened?: string[];
+    /** Other books on the computer by root, each a map of project path to contents (text or bytes). */
+    __books?: Record<string, Record<string, string | number[]>>;
+    /** What the Library folder picker returns (null: cancelled). Default `/books`. */
+    __libraryPick?: string | null;
+    /** What a Library folder scan returns. */
+    __scanResult?: {
+      books: {
+        root: string;
+        title: string;
+        author: string;
+        language: string;
+        cover: string | null;
+        series: string | null;
+        seriesNumber: string | null;
+      }[];
+      skipped: number;
+      truncated: boolean;
+    };
+    /** Modification time `stat_asset` reports per book root (default 1): change it to make a cover look replaced. */
+    __stampOf?: Record<string, number>;
     /** Reference files: what the picker returns, the bytes behind each source path, and per-name import failures. */
     __pickedRefs?: string[];
     __refFiles?: Record<string, number[]>;
@@ -169,7 +190,9 @@ declare global {
     __sampleCalls: SampleCall[];
     __m4bCalls: M4bCall[];
     __sampleError?: FakeError;
-    __cadabraMenu: { run: (id: string) => boolean };
+    __transcriptError?: FakeError;
+    /** The dev-only menu bridge: what the native menu was told to show, and a way to run a command as its item would. */
+    __cadabraMenu: { run: (id: string) => boolean; model: unknown[]; error: string | null };
     __calls?: RecordedCall[];
     __sources?: Record<string, number[]>;
     __lat: number[];

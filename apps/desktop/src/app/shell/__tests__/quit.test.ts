@@ -4,7 +4,7 @@ const destroy = vi.hoisted(() => vi.fn(async () => {}));
 vi.mock("@tauri-apps/api/window", () => ({ getCurrentWindow: () => ({ destroy }) }));
 
 import { useProject } from "../../../state/project/index";
-import { quitApp } from "../quit";
+import { quitApp } from "../native/quit";
 
 const doc = { type: "doc" as const, content: [{ type: "paragraph" as const }] };
 const setFlush = (flush: () => Promise<void>) =>

@@ -23,7 +23,7 @@ vi.mock("../bridge", async () =>
 );
 
 import { useProject } from "../../state/project/index";
-import { decodeText, loadImport, parseText } from "../importBook";
+import { decodeText, loadImport, parseText } from "../import/importBook";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();

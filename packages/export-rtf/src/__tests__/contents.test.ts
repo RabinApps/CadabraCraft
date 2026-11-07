@@ -79,6 +79,19 @@ describe("RTF contents page", () => {
     expect(after(rtf(pages(), []), "Contents")[0]!.text).toBe("One");
   });
 
+  it("uses indent for a part's chapters and their headings", () => {
+    const out = rtf(pages(), [
+      item(0, "Part One"),
+      { level: 0, title: "One", indent: 1 },
+      { level: 1, title: "Storm", indent: 2 },
+    ]);
+    expect(after(out, "Contents").slice(0, 3)).toEqual([
+      { text: "Part One", left: 0 },
+      { text: "One", left: 720 },
+      { text: "Storm", left: 1440 },
+    ]);
+  });
+
   it("escapes braces, backslashes and non-ASCII text", () => {
     const out = rtf(pages(), [item(0, "A {b} \\ c"), item(0, "\u00e9\u3042\u05e9")]);
     expect(out).toContain("A \\{b\\} \\\\ c");
@@ -144,5 +157,18 @@ describe("RTF contents page", () => {
       expect(rtf(pages(), [item(0, "\u0413\u043b\u0430\u0432\u0430")], language)).toContain(
         "\\u1043?\\u1083?",
       );
+  });
+
+  it("reads in order as plain text: the heading first, no tabs or leaders, in the book language", () => {
+    const out = rtf(pages(), [item(0, "Un"), item(1, "Orage"), item(0, "Deux")], "fr");
+    const all = paras(out).map((l) => l.text);
+    expect(all.slice(all.indexOf("Contents"), all.indexOf("Contents") + 4)).toEqual([
+      "Contents",
+      "Un",
+      "Orage",
+      "Deux",
+    ]);
+    expect(out).toContain("\\deflang1036");
+    expect(out).not.toMatch(/\\tab\b|\\tldot|\\tqr|\\tx\d|\.{3}/);
   });
 });

@@ -4,6 +4,8 @@ import {
   GALLERY_TEMPLATE_IDS,
   getTemplate,
   hasTemplate,
+  resolveDropCap,
+  resolveVerticalCenter,
   listTemplates,
   resolveBookFonts,
   resolveTrimSize,
@@ -20,9 +22,14 @@ describe("template registry", () => {
     for (const t of listTemplates()) expect(validateTemplate(t), t.id).toEqual([]);
   });
   it("EPUB css follows the chapter opening data", () => {
-    expect(getTemplate("novel").epub.css).toContain("h1+p::first-letter");
     expect(getTemplate("novel").epub.css).toContain('content:"⁂"');
-    expect(getTemplate("poetry").epub.css).not.toContain("::first-letter");
+    expect(getTemplate("poetry").epub.css).not.toContain("::before");
+  });
+  it("every template's EPUB css draws the big first letter on a chapter marked dropcap, and only there", () => {
+    for (const t of listTemplates()) {
+      expect(t.epub.css, t.id).toContain("body.chapter.dropcap h1+p::first-letter{");
+      expect(t.epub.css, t.id).not.toContain("body.chapter h1+p::first-letter");
+    }
   });
   it("rejects a multi-character ornament", () => {
     const bad = structuredClone(getTemplate("novel"));
@@ -225,5 +232,78 @@ describe("registry construction", () => {
   it("refuses an invalid built-in template", async () => {
     const bad = { ...structuredClone(getTemplate("novel")), name: "" };
     await expect(loadWith([bad])).rejects.toThrow(/Invalid template "novel": name required/);
+  });
+});
+
+describe("resolveDropCap", () => {
+  const novel = getTemplate("novel");
+  const poetry = getTemplate("poetry");
+  it("follows the template when neither the book nor the chapter chooses", () => {
+    expect(resolveDropCap(novel, {}, {})).toBe(true);
+    expect(resolveDropCap(poetry, {}, {})).toBe(false);
+  });
+  it("lets the book override the template", () => {
+    expect(resolveDropCap(novel, { dropCap: false }, {})).toBe(false);
+    expect(resolveDropCap(poetry, { dropCap: true }, {})).toBe(true);
+  });
+  it("lets the chapter override the book and the template", () => {
+    expect(resolveDropCap(novel, { dropCap: true }, { dropCap: false })).toBe(false);
+    expect(resolveDropCap(poetry, { dropCap: false }, { dropCap: true })).toBe(true);
+    expect(resolveDropCap(novel, {}, { dropCap: false })).toBe(false);
+  });
+});
+
+describe("print.matter.verticalCenter", () => {
+  const clone = (): Template => structuredClone(getTemplate("novel"));
+  const msg =
+    "print.matter.verticalCenter must be a list of distinct matter kinds (not contents or copyright)";
+  it("every built-in template centres the title page, dedication and epigraph", () => {
+    for (const t of listTemplates())
+      expect(t.print.matter.verticalCenter, t.id).toEqual(["title-page", "dedication", "epigraph"]);
+  });
+  it("accepts back matter kinds and an empty list", () => {
+    const t = clone();
+    t.print.matter.verticalCenter = ["about-the-author"];
+    expect(validateTemplate(t)).toEqual([]);
+    t.print.matter.verticalCenter = [];
+    expect(validateTemplate(t)).toEqual([]);
+  });
+  it.each([
+    ["not a list", "title-page"],
+    ["an unknown kind", ["poem"]],
+    ["contents", ["contents"]],
+    ["copyright", ["copyright"]],
+    ["a repeat", ["epigraph", "epigraph"]],
+  ])("refuses %s", (_name, value) => {
+    const t = clone();
+    t.print.matter = { verticalCenter: value as never };
+    expect(validateTemplate(t)).toEqual([msg]);
+  });
+  it("refuses a template with no matter block", () => {
+    const t = clone();
+    t.print.matter = undefined as never;
+    expect(validateTemplate(t)).toEqual([msg]);
+  });
+});
+
+describe("resolveVerticalCenter", () => {
+  const novel = getTemplate("novel");
+  it("follows the template for the kind when the page has no choice", () => {
+    expect(resolveVerticalCenter(novel, "title-page", {})).toBe(true);
+    expect(resolveVerticalCenter(novel, "epigraph", {})).toBe(true);
+    expect(resolveVerticalCenter(novel, "foreword", {})).toBe(false);
+    expect(resolveVerticalCenter(novel, "about-the-author", {})).toBe(false);
+  });
+  it("lets the page's own choice win either way", () => {
+    expect(resolveVerticalCenter(novel, "dedication", { verticalCenter: false })).toBe(false);
+    expect(resolveVerticalCenter(novel, "custom", { verticalCenter: true })).toBe(true);
+  });
+  it("never centres the contents or copyright page, whatever the page says", () => {
+    expect(resolveVerticalCenter(novel, "contents", { verticalCenter: true })).toBe(false);
+    expect(resolveVerticalCenter(novel, "copyright", { verticalCenter: true })).toBe(false);
+  });
+  it("never centres a chapter", () => {
+    expect(resolveVerticalCenter(novel, undefined, {})).toBe(false);
+    expect(resolveVerticalCenter(novel, undefined, { verticalCenter: true })).toBe(false);
   });
 });

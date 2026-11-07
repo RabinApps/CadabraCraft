@@ -232,7 +232,10 @@
                "type": "text",
                "text": "deltatab\tin"
               }
-             ]
+             ],
+             "attrs": {
+              "textAlign": "center"
+             }
             },
             {
              "type": "paragraph",
@@ -241,7 +244,10 @@
                "type": "text",
                "text": "emoji😀x"
               }
-             ]
+             ],
+             "attrs": {
+              "textAlign": "center"
+             }
             },
             {
              "type": "paragraph",

@@ -15,7 +15,11 @@ fn import_picked(picked: &PickedPaths, root: &str, source: &str) -> Result<Impor
 /// Copies a file the user picked into `references/`; returns where it went and what it is. Any other source is refused.
 #[tauri::command]
 pub async fn import_reference(picked: State<'_, PickedPaths>, root: String, source: String) -> Result<ImportedReference, ProjectError> {
-    blocking({ let picked = picked.inner().clone(); move || import_picked(&picked, &root, &source) }).await
+    blocking({
+        let picked = picked.inner().clone();
+        move || import_picked(&picked, &root, &source)
+    })
+    .await
 }
 
 /// Size and kind of `references/<name>`.
@@ -42,6 +46,14 @@ pub async fn trash_reference(root: String, path: String) -> Result<String, Proje
 pub async fn open_reference<R: tauri::Runtime>(app: tauri::AppHandle<R>, root: String, path: String) -> Result<(), ProjectError> {
     let file = blocking(move || project::reference_open_path(&project::require_project(&PathBuf::from(root))?, &path)).await?;
     app.opener().open_path(file.to_string_lossy(), None::<&str>).map_err(|e| ProjectError::Io { message: e.to_string() })
+}
+
+/// Opens a link reference in the default browser. Only an `http` or `https` address (`checked_web_url`); the app never
+/// fetches it and never opens it except when the author clicks it.
+#[tauri::command]
+pub async fn open_reference_url<R: tauri::Runtime>(app: tauri::AppHandle<R>, url: String) -> Result<(), ProjectError> {
+    project::checked_web_url(&url)?;
+    app.opener().open_url(&url, None::<&str>).map_err(|e| ProjectError::Io { message: e.to_string() })
 }
 
 #[cfg(test)]

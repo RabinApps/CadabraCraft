@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Installed by `pnpm install` (prepare script sets core.hooksPath). Fast structure checks only; CI runs the rest.
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+ts=$(echo "$staged" | grep -E '\.(ts|tsx|mts|mjs)$' || true)
+
+echo "$staged" | grep -qE '\.(ts|tsx|mts|mjs|rs|css)$' && node scripts/check-size.mjs
+[ -n "$ts" ] && echo "$ts" | xargs pnpm exec eslint --max-warnings=-1
+if echo "$staged" | grep -q '\.rs$'; then
+  (cd apps/desktop/src-tauri && cargo clippy --all-targets -- -D warnings)
+fi
+exit 0

@@ -49,6 +49,58 @@ describe("export_epub / inspect_epub", () => {
     expect(info.entries).toContain("OEBPS/assets/gradient.png");
   });
 
+  it("draws the big first letter by the chapter's own choice, else the book's, else the template's", async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "d", title: "T", author: "A" });
+    for (const title of ["One", "Two", "Three"])
+      await s.ok("cadabra_chapter_add", { path: "d", title });
+    const manifestPath = join(s.root, "d/cadabra.json");
+    const classes = async () => {
+      await s.ok("cadabra_export_epub", { path: "d" });
+      const zip = unzipSync(new Uint8Array(readFileSync(join(s.root, "d/exports/en/book.epub"))));
+      return ["ch-1", "ch-2", "ch-3"].map(
+        (id) => /<body[^>]*class="([^"]*)"/.exec(strFromU8(zip[`OEBPS/${id}.xhtml`]!))![1],
+      );
+    };
+    const edit = (
+      f: (
+        m: Record<string, unknown> & { chapters: Record<string, unknown>[]; dropCap?: boolean },
+      ) => void,
+    ) => {
+      const m = JSON.parse(readFileSync(manifestPath, "utf8"));
+      f(m);
+      writeFileSync(manifestPath, JSON.stringify(m));
+    };
+    expect(await classes()).toEqual(["chapter dropcap", "chapter dropcap", "chapter dropcap"]); // novel
+    edit((m) => (m.dropCap = false));
+    edit((m) => (m.chapters[1]!.dropCap = true));
+    expect(await classes()).toEqual(["chapter", "chapter dropcap", "chapter"]);
+  });
+
+  it("centres a matter page by its own choice, else by the template's kinds, and never a chapter", async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "v", title: "T", author: "A" });
+    for (const title of ["One", "Two", "Three", "Four", "Five"])
+      await s.ok("cadabra_chapter_add", { path: "v", title });
+    const manifestPath = join(s.root, "v/cadabra.json");
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    const [a, b, c, d] = manifest.chapters.splice(0, 4);
+    manifest.frontMatter.push({ ...a, kind: "title-page" });
+    manifest.frontMatter.push({ ...b, kind: "dedication", verticalCenter: false });
+    manifest.backMatter.push({ ...c, kind: "about-the-author", verticalCenter: true });
+    manifest.frontMatter.push(d); // an old page with no kind is a custom page
+    writeFileSync(manifestPath, JSON.stringify(manifest));
+    await s.ok("cadabra_export_epub", { path: "v" });
+    const zip = unzipSync(new Uint8Array(readFileSync(join(s.root, "v/exports/en/book.epub"))));
+    const classOf = (id: string) =>
+      /<body[^>]*class="([^"]*)"/.exec(strFromU8(zip[`OEBPS/${id}.xhtml`]!))![1];
+    expect(classOf(a.id)).toBe("title-page vcenter"); // the novel template centres it
+    expect(classOf(b.id)).toBe("dedication"); // the page's own choice: top
+    expect(classOf(c.id)).toBe("about-the-author vcenter"); // not a template kind, but the page asks
+    expect(classOf(d.id)).toBe("custom");
+    expect(classOf("ch-5")).toBe("chapter dropcap");
+  });
+
   it("refuses an empty book, a missing chapter file and a missing image without writing anything", async () => {
     s = await connect({ epubcheckJar: null });
     await s.ok("cadabra_project_create", { path: "e", title: "T", author: "A" });
@@ -365,7 +417,7 @@ describe("export_docx / export_rtf", () => {
     const rtf = readFileSync(join(s.root, path, "exports/en-GB/manuscript.rtf"), "latin1");
     expect(rtf.startsWith("{\\rtf1")).toBe(true);
     expect(rtf).toContain("\\fnil\\fcharset0 Lora;");
-    expect(rtf).toContain("{\\pict\\pngblip");
+    expect(rtf).toMatch(/\{\\pict(\{\\\*\\picprop[^\n]*?\}\}\})?\\pngblip/);
     expect(rtf).toContain("Author / THE LONG QUAY / ");
     expect(readdirSync(join(s.root, path, "exports/en-GB"))).toEqual(["manuscript.rtf"]);
   });
@@ -450,5 +502,106 @@ describe("export_docx / export_rtf", () => {
       expect((await s.call(tool, { path: "e" })).data.error.code).toBe("empty_book");
     expect(existsSync(join(s.root, "e/exports/en/manuscript.docx"))).toBe(false);
     expect(existsSync(join(s.root, "e/exports/en/manuscript.rtf"))).toBe(false);
+  });
+});
+
+describe("export_outline", () => {
+  const scene = {
+    type: "scene",
+    attrs: {
+      id: "sc-1",
+      title: "Storm",
+      synopsis: "Ana <runs> & hides.",
+      pov: "Ana",
+      status: "draft",
+      label: "",
+      target: 100,
+      cast: ["ana"],
+    },
+    content: [{ type: "paragraph", content: [{ type: "text", text: "one two three" }] }],
+  };
+  const seed = async () => {
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "p", title: "Book", author: "Me" });
+    const a = await s.ok("cadabra_chapter_add", { path: "p", title: "One" });
+    await s.ok("cadabra_chapter_write_json", {
+      path: "p",
+      chapterId: a.chapter.id,
+      doc: { type: "doc", content: [scene] },
+    });
+  };
+
+  it("writes OPML, Markdown and CSV under exports/ without the manuscript text", async () => {
+    await seed();
+    writeFileSync(
+      join(s.root, "p", "codex.json"),
+      JSON.stringify({
+        entries: [
+          {
+            id: "ana",
+            kind: "character",
+            name: "Ana Quill",
+            aliases: [],
+            summary: "",
+            body: "",
+            image: null,
+            links: [],
+          },
+        ],
+      }),
+    );
+    for (const [format, file] of [
+      ["opml", "outline.opml"],
+      ["markdown", "outline.md"],
+      ["csv", "outline.csv"],
+    ] as const) {
+      const r = await s.ok("cadabra_export_outline", { path: "p", format });
+      expect(r.file).toMatch(new RegExp(`^exports/[^/]+/${file}$`));
+      expect(r.chapterCount).toBe(1);
+      const text = readFileSync(join(s.root, "p", r.file), "utf8");
+      expect(text).toContain("Storm");
+      expect(text).not.toContain("one two three");
+    }
+    const opml = readFileSync(join(s.root, "p", "exports/en/outline.opml"), "utf8");
+    expect(opml).toContain("Ana Quill");
+    expect(opml).not.toContain("<runs>");
+  });
+
+  it("keeps the ids with no codex or a codex of the wrong shape, and leaves matter pages out", async () => {
+    await seed();
+    await s.ok("cadabra_chapter_add", { path: "p", title: "Thanks" });
+    const mf = join(s.root, "p", "cadabra.json");
+    const manifest = JSON.parse(readFileSync(mf, "utf8"));
+    manifest.backMatter.push({ ...manifest.chapters.pop(), kind: "acknowledgments" });
+    writeFileSync(mf, JSON.stringify(manifest));
+    const none = await s.ok("cadabra_export_outline", { path: "p", format: "markdown" });
+    expect(none.chapterCount).toBe(1);
+    expect(readFileSync(join(s.root, "p", none.file), "utf8")).not.toContain("Thanks");
+    writeFileSync(join(s.root, "p", "codex.json"), JSON.stringify({ entries: 3 }));
+    const wrong = await s.ok("cadabra_export_outline", { path: "p", format: "csv" });
+    expect(readFileSync(join(s.root, "p", wrong.file), "utf8")).toContain("ana");
+  });
+
+  it("fails on a book that has only matter pages", async () => {
+    await seed();
+    const mf = join(s.root, "p", "cadabra.json");
+    const manifest = JSON.parse(readFileSync(mf, "utf8"));
+    manifest.backMatter.push({ ...manifest.chapters.pop(), kind: "acknowledgments" });
+    writeFileSync(mf, JSON.stringify(manifest));
+    const e = await s.call("cadabra_export_outline", { path: "p", format: "opml" });
+    expect(e.data.error.code).toBe("empty_book");
+  });
+
+  it("falls back to ids when codex.json is unreadable, and fails on an empty book", async () => {
+    await seed();
+    writeFileSync(join(s.root, "p", "codex.json"), "{broken");
+    const r = await s.ok("cadabra_export_outline", { path: "p", format: "csv" });
+    expect(readFileSync(join(s.root, "p", r.file), "utf8")).toContain("ana");
+    await s.close();
+    s = await connect({ epubcheckJar: null });
+    await s.ok("cadabra_project_create", { path: "q", title: "B", author: "M" });
+    const e = await s.call("cadabra_export_outline", { path: "q", format: "csv" });
+    expect(e.isError).toBe(true);
+    expect(e.data.error.code).toBe("empty_book");
   });
 });

@@ -1,6 +1,10 @@
 import { useState, type ReactNode } from "react";
-import { Field } from "../../ui/Input";
-import { SNAPSHOT_KEEP_MAX, SNAPSHOT_KEEP_MIN, cleanSnapshotKeep } from "../../state/editorPrefs";
+import { Field } from "../../ui/forms/Input";
+import {
+  SNAPSHOT_KEEP_MAX,
+  SNAPSHOT_KEEP_MIN,
+  cleanSnapshotKeep,
+} from "../../state/view/editorPrefs";
 
 export function Section({
   id,

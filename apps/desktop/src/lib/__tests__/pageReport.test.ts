@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PageReport } from "@cadabracraft/export-pdf";
-import {
-  reportBookPages,
-  reportChapterMarks,
-  reportChapterPages,
-  reportStartNumber,
-  usableReport,
-} from "../pageReport";
+import { reportChapterMarks, usableReport } from "../page/pageReport";
 
 const start = (id: string, page: number, number: string, end = page) => ({
   id,
@@ -31,35 +25,6 @@ describe("usableReport", () => {
     expect(usableReport({ total: 0, starts: [] })).toBeNull();
     expect(usableReport({ total: 4, starts: [] })).toBeNull();
     expect(usableReport(withFront)).toBe(withFront);
-  });
-});
-
-describe("reportBookPages", () => {
-  it("counts from the page numbered 1, after the front matter", () => {
-    expect(reportBookPages(withFront)).toBe(16);
-  });
-  it("counts every page when nothing is numbered 1", () => {
-    expect(reportBookPages({ total: 9, starts: [start("c1", 1, "")] })).toBe(9);
-  });
-});
-
-describe("reportStartNumber", () => {
-  it("gives the printed arabic number of an entry's first page", () => {
-    expect(reportStartNumber(withFront, "c2")).toBe(7);
-  });
-  it("gives null for roman or empty numbers and for unknown ids", () => {
-    expect(reportStartNumber(withFront, "fore")).toBeNull();
-    expect(reportStartNumber(withFront, "title")).toBeNull();
-    expect(reportStartNumber(withFront, "nope")).toBeNull();
-  });
-});
-
-describe("reportChapterPages", () => {
-  it("counts from the entry's first to its last page, and is null for an unknown id", () => {
-    expect(reportChapterPages(withFront, "c1")).toBe(5);
-    expect(reportChapterPages(withFront, "c2")).toBe(10);
-    expect(reportChapterPages(withFront, "title")).toBe(1);
-    expect(reportChapterPages(withFront, "nope")).toBeNull();
   });
 });
 

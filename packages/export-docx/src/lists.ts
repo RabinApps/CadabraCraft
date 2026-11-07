@@ -1,6 +1,6 @@
 import type { DocNode } from "@cadabracraft/shared";
 import { INDENT } from "./parts";
-import { attrsOf, fail, kidsOf } from "./helpers";
+import { attrsOf, fail, jcOf, kidsOf } from "./helpers";
 import { inline, para } from "./paragraphs";
 import type { Ctx } from "./types";
 
@@ -33,10 +33,16 @@ export function listXml(n: DocNode, ctx: Ctx, blockXml: BlockRenderer): string[]
         const runs = inline(kidsOf(c), inner);
         if (first)
           out.push(
-            para(runs, { style: "ListParagraph", numId, ilvl: level, left, hanging: 360 }, ctx),
+            para(
+              runs,
+              { style: "ListParagraph", numId, ilvl: level, left, hanging: 360, jc: jcOf(c, ctx) },
+              ctx,
+            ),
           );
         else if (runs !== "")
-          out.push(para(runs, { style: "ListParagraph", left, firstLine: 0 }, ctx));
+          out.push(
+            para(runs, { style: "ListParagraph", left, firstLine: 0, jc: jcOf(c, ctx) }, ctx),
+          );
       } else {
         if (first)
           out.push(
@@ -74,16 +80,36 @@ export function taskListXml(n: DocNode, ctx: Ctx, blockXml: BlockRenderer): stri
     out.push(
       para(
         checkbox(checked) + inline(kidsOf(head!), inner),
-        { style: "ListParagraph", left, hanging: 360 },
+        { style: "ListParagraph", left, hanging: 360, jc: jcOf(head!, ctx) },
         ctx,
       ),
     );
     for (const c of rest) {
       if (c.type === "paragraph") {
         const runs = inline(kidsOf(c), inner);
-        if (runs !== "") out.push(para(runs, { style: "ListParagraph", left, firstLine: 0 }, ctx));
+        if (runs !== "")
+          out.push(
+            para(runs, { style: "ListParagraph", left, firstLine: 0, jc: jcOf(c, ctx) }, ctx),
+          );
       } else out.push(...blockXml(c, inner));
     }
+  }
+  return out;
+}
+
+/** One description of a definition list, indented one step. */
+function descriptionXml(k: DocNode, ctx: Ctx, base: number, blockXml: BlockRenderer): string[] {
+  const out: string[] = [];
+  const inner: Ctx = { ...ctx, quote: ctx.quote + 1 };
+  const [head, ...rest] = kidsOf(k);
+  if (head?.type !== "paragraph") fail(ctx, "A definition must start with a paragraph", k.type);
+  const opts = { style: "Definition", left: base + INDENT, firstLine: 0 };
+  out.push(para(inline(kidsOf(head!), ctx), { ...opts, jc: jcOf(head!, ctx) }, ctx));
+  for (const c of rest) {
+    if (c.type === "paragraph") {
+      const runs = inline(kidsOf(c), ctx);
+      if (runs !== "") out.push(para(runs, { ...opts, jc: jcOf(c, ctx) }, ctx));
+    } else out.push(...blockXml(c, inner));
   }
   return out;
 }
@@ -102,17 +128,7 @@ export function definitionListXml(n: DocNode, ctx: Ctx, blockXml: BlockRenderer)
         ),
       );
     } else if (k.type === "definitionDescription") {
-      const inner: Ctx = { ...ctx, quote: ctx.quote + 1 };
-      const [head, ...rest] = kidsOf(k);
-      if (head?.type !== "paragraph") fail(ctx, "A definition must start with a paragraph", k.type);
-      const opts = { style: "Definition", left: base + INDENT, firstLine: 0 };
-      out.push(para(inline(kidsOf(head!), ctx), opts, ctx));
-      for (const c of rest) {
-        if (c.type === "paragraph") {
-          const runs = inline(kidsOf(c), ctx);
-          if (runs !== "") out.push(para(runs, opts, ctx));
-        } else out.push(...blockXml(c, inner));
-      }
+      out.push(...descriptionXml(k, ctx, base, blockXml));
     } else fail(ctx, `The node "${k.type}" cannot be written in a definition list`, k.type);
   }
   return out;

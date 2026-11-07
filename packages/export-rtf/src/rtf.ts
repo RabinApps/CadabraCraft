@@ -1,8 +1,15 @@
-import { starterTitle } from "@cadabracraft/format";
-import { countWords, textDirection, type ChapterDoc, type Section } from "@cadabracraft/shared";
+import { contentsLines, starterTitle } from "@cadabracraft/format";
+import {
+  countWords,
+  dropLeadingPageBreak,
+  textDirection,
+  type ChapterDoc,
+  type Section,
+} from "@cadabracraft/shared";
 import { blockRtf } from "./blocks";
 import { RtfExportError } from "./errors";
 import { checkText, fail, kidsOf } from "./helpers";
+import { languageId } from "./language";
 import { HEADER_DISTANCE, MARGIN, PAGE_HEIGHT, PAGE_WIDTH } from "./layout";
 import { inline, para, textRuns } from "./paragraphs";
 import { settleTables } from "./tables";
@@ -71,37 +78,19 @@ const section = (headerText: string, restart: boolean): string =>
 const dateGroup = (d: Date): string =>
   `{\\creatim\\yr${d.getUTCFullYear()}\\mo${d.getUTCMonth() + 1}\\dy${d.getUTCDate()}\\hr${d.getUTCHours()}\\min${d.getUTCMinutes()}}`;
 
-/**
- * Builds an `.rtf` in standard manuscript format as a string (7-bit ASCII, every other character is written as `\uN?`):
- * US Letter, 1 inch margins, 12 pt Times New Roman (or Courier New), double spaced, 0.5 inch first-line indent, left aligned,
- * a running header "Surname / TITLE / page", a title page with the approximate word count, every chapter on a new page and
- * scene breaks as a centred "#". Footnotes are real RTF footnotes. Output is deterministic for a given input.
- * Throws `RtfExportError` (naming the page and node) on anything RTF cannot hold.
- */
-export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOptions = {}): string {
-  const language = book.language ?? "en";
-  if (textDirection(language) === "rtl") throw new RtfExportError(RIGHT_TO_LEFT_HINT);
-  const bookText = (text: string, what: string) => {
-    const bad = illegalChar(text);
-    if (bad)
-      throw new RtfExportError(
-        `The ${what} contains the character ${bad}, which an RTF file cannot hold`,
-      );
-    return text;
-  };
-  const title = bookText(book.title.trim(), "book title");
-  const author = bookText(book.author.trim(), "author name");
-  const font = manuscriptFont(options.font);
-  const s: Shared = { assets: options.assets ?? new Map(), pendingBreak: false };
+const bookText = (text: string, what: string): string => {
+  const bad = illegalChar(text);
+  if (bad)
+    throw new RtfExportError(
+      `The ${what} contains the character ${bad}, which an RTF file cannot hold`,
+    );
+  return text;
+};
 
-  const pages = readingOrder(chapters);
-  const countable = pages.filter((c) => (c.section ?? "chapter") === "chapter");
-  const words = approximateWords(
-    (countable.length ? countable : pages).reduce((sum, c) => sum + countWords(c.doc), 0),
-  );
-
+/** The three blocks that open the file: the word count, the title and the author. */
+function titlePage(title: string, author: string, words: number, s: Shared): string[] {
   const tctx: Ctx = { s, chapter: "", quote: 0, list: 0, inNote: false, runProps: {} };
-  const body: string[] = [
+  return [
     para(
       `About ${esc(words.toLocaleString("en-US"))} ${words === 1 ? "word" : "words"}`,
       { single: true, firstLine: 0, jc: "r" },
@@ -114,73 +103,115 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
     ),
     para(author === "" ? "" : textRuns(`by ${author}`, ""), { firstLine: 0, jc: "c" }, tctx),
   ];
+}
 
+const HEADING = { before: 2880, firstLine: 0, keepNext: true, outline: 0, jc: "c" } as const;
+
+/** The blocks of one page (chapter or matter page); `startsOnNewPage` is false only for the first one. */
+function pageBlocks(
+  c: RtfChapter,
+  s: Shared,
+  startsOnNewPage: boolean,
+  options: RtfOptions,
+  language: string,
+): string[] {
+  const body: string[] = [];
+  const sec = c.section ?? "chapter";
+  const label = c.title.trim() || c.id || "(untitled page)";
+  const ctx: Ctx = { s, chapter: label, quote: 0, list: 0, inNote: false, runProps: {} };
+  if (!c.doc || c.doc.type !== "doc" || !Array.isArray(c.doc.content))
+    fail(ctx, 'A chapter document must be an object with type "doc"');
+  s.pendingBreak = startsOnNewPage;
+  // A break as the page's first block asks for nothing (the page already starts on a new one); kept, it would print a blank page.
+  const { doc } = dropLeadingPageBreak(c.doc);
+  const titled = startsWithTitle(doc);
+  if (!titled && sec === "chapter" && c.title.trim() !== "")
+    body.push(
+      para(textRuns(checkText(c.title.trim(), ctx, "The chapter title"), ""), HEADING, ctx),
+    );
+  if (
+    c.kind === "contents" &&
+    options.contents !== undefined &&
+    !doc.content.some((n) => n.type === "heading")
+  )
+    body.push(
+      para(
+        textRuns(
+          checkText(
+            c.title.trim() || starterTitle("contents", language),
+            ctx,
+            "The contents title",
+          ),
+          "",
+        ),
+        HEADING,
+        ctx,
+      ),
+    );
+  doc.content.forEach((n, i) => {
+    if (i === 0 && titled) {
+      const runs = inline(kidsOf(n), ctx);
+      if (runs !== "") body.push(para(runs, HEADING, ctx));
+    } else body.push(...blockRtf(n, ctx));
+  });
+  if (c.kind === "contents" && options.contents !== undefined) {
+    for (const { item, title } of contentsLines(options.contents)) {
+      const line = checkText(title, ctx, "A contents entry");
+      const indent = item.indent ?? item.level;
+      body.push(para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * indent }, ctx));
+    }
+  }
+  // A page with no content still starts on its own page.
+  if (s.pendingBreak) body.push(para("", {}, ctx));
+  s.pendingBreak = false;
+  return body;
+}
+
+/**
+ * Builds an `.rtf` in standard manuscript format as a string (7-bit ASCII, every other character is written as `\uN?`):
+ * US Letter, 1 inch margins, 12 pt Times New Roman (or Courier New), double spaced, 0.5 inch first-line indent, left aligned,
+ * a running header "Surname / TITLE / page", a title page with the approximate word count, every chapter on a new page and
+ * scene breaks as a centred "#". Footnotes are real RTF footnotes. Output is deterministic for a given input.
+ * Throws `RtfExportError` (naming the page and node) on anything RTF cannot hold.
+ */
+export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOptions = {}): string {
+  const language = book.language ?? "en";
+  if (textDirection(language) === "rtl") throw new RtfExportError(RIGHT_TO_LEFT_HINT);
+  const title = bookText(book.title.trim(), "book title");
+  const author = bookText(book.author.trim(), "author name");
+  const font = manuscriptFont(options.font);
+  const s: Shared = {
+    assets: options.assets ?? new Map(),
+    pendingBreak: false,
+    lang: languageId(language),
+  };
+
+  const pages = readingOrder(chapters);
+  const countable = pages.filter(
+    (c) => (c.section ?? "chapter") === "chapter" && c.kind !== "part",
+  );
+  const words = approximateWords(
+    (countable.length ? countable : pages).reduce((sum, c) => sum + countWords(c.doc), 0),
+  );
+
+  const body: string[] = titlePage(title, author, words, s);
   let first = true;
   for (const c of pages) {
-    const sec = c.section ?? "chapter";
     // The generated manuscript title page replaces a "title-page" matter page (which only holds the title and author).
-    if (c.kind === "title-page") continue;
-    const label = c.title.trim() || c.id || "(untitled page)";
-    const ctx: Ctx = { s, chapter: label, quote: 0, list: 0, inNote: false, runProps: {} };
-    if (!c.doc || c.doc.type !== "doc" || !Array.isArray(c.doc.content))
-      fail(ctx, 'A chapter document must be an object with type "doc"');
-    s.pendingBreak = !first;
+    // A blank page has no text; Rich Text has no page layout of its own here, so it is left out.
+    if (c.kind === "title-page" || c.kind === "blank") continue;
+    body.push(...pageBlocks(c, s, !first, options, language));
     first = false;
-    const titled = startsWithTitle(c.doc);
-    const heading = { before: 2880, firstLine: 0, keepNext: true, outline: 0, jc: "c" } as const;
-    if (!titled && sec === "chapter" && c.title.trim() !== "")
-      body.push(
-        para(textRuns(checkText(c.title.trim(), ctx, "The chapter title"), ""), heading, ctx),
-      );
-    if (
-      c.kind === "contents" &&
-      options.contents !== undefined &&
-      !c.doc.content.some((n) => n.type === "heading")
-    )
-      body.push(
-        para(
-          textRuns(
-            checkText(
-              c.title.trim() || starterTitle("contents", language),
-              ctx,
-              "The contents title",
-            ),
-            "",
-          ),
-          heading,
-          ctx,
-        ),
-      );
-    c.doc.content.forEach((n, i) => {
-      if (i === 0 && titled) {
-        const runs = inline(kidsOf(n), ctx);
-        if (runs !== "") body.push(para(runs, heading, ctx));
-      } else body.push(...blockRtf(n, ctx));
-    });
-    if (c.kind === "contents" && options.contents !== undefined) {
-      for (const item of options.contents) {
-        if (item.hidden === true) continue;
-        const line = checkText(
-          item.title.trim() === "" ? item.entryId?.trim() || "(untitled)" : item.title,
-          ctx,
-          "A contents entry",
-        );
-        body.push(
-          para(textRuns(line, ""), { firstLine: 0, left: CONTENTS_INDENT * item.level }, ctx),
-        );
-      }
-    }
-    // A page with no content still starts on its own page.
-    if (s.pendingBreak) body.push(para("", {}, ctx));
-    s.pendingBreak = false;
   }
 
   const surname = authorSurname(author);
   const headerLabel = `${surname ? `${surname} / ` : ""}${title.toUpperCase()} / `;
   const modified = options.modified ?? new Date(Date.UTC(2020, 0, 1));
+  const lcid = languageId(language);
+  const langDefaults = lcid === null ? "" : `\\deflang${lcid}\\deflangfe${lcid}`;
   const fonts = `{\\fonttbl{\\f0\\f${font.family}\\fcharset0 ${esc(font.name).replace(/;/g, "\\'3b")};}{\\f1\\fmodern\\fcharset0 Courier New;}}`;
   return (
-    `{\\rtf1\\ansi\\ansicpg1252\\deff0\\uc1\n${fonts}\n{\\colortbl;\\red5\\green99\\blue193;}\n` +
+    `{\\rtf1\\ansi\\ansicpg1252\\deff0\\uc1${langDefaults}\n${fonts}\n{\\colortbl;\\red5\\green99\\blue193;}\n` +
     `{\\info{\\title ${esc(title)}}{\\author ${esc(author)}}${dateGroup(modified)}{\\*\\generator CadabraCraft}}\n` +
     `\\paperw${PAGE_WIDTH}\\paperh${PAGE_HEIGHT}\\margl${MARGIN}\\margr${MARGIN}\\margt${MARGIN}\\margb${MARGIN}\\gutter0\\widowctrl\\ftnbj\\fet0\n` +
     section("", false) +

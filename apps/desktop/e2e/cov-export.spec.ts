@@ -10,7 +10,7 @@ import {
   reopen,
   stopFailing,
 } from "./support/cov";
-import { newProject, noVoices } from "./support/helpers";
+import { newProject, noVoices, focusEnd } from "./support/helpers";
 
 // Rare states of the export dialog, its panels, the print preview and the templates page (src/app/export).
 
@@ -246,7 +246,7 @@ test("the EPUB and PDF panels drop book reads that finish after they were left, 
   const readsBeforePdf = await calls(page, "read_project_file");
   await hold(page, "read_project_file");
   await dialog.getByRole("radio", { name: "Print PDF" }).click();
-  await waitForCall(page, "read_project_file", readsBeforePdf + 1);
+  await waitForCall(page, "read_project_file", readsBeforePdf + 2); // the print estimate and the image checks each read the book
   await dialog.getByRole("radio", { name: "Markdown" }).click();
   await release(page, "read_project_file");
   await dialog.getByRole("radio", { name: "EPUB 3" }).click();
@@ -349,8 +349,7 @@ test("editions checklist: untoggling an edition and a pending page whose title i
 });
 
 async function typeParagraphs(page: Page) {
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("First paragraph of the chapter.");
   await page.keyboard.press("Enter");
   await page.keyboard.type("Second paragraph of the chapter.");

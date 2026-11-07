@@ -7,7 +7,10 @@ jobs:
     strategy:
       fail-fast: false # one OS failing must not hide how the others do
       matrix:
-        os: [kinhin-container, kinhin-xcode, windows-latest]
+        # Windows is off for now: the first release is macOS and Linux (see release.yml), and the Windows runner is the
+        # slowest of the three. Put `windows-latest` back in this list to test it again; the steps below that only run
+        # there are still in place.
+        os: [kinhin-container, kinhin-xcode]
     runs-on: ${{ matrix.os }}
     env:
       REQUIRE_EPUBCHECK: "1"
@@ -24,7 +27,7 @@ jobs:
             sleep $((i * 5))
           done
           exit 1
-      - name: Linux LibreOffice (docx smoke test)
+      - name: Linux LibreOffice (docx and rtf smoke tests)
         if: runner.os == 'Linux'
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
@@ -40,13 +43,40 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/fetch-epubcheck.sh
-      - run: bash scripts/fetch-enwik8.sh
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: pnpm test
+      # Chromium plus its system libraries (libnss3, libatk-bridge2.0-0, libgbm1 ...). This runs before `pnpm test` on purpose:
+      # the Ace test inside `pnpm test` starts Puppeteer's own Chrome, which needs the same libraries on Linux.
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/desktop
+      # Ace by DAISY (EPUB accessibility): npm installs it into tools/ace and Puppeteer downloads its own Chrome.
+      - run: bash scripts/fetch-ace.sh
+      # REQUIRE_ACE=1 (fail instead of skip when Ace is missing) is set on Linux only, where the libraries above are known to
+      # be installed. macOS and Windows still run the Ace test (fetch-ace.sh always installs it) with Puppeteer's own Chrome,
+      # which needs no extra libraries there; they just do not turn a missing install into a failure.
+      - name: Require Ace (Linux)
+        if: runner.os == 'Linux'
+        run: echo "REQUIRE_ACE=1" >> "$GITHUB_ENV"
+      - run: bash scripts/fetch-enwik8.sh
+      # PDF/UA and PDF/A validation of the real Typst output (packages/export-pdf verapdf.test.ts). Linux only; elsewhere the
+      # test skips. scripts/fetch-verapdf.sh installs veraPDF into tools/verapdf (needs the Java set up above); Typst and the
+      # Inter fonts come from fetch-typst.sh, found through TYPST_BIN and TYPST_FONT_PATHS.
+      - name: Linux veraPDF and Typst (PDF/UA validation)
+        if: runner.os == 'Linux'
+        run: |
+          bash scripts/fetch-verapdf.sh
+          bash scripts/fetch-typst.sh
+          bin=$(ls "$PWD"/apps/desktop/src-tauri/binaries/typst-* | head -n 1)
+          {
+            echo "REQUIRE_VERAPDF=1"
+            echo "VERAPDF_BIN=$PWD/tools/verapdf/verapdf"
+            echo "TYPST_BIN=$bin"
+            echo "TYPST_FONT_PATHS=$PWD/apps/desktop/src-tauri/binaries/fonts"
+          } >> "$GITHUB_ENV"
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm check:size
+      - run: pnpm test:scripts
+      - run: pnpm format:check
+      - run: pnpm test
       - name: Coverage (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -65,6 +95,63 @@ jobs:
             apps/desktop/coverage/coverage-summary.json
           if-no-files-found: error
       - run: pnpm test:e2e
+        working-directory: apps/desktop
+        env: { CI: "1" }
+  # Every automated accessibility gate in one place (scripts/a11y.sh) with the validators: veraPDF (PDF/UA-1, PDF/A-2b) on
+  # real Typst output, Ace on the sample EPUBs, LibreOffice for docx and rtf. The stage table goes to the job summary.
+  # NOT RUN YET: these steps have never run in CI (written on an unpushed branch); the first run may need fixes. The
+  # a11y.sh step is required; the WebKit run (the engine of WKWebView and WebKitGTK) is continue-on-error until it has run
+  # green a few times (docs/testing.md). This job replaces the old webkit-a11y job.
+  a11y:
+    runs-on: kinhin-container
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Linux deps (pnpm binary, LibreOffice)
+        run: |
+          SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          for i in 1 2 3 4 5; do
+            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends libreoffice-writer && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version: 26, cache: pnpm }
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with: { distribution: temurin, java-version: 17 }
+      - run: pnpm install --frozen-lockfile
+      # Both browsers with their system libraries; the Chromium libraries also serve Puppeteer's Chrome for Ace.
+      - run: pnpm exec playwright install --with-deps chromium webkit
+        working-directory: apps/desktop
+      - run: bash scripts/fetch-ace.sh
+      - name: veraPDF and Typst
+        run: |
+          bash scripts/fetch-verapdf.sh
+          bash scripts/fetch-typst.sh
+          bin=$(ls "$PWD"/apps/desktop/src-tauri/binaries/typst-* | head -n 1)
+          {
+            echo "VERAPDF_BIN=$PWD/tools/verapdf/verapdf"
+            echo "TYPST_BIN=$bin"
+            echo "TYPST_FONT_PATHS=$PWD/apps/desktop/src-tauri/binaries/fonts"
+          } >> "$GITHUB_ENV"
+      # a11y.sh itself sets REQUIRE_VERAPDF=1 and REQUIRE_ACE=1 (and REQUIRE_SOFFICE=1 for LibreOffice) on the tools it finds.
+      # It prints the stage table at the end, also when a stage fails, so tee it into the job summary.
+      - name: Accessibility stages (scripts/a11y.sh --tools)
+        shell: bash # explicit shell: GitHub adds `set -eo pipefail`, so tee does not hide the script's exit code
+        run: |
+          status=0
+          bash scripts/a11y.sh --tools 2>&1 | tee a11y-stages.log || status=$?
+          {
+            echo '### Accessibility stages'
+            echo '```'
+            sed -n '/^Accessibility stages/,$p' a11y-stages.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+      - name: WebKit accessibility specs
+        continue-on-error: true
+        run: pnpm test:e2e:webkit
         working-directory: apps/desktop
         env: { CI: "1" }
   # Dependency licenses: the allowlist for npm and Rust, advisories, and the generated notices must be current.
@@ -127,7 +214,10 @@ jobs:
     strategy:
       fail-fast: false # one OS failing must not hide how the others do
       matrix:
-        os: [kinhin-container, kinhin-xcode, windows-latest]
+        # Windows is off for now: the first release is macOS and Linux (see release.yml), and the Windows runner is the
+        # slowest of the three. Put `windows-latest` back in this list to test it again; the steps below that only run
+        # there are still in place.
+        os: [kinhin-container, kinhin-xcode]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -163,6 +253,13 @@ jobs:
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: bash scripts/fetch-ffmpeg.sh
+      # Style is in apps/desktop/src-tauri/rustfmt.toml; run `cargo fmt` to fix.
+      - name: Rust formatting (rustfmt)
+        shell: bash
+        run: |
+          rustup component add rustfmt
+          cargo fmt --check
+        working-directory: apps/desktop/src-tauri
       # Lints are in Cargo.toml ([lints]): no unsafe beyond the one documented kill, no unwrap/expect/panic in production code.
       - name: Rust lints (clippy)
         shell: bash

@@ -21,9 +21,11 @@ const PATH_TOOLS: [string, Record<string, unknown>][] = [
     "cadabra_chapter_write_json",
     { chapterId: "ch-1", doc: { type: "doc", content: [{ type: "paragraph" }] } },
   ],
+  ["cadabra_import_outline", { source: "x.csv" }],
   ["cadabra_export_epub", {}],
   ["cadabra_export_pdf", {}],
   ["cadabra_export_markdown", {}],
+  ["cadabra_export_outline", { format: "opml" }],
   ["cadabra_export_docx", {}],
   ["cadabra_export_rtf", {}],
   ["cadabra_inspect_pdf", {}],
@@ -60,6 +62,19 @@ describe("every path is confined to the workspace root", () => {
       expect(readdirSync(outside)).toEqual(["victim"]);
     });
   }
+
+  it("import_outline refuses an escaping source and writes nothing outside the book", async () => {
+    s = await connect();
+    const outside = tmpRoot();
+    writeFileSync(join(outside, "o.csv"), "chapter,title\nA,B\n");
+    symlinkSync(join(outside, "o.csv"), join(s.root, "o.csv"));
+    await s.ok("cadabra_project_create", { path: "bk", title: "T", author: "A" });
+    for (const source of [join(outside, "o.csv"), "../o.csv", "o.csv"]) {
+      const r = await s.call("cadabra_import_outline", { path: "bk", source });
+      expect(r.data.error.code, source).toBe("path_escape");
+    }
+    expect(readdirSync(outside)).toEqual(["o.csv"]);
+  });
 
   it("import_file refuses an escaping source or destination and writes nothing outside", async () => {
     s = await connect();

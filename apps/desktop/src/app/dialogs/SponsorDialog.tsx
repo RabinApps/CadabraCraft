@@ -1,12 +1,13 @@
 import { useLingui } from "@lingui/react/macro";
-import { CircleCheck, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { bridge } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
+import { whyText } from "../../lib/projectError";
+import { alertOf } from "../../state/project/util";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { SPONSOR_URL, useSponsor } from "../../state/sponsor";
+import { SPONSOR_URL, useSponsor } from "../../state/app/sponsor";
 import { useProject } from "../../state/project/index";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 
 /**
  * Shown after a successful export: a short thank-you with a link to sponsor the project. "Maybe later" stays quiet for the
@@ -22,7 +23,12 @@ export function SponsorDialog() {
     try {
       await bridge.openUrl(SPONSOR_URL);
     } catch (e) {
-      useProject.setState({ notice: t`Could not open ${SPONSOR_URL}: ${errText(e)}` });
+      const why = whyText(e);
+      useProject.setState(
+        alertOf(
+          t`Could not open ${SPONSOR_URL}: ${why}. Copy the address into your browser instead.`,
+        ),
+      );
     }
   };
   return (
@@ -34,8 +40,7 @@ export function SponsorDialog() {
       title={t`Enjoying CadabraCraft?`}
     >
       <div className="flex flex-col gap-4">
-        <Notice tone="success" strong className="flex items-center gap-2">
-          <CircleCheck size={16} aria-hidden />
+        <Notice tone="success" strong>
           {t`Exported ${exported ?? ""}`}
         </Notice>
         <p className="text-sm leading-relaxed">{t`CadabraCraft is free and source-available, and your book stays on your computer. If it helps you finish a book, a sponsorship pays for the time that goes into it.`}</p>

@@ -13,6 +13,7 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 - Record architecture decisions (with rejected alternatives) in `docs/architecture.md`.
 - Ask before downloading tools or binaries.
 - `cadabracraft.pen` is the UI source of truth and `docs/design.md` must always match it. After any change to the pen file, run `/sync-design` in the same turn (a hook reminds you). The pen file is encrypted: use only the Pencil MCP or, when Pencil is not running, the headless `pen` CLI (procedure in `docs/design.md`); never Read/Grep it.
+- Code organization (enforced by `pnpm lint` and `pnpm check:size`, in CI and the pre-commit hook): a source file is at most 400 non-blank lines (tests 800), a folder holds at most 20 source files, one responsibility per file. Group by feature in subfolders; no `utils`/`helpers`/`misc` dumping files. When a file nears 400, split it before adding more. `scripts/size-baseline.json` and the temporary lists in `eslint.config.mjs` are shrink-only: never add to them, delete entries as files are fixed. Do not raise a limit to make a check pass.
 
 ## Gotchas
 
@@ -25,4 +26,4 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 
 Style skills (e.g. `solid`) are guidance only: this repo's conventions and the surrounding code win. In particular, keep the existing functional TypeScript style (pure functions, plain data) and do not introduce value-object classes or the 10-line/2-field limits.
 
-`/drive-app` clicks through the real app via the dev-only bridge, `/verify` full check, `/validate-epub`, `/change-file-format`, `/record-decision`, `/sync-design` (in `.claude/skills`).
+`/drive-app` clicks through the real app via the dev-only bridge, `/verify` full check, `/validate-epub`, `/change-file-format`, `/record-decision`, `/sync-design`, `/a11y` accessibility checks, `/quality-gates` the checklist every plan ends with (feature completeness, typecheck, lint, i18n, ADA, coverage) and runs after the work (in `.claude/skills`).

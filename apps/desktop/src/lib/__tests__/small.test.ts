@@ -6,9 +6,9 @@ import {
   primaryLanguage,
   toggleAudioFormat,
   voicesFor,
-} from "../audioFormats";
+} from "../audio/audioFormats";
 import { baseName, stem } from "../paths";
-import { trimLabel } from "../trimLabels";
+import { trimLabel } from "../export/trimLabels";
 
 describe("paths", () => {
   it("takes the last part whichever separator is used", () => {

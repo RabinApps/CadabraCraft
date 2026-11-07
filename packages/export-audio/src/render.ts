@@ -86,6 +86,8 @@ export interface ChapterResult extends RenderedChapter {
   status: "done" | "cached" | "empty";
   /** The cache key this chapter was rendered for. */
   hash: string;
+  /** The text as it was handed to the voice (also for a cached chapter), so a transcript matches the audio. */
+  chunks: Chunk[];
   skipped: Record<string, number>;
 }
 
@@ -161,6 +163,7 @@ export async function renderAudiobook(
         title: chapter.title,
         status: "empty",
         hash,
+        chunks,
         files: [],
         durationSec: 0,
         skipped,
@@ -189,6 +192,7 @@ export async function renderAudiobook(
           title: chapter.title,
           status: hit ? "cached" : "done",
           hash,
+          chunks,
           ...rendered,
           skipped,
         };

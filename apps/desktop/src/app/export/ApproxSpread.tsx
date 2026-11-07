@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { useLingui } from "@lingui/react/macro";
 import type { Template } from "@cadabracraft/templates";
 import { assetUrl } from "../../lib/assets";
-import type { Margins } from "../../lib/printEstimate";
+import type { Margins } from "../../lib/export/printEstimate";
 
 const CROP_GAP = 14;
 const CORNERS = [

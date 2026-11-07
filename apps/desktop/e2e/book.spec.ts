@@ -17,6 +17,25 @@ test("templates page sets the book's template from the details panel", async ({ 
   expect(manifest.template).toBe("poetry");
 });
 
+test("the templates page sets the book's big first letter apart from the template", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.getByRole("button", { name: "Change template" }).click();
+  const group = page.getByRole("radiogroup", { name: "Big first letter" });
+  await expect(group.getByRole("radio", { name: "Template default (on)" })).toBeChecked();
+  await page.getByRole("radio", { name: /^Poetry/ }).click();
+  await expect(group.getByRole("radio", { name: "Template default (off)" })).toBeVisible();
+  await group.getByRole("radio", { name: "On", exact: true }).click();
+  const dropCap = () =>
+    page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string).dropCap);
+  await expect.poll(dropCap).toBe(true);
+  await group.getByRole("radio", { name: "Off", exact: true }).click();
+  await expect.poll(dropCap).toBe(false);
+  await group.getByRole("radio", { name: /^Template default/ }).click();
+  await expect.poll(dropCap).toBeUndefined();
+});
+
 test("print preview opens from the export dialog and returns to the book", async ({ page }) => {
   await newProject(page);
   await page.getByRole("button", { name: "Export", exact: true }).click();
@@ -50,7 +69,7 @@ test("Book details: edit the title, pick a cover, save, then remove the cover", 
   await page.getByRole("button", { name: "Book details" }).click();
   await dialog.getByLabel("Title").fill("");
   await dialog.getByRole("button", { name: "Save details" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText("Give the book a title.");
+  await expect(dialog.getByRole("alert")).toContainText("Give the book a title.");
   await dialog.getByLabel("Title").fill("Renamed Book");
   await dialog.getByRole("button", { name: "Remove cover" }).click();
   await dialog.getByRole("button", { name: "Save details" }).click();
@@ -70,7 +89,7 @@ test("Book details: publishing details save to the book, a wrong value is explai
   await dialog.getByLabel("Series", { exact: true }).fill("Harbour Lights");
   await dialog.getByLabel("Number in series").fill("one");
   await dialog.getByRole("button", { name: "Save details" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText("Use a number such as 1 or 2.5.");
+  await expect(dialog.getByRole("alert")).toContainText("Use a number such as 1 or 2.5.");
   await expect(dialog.getByLabel("Number in series")).toHaveAttribute("aria-invalid", "true");
   await dialog.getByLabel("Number in series").fill("2");
   await dialog.getByLabel("Publication date").fill("2026-11-03");

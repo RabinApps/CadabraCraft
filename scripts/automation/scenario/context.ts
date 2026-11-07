@@ -26,16 +26,8 @@ export type MenuEntry = {
 /** Everything a step module needs: the connected app, the scratch folders, and the shared helpers. */
 export type Context = Awaited<ReturnType<typeof createContext>>;
 
-/** Starts the app when `--launch` is given, connects to the bridge and prepares the scratch folders and helpers. */
-export async function createContext(args: string[]) {
-  const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-  const out = args.includes("--out")
-    ? resolve(args[args.indexOf("--out") + 1] ?? ".")
-    : mkdtempSync(join(tmpdir(), "cadabra-scenario-"));
-  mkdirSync(out, { recursive: true });
-
-  const results: StepResult[] = [];
-  const step = async (name: string, fn: () => Promise<string | void>) => {
+const makeStep =
+  (results: StepResult[]) => async (name: string, fn: () => Promise<string | void>) => {
     try {
       const detail = await fn();
       results.push({ name, ok: true, detail });
@@ -48,6 +40,8 @@ export async function createContext(args: string[]) {
     }
   };
 
+/** Starts the app when `--launch` is given, then connects to its bridge. */
+async function startApp(args: string[], repo: string) {
   let launched: App | undefined;
   let child: ChildProcess | undefined;
   if (args.includes("--launch")) {
@@ -66,7 +60,11 @@ export async function createContext(args: string[]) {
     }
   }
   const app: App = launched ?? (await connect());
+  return { app, child };
+}
 
+/** The scratch folders and the Markdown, Word and HTML sources the import steps read. */
+function writeFixtures(out: string, repo: string) {
   const book = join(out, "book"),
     imported = join(out, "imported"),
     src = join(out, "src");
@@ -87,7 +85,11 @@ export async function createContext(args: string[]) {
   );
   const mdBefore = readFileSync(join(src, "book.md"), "utf8");
   const png = join(repo, "fixtures/assets/pixel.png");
-  const shot = (n: string) => app.screenshot(join(out, `${n}.png`));
+  return { book, imported, src, importedDocx, importedHtml, docxBefore, mdBefore, png };
+}
+
+/** Menu and dialog helpers that drive the app's DOM. */
+function uiHelpers(app: App) {
   // Radix menus open on pointerdown, so a plain click() is not enough for the trigger; items react to click().
   const openMenu = (label: string) =>
     app.js(`(() => { const b = [...document.querySelectorAll("button")].find((b) => (b.textContent.trim() || b.getAttribute("aria-label")) === ${JSON.stringify(label)});
@@ -110,7 +112,11 @@ export async function createContext(args: string[]) {
     await dlg(`d.querySelector('button[type="submit"]').click(); return "submitted";`);
   };
   const status = async () => (await app.snapshot()).status.join(" ");
-  // The native menu cannot be clicked from outside, so dev builds publish what it was told to show and a way to run its commands.
+  return { openMenu, pickItem, dlg, exportVia, status };
+}
+
+/** The native menu cannot be clicked from outside, so dev builds publish what it was told to show and a way to run its commands. */
+function menuHelpers(app: App) {
   const menuState = async () => {
     const m = JSON.parse(
       await app.js(
@@ -144,30 +150,31 @@ export async function createContext(args: string[]) {
     }
     await app.sleep(900);
   };
+  return { menuState, runMenu };
+}
 
+/** Starts the app when `--launch` is given, connects to the bridge and prepares the scratch folders and helpers. */
+export async function createContext(args: string[]) {
+  const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+  const out = args.includes("--out")
+    ? resolve(args[args.indexOf("--out") + 1] ?? ".")
+    : mkdtempSync(join(tmpdir(), "cadabra-scenario-"));
+  mkdirSync(out, { recursive: true });
+
+  const results: StepResult[] = [];
+  const { app, child } = await startApp(args, repo);
+  const shot = (n: string) => app.screenshot(join(out, `${n}.png`));
   return {
     app,
     child,
     results,
     out,
     repo,
-    book,
-    imported,
-    src,
-    importedDocx,
-    importedHtml,
-    docxBefore,
-    mdBefore,
-    png,
+    ...writeFixtures(out, repo),
     shot,
-    openMenu,
-    pickItem,
-    dlg,
-    exportVia,
-    status,
-    menuState,
-    runMenu,
-    step,
+    ...uiHelpers(app),
+    ...menuHelpers(app),
+    step: makeStep(results),
     args,
   };
 }

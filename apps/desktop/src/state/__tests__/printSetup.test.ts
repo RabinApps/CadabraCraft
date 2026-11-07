@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { bleedInches, setBleed, setCropMarks, usePrintSetup } from "../printSetup";
+import { bleedInches, setBleed, setCropMarks, usePrintSetup } from "../pages/printSetup";
 
 beforeEach(() => usePrintSetup.setState({ bleed: false, cropMarks: false }));
 

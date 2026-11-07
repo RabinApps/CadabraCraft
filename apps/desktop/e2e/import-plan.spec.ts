@@ -19,7 +19,9 @@ async function startImport(page: Page) {
 
 /** The chapter buttons of the sidebar (not their action menus), top to bottom. */
 const chapterNames = (page: Page) =>
-  sidebar(page).locator("li > button:not([aria-label^='Actions'])");
+  sidebar(page).locator(
+    "li > div > button:not([aria-label^='Actions']):not([data-grip]):not([aria-expanded])",
+  );
 
 /** The chapter titles in the preview, top to bottom. */
 const previewTitles = (dialog: Locator) =>
@@ -178,7 +180,7 @@ test("importing into the open book appends the chapters and never touches the ex
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel("Title")).toHaveCount(0);
   await expect(dialog.getByLabel("New book folder")).toHaveCount(0);
-  await expect(dialog.getByRole("button", { name: "Next" })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: "Next" })).toBeEnabled(); // pressing it says the file is missing
   await dialog.getByRole("button", { name: "Choose file…" }).click();
   await dialog.getByRole("button", { name: "Next" }).click();
   await dialog.getByRole("button", { name: "Move chapter 3 up" }).click();

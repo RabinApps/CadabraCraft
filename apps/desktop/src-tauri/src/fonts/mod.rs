@@ -27,9 +27,7 @@ pub fn set_fonts_dir(dir: PathBuf) {
 }
 
 pub(crate) fn fonts_root() -> Option<PathBuf> {
-    std::env::var_os("CADABRA_FONTS_DIR")
-        .map(PathBuf::from)
-        .or_else(|| FONTS_DIR.get().cloned())
+    std::env::var_os("CADABRA_FONTS_DIR").map(PathBuf::from).or_else(|| FONTS_DIR.get().cloned())
 }
 
 /// The folder to hand to Typst as `--font-path`: only when it exists (nothing was downloaded or imported before).
@@ -47,15 +45,10 @@ mod tests {
         set_fonts_dir(first.clone());
         set_fonts_dir(std::env::temp_dir().join("cadabracraft-other-fonts")); // the first one stays
         assert_eq!(FONTS_DIR.get(), Some(&first));
-        let expected = std::env::var_os("CADABRA_FONTS_DIR")
-            .map(PathBuf::from)
-            .unwrap_or(first);
+        let expected = std::env::var_os("CADABRA_FONTS_DIR").map(PathBuf::from).unwrap_or(first);
         assert_eq!(fonts_root(), Some(expected.clone()));
         // Typst only gets a folder that exists.
-        assert_eq!(
-            typst_font_dir(),
-            Some(expected.clone()).filter(|d| d.is_dir())
-        );
+        assert_eq!(typst_font_dir(), Some(expected.clone()).filter(|d| d.is_dir()));
     }
 }
 

@@ -3,6 +3,7 @@ import {
   FileText,
   GripVertical,
   Image,
+  Link as LinkIcon,
   MoreHorizontal,
   Music,
   StickyNote,
@@ -10,11 +11,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import * as M from "@radix-ui/react-dropdown-menu";
-import type { PointerEvent } from "react";
+import { useId, type KeyboardEvent, type PointerEvent } from "react";
 import type { Reference } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
-import { referenceKind, type ReferenceKind } from "../../lib/referenceKinds";
+import { kindOf, type ReferenceKind } from "../../lib/references/referenceKinds";
+import { linkTitle, noteTitle } from "../../lib/references/dropped";
 import { cx } from "../../ui/cx";
+import { useGripHint } from "../../ui/GripHint";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";
 
 const ICONS: Record<ReferenceKind, LucideIcon> = {
@@ -22,7 +25,9 @@ const ICONS: Record<ReferenceKind, LucideIcon> = {
   video: Video,
   audio: Music,
   pdf: FileText,
-  text: StickyNote,
+  text: FileText,
+  link: LinkIcon,
+  note: StickyNote,
   other: File,
 };
 
@@ -38,6 +43,8 @@ export function useKindLabel(): (kind: ReferenceKind) => string {
       audio: t`Audio`,
       pdf: t`PDF`,
       text: t`Document`,
+      link: t`Link`,
+      note: t`Note`,
       other: t`File`,
     })[kind];
 }
@@ -55,14 +62,35 @@ interface Props {
     dragging: boolean;
   };
   onRemove: () => void;
+  /** Links only: opens the address in the browser. */
+  onOpenLink?: (url: string) => void;
 }
 
+/** What follows the kind on the second line: a link's host, a note's first line. Nothing for a file. */
+const detailOf = (r: Reference): string =>
+  r.kind === "link" ? linkTitle(r.url) : r.kind === "note" ? noteTitle(r.text, "") : "";
+
 /** One reference in the list: a type icon, the title, and the kind with its tags. Opens the viewer; its menu moves or removes it. */
-export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }: Props) {
+export function ReferenceRow({
+  reference,
+  selected,
+  onOpen,
+  reorder,
+  onRemove,
+  onOpenLink,
+}: Props) {
   const { t } = useLingui();
-  const kind = referenceKind(reference.file);
+  const kind = kindOf(reference);
   const Icon = kindIcon(kind);
   const label = useKindLabel();
+  const id = useId();
+  const grip = useGripHint();
+  const keys = (e: KeyboardEvent) => {
+    if (!reorder || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+    e.preventDefault();
+    const delta = e.key === "ArrowUp" ? -1 : 1;
+    if (delta < 0 ? !reorder.first : !reorder.last) reorder.onMove(delta);
+  };
   return (
     <div
       className={cx(
@@ -72,33 +100,44 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
         !reorder?.dragging &&
           (selected
             ? "border-accent bg-accent-soft"
-            : "border-border bg-surface hover:bg-accent-soft/60"),
+            : "border-border-strong bg-surface hover:bg-accent-soft/60"),
       )}
     >
       {reorder && (
-        <span
-          role="presentation"
-          aria-label={t`Drag to reorder ${reference.title}`}
+        <button
+          type="button"
           data-grip
+          aria-label={t`Reorder ${reference.title}`}
+          aria-keyshortcuts="ArrowUp ArrowDown"
+          aria-describedby={grip.describedBy}
           onPointerDown={reorder.onGrab}
-          className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center text-ink-muted"
+          onKeyDown={keys}
+          className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted focus-visible:outline-2 focus-visible:outline-accent"
         >
           <GripVertical size={16} aria-hidden />
-        </span>
+        </button>
       )}
+      {reorder && grip.hint}
       <button
         type="button"
         onClick={onOpen}
-        aria-label={reference.title}
+        data-open
+        aria-labelledby={`${id}-title ${id}-kind`}
         className="flex min-w-0 flex-1 items-center gap-3 rounded-sm text-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <span className="flex size-11 shrink-0 items-center justify-center rounded-sm bg-accent-soft text-accent">
           <Icon size={20} aria-hidden />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-ink">{reference.title}</span>
-          <span className="block truncate text-xs text-ink-muted">
-            {[label(kind), ...reference.tags].join(" · ")}
+          <span
+            id={`${id}-title`}
+            data-title
+            className="block truncate text-sm font-semibold text-ink"
+          >
+            {reference.title}
+          </span>{" "}
+          <span id={`${id}-kind`} className="block truncate text-xs text-ink-muted">
+            {[label(kind), detailOf(reference), ...reference.tags].filter(Boolean).join(" · ")}
           </span>
         </span>
       </button>
@@ -115,6 +154,12 @@ export function ReferenceRow({ reference, selected, onOpen, reorder, onRemove }:
         <M.Portal>
           <M.Content align="end" className={menuContentClass("min-w-52")}>
             <M.Item className={menuItemClass()} onSelect={onOpen}>{t`Open`}</M.Item>
+            {reference.kind === "link" && onOpenLink && (
+              <M.Item
+                className={menuItemClass()}
+                onSelect={() => onOpenLink((reference as { url: string }).url)}
+              >{t`Open in browser`}</M.Item>
+            )}
             <M.Item
               className={menuItemClass()}
               disabled={!reorder || reorder.first}

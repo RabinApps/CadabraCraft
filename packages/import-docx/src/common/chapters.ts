@@ -138,60 +138,53 @@ export function definitionNodes(entries: DefinitionEntry[]): DocNode[] {
   ];
 }
 
+const kidsOf = (n: DocNode): DocNode[] => ("content" in n ? (n.content ?? []) : []);
+
+/** One line of text per row of a table, the cells joined with " | ". */
+function tableRowParagraphs(table: DocNode): DocNode[] {
+  const rowText = (row: DocNode): string =>
+    kidsOf(row)
+      .map((c) => plainText(kidsOf(c).flatMap(kidsOf)).replace(/\s+/g, " ").trim())
+      .join(" | ");
+  const out: DocNode[] = [];
+  for (const row of kidsOf(table)) {
+    const t = rowText(row);
+    if (t.replace(/[|\s]/g, "")) out.push(paragraphOf([{ type: "text", text: t }]));
+  }
+  return out;
+}
+
+/** Blocks that only hold other blocks: their children are read in place of them. */
+const CONTAINER_BLOCKS = new Set([
+  "bulletList",
+  "orderedList",
+  "taskList",
+  "definitionList",
+  "blockquote",
+  "listItem",
+  "taskItem",
+  "definitionDescription",
+]);
+
 /** A table cell must hold `paragraph+`: keep paragraphs, flatten any other block to paragraphs, and say whether that changed anything. */
 export function cellParagraphs(blocks: DocNode[]): { paragraphs: DocNode[]; flattened: boolean } {
   const paragraphs: DocNode[] = [];
   let flattened = false;
-  const kids = (n: DocNode): DocNode[] => ("content" in n ? (n.content ?? []) : []);
-  const rowText = (row: DocNode): string =>
-    kids(row)
-      .map((c) => plainText(kids(c).flatMap(kids)).replace(/\s+/g, " ").trim())
-      .join(" | ");
   const walk = (n: DocNode) => {
-    switch (n.type) {
-      case "paragraph":
-        paragraphs.push(n);
-        break;
-      case "heading":
-        flattened = true;
-        paragraphs.push(paragraphOf(n.content ?? []));
-        break;
-      case "bulletList":
-      case "orderedList":
-      case "taskList":
-      case "definitionList":
-      case "blockquote":
-      case "listItem":
-      case "taskItem":
-      case "definitionDescription":
-        flattened = true;
-        for (const k of n.content ?? []) walk(k);
-        break;
-      case "definitionTerm":
-        flattened = true;
-        paragraphs.push(paragraphOf(n.content ?? []));
-        break;
-      case "table": {
-        flattened = true;
-        for (const row of n.content ?? []) {
-          const t = rowText(row);
-          if (t.replace(/[|\s]/g, "")) paragraphs.push(paragraphOf([{ type: "text", text: t }]));
-        }
-        break;
-      }
-      case "codeBlock":
-        flattened = true;
-        if (plainText(n.content))
-          paragraphs.push(paragraphOf([{ type: "text", text: plainText(n.content) }]));
-        break;
-      case "image":
-        flattened = true;
-        if (n.attrs?.alt)
-          paragraphs.push(paragraphOf([{ type: "text", text: String(n.attrs.alt) }]));
-        break;
-      default:
-        flattened = true;
+    if (n.type === "paragraph") {
+      paragraphs.push(n);
+      return;
     }
+    flattened = true;
+    if (n.type === "heading" || n.type === "definitionTerm")
+      paragraphs.push(paragraphOf(kidsOf(n)));
+    else if (CONTAINER_BLOCKS.has(n.type)) for (const k of kidsOf(n)) walk(k);
+    else if (n.type === "table") paragraphs.push(...tableRowParagraphs(n));
+    else if (n.type === "codeBlock") {
+      if (plainText(kidsOf(n)))
+        paragraphs.push(paragraphOf([{ type: "text", text: plainText(kidsOf(n)) }]));
+    } else if (n.type === "image" && n.attrs?.alt)
+      paragraphs.push(paragraphOf([{ type: "text", text: String(n.attrs.alt) }]));
   };
   for (const b of blocks) walk(b);
   return { paragraphs: paragraphs.length ? paragraphs : [{ type: "paragraph" }], flattened };

@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
@@ -15,6 +16,7 @@
     "build:sample": "tsx scripts/build-sample.ts"
   },
   "dependencies": {
+    "@cadabracraft/format": "workspace:*",
     "@cadabracraft/shared": "workspace:*",
     "@cadabracraft/templates": "workspace:*"
   },

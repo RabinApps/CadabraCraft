@@ -15,7 +15,7 @@ import {
   readReferenceBytes,
   readReferenceParts,
   referenceUrl,
-} from "../references";
+} from "../references/references";
 
 const created: Blob[] = [];
 const revoked: string[] = [];

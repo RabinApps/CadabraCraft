@@ -39,6 +39,87 @@ describe("buildTypst with front and back matter", () => {
     expect(src).toContain('#chapter-start("About the Author", none,');
     expect(src).toContain("© 2026 Test Author");
   });
+  it("lets a matter page the author chose follow on, keeping the rest of the right-hand pages", () => {
+    const front = matterPages().front;
+    // The dedication opens on a right-hand page, so a blank left-hand page goes before it: `odd` is what the author turns off.
+    expect(src).toMatch(/#pagebreak\(weak: true, to: "odd"\)\n\n#centered-page\("fm-3"/);
+    const chosen = front.map((p) => (p.id === "fm-3" ? { ...p, startOnNext: true } : p));
+    const driven = buildTypst(book, [...chosen, ...chapters]);
+    expect(driven).not.toMatch(/#pagebreak\(weak: true, to: "odd"\)\n\n#centered-page\("fm-3"/);
+    expect(driven).toMatch(/#pagebreak\(weak: true, to: "odd"\)\n\n#title-page\("fm-1"/);
+    // A page laid out like a chapter carries the choice into the chapter opening, so it does not push to a right-hand page either.
+    const foreword = front.map((p) => (p.id === "fm-4" ? { ...p, startOnNext: true } : p));
+    const laid = buildTypst(book, [...foreword, ...chapters]);
+    expect(laid).toContain(
+      '#chapter-start("Foreword", none, id: "fm-4", kind: "foreword", odd: false)',
+    );
+    expect(laid).toContain('#chapter-start("Preface", none, id: "fm-5", kind: "preface")');
+  });
+
+  it("prints a blank page the author added as a page with no head, no number and no other break", () => {
+    const pages = [
+      {
+        id: "fm-1",
+        title: "Epigraph",
+        doc: doc("…"),
+        section: "front" as const,
+        kind: "epigraph" as const,
+      },
+      {
+        id: "fm-2",
+        title: "Blank page",
+        doc: { type: "doc" as const, content: [] },
+        section: "front" as const,
+        kind: "blank" as const,
+      },
+      chapter("ch-1", "One"),
+    ];
+    const withBlank = buildTypst(book, pages);
+    expect(withBlank).toContain("#page(header: none, footer: none)[]");
+    // It is not a page entry of its own: no title, no bookmark and no right-hand-page push are written for it.
+    expect(withBlank).not.toContain('"fm-2"');
+    expect(withBlank).not.toContain('kind: "blank"');
+  });
+
+  it("prints a blank page between two chapters as a blank page, not as a chapter of its own", () => {
+    const laid = buildTypst(book, [
+      chapter("ch-1", "One"),
+      {
+        id: "ch-2",
+        title: "Blank page",
+        doc: { type: "doc" as const, content: [] },
+        section: "chapter" as const,
+        kind: "blank" as const,
+      },
+      chapter("ch-3", "Three"),
+    ]);
+    expect(laid).toContain("#page(header: none, footer: none)[]");
+    expect(laid).not.toContain('"ch-2"');
+    expect(laid).not.toContain('kind: "blank"');
+    expect(laid).toContain('#chapter-start("Three"');
+  });
+
+  it("inserts the blank page before a page the author starts on a right-hand one", () => {
+    const front = matterPages().front;
+    // A template that starts chapters on any page leaves the preface on the next page; the choice puts the blank before it.
+    const modern = (pages: typeof front) =>
+      buildTypst(book, [...pages, ...chapters], { template: "modern" });
+    expect(modern(front)).not.toMatch(
+      /#pagebreak\(weak: true, to: "odd"\)\n\n#chapter-start\("Preface"/,
+    );
+    const forced = front.map((p) => (p.id === "fm-5" ? { ...p, startOnNext: false } : p));
+    expect(modern(forced)).toMatch(
+      /#pagebreak\(weak: true, to: "odd"\)\n\n#chapter-start\("Preface", none, id: "fm-5", kind: "preface"\)/,
+    );
+    // A centred page the rules never push gets the same break in front of it.
+    const centred = front.map((p) =>
+      p.id === "fm-5" ? { ...p, verticalCenter: true, startOnNext: false } : p,
+    );
+    expect(modern(centred)).toMatch(
+      /#pagebreak\(weak: true, to: "odd"\)\n\n#centered-page\("fm-5"/,
+    );
+  });
+
   it("numbers only chapters, not matter pages", () => {
     expect(src).toContain('#chapter-start("The Quay", 1,');
     expect(src).toContain('#chapter-start("Afterword", 4,');

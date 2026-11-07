@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Commands } from "../../../state/commands";
-import { buildMenuModel, commandIds, type MenuContext, type MenuEntry } from "../menuModel";
+import type { Commands } from "../../../state/app/commands";
+import { buildMenuModel, commandIds, type MenuContext, type MenuEntry } from "../native/menuModel";
 
 const run = () => {};
 const ctx = (commands: Commands = {}, over: Partial<MenuContext> = {}): MenuContext => ({
@@ -60,9 +60,11 @@ const BOOK: Commands = Object.fromEntries(
     "view.write",
     "view.read",
     "view.focus",
-    "view.pageView",
+    "view.typewriter",
     "view.details",
     "view.references",
+    "view.board",
+    "view.timeline",
     "editor.bold",
     "editor.sceneBreak",
     "edit.find",
@@ -247,7 +249,7 @@ describe("what is available in each context", () => {
       "insert.chapter",
       "view.write",
       "view.focus",
-      "view.pageView",
+      "view.typewriter",
       "editor.bold",
       "go.next",
       "edit.bookUndo",
@@ -362,30 +364,6 @@ describe("menu shortcuts", () => {
   });
 });
 
-describe("page view", () => {
-  it("sits in the View menu with Cmd/Ctrl+Shift+P, after Focus Mode", () => {
-    const view = submenu(buildMenuModel(ctx(BOOK)), "View");
-    expect(find(view, "view.pageView")).toMatchObject({
-      text: "Page View",
-      accelerator: "CmdOrCtrl+Shift+P",
-      enabled: true,
-    });
-    const ids = commandIds(view);
-    expect(ids.indexOf("view.pageView")).toBe(ids.indexOf("view.focus") + 1);
-  });
-
-  it("is a tick item that follows the command and keeps its tick type when unavailable", () => {
-    const on = buildMenuModel(ctx({ ...BOOK, "view.pageView": { run, checked: true } }));
-    expect(find(on, "view.pageView")?.checked).toBe(true);
-    const phone = buildMenuModel(
-      ctx({ ...BOOK, "view.pageView": { run, checked: false, enabled: false } }),
-    );
-    expect(find(phone, "view.pageView")).toMatchObject({ enabled: false, checked: false });
-    const reading = buildMenuModel(ctx({ ...BOOK, "view.pageView": undefined as never }));
-    expect(find(reading, "view.pageView")).toMatchObject({ enabled: false, checked: false });
-  });
-});
-
 describe("command palette and outline", () => {
   it("sit in the View menu with Cmd/Ctrl+K and Cmd/Ctrl+Shift+O, after the panel toggles", () => {
     const view = submenu(
@@ -403,7 +381,7 @@ describe("command palette and outline", () => {
       enabled: true,
     });
     const ids = commandIds(view);
-    expect(ids.indexOf("view.palette")).toBe(ids.indexOf("view.references") + 1);
+    expect(ids.indexOf("view.palette")).toBe(ids.indexOf("view.timeline") + 1);
     expect(ids.indexOf("view.outline")).toBe(ids.indexOf("view.palette") + 1);
   });
 

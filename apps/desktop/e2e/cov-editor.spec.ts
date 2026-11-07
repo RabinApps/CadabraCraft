@@ -11,11 +11,11 @@ test.beforeEach(async ({ page }) => {
 const pm = (page: Page) => page.locator(".ProseMirror");
 const run = (page: Page, id: string) =>
   page.evaluate(async (c) => {
-    (await import("/src/state/commands.ts" as string)).runCommand(c);
+    (await import("/src/state/app/commands.ts" as string)).runCommand(c);
   }, id);
 const setting = (page: Page, patch: Record<string, unknown>) =>
   page.evaluate(async (p) => {
-    (await import("/src/state/editorPrefs.ts" as string)).useSettings.getState().set(p);
+    (await import("/src/state/view/editorPrefs.ts" as string)).useSettings.getState().set(p);
   }, patch);
 const notice = (page: Page, text: string) => page.getByRole("status").filter({ hasText: text });
 /** Caret at the end of the empty paragraph under the chapter title. */
@@ -237,7 +237,8 @@ test.describe("Convert HTML in Selection", () => {
   test("refuses a selection that is too large", async ({ page }) => {
     await newProject(page);
     await toEnd(page);
-    await paste(page, "a".repeat(1_000_100)); // longer than the limit: the default paste
+    // Paragraphs of 200 letters: one 1 MB paragraph is a worst case for laying the text out in pages.
+    await paste(page, Array.from({ length: 5_000 }, () => "a".repeat(200)).join("\n")); // longer than the limit: the default paste
     await page.keyboard.press("ControlOrMeta+a");
     await expect
       .poll(() => page.evaluate(() => getSelection()?.toString().length))
@@ -345,7 +346,6 @@ test.describe("toolbar", () => {
       "Block quote",
       "Bulleted list",
       "Numbered list",
-      "Scene break",
       "Footnote",
       "Undo",
       "Redo",
@@ -406,6 +406,9 @@ test.describe("toolbar", () => {
     await tb(page, "Image").click();
     await add(page).getByLabel("Caption").fill("With caption");
     await add(page).getByRole("button", { name: "Insert" }).click();
+    await expect(add(page).getByRole("alert")).toContainText("Describe the image");
+    await add(page).getByLabel("This image is decorative").check();
+    await add(page).getByRole("button", { name: "Insert" }).click();
     await expect(pm(page).locator("figcaption")).toHaveText("With caption");
   });
 
@@ -419,17 +422,21 @@ test.describe("toolbar", () => {
     await tb(page, "Link").click();
     await link(page).getByLabel("Address").fill("https://example.com");
     await link(page).getByRole("button", { name: "Apply" }).click();
-    await expect(link(page).getByRole("alert")).toHaveText(
+    await expect(link(page).getByRole("alert")).toContainText(
       "Select the text you want to link first.",
     );
     await link(page).getByRole("button", { name: "Cancel" }).click();
     await expect(link(page)).toHaveCount(0);
+    // Closing the dialog hands the focus back to the text (a frame later); only then is a script's selection kept.
+    await expect(pm(page)).toBeFocused();
 
     await selectParagraph(page, "last");
     await tb(page, "Link").click();
     await link(page).getByLabel("Address").fill("javascript:alert(1)");
     await link(page).getByRole("button", { name: "Apply" }).click();
-    await expect(link(page).getByRole("alert")).toHaveText("That address can't be used as a link.");
+    await expect(link(page).getByRole("alert")).toContainText(
+      "That address can't be used as a link.",
+    );
     await link(page).getByLabel("Address").fill("https://example.com");
     await expect(link(page).getByRole("alert")).toHaveCount(0);
     await link(page).getByRole("button", { name: "Apply" }).click();

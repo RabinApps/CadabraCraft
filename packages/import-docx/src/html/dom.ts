@@ -1,6 +1,6 @@
 import { parse, type DefaultTreeAdapterMap } from "parse5";
-import type { Mark } from "@cadabracraft/shared";
-import { AssetRegistry, Warnings } from "../common";
+import type { Mark, TextAlign } from "@cadabracraft/shared";
+import { AssetRegistry, Warnings, alignOfAttrs } from "../common";
 import type { ImportOptions } from "../types";
 
 export type PNode = DefaultTreeAdapterMap["node"];
@@ -97,6 +97,9 @@ export const attr = (el: PElement, name: string): string | undefined =>
   el.attrs.find((a) => a.name === name)?.value;
 export const hasClass = (el: PElement, cls: string): boolean =>
   (attr(el, "class") ?? "").split(/\s+/).includes(cls);
+/** The alignment an element asks for: its own attributes, or `<center>`. */
+export const alignOf = (el: PElement): TextAlign | null =>
+  el.tagName === "center" ? "center" : alignOfAttrs((name) => attr(el, name));
 export const collapse = (s: string): string => s.replace(/[ \t\r\n\f]+/g, " ");
 
 export interface HtmlCtx {

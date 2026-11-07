@@ -1,3 +1,9 @@
+import {
+  contentsTitle,
+  type ContentsNode,
+  nestContents,
+  visibleTocItems,
+} from "@cadabracraft/format";
 import { esc, headingAnchor } from "./xhtml";
 
 /**
@@ -11,6 +17,8 @@ export interface ContentsItem {
   entryId?: string;
   /** 0 for a page, 1-3 for a heading; sets the nesting. A custom entry has the level of the item it follows. */
   level: number;
+  /** Display depth under a part divider; absent means `level` sets the nesting. */
+  indent?: number;
   title: string;
   /** Headings: position among the page's headings (`OutlineItem.index`), the target of the link. */
   index?: number;
@@ -20,30 +28,9 @@ export interface ContentsItem {
   hidden?: boolean;
 }
 
-/** Last-resort link text for an item with neither a title nor an entry id. */
-const UNTITLED = "(untitled)";
-
-interface Node {
-  item: ContentsItem;
-  kids: Node[];
-}
-
-/** Items nested by level: an item goes under the nearest earlier item with a lower level. */
-function tree(items: readonly ContentsItem[]): Node[] {
-  const roots: Node[] = [];
-  const path: Node[] = [];
-  for (const item of items) {
-    const node: Node = { item, kids: [] };
-    while (path.length > 0 && path[path.length - 1]!.item.level >= item.level) path.pop();
-    (path.length > 0 ? path[path.length - 1]!.kids : roots).push(node);
-    path.push(node);
-  }
-  return roots;
-}
-
 /** The items to list: hidden ones are dropped. */
 export const listedItems = (items: readonly ContentsItem[]): ContentsItem[] =>
-  items.filter((i) => i.hidden !== true);
+  visibleTocItems(items);
 
 /**
  * Nested `<ol>` for the items (already visible), linking to the pages in `known` (page id -> file `<id>.xhtml`).
@@ -56,10 +43,9 @@ export function contentsList(
   known: ReadonlySet<string>,
   nav = false,
 ): string {
-  const render = (nodes: Node[]): string => {
+  const render = (nodes: ContentsNode<ContentsItem>[]): string => {
     const lines = nodes.flatMap(({ item, kids }) => {
-      // Never an empty link or span: a blank title falls back to the entry id, then a placeholder.
-      const title = esc(item.title.trim() === "" ? item.entryId?.trim() || UNTITLED : item.title);
+      const title = esc(contentsTitle(item));
       const linked = item.entryId !== undefined && known.has(item.entryId);
       const at =
         item.kind === "heading"
@@ -74,7 +60,8 @@ export function contentsList(
       const inner = kids.length > 0 ? render(kids) : "";
       return nav && !linked && inner === "" ? [] : [`<li>${label}${inner}</li>`];
     });
-    return lines.length > 0 ? `<ol>${lines.join("")}</ol>` : "";
+    // The stylesheet removes the list markers of the in-book list, which makes WebKit drop the list role: keep it explicit.
+    return lines.length > 0 ? `<ol${nav ? "" : ' role="list"'}>${lines.join("")}</ol>` : "";
   };
-  return render(tree(items));
+  return render(nestContents(items));
 }

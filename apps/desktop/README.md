@@ -325,13 +325,13 @@ Rules the code holds to (from `CLAUDE.md`):
 - **Print PDF:** `export-pdf` turns the book and a template into Typst source and a font check, then
   the frontend hands it to Rust (`typst_compile`, a framed binary request), which runs the bundled
   Typst sidecar. Trim sizes, PDF/A, cover, footnotes and drop caps are options on `PdfOptions`. An
-  approximate print preview and page estimate (`lib/printEstimate.ts`) run in the webview.
+  approximate print preview and page estimate (`lib/export/printEstimate.ts`) run in the webview.
 - **Markdown, Word (.docx) and Rich Text (.rtf):** pure TypeScript (`export-markdown`, `export-docx`, `export-rtf`), no sidecar.
 - **Import:** the wizard reads `.docx`, Markdown and HTML sources through `read_import_source` and
   `import-docx`, previews chapters (rename, skip), and reports anything that could not be kept.
   Importers are hardened against hostile input (size, depth and attribute limits); the source file is
   never modified.
-- **Pre-flight checks:** `lib/exportChecks.ts` and the per-format panels list problems (for example
+- **Pre-flight checks:** `lib/export/exportChecks.ts` and the per-format panels list problems (for example
   missing image alt text) before an export runs. Each panel mounts only while its format is shown.
 
 ## Audiobook export
@@ -344,7 +344,7 @@ Audiobooks are rendered on the author's computer, one audio file per chapter, by
 - **Pipeline:** `export-audio` extracts narration text and chunks it; Rust plans batches, runs the
   sidecar (`audio/engine.rs`), parses the WAV output and encodes to Opus, FLAC or WAV
   (`audio/encode.rs`). Progress comes back over a Tauri `Channel`.
-- **State:** the job lives in the project store (`state/project/audio.ts`), not the dialog, so the
+- **State:** the job lives in the project store (`state/project/output/audio.ts`), not the dialog, so the
   dialog can close while a render continues and a header chip shows progress.
 - **Cache:** rendered chapters are cached per chapter in `.cadabra/audio/cache.json` and reused when
   the text, voice and speed are unchanged. A damaged cache is treated as empty.
@@ -353,10 +353,10 @@ Audiobooks are rendered on the author's computer, one audio file per chapter, by
 
 ## The native menu
 
-The menu is built from a registry, not hand-wired per screen. `app/shell/menuModel.ts` produces the
-whole menu as plain data from the commands registered in `state/commands.ts`. Components register
+The menu is built from a registry, not hand-wired per screen. `app/shell/native/menuModel.ts` produces the
+whole menu as plain data from the commands registered in `state/app/commands.ts`. Components register
 commands while they can act, and the menu greys out the rest, so its structure never jumps between
-screens. `app/shell/nativeMenu.ts` adapts the model to `@tauri-apps/api/menu`, rebuilding only when
+screens. `app/shell/native/nativeMenu.ts` adapts the model to `@tauri-apps/api/menu`, rebuilding only when
 labels change and updating enabled and ticked state in place (a rebuild on every keystroke
 flickers). Menu actions are inert while a dialog is open. Undo, Redo, Cut, Copy, Paste and Select
 All stay the system's predefined items; book-level undo is a separate, named pair.
@@ -459,8 +459,8 @@ details are in [docs/agent-testing.md](../../docs/agent-testing.md).
 `src/test/fakeBridge.ts` and `e2e/support/fakeTauri.ts` if tests need it. Add a capability only if the
 command needs a plugin permission.
 
-**Add a menu item or shortcut.** Add the command to the registry in `state/commands.ts`, then the entry
-to `app/shell/menuModel.ts`. Register the command from the component that can act. Add a case to the
+**Add a menu item or shortcut.** Add the command to the registry in `state/app/commands.ts`, then the entry
+to `app/shell/native/menuModel.ts`. Register the command from the component that can act. Add a case to the
 menu model test.
 
 **Add a preference.** Build the store with `createPersistedStore` in `state/`, give it a

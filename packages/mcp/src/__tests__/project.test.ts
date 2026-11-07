@@ -181,6 +181,7 @@ describe("project_validate", () => {
     manifest.references = [
       {
         id: "ref-1",
+        kind: "file",
         file: "references/gone.pdf",
         title: "Gone",
         note: "",
@@ -190,8 +191,30 @@ describe("project_validate", () => {
       },
       {
         id: "ref-2",
+        kind: "file",
         file: "references/here.pdf",
         title: "Here",
+        note: "",
+        tags: [],
+        chapters: [],
+        addedAt: "2026-10-28T09:30:00.000Z",
+      },
+      // A link and a note have no file, so they never warn about a missing one.
+      {
+        id: "ref-3",
+        kind: "link",
+        url: "https://example.org/",
+        title: "Link",
+        note: "",
+        tags: [],
+        chapters: [],
+        addedAt: "2026-10-28T09:30:00.000Z",
+      },
+      {
+        id: "ref-4",
+        kind: "note",
+        text: "Body",
+        title: "Note",
         note: "",
         tags: [],
         chapters: [],

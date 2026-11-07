@@ -1,11 +1,12 @@
-import { useRef, type PointerEvent } from "react";
+import { useRef, type KeyboardEvent, type PointerEvent, type RefObject } from "react";
 import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
 import { Ellipsis, Eye, EyeOff, GripVertical, Pencil, RotateCcw, Trash2 } from "lucide-react";
-import { Badge } from "../../ui/Badge";
+import { Badge } from "../../ui/feedback/Badge";
 import { cx } from "../../ui/cx";
+import { useGripHint } from "../../ui/GripHint";
 import { menuContentClass, menuItemClass } from "../../ui/Menu";
-import type { TocRow as Row } from "../../lib/tocView";
+import type { TocRow as Row } from "../../lib/toc/tocView";
 
 export interface TocRowActions {
   onGrab: (e: PointerEvent<HTMLElement>) => void;
@@ -27,6 +28,139 @@ interface Props extends TocRowActions {
   setEditing: (on: boolean) => void;
 }
 
+type Item = Row["item"];
+
+/** The in-place title field; Enter or leaving it saves, Escape cancels, and the focus goes back to the row's Actions button. */
+function TitleInput({
+  item,
+  actions,
+  setEditing,
+  onRename,
+}: {
+  item: Item;
+  actions: RefObject<HTMLButtonElement | null>;
+  setEditing: (on: boolean) => void;
+  onRename: (title: string) => void;
+}) {
+  const { t } = useLingui();
+  const custom = item.kind === "custom";
+  return (
+    <input
+      autoFocus
+      aria-label={t`Entry title`}
+      defaultValue={item.title}
+      className="min-w-0 flex-1 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
+      onBlur={(e) => {
+        setEditing(false);
+        // Escape cancels: closing the field can still blur it, which must not save.
+        if (e.target.dataset.cancelled) return;
+        const text = e.target.value.trim();
+        if (text !== item.title && !(custom && text === "")) onRename(text);
+      }}
+      onKeyDown={(e) => {
+        // Enter that confirms an input-method candidate (Japanese, Chinese, Korean) must not commit the half-typed title.
+        if (e.nativeEvent.isComposing) return;
+        // Both end the edit with focus back on the row's Actions button, so it is not lost when the field goes.
+        if (e.key === "Enter") {
+          e.currentTarget.blur();
+          actions.current?.focus();
+        }
+        if (e.key === "Escape") {
+          e.currentTarget.dataset.cancelled = "true";
+          setEditing(false);
+          actions.current?.focus();
+        }
+      }}
+    />
+  );
+}
+
+/** The row's Actions button and its menu. */
+function RowMenu({
+  item,
+  actions,
+  first,
+  last,
+  onEdit,
+  onMove,
+  onToggleHidden,
+  onReset,
+  onRemove,
+}: {
+  item: Item;
+  actions: RefObject<HTMLButtonElement | null>;
+  first: boolean;
+  last: boolean;
+  onEdit: () => void;
+  onMove: (delta: number) => void;
+  onToggleHidden: () => void;
+  onReset: () => void;
+  onRemove: () => void;
+}) {
+  const { t } = useLingui();
+  const custom = item.kind === "custom";
+  /** The rename field opens once the menu has closed, so it can take focus. */
+  const afterClose = useRef<(() => void) | null>(null);
+  return (
+    <M.Root>
+      <M.Trigger asChild>
+        <button
+          ref={actions}
+          type="button"
+          data-actions
+          aria-label={t`Actions for ${item.title}`}
+          className="flex size-8 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent max-md:size-11"
+        >
+          <Ellipsis size={16} aria-hidden />
+        </button>
+      </M.Trigger>
+      <M.Portal>
+        <M.Content
+          align="end"
+          onCloseAutoFocus={(e) => {
+            const next = afterClose.current;
+            afterClose.current = null;
+            if (next) e.preventDefault();
+            next?.();
+          }}
+          className={menuContentClass("min-w-52")}
+        >
+          <M.Item className={menuItemClass()} onSelect={() => (afterClose.current = onEdit)}>
+            <Pencil size={14} aria-hidden />
+            {t`Rename`}
+          </M.Item>
+          <M.Item
+            className={menuItemClass()}
+            disabled={first}
+            onSelect={() => onMove(-1)}
+          >{t`Move up`}</M.Item>
+          <M.Item
+            className={menuItemClass()}
+            disabled={last}
+            onSelect={() => onMove(1)}
+          >{t`Move down`}</M.Item>
+          <M.Item className={menuItemClass()} onSelect={onToggleHidden}>
+            {item.hidden ? <Eye size={14} aria-hidden /> : <EyeOff size={14} aria-hidden />}
+            {item.hidden ? t`Show in contents` : t`Hide from contents`}
+          </M.Item>
+          {!custom && (item.renamed || item.hidden) && (
+            <M.Item className={menuItemClass()} onSelect={onReset}>
+              <RotateCcw size={14} aria-hidden />
+              {t`Reset this entry`}
+            </M.Item>
+          )}
+          {custom && (
+            <M.Item className={menuItemClass("text-danger")} onSelect={onRemove}>
+              <Trash2 size={14} aria-hidden />
+              {t`Remove entry`}
+            </M.Item>
+          )}
+        </M.Content>
+      </M.Portal>
+    </M.Root>
+  );
+}
+
 /** One entry of the contents list: grip, indented title (double-click or Rename to edit in place), page number and an actions menu. */
 export function TocRow({
   row,
@@ -45,9 +179,17 @@ export function TocRow({
 }: Props) {
   const { t } = useLingui();
   const { item } = row;
+  const grip = useGripHint();
   const custom = item.kind === "custom";
-  /** The rename field opens once the menu has closed, so it can take focus. */
-  const afterClose = useRef<(() => void) | null>(null);
+  const indent = item.indent ?? item.level;
+  const actions = useRef<HTMLButtonElement>(null);
+  // The grip is the keyboard alternative to dragging (WCAG 2.5.7): the arrow keys move the entry one place.
+  const keys = (e: KeyboardEvent) => {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    const delta = e.key === "ArrowUp" ? -1 : 1;
+    if (delta < 0 ? !first : !last) onMove(delta);
+  };
   return (
     <div
       data-toc-key={item.key}
@@ -57,42 +199,25 @@ export function TocRow({
         item.hidden && !dragging && "bg-bg",
       )}
     >
-      <span
-        role="presentation"
-        aria-label={t`Drag to reorder ${item.title}`}
+      <button
+        type="button"
         data-grip
+        aria-label={t`Reorder ${item.title}`}
+        aria-keyshortcuts="ArrowUp ArrowDown"
+        aria-describedby={grip.describedBy}
         onPointerDown={onGrab}
-        className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center text-ink-muted"
+        onKeyDown={keys}
+        className="flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
       >
         <GripVertical size={16} aria-hidden />
-      </span>
+      </button>
+      {grip.hint}
       <div
         className="flex min-w-0 flex-1 items-center gap-2"
-        style={{ paddingInlineStart: item.level * 16 }}
+        style={{ paddingInlineStart: indent * 16 }}
       >
         {editing ? (
-          <input
-            autoFocus
-            aria-label={t`Entry title`}
-            defaultValue={item.title}
-            className="min-w-0 flex-1 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-ink focus-visible:outline-2 focus-visible:outline-accent"
-            onBlur={(e) => {
-              setEditing(false);
-              // Escape cancels: closing the field can still blur it, which must not save.
-              if (e.target.dataset.cancelled) return;
-              const text = e.target.value.trim();
-              if (text !== item.title && !(custom && text === "")) onRename(text);
-            }}
-            onKeyDown={(e) => {
-              // Enter that confirms an input-method candidate (Japanese, Chinese, Korean) must not commit the half-typed title.
-              if (e.nativeEvent.isComposing) return;
-              if (e.key === "Enter") e.currentTarget.blur();
-              if (e.key === "Escape") {
-                e.currentTarget.dataset.cancelled = "true";
-                setEditing(false);
-              }
-            }}
-          />
+          <TitleInput item={item} actions={actions} setEditing={setEditing} onRename={onRename} />
         ) : (
           <span
             onDoubleClick={() => setEditing(true)}
@@ -110,71 +235,22 @@ export function TocRow({
         {item.hidden && <span className="text-xs text-ink-muted">{t`Hidden`}</span>}
       </div>
       {numbers && (
-        <span
-          data-toc-page
-          title={row.estimated && row.text !== null ? t`Estimated page` : undefined}
-          className="w-14 shrink-0 text-end text-sm tabular-nums text-ink-muted"
-        >
+        <span data-toc-page className="w-14 shrink-0 text-end text-sm tabular-nums text-ink-muted">
           {row.text === null ? "–" : `${row.estimated ? "≈ " : ""}${row.text}`}
+          {row.estimated && row.text !== null && <span className="sr-only"> {t`(estimated)`}</span>}
         </span>
       )}
-      <M.Root>
-        <M.Trigger asChild>
-          <button
-            type="button"
-            aria-label={t`Actions for ${item.title}`}
-            className="flex size-8 shrink-0 items-center justify-center rounded-sm text-ink-muted hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent max-md:size-11"
-          >
-            <Ellipsis size={16} aria-hidden />
-          </button>
-        </M.Trigger>
-        <M.Portal>
-          <M.Content
-            align="end"
-            onCloseAutoFocus={(e) => {
-              const next = afterClose.current;
-              afterClose.current = null;
-              if (next) e.preventDefault();
-              next?.();
-            }}
-            className={menuContentClass("min-w-52")}
-          >
-            <M.Item
-              className={menuItemClass()}
-              onSelect={() => (afterClose.current = () => setEditing(true))}
-            >
-              <Pencil size={14} aria-hidden />
-              {t`Rename`}
-            </M.Item>
-            <M.Item
-              className={menuItemClass()}
-              disabled={first}
-              onSelect={() => onMove(-1)}
-            >{t`Move up`}</M.Item>
-            <M.Item
-              className={menuItemClass()}
-              disabled={last}
-              onSelect={() => onMove(1)}
-            >{t`Move down`}</M.Item>
-            <M.Item className={menuItemClass()} onSelect={onToggleHidden}>
-              {item.hidden ? <Eye size={14} aria-hidden /> : <EyeOff size={14} aria-hidden />}
-              {item.hidden ? t`Show in contents` : t`Hide from contents`}
-            </M.Item>
-            {!custom && (item.renamed || item.hidden) && (
-              <M.Item className={menuItemClass()} onSelect={onReset}>
-                <RotateCcw size={14} aria-hidden />
-                {t`Reset this entry`}
-              </M.Item>
-            )}
-            {custom && (
-              <M.Item className={menuItemClass("text-danger")} onSelect={onRemove}>
-                <Trash2 size={14} aria-hidden />
-                {t`Remove entry`}
-              </M.Item>
-            )}
-          </M.Content>
-        </M.Portal>
-      </M.Root>
+      <RowMenu
+        item={item}
+        actions={actions}
+        first={first}
+        last={last}
+        onEdit={() => setEditing(true)}
+        onMove={onMove}
+        onToggleHidden={onToggleHidden}
+        onReset={onReset}
+        onRemove={onRemove}
+      />
     </div>
   );
 }

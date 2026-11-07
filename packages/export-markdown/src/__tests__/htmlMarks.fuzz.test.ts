@@ -25,6 +25,7 @@ const PIECES = [
   "</u>",
   "<sup>x</sup>",
   '<span class="small-caps">',
+  '<span lang="fr">',
   "</span>",
   "a<b",
   "&amp;",
@@ -51,6 +52,8 @@ const MARKS: Mark[] = [
   { type: "smallCaps" },
   { type: "superscript" },
   { type: "subscript" },
+  { type: "lang", attrs: { lang: "fr" } },
+  { type: "lang", attrs: { lang: "pt-BR" } },
   { type: "link", attrs: { href: "https://a.test/" } },
 ];
 
@@ -60,9 +63,11 @@ function paragraph(r: () => number): DocNode {
     const text = PIECES[Math.floor(r() * PIECES.length)]!;
     const marks: Mark[] = [];
     for (const m of MARKS) if (r() < 0.25) marks.push(m);
-    // The schema lets superscript and subscript exclude each other.
+    // The schema lets superscript and subscript exclude each other, and a text carries at most one language.
     const clean = marks.filter(
-      (m) => !(m.type === "subscript" && marks.some((x) => x.type === "superscript")),
+      (m) =>
+        !(m.type === "subscript" && marks.some((x) => x.type === "superscript")) &&
+        !(m.type === "lang" && marks.find((x) => x.type === "lang") !== m),
     );
     content.push(clean.length ? { type: "text", text, marks: clean } : { type: "text", text });
   }
@@ -70,16 +75,16 @@ function paragraph(r: () => number): DocNode {
 }
 
 /** (character, sorted mark types) for every non-space character, ignoring where whitespace sits relative to the tags. */
-const HTML_ONLY = new Set(["underline", "smallCaps", "superscript", "subscript"]);
+const HTML_ONLY = new Set(["underline", "smallCaps", "superscript", "subscript", "lang"]);
 function chars(d: ChapterDoc): string[] {
   const out: string[] = [];
   const walk = (n: DocNode) => {
     if (n.type === "text") {
-      // Only the four HTML marks are compared, and the delimiter characters `*`, `_` and `~` are skipped: whether `**` next to
+      // Only the HTML marks (the four tags and the language span) are compared, and the delimiter characters `*`, `_` and `~` are skipped: whether `**` next to
       // punctuation counts as emphasis is the exporter's flanking-rule matter, not the HTML marks'.
       const marks = (n.marks ?? [])
-        .map((m) => m.type)
-        .filter((t) => HTML_ONLY.has(t))
+        .filter((m) => HTML_ONLY.has(m.type))
+        .map((m) => (m.type === "lang" ? `lang:${m.attrs!.lang}` : m.type))
         .sort()
         .join(",");
       for (const ch of n.text) if (!/[\s*_~]/.test(ch)) out.push(`${ch}|${marks}`);
@@ -108,5 +113,33 @@ describe("htmlMarks export then import (property test)", () => {
         `seed ${seed}\n${md}`,
       ).toEqual([]);
     }
+    // 800 seeded documents take about 5 s alone, so the default 5 s timeout fails whenever the package runs beside others.
+  }, 30_000);
+
+  it("round-trips a French passage through <span lang> back to the lang mark", () => {
+    const d: ChapterDoc = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "She whispered " },
+            {
+              type: "text",
+              text: "c'est la vie",
+              marks: [{ type: "lang", attrs: { lang: "fr" } }, { type: "italic" }],
+            },
+            { type: "text", text: " and left." },
+          ],
+        },
+      ],
+    };
+    const md = chapterToMarkdown(d, { htmlMarks: true });
+    expect(md).toContain('<span lang="fr">');
+    const res = importMarkdown(md);
+    const back: ChapterDoc = { type: "doc", content: res.chapters.flatMap((c) => c.doc.content) };
+    assertChapterDoc(back);
+    expect(back).toEqual(d);
+    expect(res.warnings.filter((w) => w.code === "html")).toEqual([]);
   });
 });

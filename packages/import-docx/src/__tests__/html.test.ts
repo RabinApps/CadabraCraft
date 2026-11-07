@@ -71,6 +71,27 @@ describe("htmlToBlocks mappings", () => {
     validate(b);
   });
 
+  it("reads span[lang] as a lang mark and ignores an invalid tag", () => {
+    const b = blocks(
+      '<p>a <span lang="fr">bonjour</span> <span lang=" de ">x</span><span lang="f r">y</span><span class="small-caps" lang="es">z</span></p>',
+    );
+    expect(b[0]).toEqual(
+      p(
+        t("a "),
+        { type: "text", text: "bonjour", marks: [{ type: "lang", attrs: { lang: "fr" } }] },
+        t(" "),
+        { type: "text", text: "x", marks: [{ type: "lang", attrs: { lang: "de" } }] },
+        t("y"),
+        {
+          type: "text",
+          text: "z",
+          marks: [{ type: "lang", attrs: { lang: "es" } }, { type: "smallCaps" }],
+        },
+      ),
+    );
+    validate(b);
+  });
+
   it("sorts and de-duplicates nested marks, code wins, sup excludes sub", () => {
     const b = blocks("<p><i><b>x</b></i><b><code>y</code></b><sup><sub>z</sub></sup></p>");
     expect(b[0]).toEqual(

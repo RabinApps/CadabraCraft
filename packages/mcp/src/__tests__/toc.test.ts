@@ -39,11 +39,12 @@ afterEach(async () => {
 interface Toc {
   contentsId: string;
   language: string;
-  settings: { depth: number; pageNumbers: boolean };
+  settings: { depth: number; pageNumbers: boolean; parts: boolean };
   items: {
     key: string;
     kind: string;
     level: number;
+    indent?: number;
     title: string;
     renamed: boolean;
     hidden: boolean;
@@ -57,6 +58,7 @@ const manifest = (): any => JSON.parse(readFileSync(manifestPath(), "utf8"));
 const toc = (): {
   depth: number;
   pageNumbers: boolean;
+  parts: boolean;
   hidden: string[];
   titles: Record<string, Record<string, string>>;
   order?: string[];
@@ -94,7 +96,7 @@ describe("cadabra_toc_update add_page", () => {
       contentsId: "fm-1",
       conflictCopy: null,
     });
-    expect(r.settings).toEqual({ depth: 0, pageNumbers: true });
+    expect(r.settings).toEqual({ depth: 0, pageNumbers: true, parts: true });
     expect(keys(r)).toEqual(ids);
     const entry = manifest().frontMatter[0];
     expect(entry).toMatchObject({ id: "fm-1", kind: "contents", titles: { "en-GB": "Contents" } });
@@ -339,17 +341,18 @@ describe("cadabra_toc_update actions", () => {
   it("sets depth and page numbers in the manifest", async () => {
     await book();
     const d = await update({ action: "set_depth", depth: 3 });
-    expect(d.settings).toEqual({ depth: 3, pageNumbers: true });
+    expect(d.settings).toEqual({ depth: 3, pageNumbers: true, parts: true });
     expect(toc()).toMatchObject({
       depth: 3,
       pageNumbers: true,
+      parts: true,
       hidden: [],
       titles: {},
       custom: [],
     });
     const p = await update({ action: "set_page_numbers", pageNumbers: false });
-    expect(p.settings).toEqual({ depth: 3, pageNumbers: false });
-    expect(toc()).toMatchObject({ depth: 3, pageNumbers: false });
+    expect(p.settings).toEqual({ depth: 3, pageNumbers: false, parts: true });
+    expect(toc()).toMatchObject({ depth: 3, pageNumbers: false, parts: true });
     expect(manifest().formatVersion).toBeGreaterThanOrEqual(7);
   });
 
@@ -373,6 +376,28 @@ describe("cadabra_toc_update actions", () => {
     }); // fr view: no fr rename left;
     await update({ action: "rename", key: "ch-2", title: "" });
     expect(toc().titles).toEqual({});
+  });
+
+  it("turns parts on and off and keeps the choice through reset", async () => {
+    await book();
+    const off = await update({ action: "set_parts", parts: false });
+    expect(off.settings).toMatchObject({ parts: false });
+    expect(toc().parts).toBe(false);
+    const reset = await update({ action: "reset" });
+    expect(reset.settings).toMatchObject({ parts: false });
+    const on = await update({ action: "set_parts", parts: true });
+    expect(on.settings).toMatchObject({ parts: true });
+  });
+
+  it("keeps a part's overrides dormant, not stale, while parts are off", async () => {
+    await book();
+    const m = manifest();
+    m.chapters[0].kind = "part";
+    writeFileSync(manifestPath(), JSON.stringify(m, null, 2));
+    await update({ action: "set_parts", parts: false });
+    expect((await get()).stale).toEqual([]);
+    await update({ action: "hide", key: m.chapters[1].id });
+    expect((await get()).stale).toEqual([]);
   });
 
   it("hides and shows items", async () => {
@@ -461,8 +486,15 @@ describe("cadabra_toc_update actions", () => {
     expect(toc().titles).toEqual({});
     expect(toc().order).not.toContain("ch-1");
     const reset = await update({ action: "reset" });
-    expect(reset.settings).toEqual({ depth: 1, pageNumbers: false });
-    expect(toc()).toEqual({ depth: 1, pageNumbers: false, hidden: [], titles: {}, custom: [] });
+    expect(reset.settings).toEqual({ depth: 1, pageNumbers: false, parts: true });
+    expect(toc()).toEqual({
+      depth: 1,
+      pageNumbers: false,
+      parts: true,
+      hidden: [],
+      titles: {},
+      custom: [],
+    });
   });
 });
 

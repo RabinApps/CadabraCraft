@@ -7,7 +7,7 @@ vi.mock("@cadabracraft/import-docx", () => ({
   htmlToBlocks: () => [],
 }));
 
-import { safeLooksLikeHtml } from "../htmlPaste";
+import { safeLooksLikeHtml } from "../paste/htmlPaste";
 
 describe("safeLooksLikeHtml", () => {
   it("treats text the converter throws on as not HTML", () => {

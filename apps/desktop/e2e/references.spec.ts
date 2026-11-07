@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { manifestOf, newProject } from "./support/helpers";
+import { addReference, manifestOf, newProject } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -43,14 +43,23 @@ async function withReferences(page: Page, files: Record<string, number[]>) {
     [Object.keys(files), files] as const,
   );
   await page.getByRole("button", { name: "References", exact: true }).first().click();
-  await page.getByRole("button", { name: "Add files" }).click();
+  await addReference(page, "Add files");
   await expect(panel(page).getByRole("list").getByRole("listitem")).toHaveCount(
     Object.keys(files).length,
   );
 }
 
 const panel = (page: Page) => page.getByRole("region", { name: "References" });
-const row = (page: Page, name: string) => panel(page).getByRole("button", { name, exact: true });
+/** Closes the viewer with Escape. A tooltip that opened on the focused button takes the first Escape (1.4.13), so press again. */
+async function escapeViewer(page: Page) {
+  if ((await page.locator("[role=tooltip]").count()) > 0) await page.keyboard.press("Escape");
+  await page.keyboard.press("Escape");
+}
+
+const row = (page: Page, name: string) =>
+  panel(page)
+    .locator("[data-open]")
+    .filter({ has: page.getByText(name, { exact: true }) });
 
 test.describe("reference files", () => {
   test("shows an empty library, adds files and keeps them in the manifest", async ({ page }) => {
@@ -60,12 +69,12 @@ test.describe("reference files", () => {
     await page.evaluate(() => {
       window.__pickedRefs = ["/refs/Harbour at dusk.mp4", "/refs/notes.md", "/refs/map.png"];
     });
-    await page.getByRole("button", { name: "Add files" }).click();
+    await addReference(page, "Add files");
     await expect(row(page, "Harbour at dusk")).toBeVisible();
     await expect(row(page, "notes")).toContainText("Document");
     await expect(row(page, "map")).toContainText("Image");
     const m = await manifestOf(page);
-    expect(m.formatVersion).toBe(7);
+    expect(m.formatVersion).toBe(12);
     expect(m.references.map((r: { id: string; file: string }) => [r.id, r.file])).toEqual([
       ["ref-1", "references/Harbour-at-dusk.mp4"],
       ["ref-2", "references/notes.md"],
@@ -79,7 +88,7 @@ test.describe("reference files", () => {
   test("does nothing when the picker is cancelled", async ({ page }) => {
     await newProject(page);
     await page.getByRole("button", { name: "References", exact: true }).first().click();
-    await page.getByRole("button", { name: "Add files" }).click();
+    await addReference(page, "Add files");
     await expect(panel(page).getByText("Keep your research close")).toBeVisible();
   });
 
@@ -141,13 +150,13 @@ test.describe("reference files", () => {
     await row(page, "notes").click();
     await expect(viewer.getByLabel("notes").first()).toContainText("Storm on the 3rd.");
     await expect(viewer.getByRole("button", { name: "Open in default app" })).toHaveCount(0);
-    await page.keyboard.press("Escape");
+    await escapeViewer(page);
     await row(page, "song").click();
     await expect(viewer.locator("audio")).toHaveAttribute("src", /^blob:/);
-    await page.keyboard.press("Escape");
+    await escapeViewer(page);
     await row(page, "dusk").click();
     await expect(viewer.locator("video")).toHaveAttribute("src", /^blob:/);
-    await page.keyboard.press("Escape");
+    await escapeViewer(page);
     await row(page, "data").click();
     await expect(viewer.getByText("No preview for this file type")).toBeVisible();
     await viewer.getByRole("button", { name: "Open in default app" }).click();
@@ -294,7 +303,7 @@ test.describe("reference files", () => {
       .getByRole("dialog")
       .getByLabel("Link to a chapter")
       .selectOption({ label: "Chapter One" });
-    await page.keyboard.press("Escape");
+    await escapeViewer(page);
     await page.getByRole("button", { name: "Add chapter" }).click();
     await page.getByRole("button", { name: "Actions for Chapter One" }).click();
     await page.getByRole("menuitem", { name: "Move to trash" }).click();
@@ -346,13 +355,13 @@ test.describe("reference files", () => {
       window.__pickedRefs = ["/refs/notes.md", "/refs/setup.exe"];
     });
     await page.getByRole("button", { name: "References", exact: true }).first().click();
-    await page.getByRole("button", { name: "Add files" }).click();
+    await addReference(page, "Add files");
     await expect(panel(page).getByRole("alert")).toContainText(
       "Could not add setup.exe: setup.exe is a type of file that cannot be added as a reference",
     );
     await expect(row(page, "notes")).toBeVisible();
     await page.evaluate(() => (window.__pickedRefs = ["/refs/notes.md"]));
-    await page.getByRole("button", { name: "Add files" }).click();
+    await addReference(page, "Add files");
     await expect(panel(page).getByRole("status")).toContainText("notes.md is already in this book");
     await panel(page).getByRole("button", { name: "Dismiss" }).click();
     await expect(panel(page).getByRole("status")).toHaveCount(0);
@@ -402,9 +411,7 @@ test.describe("reference files", () => {
     const titles = () =>
       panel(page)
         .getByRole("listitem")
-        .evaluateAll((li) =>
-          li.map((x) => x.querySelector("button[aria-label]")!.getAttribute("aria-label")),
-        );
+        .evaluateAll((li) => li.map((x) => x.querySelector("[data-title]")!.textContent));
     await expect.poll(titles).toEqual(["one", "two", "three"]);
     await panel(page).getByRole("button", { name: "Actions for one" }).click();
     await expect(page.getByRole("menuitem", { name: "Move up" })).toBeDisabled();
@@ -458,9 +465,7 @@ test.describe("reference files", () => {
     const titles = () =>
       panel(page)
         .getByRole("listitem")
-        .evaluateAll((li) =>
-          li.map((x) => x.querySelector("button[aria-label]")!.getAttribute("aria-label")),
-        );
+        .evaluateAll((li) => li.map((x) => x.querySelector("[data-title]")!.textContent));
     await expect(panel(page).getByText("3 references")).toBeVisible();
     await expect(panel(page).locator("[data-grip]")).toHaveCount(3);
     await panel(page).getByRole("button", { name: "Sort references" }).click();
@@ -545,7 +550,7 @@ test.describe("reference files", () => {
     const box = (await drawer.boundingBox())!;
     expect(box.width).toBeLessThan(500);
     expect(box.x + box.width).toBeGreaterThan(800);
-    await expect(drawer.getByRole("button", { name: "Add files" })).toBeVisible();
+    await expect(drawer.getByRole("button", { name: "Add", exact: true })).toBeVisible();
     await drawer.getByRole("button", { name: "Close references" }).click();
     await expect(drawer).toBeHidden();
   });
@@ -558,8 +563,8 @@ test.describe("reference files", () => {
     await page.evaluate(() => (window.__pickedRefs = ["/refs/notes.md"]));
     await page.getByRole("button", { name: "References", exact: true }).click();
     const sheet = page.getByRole("dialog", { name: "References" });
-    await sheet.getByRole("button", { name: "Add files" }).click();
-    await sheet.getByRole("button", { name: "notes", exact: true }).click();
+    await addReference(sheet, "Add files");
+    await sheet.getByRole("button", { name: /^notes/ }).click();
     await expect(page.getByRole("dialog", { name: "notes" })).toBeVisible();
     await expect(page.getByRole("dialog", { name: "References" })).toHaveCount(0);
   });

@@ -124,6 +124,19 @@ describe("readSource", () => {
     }
     expect(readFileSync(join(d, "a.docx"), "utf8")).toBe("x");
   });
+  it("reads outline files only when asked, and then reads nothing else", () => {
+    const d = tmp();
+    for (const n of ["a.OPML", "b.csv", "c.md", "d.markdown", "e.docx", "f.txt"])
+      writeFileSync(join(d, n), "x");
+    for (const n of ["a.OPML", "b.csv", "c.md", "d.markdown"])
+      expect(new TextDecoder().decode(readSource(join(d, n), true)), n).toBe("x");
+    expect(msg(() => readSource(join(d, "b.csv")))).toContain("not a .docx");
+    for (const n of ["e.docx", "f.txt"])
+      expect(
+        msg(() => readSource(join(d, n), true)),
+        n,
+      ).toContain("not an .opml");
+  });
   it("refuses bad extension, directory, missing and oversize", () => {
     const d = tmp();
     writeFileSync(join(d, "a.exe"), "x");

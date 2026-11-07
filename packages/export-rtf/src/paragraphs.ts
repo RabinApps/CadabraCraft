@@ -1,5 +1,6 @@
-import type { DocNode, Mark } from "@cadabracraft/shared";
+import { isLangTag, type DocNode, type Mark } from "@cadabracraft/shared";
 import { checkText, fail, kidsOf } from "./helpers";
+import { languageId } from "./language";
 import { esc } from "./text";
 import type { Ctx, ParaOpts, RunProps } from "./types";
 
@@ -17,6 +18,8 @@ const MARK_TYPES: Mark["type"][] = [
   "superscript",
   "subscript",
   "link",
+  "lang",
+  "comment",
 ];
 
 /** The paragraph-formatting control words of `o` (every one is written, so nothing depends on inherited state). Consumes a pending page break. */
@@ -24,7 +27,7 @@ export function paraOpen(o: ParaOpts, ctx: Ctx): string {
   const pb = ctx.s.pendingBreak;
   ctx.s.pendingBreak = false;
   return (
-    `\\pard\\plain${o.cell ? "\\intbl" : ""}${o.mono ? "\\f1" : "\\f0"}\\fs${o.size ?? 24}` +
+    `\\pard\\plain${ctx.s.lang ? `\\lang${ctx.s.lang}` : ""}${o.cell ? "\\intbl" : ""}${o.mono ? "\\f1" : "\\f0"}\\fs${o.size ?? 24}` +
     `\\sl${o.single ? 240 : DOUBLE}\\slmult1\\sb${o.before ?? 0}\\sa${o.after ?? 0}` +
     `\\li${o.left ?? 0}\\ri${o.right ?? 0}\\fi${o.firstLine ?? INDENT}\\q${o.jc ?? "l"}` +
     `${o.keepNext ? "\\keepn" : ""}${pb ? "\\pagebb" : ""}` +
@@ -39,11 +42,18 @@ export const para = (inner: string, o: ParaOpts, ctx: Ctx): string =>
 /** The character-formatting control words for a run, in a fixed order. */
 export function runWords(marks: Mark[], base: RunProps, ctx: Ctx): string {
   const types = new Set<string>();
+  let lcid: number | null = null;
   for (const m of marks) {
     const type = (m as { type?: unknown }).type;
     if (!MARK_TYPES.includes(type as Mark["type"]))
       fail(ctx, `The mark "${String(type)}" has no RTF form`, String(type));
     types.add(m.type);
+    if (m.type === "lang") {
+      if (!isLangTag(m.attrs?.lang))
+        fail(ctx, "The language of a passage must be a BCP 47 tag", "lang");
+      // A language outside the table writes nothing, like the book's own language.
+      lcid = languageId(m.attrs!.lang!);
+    }
   }
   if (types.has("superscript") && types.has("subscript"))
     fail(ctx, "Text cannot be both superscript and subscript", "superscript");
@@ -55,7 +65,8 @@ export function runWords(marks: Mark[], base: RunProps, ctx: Ctx): string {
     (types.has("strike") ? "\\strike" : "") +
     (types.has("underline") || types.has("link") ? "\\ul" : "") +
     (types.has("link") ? "\\cf1" : "") +
-    (types.has("superscript") ? "\\super" : types.has("subscript") ? "\\sub" : "")
+    (types.has("superscript") ? "\\super" : types.has("subscript") ? "\\sub" : "") +
+    (lcid !== null ? `\\lang${lcid}` : "")
   );
 }
 

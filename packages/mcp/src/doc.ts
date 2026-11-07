@@ -28,83 +28,82 @@ const inline = (n: N): string => {
   return (n.content ?? []).map(inline).join("");
 };
 
+/** The children of a list item: the first after `lead` on the item's line, the rest indented below it. */
+const itemBlocks = (children: N[] | undefined, indent: string, lead: string): string =>
+  (children ?? [])
+    .map((b, j) =>
+      j === 0 ? `${indent}${lead}${block(b, indent + "  ").trimStart()}` : block(b, indent + "  "),
+    )
+    .join("\n");
+
+const linesOf = (n: N, fn: (child: N, i: number) => string): string =>
+  (n.content ?? []).map(fn).join("\n");
+
+const listBlock = (n: N, indent: string): string => {
+  const start = Number(n.attrs?.start ?? 1);
+  return linesOf(n, (li, i) =>
+    itemBlocks(li.content, indent, n.type === "bulletList" ? "- " : `${start + i}. `),
+  );
+};
+
+const taskListBlock = (n: N, indent: string): string =>
+  linesOf(n, (li) =>
+    itemBlocks(li.content, indent, `- [${li.attrs?.checked === true ? "x" : " "}] `),
+  );
+
+// The term on a line, then each description as ": text" (further blocks of a description indented below it).
+const definitionListBlock = (n: N, indent: string): string =>
+  linesOf(n, (k) =>
+    k.type === "definitionTerm" ? `${indent}${inline(k)}` : itemBlocks(k.content, indent, ": "),
+  );
+
+const blockquoteBlock = (n: N, indent: string): string =>
+  (n.content ?? [])
+    .map((b) => block(b, indent))
+    .join("\n\n")
+    .replace(/^/gm, `${indent}> `);
+
+const codeBlock = (n: N, indent: string): string => {
+  const lang = typeof n.attrs?.language === "string" ? n.attrs.language : "";
+  return [
+    `${indent}\`\`\`${lang}`,
+    ...(n.content ?? [])
+      .map(inline)
+      .join("")
+      .split("\n")
+      .map((l) => indent + l),
+    `${indent}\`\`\``,
+  ].join("\n");
+};
+
+// One line per row, cells separated by " | " (paragraphs within a cell are joined by a space).
+const tableBlock = (n: N, indent: string): string =>
+  linesOf(
+    n,
+    (row) =>
+      `${indent}${(row.content ?? []).map((c) => (c.content ?? []).map(inline).join(" ").replace(/\s+/g, " ").trim()).join(" | ")}`,
+  );
+
+const imageBlock = (n: N, indent: string): string =>
+  `${indent}[Image: ${String(n.attrs?.alt ?? "")}]${n.attrs?.title ? ` ${String(n.attrs.title)}` : ""}`;
+
+const BLOCKS: Record<string, (n: N, indent: string) => string> = {
+  bulletList: listBlock,
+  orderedList: listBlock,
+  taskList: taskListBlock,
+  definitionList: definitionListBlock,
+  blockquote: blockquoteBlock,
+  codeBlock,
+  sceneBreak: (_n, indent) => `${indent}* * *`,
+  // The text the tools hand to a model has no pages: say where the book breaks, the way a scene break is a line of its own.
+  pageBreak: (_n, indent) => `${indent}[page break]`,
+  table: tableBlock,
+  image: imageBlock,
+};
+
 function block(n: N, indent = ""): string {
-  switch (n.type) {
-    case "bulletList":
-    case "orderedList": {
-      const start = Number(n.attrs?.start ?? 1);
-      return (n.content ?? [])
-        .map((li, i) => {
-          const mark = n.type === "bulletList" ? "- " : `${start + i}. `;
-          return (li.content ?? [])
-            .map((b, j) =>
-              j === 0
-                ? `${indent}${mark}${block(b, indent + "  ").trimStart()}`
-                : block(b, indent + "  "),
-            )
-            .join("\n");
-        })
-        .join("\n");
-    }
-    case "taskList":
-      return (n.content ?? [])
-        .map((li) =>
-          (li.content ?? [])
-            .map((b, j) =>
-              j === 0
-                ? `${indent}- [${li.attrs?.checked === true ? "x" : " "}] ${block(b, indent + "  ").trimStart()}`
-                : block(b, indent + "  "),
-            )
-            .join("\n"),
-        )
-        .join("\n");
-    case "definitionList":
-      // The term on a line, then each description as ": text" (further blocks of a description indented below it).
-      return (n.content ?? [])
-        .map((k) =>
-          k.type === "definitionTerm"
-            ? `${indent}${inline(k)}`
-            : (k.content ?? [])
-                .map((b, j) =>
-                  j === 0
-                    ? `${indent}: ${block(b, indent + "  ").trimStart()}`
-                    : block(b, indent + "  "),
-                )
-                .join("\n"),
-        )
-        .join("\n");
-    case "blockquote":
-      return (n.content ?? [])
-        .map((b) => block(b, indent))
-        .join("\n\n")
-        .replace(/^/gm, `${indent}> `);
-    case "codeBlock": {
-      const lang = typeof n.attrs?.language === "string" ? n.attrs.language : "";
-      return [
-        `${indent}\`\`\`${lang}`,
-        ...(n.content ?? [])
-          .map(inline)
-          .join("")
-          .split("\n")
-          .map((l) => indent + l),
-        `${indent}\`\`\``,
-      ].join("\n");
-    }
-    case "sceneBreak":
-      return `${indent}* * *`;
-    case "table":
-      // One line per row, cells separated by " | " (paragraphs within a cell are joined by a space).
-      return (n.content ?? [])
-        .map(
-          (row) =>
-            `${indent}${(row.content ?? []).map((c) => (c.content ?? []).map(inline).join(" ").replace(/\s+/g, " ").trim()).join(" | ")}`,
-        )
-        .join("\n");
-    case "image":
-      return `${indent}[Image: ${String(n.attrs?.alt ?? "")}]${n.attrs?.title ? ` ${String(n.attrs.title)}` : ""}`;
-    default:
-      return `${indent}${inline(n)}`;
-  }
+  const render = n.type !== undefined && Object.hasOwn(BLOCKS, n.type) ? BLOCKS[n.type] : undefined;
+  return render ? render(n, indent) : `${indent}${inline(n)}`;
 }
 
 /** Plain text of a chapter: blocks separated by blank lines, lists as "- " / "1. ", task lists as "- [ ] " / "- [x] ", definitions as a term line then ": text", code blocks fenced, footnotes inline in [note: ...]. */

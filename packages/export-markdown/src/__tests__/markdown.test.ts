@@ -48,14 +48,22 @@ function roundTrip(d: ChapterDoc): ChapterDoc {
   return unlink(out) as ChapterDoc;
 }
 
-/** Marks that survive the Markdown round trip; the others have no syntax. */
+/** Marks that survive the Markdown round trip; the others have no syntax. So does a text alignment (a block attribute). */
 const LOSSY = new Set(["underline", "smallCaps", "superscript", "subscript"]);
 function stripLossy(n: DocNode): DocNode {
   if (n.type === "text") {
     const marks = (n.marks ?? []).filter((x) => !LOSSY.has(x.type));
     return marks.length ? { ...n, marks } : { type: "text", text: n.text };
   }
-  return "content" in n && n.content ? { ...n, content: merge(n.content.map(stripLossy)) } : n;
+  const attrs = "attrs" in n && n.attrs ? { ...n.attrs } : undefined;
+  if (attrs) delete (attrs as { textAlign?: unknown }).textAlign;
+  const bare =
+    attrs && Object.keys(attrs).length > 0
+      ? { ...n, attrs }
+      : (({ attrs: _a, ...rest }) => rest)(n);
+  return "content" in bare && bare.content
+    ? { ...bare, content: merge(bare.content.map(stripLossy)) }
+    : bare;
 }
 function merge(nodes: DocNode[]): DocNode[] {
   const out: DocNode[] = [];
@@ -141,6 +149,14 @@ describe("node mapping", () => {
       { type: "orderedList", content: [li("d")] },
     );
     expect(roundTrip(d)).toEqual(d);
+  });
+
+  it("writes a decorative image with an empty alt", () => {
+    const img = {
+      type: "image",
+      attrs: { src: "assets/a.png", alt: "ignored", decorative: true },
+    } as DocNode;
+    expect(chapterToMarkdown(doc(img))).toBe("![](assets/a.png)\n");
   });
 
   it("writes images with the caption as title and a prefix on relative paths", () => {
@@ -324,6 +340,19 @@ describe("marks", () => {
     expect(md).toBe('<u>a</u><span class="small-caps">b</span><sup>c</sup><sub>d</sub>\n');
   });
 
+  it("writes the language of a passage as a span with htmlMarks and as plain text without", () => {
+    const lang = (tag: string): Mark => ({ type: "lang", attrs: { lang: tag } });
+    const d = doc(
+      p(t("a "), t("bonjour", lang("fr")), t(" salut", lang("fr")), t("hi", lang("en"))),
+    );
+    expect(chapterToMarkdown(d, { htmlMarks: true })).toBe(
+      'a <span lang="fr">bonjour salut</span><span lang="en">hi</span>\n',
+    );
+    expect(chapterToMarkdown(d)).toBe("a bonjour salut" + "hi\n");
+    for (const mark of [{ type: "lang" } as Mark, lang("a b")])
+      expect(() => chapterToMarkdown(doc(p(t("x", mark))))).toThrow(/BCP 47/);
+  });
+
   it("throws on unknown marks and nodes instead of dropping them", () => {
     expect(() =>
       chapterToMarkdown(doc(p(t("x", { type: "highlight" } as unknown as Mark)))),
@@ -453,7 +482,7 @@ describe("htmlMarks round trip", () => {
 });
 
 describe("round trip of the fixtures", () => {
-  it("sample-chapter.json without the marks that have no syntax comes back identical", () => {
+  it("sample-chapter.json without the marks and alignment that have no syntax comes back identical", () => {
     const d = normalised(sample());
     expect(roundTrip(d)).toEqual(d);
   });
@@ -639,9 +668,80 @@ describe("multi-chapter output", () => {
     expect(r.chapters.map((c) => c.title)).toEqual(["One", "Two"]);
   });
 
+  it("starts with YAML front matter (title and lang) only when asked, and the body is unchanged", () => {
+    const chapters = [ch("One", "1")];
+    const plain = bookToMarkdown({ title: "Book", language: "de" }, chapters);
+    expect(plain).toBe("# One\n\n1\n");
+    expect(bookToMarkdown({ title: "Book" }, chapters, { frontMatter: false })).toBe(plain);
+    const md = bookToMarkdown(
+      { title: ' The "Long" Road: a #1 story ', language: "de-AT" },
+      chapters,
+      {
+        frontMatter: true,
+      },
+    );
+    expect(md).toBe(
+      '---\ntitle: "The \\"Long\\" Road: a #1 story"\nlang: "de-AT"\n---\n\n# One\n\n1\n',
+    );
+    // Without a language there is no lang line; the per-page strings never carry the block.
+    expect(bookToMarkdown({ title: "Book" }, chapters, { frontMatter: true })).toBe(
+      '---\ntitle: "Book"\n---\n\n# One\n\n1\n',
+    );
+    expect(chaptersToMarkdown({ title: "Book" }, chapters, { frontMatter: true })).toEqual([
+      "# One\n\n1\n",
+    ]);
+  });
+
   it("exports the whole of full-book.json (small caps etc. as HTML)", () => {
     const book = fullBook();
     const md = bookToMarkdown({ title: "x" }, book.chapters, { htmlMarks: true });
     expect(importMarkdown(md).chapters.length).toBe(book.chapters.length);
+  });
+});
+
+describe("a typed tab (the editor's Tab key)", () => {
+  const withTab = (t: string): ChapterDoc => ({
+    type: "doc",
+    content: [{ type: "paragraph", content: [{ type: "text", text: t }] }],
+  });
+  it("at the start of a paragraph is not left as indentation, which would read back as a code block", () => {
+    const md = chapterToMarkdown(withTab("\tIndented"));
+    expect(md).not.toMatch(/^\t/);
+    expect(md).toContain("&#9;Indented");
+    const back = JSON.stringify(importMarkdown(md).chapters[0]!.doc);
+    expect(back).toContain("\\tIndented");
+    expect(back).not.toContain("codeBlock");
+  });
+  it("inside a line stays a tab", () => {
+    expect(chapterToMarkdown(withTab("a\tb"))).toContain("a\tb");
+  });
+});
+
+describe("page breaks and comment marks", () => {
+  it("writes a page break as an HTML comment that reads as nothing", () => {
+    expect(chapterToMarkdown(doc(p(t("a")), { type: "pageBreak" }, p(t("b"))))).toContain(
+      "<!-- page break -->",
+    );
+  });
+
+  it("writes a comment's text and drops the mark", () => {
+    const mark: Mark = { type: "comment", attrs: { id: "t-1" } };
+    const out = chapterToMarkdown(doc(p(t("the storm", mark))));
+    expect(out).toContain("the storm");
+    expect(out).not.toContain("t-1");
+  });
+});
+
+describe("scenes", () => {
+  it("writes a scene's blocks and none of its notes", () => {
+    const md = chapterToMarkdown(
+      doc({
+        type: "scene",
+        attrs: { id: "sc-1", title: "Secret title", synopsis: "Plans", target: 800 },
+        content: [p(t("In the scene."))],
+      }),
+    );
+    expect(md).toContain("In the scene.");
+    expect(md).not.toContain("Secret title");
   });
 });

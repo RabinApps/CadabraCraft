@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PageReport } from "@cadabracraft/export-pdf";
-import { pageTarget } from "../previewTarget";
+import { pageTarget } from "../export/previewTarget";
 
 const start = (id: string, page: number, end: number) => ({
   id,
@@ -31,6 +31,20 @@ describe("pageTarget", () => {
 
   it("is the block the page is inside of when nothing starts on it", () => {
     expect(pageTarget(report, 11)).toEqual({ id: "c2", block: 0, leaf: 0, word: null });
+  });
+
+  it("keeps the block the page is inside of when later blocks start after it", () => {
+    const later: PageReport = {
+      total: 5,
+      starts: [start("c", 1, 5)],
+      blocks: {
+        c: [
+          { block: 0, leaf: 0, kind: "p", page: 1, splits: [] },
+          { block: 1, leaf: 0, kind: "p", page: 4, splits: [] },
+        ],
+      },
+    };
+    expect(pageTarget(later, 2)).toEqual({ id: "c", block: 0, leaf: 0, word: null });
   });
 
   it("is the entry's start when the report has no marks for it", () => {

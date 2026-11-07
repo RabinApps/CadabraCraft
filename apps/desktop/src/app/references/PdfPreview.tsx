@@ -1,28 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { errText } from "../../lib/projectError";
-import { readReferenceBytes } from "../../lib/references";
+import { readReferenceBytes } from "../../lib/references/references";
 import { IconButton } from "../../ui/Button";
-import { Notice } from "../../ui/Notice";
-import { toScreen } from "../../lib/pdfSearch";
+import { Notice } from "../../ui/feedback/Notice";
+import { toScreen } from "../../lib/export/pdfSearch";
 import { PdfSearch, type PdfHits } from "./PdfSearch";
 
 const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 
-/** A PDF drawn page by page on a canvas with pdf.js (loaded when the first PDF is opened); search hits are boxes over the canvas. */
-export function PdfPreview({ root, file }: { root: string; file: string }) {
-  const { t } = useLingui();
+/** Loads the PDF bytes and opens them with pdf.js; returns the document or the error text. */
+function usePdfDocument(root: string, file: string) {
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(1);
-  const [zoom, setZoom] = useState(2);
-  const [hits, setHits] = useState<PdfHits | null>(null);
-  const [transform, setTransform] = useState<number[] | null>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const focused = useRef<HTMLSpanElement>(null);
-
   useEffect(() => {
     let task: { destroy: () => Promise<void> } | null = null;
     (async () => {
@@ -41,7 +33,20 @@ export function PdfPreview({ root, file }: { root: string; file: string }) {
       void task?.destroy();
     };
   }, [root, file]);
+  return { doc, error };
+}
 
+/** A PDF drawn page by page on a canvas with pdf.js (loaded when the first PDF is opened); search hits are boxes over the canvas. */
+export function PdfPreview({ root, file }: { root: string; file: string }) {
+  const { t } = useLingui();
+  const [page, setPage] = useState(1);
+  const [zoom, setZoom] = useState(2);
+  const [hits, setHits] = useState<PdfHits | null>(null);
+  const [transform, setTransform] = useState<number[] | null>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const focused = useRef<HTMLSpanElement>(null);
+
+  const { doc, error } = usePdfDocument(root, file);
   useEffect(() => {
     if (!doc) return;
     const target = canvas.current!;
@@ -116,25 +121,42 @@ export function PdfPreview({ root, file }: { root: string; file: string }) {
             aria-label={t`PDF page ${page}`}
             className="block bg-white shadow-popover"
           />
-          {transform &&
-            hits?.matches.flatMap((m, i) =>
-              m.page !== page
-                ? []
-                : m.rects.map((r, k) => (
-                    <span
-                      key={`${i}-${k}`}
-                      ref={i === hits.at && k === 0 ? focused : undefined}
-                      aria-hidden="true"
-                      data-match={i === hits.at ? "current" : "other"}
-                      style={toScreen(r, transform)}
-                      className={`pointer-events-none absolute mix-blend-multiply ${
-                        i === hits.at ? "bg-accent/50 outline-2 outline-accent" : "bg-accent/25"
-                      }`}
-                    />
-                  )),
-            )}
+          {transform && hits && (
+            <PdfHighlights hits={hits} page={page} transform={transform} focused={focused} />
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+function PdfHighlights({
+  hits,
+  page,
+  transform,
+  focused,
+}: {
+  hits: PdfHits;
+  page: number;
+  transform: number[];
+  focused: RefObject<HTMLSpanElement | null>;
+}) {
+  return hits.matches.flatMap((m, i) =>
+    m.page !== page
+      ? []
+      : m.rects.map((r, k) => (
+          <span
+            key={`${i}-${k}`}
+            ref={i === hits.at && k === 0 ? focused : undefined}
+            aria-hidden="true"
+            data-match={i === hits.at ? "current" : "other"}
+            style={toScreen(r, transform)}
+            className={`pointer-events-none absolute mix-blend-multiply ${
+              i === hits.at
+                ? "bg-accent/50 outline-2 outline-accent"
+                : "bg-accent/25 outline-1 outline-dashed outline-accent"
+            }`}
+          />
+        )),
   );
 }

@@ -1,0 +1,208 @@
+/*
+ * Reading mode, plain layout (phones): larger, user-adjustable type on the plain paper background, one chapter after the other.
+ * At md and up Read mode draws pages (.prose-page) instead; the two are never on the same element.
+ */
+.prose-reading:not(.prose-page) .ProseMirror {
+  font-size: var(--reading-size, 1.3125rem);
+  line-height: 1.75;
+  min-height: 0;
+}
+.prose-reading:not(.prose-page) .ProseMirror h1 {
+  font-size: 2.75rem;
+}
+
+/* Images: block figure with the caption (stored in the node's title) underneath. */
+.prose-manuscript .ProseMirror figure.book-image {
+  margin: 1.25rem 0;
+  text-align: center;
+}
+.prose-manuscript .ProseMirror figure.book-image img {
+  max-width: 100%;
+  height: auto;
+}
+.prose-manuscript .ProseMirror figure.book-image.ProseMirror-selectednode img {
+  outline: 2px solid var(--accent);
+}
+.prose-manuscript .ProseMirror figure.book-image figcaption {
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+  margin-top: 0.4rem;
+}
+
+/*
+ * Page view: the chapter as real pages. The text column is one ProseMirror document, as wide as a page, with the inside margin on the
+ * left (a right-hand page); the page cards sit behind it and the pagination plugin pushes the text of each page down to its card with
+ * spacers. Text on left-hand pages is shifted sideways by the difference of the mirrored margins (`pv-verso`). All lengths are CSS px
+ * at zoom 1 (the stack is scaled as a whole), set as --page-* variables from pageCssVars() (lib/pageLayout.ts).
+ */
+.page-card {
+  position: absolute;
+  left: 0;
+  width: var(--page-w);
+  box-sizing: border-box;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-page);
+}
+.page-card .page-head,
+.page-card .page-number {
+  position: absolute;
+  left: var(--page-card-left);
+  width: var(--page-text-w);
+  text-align: center;
+  color: var(--ink-muted);
+  font-family: var(--page-font);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.page-card .page-head {
+  top: 0;
+  height: var(--page-mt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--page-head-size);
+}
+.page-card .page-head.is-verso {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.page-card .page-head.is-recto {
+  font-style: italic;
+}
+.page-card .page-number {
+  bottom: 0;
+  height: var(--page-mb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10pt;
+}
+
+.prose-page .ProseMirror {
+  box-sizing: border-box;
+  position: relative;
+  display: flow-root;
+  width: var(--page-w);
+  min-height: var(--page-h);
+  padding: var(--page-mt) var(--page-mr) 0 var(--page-ml);
+  font-family: var(--page-font);
+  font-size: var(--page-font-size);
+  line-height: var(--page-line-height);
+  text-align: var(--page-text-align);
+  hyphens: var(--page-hyphens);
+  overflow-wrap: break-word;
+  color: var(--ink);
+}
+.prose-page .ProseMirror > :first-child {
+  margin-top: 0;
+}
+/*
+ * No chapter opening above the heading of a title page, dedication, epigraph or centred page: the PDF sets these with their own layout.
+ * A blank verso before the page is a page-break spacer and the first child of the editor, so the page's first block is the spacer's
+ * next sibling, and every "first block" rule below names both (see `centredPage`).
+ */
+.prose-page.page-bare .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1) {
+  margin-top: 0;
+}
+.prose-page.page-bare .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::before,
+.prose-page.page-bare .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1)::after {
+  content: none;
+}
+/*
+ * A short matter page (title page, dedication, epigraph) sits in the vertical middle of the page: PageStack adds .page-centred while
+ * the page is a single card and sets --page-centre-top to half of the free height. Only the column moves down, so the text column,
+ * indents and alignment are as on any other page, the DOM order is unchanged, and when the content fills the box the offset is 0.
+ * The measuring pass (.pv-natural) never sees it.
+ */
+.prose-page.page-centred .ProseMirror:not(.pv-natural) {
+  padding-top: calc(var(--page-mt) + var(--page-centre-top, 0px));
+}
+/*
+ * A blank verso before the page (page-centred-after-blank, the book's recto rule) is a page-break spacer at the top of the column, and
+ * the pages' cards are placed from those spacers' bottoms. The offset therefore goes below it, on the page's first block: as padding
+ * at the top it would move the blank page and every card down with the text and leave the page uncentred.
+ */
+.prose-page.page-centred-after-blank .ProseMirror:not(.pv-natural) {
+  padding-top: var(--page-mt);
+}
+.prose-page.page-centred-after-blank .ProseMirror:not(.pv-natural) > .pv-gap:first-child + * {
+  margin-top: var(--page-centre-top, 0px);
+}
+/*
+ * A centred matter page is the PDF's centred page: text in a block 78 % of the text width, its lines centred (see `pageIsNarrow`).
+ * The width is set in both passes, so the pagination measures the width the page draws; the PDF keeps the block on the pages a
+ * centred page runs onto as well, and only the centring between the margins goes.
+ */
+.prose-page.page-narrow .ProseMirror {
+  padding-left: calc(var(--page-ml) + var(--page-narrow-inset));
+  padding-right: calc(var(--page-mr) + var(--page-narrow-inset));
+}
+.prose-page.page-narrow .ProseMirror p {
+  text-align: center;
+}
+/* A part divider's title is centred like the PDF's part page (the heading keeps the template's heading font and size). */
+.prose-page.page-part .ProseMirror h1 {
+  text-align: center;
+}
+/*
+ * The copyright page is the PDF's `copyright-page`: its printer's imprint at the foot of the text box, in 0.85 em with 0.7 em between
+ * paragraphs, flush (no first-line indent, ragged). The bottom alignment waits for the measuring pass (.pv-natural), which must see the
+ * text flow from the top margin: an auto margin there would move every block the page's empty space down and paginate it as overflow.
+ * An imprint taller than its page overflows the way the text does, not above the top margin.
+ */
+.prose-page.page-copyright .ProseMirror {
+  font-size: var(--page-imprint-size);
+  padding-bottom: var(--page-mb);
+}
+.prose-page.page-copyright .ProseMirror:not(.pv-natural) {
+  display: flex;
+  flex-direction: column;
+}
+.prose-page.page-copyright .ProseMirror:not(.pv-natural) > :first-child:not(.pv-gap),
+.prose-page.page-copyright .ProseMirror:not(.pv-natural) > .pv-gap:first-child + * {
+  margin-top: auto;
+}
+.prose-page.page-copyright .ProseMirror p {
+  margin: 0 0 var(--page-imprint-space);
+  text-indent: 0;
+  text-align: start;
+}
+.prose-page.page-copyright .ProseMirror > :last-child {
+  margin-bottom: 0;
+}
+.prose-page .ProseMirror p {
+  margin: 0 0 var(--page-para-space);
+  text-indent: var(--page-indent);
+  text-align: var(--page-text-align);
+}
+.prose-page
+  .ProseMirror
+  :is(h1, h2, h3, hr.scene-break, ul, ol, blockquote, pre, table, figure)
+  + p,
+.prose-page .ProseMirror :is(h1, h2, h3) + p {
+  text-indent: 0;
+}
+.prose-page .ProseMirror h1,
+.prose-page .ProseMirror h2,
+.prose-page .ProseMirror h3 {
+  line-height: 1.2;
+  text-indent: 0;
+  break-after: avoid;
+}
+.prose-page .ProseMirror h1 {
+  font-size: var(--page-h1-size);
+  font-weight: var(--page-h1-weight);
+  font-style: var(--page-h1-style);
+  font-variant: var(--page-h1-variant);
+  text-align: var(--page-h1-align);
+  margin: var(--page-h1-above) 0 var(--page-h1-below);
+}
+.prose-page .ProseMirror > :is(h1:first-child, .pv-gap:first-child + h1) {
+  position: relative;
+  margin-top: calc(var(--page-chapter-sink) + var(--page-chapter-extra));
+}

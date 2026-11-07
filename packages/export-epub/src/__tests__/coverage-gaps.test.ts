@@ -48,6 +48,23 @@ describe("inline content", () => {
     expect(body(mark("link"))).toContain('<a href="">t</a>');
   });
 
+  it("wraps a passage in another language in a span with lang and xml:lang, and refuses a bad tag", () => {
+    const lang = (attrs?: object) => ({
+      type: "paragraph",
+      content: [
+        { type: "text", text: "t", marks: [{ type: "lang", ...(attrs ? { attrs } : {}) }] },
+      ],
+    });
+    expect(body(lang({ lang: "fr-CA" }))).toBe(
+      '<p><span lang="fr-CA" xml:lang="fr-CA">t</span></p>',
+    );
+    for (const attrs of [undefined, { lang: 'fr"><b>' }, { lang: 5 }]) {
+      const e = thrown(() => body(lang(attrs))) as EpubExportError;
+      expect(e.code).toBe("unsupported-mark");
+      expect(e.message).toMatch(/BCP 47/);
+    }
+  });
+
   it("renders a block node found inside a paragraph", () => {
     expect(body({ type: "paragraph", content: [text("a"), { type: "sceneBreak" }] })).toBe(
       '<p>a<hr class="scene-break"/></p>',
@@ -141,6 +158,13 @@ describe("image helpers", () => {
     );
     expect(collectImageSources(d)).toEqual(["", "assets/a.png"]);
     expect(imageAltStats(d)).toEqual({ total: 2, missingAlt: 2 });
+  });
+  it("do not count an image marked decorative as missing alt text", () => {
+    const d = doc(
+      { type: "image", attrs: { src: "assets/a.png", alt: "", decorative: true } },
+      { type: "image", attrs: { src: "assets/b.png", alt: "" } },
+    );
+    expect(imageAltStats(d)).toEqual({ total: 2, missingAlt: 1 });
   });
   it("count a document with no content array as empty", () => {
     expect(collectImageSources({ type: "doc" } as never)).toEqual([]);
@@ -320,5 +344,67 @@ describe("SVG images", () => {
     expect(e.code).toBe("unsupported-image");
     expect(e.where.chapter?.id).toBe("c1");
     expect(e.message).toMatch(/assets\/a\.svg/);
+  });
+});
+
+describe("a typed tab (the editor's Tab key)", () => {
+  it("becomes an em space in text, which XHTML would otherwise collapse to nothing", () => {
+    expect(body({ type: "paragraph", content: [text("\tIndented")] })).toContain(" Indented");
+  });
+  it("is kept in code, where the stylesheet preserves white space", () => {
+    expect(
+      body({
+        type: "paragraph",
+        content: [{ type: "text", text: "a\tb", marks: [{ type: "code" }] }],
+      }),
+    ).toContain("a\tb");
+  });
+});
+
+describe("a body error that is not an EpubExportError", () => {
+  it("is passed through as it is, with no chapter label added", () => {
+    const bad = {
+      id: "ch-1",
+      title: "One",
+      // A text node with no text: the XHTML walker fails with a plain TypeError, not an EpubExportError.
+      doc: doc(para(), { type: "paragraph", content: [{ type: "text" }] }),
+    };
+    const e = thrown(() => buildEpub(meta, [bad] as never));
+    expect(e).toBeInstanceOf(Error);
+    expect((e as Error).name).not.toBe("EpubExportError");
+  });
+});
+
+describe("page breaks and comment marks", () => {
+  it("writes a page break as its own element", () => {
+    expect(body(para("a"), { type: "pageBreak" }, para("b"))).toContain('<hr class="page-break"/>');
+  });
+
+  it("writes a comment's text and drops the mark", () => {
+    const html = body({
+      type: "paragraph",
+      content: [
+        { type: "text", text: "the storm", marks: [{ type: "comment", attrs: { id: "t-1" } }] },
+      ],
+    });
+    expect(html).toContain("the storm");
+    expect(html).not.toContain("t-1");
+  });
+});
+
+describe("scenes", () => {
+  it("writes a scene's blocks and none of its notes", () => {
+    const html = chapterToXhtmlBody({
+      type: "doc",
+      content: [
+        {
+          type: "scene",
+          attrs: { id: "sc-1", title: "Secret title", synopsis: "Plans", target: 800 },
+          content: [{ type: "paragraph", content: [{ type: "text", text: "In the scene." }] }],
+        },
+      ],
+    } as ChapterDoc);
+    expect(html).toContain("In the scene.");
+    expect(html).not.toContain("Secret title");
   });
 });

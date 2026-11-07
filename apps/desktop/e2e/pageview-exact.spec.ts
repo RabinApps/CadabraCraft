@@ -6,7 +6,6 @@ import { newProject } from "./support/helpers";
 // "open this page in the editor". The Typst answers are canned (`__typstQueryResult`); the layout is real Chromium.
 
 const CHAPTER = "manuscript/001-chapter-one.json";
-const toggle = (page: Page) => page.getByRole("button", { name: "Page view", exact: true });
 const cards = (page: Page) => page.locator(".page");
 
 const word = (i: number) =>
@@ -76,24 +75,20 @@ test("Typst's marks put the page breaks inside the chapter where the PDF has the
 }) => {
   await newProject(page);
   await seed(page);
-  await toggle(page).click();
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
   await expect(cards(page).first()).toBeVisible();
   // The first measures (the chapter on its own, and the book) have no marks that fit: the estimate, and the chip says so.
   await expect.poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(2);
-  await expect(page.locator(".page-chip")).toHaveText("Page view · 5.5 × 8.5 in · approximate");
+  await expect(page.locator(".page-chip")).toHaveText("5.5 × 8.5 in · approximate");
   const id = await chapterId(page);
   await page.evaluate((r) => (window.__typstQueryResult = r), report(id));
   // Any edit asks Typst again once the book has been still.
   await page.locator(".ProseMirror p").first().click();
   await page.keyboard.press("End");
   await page.keyboard.insertText(" x");
-  await expect(page.locator(".page-chip")).toHaveText(
-    "Page view · 5.5 × 8.5 in · breaks as in the PDF",
-    {
-      timeout: 10_000,
-    },
-  );
+  await expect(page.locator(".page-chip")).toHaveText("5.5 × 8.5 in · breaks as in the PDF", {
+    timeout: 10_000,
+  });
   await expect(cards(page)).toHaveCount(3);
   // Page 2 starts at the word Typst began it with, in the middle of a paragraph...
   const inner = page.locator(".pv-gap-inline");
@@ -150,7 +145,6 @@ test("marks that do not fit the text leave the estimate, and a stale report is n
 }) => {
   await newProject(page);
   await seed(page);
-  await toggle(page).click();
   await page.getByLabel("Page zoom").selectOption({ label: "100%" });
   await expect.poll(() => page.evaluate(() => window.__typstQueryCalls?.length ?? 0)).toBe(2);
   const id = await chapterId(page);
@@ -159,10 +153,12 @@ test("marks that do not fit the text leave the estimate, and a stale report is n
   await page.locator(".ProseMirror p").first().click();
   await page.keyboard.press("End");
   await page.keyboard.insertText(" x");
-  await expect(page.getByTestId("page-position")).toHaveText(/Page ≈ 1 of 3$/, {
+  // The breaks are the app's own here (the chip says "approximate"), but the page number is not: the chapter opens the book and
+  // the editor measured its three pages, so page 1 of 3 is where the cursor is. Only a page after an estimated entry gets "≈".
+  await expect(page.getByTestId("page-position")).toHaveText(/Page 1 of 3$/, {
     timeout: 10_000,
   });
-  await expect(page.locator(".page-chip")).toHaveText("Page view · 5.5 × 8.5 in · approximate");
+  await expect(page.locator(".page-chip")).toHaveText("5.5 × 8.5 in · approximate");
   // With good marks the breaks follow them; an edit keeps them (only the cursor's page loses its exactness until the next measure).
   await page.evaluate((r) => (window.__typstQueryResult = r), report(id));
   await page.keyboard.insertText("y");
@@ -269,7 +265,7 @@ test("print preview: opening a page says it is looking, leaves Read mode for Wri
     window.__compileError = undefined;
   });
   await page.getByRole("button", { name: "Open page 1 in the editor" }).click();
-  await expect(page.getByRole("alert")).toHaveText("That page is not in the book.");
+  await expect(page.getByRole("alert")).toContainText("That page is not in the book.");
   // The book is read, not written, when the preview is opened: the jump goes to the editor.
   await page.evaluate((r) => (window.__typstQueryResult = r), report(id));
   await page.getByRole("button", { name: "Back", exact: true }).click();

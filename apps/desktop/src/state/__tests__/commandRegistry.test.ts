@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { useCommandRegistry } from "../commands";
+import { useCommandRegistry } from "../app/commands";
 
 describe("useCommandRegistry", () => {
   it("gives a component the registry (server rendering sees the initial, empty one)", () => {

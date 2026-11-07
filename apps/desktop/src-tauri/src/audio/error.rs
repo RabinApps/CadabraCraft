@@ -7,20 +7,37 @@ use serde::Serialize;
 #[derive(Serialize, Debug, PartialEq)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum AudioError {
-    NotFound { message: String },
+    NotFound {
+        message: String,
+    },
     /// The voice is unknown or its files are not installed.
-    VoiceMissing { voice: String },
+    VoiceMissing {
+        voice: String,
+    },
     /// The engine ran and failed (its output).
-    Synth { message: String },
-    Encode { format: String, message: String },
+    Synth {
+        message: String,
+    },
+    Encode {
+        format: String,
+        message: String,
+    },
     DiskFull,
-    Timeout { seconds: u64 },
+    Timeout {
+        seconds: u64,
+    },
     Cancelled,
     /// A voice download failed (network, server answer, or the download ended early). The partial file is kept for a retry.
-    Download { message: String },
+    Download {
+        message: String,
+    },
     /// A downloaded voice file did not match its pinned sha256 and was deleted.
-    Checksum { file: String },
-    Other { message: String },
+    Checksum {
+        file: String,
+    },
+    Other {
+        message: String,
+    },
 }
 
 pub(crate) fn other(m: impl std::fmt::Display) -> AudioError {

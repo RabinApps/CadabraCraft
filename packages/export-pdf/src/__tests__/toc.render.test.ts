@@ -275,4 +275,57 @@ suite("Contents page with real Typst", () => {
     },
     T,
   );
+
+  it(
+    "tags the Contents page for PDF/UA: a heading, then one paragraph per entry holding a Link to the entry's page",
+    async () => {
+      const b = tocBook({ chapters: 2, paragraphs: 6, headings: [[2, "The Storm"]] });
+      const items = itemsAtDepth(b.items, 2);
+      const { pdf } = await renderPdf(b.book, b.pages, { toc: { items }, pdfUa: true }, runner);
+      const raw = Buffer.from(pdf).toString("latin1");
+      // Typst writes the structure tree uncompressed; the Contents page is the first page with structure elements
+      const elems = [
+        ...raw.matchAll(
+          /<<\/Type\/StructElem\/S\/(\w+)\/P (\d+) 0 R(?:\/T\(([^)]*)\))?\/K\[([^\]]*)\]\/Pg (\d+) 0 R>>/g,
+        ),
+      ];
+      expect(elems.length).toBeGreaterThan(0);
+      const firstPage = elems[0]![5];
+      const onPage = elems.filter((m) => m[5] === firstPage);
+      expect(onPage[0]![1]).toBe("H1");
+      expect(onPage[0]![3]).toBe("Contents");
+      const links = onPage.filter((m) => m[1] === "Link");
+      expect(links).toHaveLength(items.length);
+      // every link annotation goes to a destination and carries a description, none sits inside an artifact
+      const annots = [
+        ...raw.matchAll(/\/Subtype\/Link[^>]*\/Dest (\d+) 0 R[^>]*\/Contents\(([^)]+)\)/g),
+      ];
+      expect(annots.length).toBeGreaterThanOrEqual(items.length);
+      // the dot leaders do not become text in the tag tree: the title link and the number are the only content of an entry
+      for (const l of links) expect(l[4]).toMatch(/OBJR/);
+    },
+    T,
+  );
+
+  it(
+    "leaves an entry that points nowhere as plain text and keeps the page compiling under PDF/UA without page numbers",
+    async () => {
+      const b = tocBook({ chapters: 1, paragraphs: 4 });
+      const items: PdfTocItem[] = [
+        ...b.items,
+        { key: "custom:x", kind: "custom", level: 0, title: "A note" },
+      ];
+      const { pdf } = await renderPdf(
+        b.book,
+        b.pages,
+        { toc: { items, pageNumbers: false }, pdfUa: true },
+        runner,
+      );
+      const text = pagesOf(pdf)[0]!;
+      expect(text).toContain("A note");
+      expect(text).not.toMatch(/\. \. \./);
+      expect(Buffer.from(pdf).toString("latin1")).toContain("/S/Link");
+    },
+    T,
+  );
 });

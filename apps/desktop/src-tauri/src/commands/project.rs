@@ -8,7 +8,11 @@ use tauri::ipc::{InvokeBody, Request};
 
 #[tauri::command]
 pub async fn create_project(picked: tauri::State<'_, super::PickedPaths>, root: String, manifest_json: String) -> Result<(), ProjectError> {
-    blocking({ let picked = picked.inner().clone(); move || super::create_picked(&picked, &root, &manifest_json) }).await
+    blocking({
+        let picked = picked.inner().clone();
+        move || super::create_picked(&picked, &root, &manifest_json)
+    })
+    .await
 }
 
 #[tauri::command]
@@ -66,7 +70,11 @@ fn watch_root(root: String) -> Result<PathBuf, ProjectError> {
 }
 
 #[tauri::command]
-pub fn watch_project<R: tauri::Runtime>(app: tauri::AppHandle<R>, state: tauri::State<crate::platform::fs_watch::WatchState>, root: String) -> Result<(), ProjectError> {
+pub fn watch_project<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    state: tauri::State<crate::platform::fs_watch::WatchState>,
+    root: String,
+) -> Result<(), ProjectError> {
     crate::platform::fs_watch::start(app, watch_root(root)?, &state)
 }
 

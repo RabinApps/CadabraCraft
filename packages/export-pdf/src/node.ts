@@ -59,6 +59,12 @@ export interface NodeRunnerOptions {
   timeoutMs?: number;
 }
 
+/** `--pdf-standard` for the chosen standards: PDF/A-2b, PDF/UA-1 or both (Typst takes a comma-separated list). */
+export function pdfStandardArgs(pdfA: boolean, pdfUa: boolean | undefined): string[] {
+  const standards = [...(pdfA ? ["a-2b"] : []), ...(pdfUa ? ["ua-1"] : [])];
+  return standards.length > 0 ? ["--pdf-standard", standards.join(",")] : [];
+}
+
 /** Runs the typst CLI through child_process (tests, scripts, CLI use). */
 export function createNodeRunner(opts: NodeRunnerOptions = {}): TypstRunner {
   return {
@@ -76,7 +82,7 @@ export function createNodeRunner(opts: NodeRunnerOptions = {}): TypstRunner {
         throw new PdfExportError(`Could not list fonts with typst: ${errMsg(e)}`);
       }
     },
-    async compile(source, files, { pdfA }) {
+    async compile(source, files, { pdfA, pdfUa }) {
       return inTempDir(opts, source, files, async (dir) => {
         const args = [
           "compile",
@@ -84,7 +90,7 @@ export function createNodeRunner(opts: NodeRunnerOptions = {}): TypstRunner {
           dir,
           "--diagnostic-format",
           "short",
-          ...(pdfA ? ["--pdf-standard", "a-2b"] : []),
+          ...pdfStandardArgs(pdfA, pdfUa),
           ...fontArgs(opts.fontPaths),
           join(dir, "main.typ"),
           join(dir, "out.pdf"),

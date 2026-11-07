@@ -25,6 +25,14 @@ describe("cover page source", () => {
     expect(doc.source.indexOf("#title-page(")).toBeGreaterThan(i);
     expect([...doc.images.keys()]).toContain("assets/cover.png");
   });
+  it("writes the cover's alt text in the book's language, and in English for a language without a translation", () => {
+    const alt = (language: string): string =>
+      buildTypstDocument({ ...book, language }, all, withCover).source;
+    expect(alt("en")).toContain('alt: "Cover")');
+    expect(alt("de-AT")).toContain('alt: "Umschlag")');
+    expect(alt("ar")).toContain('alt: "الغلاف")');
+    expect(alt("xx")).toContain('alt: "Cover")');
+  });
   it("leaves the source untouched without a cover", () => {
     expect(buildTypstDocument(book, all, { assets }).source).not.toContain(
       "margin: 0pt, header: none",

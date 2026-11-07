@@ -4,6 +4,7 @@ export * from "./href";
 export * from "./ids";
 export * from "./matter";
 export * from "./isbn";
+export * from "./textAlign";
 
 /** TipTap/ProseMirror JSON, the on-disk chapter format and the editor/exporter contract. */
 export interface Mark {
@@ -16,8 +17,11 @@ export interface Mark {
     | "code"
     | "superscript"
     | "subscript"
-    | "link";
-  attrs?: { href?: string };
+    | "link"
+    | "lang"
+    | "comment";
+  /** `href` belongs to `link`; `lang` (a BCP 47 tag) to `lang`; `id` (a thread id) to `comment`. */
+  attrs?: { href?: string; lang?: string; id?: string };
 }
 
 export type DocNode =
@@ -39,6 +43,8 @@ export type DocNode =
         | "codeBlock"
         | "hardBreak"
         | "sceneBreak"
+        | "pageBreak"
+        | "scene"
         | "image"
         | "figcaption"
         | "footnote"
@@ -86,3 +92,15 @@ export * from "./errors";
 export * from "./wordcount";
 export * from "./trim";
 export * from "./words";
+export * from "./pageNumbering";
+
+/**
+ * A page break as the first block of a page asks for nothing: that page's content is already at the top of one. Dropping it keeps
+ * the surfaces agreeing — page view draws no page for it, and the PDF would otherwise break after the chapter opening and leave the
+ * chapter's ornament alone on a page the editor never shows. A break further down still breaks, so two in a row still keep the empty
+ * page. Returns the same document when there is nothing to drop.
+ */
+export function dropLeadingPageBreak(doc: ChapterDoc): { doc: ChapterDoc; dropped: 0 | 1 } {
+  if (doc.content[0]?.type !== "pageBreak") return { doc, dropped: 0 };
+  return { doc: { ...doc, content: doc.content.slice(1) }, dropped: 1 };
+}

@@ -13,10 +13,12 @@ import {
   audioDir,
   bookBase,
   chapterBase,
+  chapterCaptionsPath,
+  transcriptPath,
   chapterPart,
   createTauriAudioRunner,
   mapAudioError,
-} from "../audioRunner";
+} from "../audio/audioRunner";
 
 describe("mapAudioError", () => {
   it("maps every error shape the Rust side sends", () => {
@@ -58,6 +60,20 @@ describe("chapterBase", () => {
     );
     expect(chapterBase(dir, 2, "日本語")).toBe("exports/fr/audio/03-chapter");
     expect(chapterBase(dir, 0, "a".repeat(80))).toBe(`exports/fr/audio/01-${"a".repeat(40)}`);
+  });
+});
+
+describe("transcript paths", () => {
+  it("sit beside the audio, in the edition's folder", () => {
+    expect(transcriptPath("exports/fr/audio", "My Book: Part 1")).toBe(
+      "exports/fr/audio/my-book-part-1-transcript.txt",
+    );
+    expect(transcriptPath("exports/en/audio", "???")).toBe(
+      "exports/en/audio/audiobook-transcript.txt",
+    );
+    expect(chapterCaptionsPath("exports/fr/audio", 2, "The Quay")).toBe(
+      "exports/fr/audio/03-the-quay.vtt",
+    );
   });
 });
 
@@ -111,6 +127,7 @@ describe("createTauriAudioRunner", () => {
       voice: "piper-amy",
       speed: 1,
       formats: ["opus"],
+      language: "en",
     });
     expect(seen).toEqual([0.4]);
   });

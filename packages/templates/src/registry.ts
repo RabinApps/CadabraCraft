@@ -1,3 +1,4 @@
+import { isBackMatterKind, isFrontMatterKind } from "@cadabracraft/shared";
 import { BUILTIN_TEMPLATES } from "./builtin";
 import type { PrintHeadingStyle, Template, TrimSizeId } from "./types";
 
@@ -21,14 +22,9 @@ function heading(path: string, s: PrintHeadingStyle | undefined, errs: string[])
   if (s.align !== "left" && s.align !== "center") errs.push(`${path}.align must be left or center`);
 }
 
-/** Returns a list of problems; empty means well-formed. */
-export function validateTemplate(t: Template): string[] {
-  const e: string[] = [];
-  if (!/^[a-z][a-z0-9-]*$/.test(t.id ?? "")) e.push("id must be lowercase kebab-case");
-  if (!isStr(t.name)) e.push("name required");
-  if (!isStr(t.description)) e.push("description required");
-  const p = t.print;
-  if (!p) return [...e, "print settings missing"];
+type Print = Template["print"];
+
+function typographyProblems(p: Print, e: string[]): void {
   if (!Array.isArray(p.bodyFonts) || p.bodyFonts.length === 0 || !p.bodyFonts.every(isStr))
     e.push("print.bodyFonts needs at least one family");
   if (!Array.isArray(p.headingFonts) || !p.headingFonts.every(isStr))
@@ -40,6 +36,9 @@ export function validateTemplate(t: Template): string[] {
   if (!isNum(p.paragraph?.indentEm, 0, 5)) e.push("print.paragraph.indentEm out of range");
   if (!isNum(p.paragraph?.spacingEm, 0, 5)) e.push("print.paragraph.spacingEm out of range");
   for (const l of [1, 2, 3] as const) heading(`print.headings.${l}`, p.headings?.[l], e);
+}
+
+function chapterOpeningProblems(p: Print, e: string[]): void {
   if (p.chapterOpening?.startOn !== "recto" && p.chapterOpening?.startOn !== "any")
     e.push("print.chapterOpening.startOn must be recto or any");
   if (!isNum(p.chapterOpening?.sinkEm, 0, 30)) e.push("print.chapterOpening.sinkEm out of range");
@@ -51,6 +50,23 @@ export function validateTemplate(t: Template): string[] {
   const orn = p.chapterOpening?.ornament;
   if (orn !== null && (typeof orn !== "string" || [...orn].length !== 1))
     e.push("print.chapterOpening.ornament must be null or a single character");
+}
+
+function isCentredList(centred: unknown): boolean {
+  return (
+    Array.isArray(centred) &&
+    centred.every(
+      (k) => (isFrontMatterKind(k) || isBackMatterKind(k)) && k !== "contents" && k !== "copyright",
+    ) &&
+    new Set(centred).size === centred.length
+  );
+}
+
+function blocksProblems(p: Print, e: string[]): void {
+  if (!isCentredList(p.matter?.verticalCenter))
+    e.push(
+      "print.matter.verticalCenter must be a list of distinct matter kinds (not contents or copyright)",
+    );
   if (!isNum(p.blockQuote?.indentEm, 0, 6)) e.push("print.blockQuote.indentEm out of range");
   if (!isNum(p.blockQuote?.sizeEm, 0.5, 2)) e.push("print.blockQuote.sizeEm out of range");
   if (!isNum(p.blockQuote?.spaceEm, 0, 5)) e.push("print.blockQuote.spaceEm out of range");
@@ -58,11 +74,28 @@ export function validateTemplate(t: Template): string[] {
   if (!isNum(p.sceneBreak?.spaceEm, 0, 5)) e.push("print.sceneBreak.spaceEm out of range");
   if (!isNum(p.runningText?.sizePt, 5, 16)) e.push("print.runningText.sizePt out of range");
   if (!isNum(p.footnoteSizeEm, 0.5, 1)) e.push("print.footnoteSizeEm out of range");
+}
+
+function pageProblems(p: Print, e: string[]): void {
   if (!TRIMS.includes(p.defaults?.trimSize))
     e.push(`print.defaults.trimSize must be one of ${TRIMS.join(", ")}`);
   const m = p.defaults?.marginsIn;
   for (const k of ["top", "bottom", "inside", "outside"] as const)
     if (!isNum(m?.[k], 0.25, 3)) e.push(`print.defaults.marginsIn.${k} out of range`);
+}
+
+/** Returns a list of problems; empty means well-formed. */
+export function validateTemplate(t: Template): string[] {
+  const e: string[] = [];
+  if (!/^[a-z][a-z0-9-]*$/.test(t.id ?? "")) e.push("id must be lowercase kebab-case");
+  if (!isStr(t.name)) e.push("name required");
+  if (!isStr(t.description)) e.push("description required");
+  const p = t.print;
+  if (!p) return [...e, "print settings missing"];
+  typographyProblems(p, e);
+  chapterOpeningProblems(p, e);
+  blocksProblems(p, e);
+  pageProblems(p, e);
   if (!isStr(t.epub?.css)) e.push("epub.css required");
   else if (/@import|url\(\s*["']?https?:/i.test(t.epub.css))
     e.push("epub.css must not load remote resources");

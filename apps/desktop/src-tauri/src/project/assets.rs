@@ -44,7 +44,11 @@ pub fn sanitize_asset_stem(stem: &str) -> String {
         out.push(c);
     }
     let out: String = out.trim_end_matches('-').chars().take(80).collect();
-    if out.is_empty() { "image".into() } else { out }
+    if out.is_empty() {
+        "image".into()
+    } else {
+        out
+    }
 }
 
 /// Copies an image the user picked (absolute path) into `assets/` and returns its project-relative path.
@@ -277,7 +281,10 @@ mod tests {
         assert_eq!(store_image(proj.path(), "x.exe", &PNG).unwrap_err(), ProjectError::UnsupportedImage { name: "x.exe".into() });
         assert_eq!(store_image(proj.path(), "x.png", b"no").unwrap_err(), ProjectError::InvalidImage { name: "x.png".into(), ext: "png".into() });
         assert_eq!(read_asset(proj.path(), "manuscript/x.json").unwrap_err(), ProjectError::NotImageAsset { path: "manuscript/x.json".into() });
-        assert_eq!(store_image(proj.path(), "big.png", &vec![0u8; MAX_IMAGE_BYTES as usize + 1]).unwrap_err(), ProjectError::TooLarge { path: "big.png".into(), max_mb: 25 });
+        assert_eq!(
+            store_image(proj.path(), "big.png", &vec![0u8; MAX_IMAGE_BYTES as usize + 1]).unwrap_err(),
+            ProjectError::TooLarge { path: "big.png".into(), max_mb: 25 }
+        );
     }
 
     #[test]

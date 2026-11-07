@@ -13,11 +13,15 @@
     "i18n:check": "lingui extract --clean && git diff --exit-code src/i18n/locales",
     "test": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
+    "test:e2e:webkit": "WEBKIT=1 playwright test --project=webkit",
+    "test:a11y": "playwright test a11y language-mark images.spec",
+    "test:a11y:locales": "E2E_LOCALES=1 playwright test --project=locale-he --project=locale-ar --project=locale-pseudo --project=locale-pseudo-rtl",
     "build:native": "tauri build --debug --no-bundle --features dev-automation",
     "test:native": "vitest run --config e2e-native/vitest.config.ts",
     "test:e2e:webdriver": "pnpm test:native",
     "tauri:automate": "tauri dev --features dev-automation --config src-tauri/tauri.automation.conf.json",
-    "test:e2e:coverage": "COVERAGE=1 playwright test"
+    "test:e2e:coverage": "COVERAGE=1 playwright test",
+    "test:voiceover": "playwright test --config e2e-voiceover/playwright.config.ts"
   },
   "dependencies": {
     "@cadabracraft/editor-schema": "workspace:*",
@@ -25,11 +29,13 @@
     "@cadabracraft/export-docx": "workspace:*",
     "@cadabracraft/export-epub": "workspace:*",
     "@cadabracraft/export-markdown": "workspace:*",
+    "@cadabracraft/outline": "workspace:*",
     "@cadabracraft/export-pdf": "workspace:*",
     "@cadabracraft/export-rtf": "workspace:*",
     "@cadabracraft/format": "workspace:*",
     "@cadabracraft/import-docx": "workspace:*",
     "@cadabracraft/shared": "workspace:*",
+    "@cadabracraft/story-structures": "workspace:*",
     "@cadabracraft/templates": "workspace:*",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/newsreader": "^5.3.0",
@@ -56,7 +62,11 @@
     "zustand": "^5.0.16"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@babel/core": "^8.0.9",
+    "@guidepup/guidepup": "^0.39.0",
+    "@guidepup/playwright": "^0.21.0",
+    "@guidepup/virtual-screen-reader": "^0.33.0",
     "@lingui/babel-plugin-lingui-macro": "^6.10.1",
     "@lingui/cli": "^6.10.1",
     "@lingui/conf": "^6.10.1",
@@ -69,7 +79,9 @@
     "@types/react-dom": "^19.3.0",
     "@types/selenium-webdriver": "^4.35.7",
     "@vitejs/plugin-react": "^6.1.2",
+    "accessibility-checker-engine": "^4.0.34",
     "fflate": "^0.8.3",
+    "html_codesniffer": "^2.5.1",
     "monocart-coverage-reports": "^3.1.0",
     "selenium-webdriver": "^4.51.0",
     "vite": "^8.3.5"

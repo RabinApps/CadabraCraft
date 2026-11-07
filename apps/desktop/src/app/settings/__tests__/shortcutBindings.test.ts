@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { useSettings } from "../../../state/editorPrefs";
-import { buildMenuModel, type MenuEntry } from "../../shell/menuModel";
+import { useSettings } from "../../../state/view/editorPrefs";
+import { buildMenuModel, type MenuEntry } from "../../shell/native/menuModel";
 import {
   applyOverrides,
   editorRemap,

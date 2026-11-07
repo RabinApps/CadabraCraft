@@ -11,6 +11,8 @@ export interface AudioChapterRequest {
   formats: string[];
   /** Also keep a lossless part here for the book's M4B (`.cadabra/audio/parts/<name>.flac`). */
   part?: string;
+  /** The edition's language (BCP 47); written into the chapter files that can carry it. */
+  language?: string;
 }
 
 /** The whole-book M4B (`M4bRequest` in src-tauri/src/audio/m4b.rs). */
@@ -22,6 +24,8 @@ export interface AudioM4bRequest {
   author: string;
   cover: string | null;
   chapters: { title: string; part: string; durationSec: number }[];
+  /** The edition's language (BCP 47), written as the audio track's language. */
+  language?: string;
 }
 
 /** A downloadable set of voices (`PackInfo` in src-tauri/src/audio_voices.rs). `bytes` is the download size. */

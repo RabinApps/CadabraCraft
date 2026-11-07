@@ -236,7 +236,8 @@ fn note_node(ctx: &mut DCtx, el: &XNode) -> Node {
         // A note never holds a lifted block (images in notes are dropped) or a nested footnote, so only text and breaks arrive.
         parts.extend(sub.items.into_iter().filter_map(|it| match it {
             Item::Break => Some(Node::plain_text(" ")),
-            Item::Node(n) if n.is("text") => Some(n), _ => None, // the other arms are defensive: see above
+            Item::Node(n) if n.is("text") => Some(n),
+            _ => None, // the other arms are defensive: see above
         }));
     }
     if children_named(el, "tbl").next().is_some() {
@@ -324,7 +325,9 @@ mod tests {
         assert_eq!(safe_href("https://example.com/a?b=1").as_deref(), Some("https://example.com/a?b=1"));
         assert_eq!(safe_href("  HTTP://Example.com ").as_deref(), Some("http://example.com/"));
         assert_eq!(safe_href("mailto:a@b.co").as_deref(), Some("mailto:a@b.co"));
-        for bad in ["javascript:alert(1)", "data:text/html,x", "file:///etc/passwd", "example.com", "", "  ", "https://a b.test", "http://", "ftp://x.test", "httpx:y"] {
+        for bad in
+            ["javascript:alert(1)", "data:text/html,x", "file:///etc/passwd", "example.com", "", "  ", "https://a b.test", "http://", "ftp://x.test", "httpx:y"]
+        {
             assert_eq!(safe_href(bad), None, "{bad}");
         }
     }
@@ -333,7 +336,9 @@ mod tests {
     fn field_instruction_parsing() {
         assert_eq!(hyperlink_target(r#" HYPERLINK "https://a.test" \o "tip""#), Some("https://a.test"));
         assert_eq!(hyperlink_target(r#"hyperlink "x""#), Some("x"));
-        for no in [r#"HYPERLINK"x""#, r#"HYPERLINK x"#, r#"HYPERLINK """#, r#"HYPERLINK "unterminated"#, "PAGEREF x", "", "HYPER", "\u{e9}\u{e9}\u{e9}\u{e9}\u{e9}"] {
+        for no in
+            [r#"HYPERLINK"x""#, r#"HYPERLINK x"#, r#"HYPERLINK """#, r#"HYPERLINK "unterminated"#, "PAGEREF x", "", "HYPER", "\u{e9}\u{e9}\u{e9}\u{e9}\u{e9}"]
+        {
             assert_eq!(hyperlink_target(no), None, "{no}");
         }
         assert!(starts_with_hyperlink("  hyperlink \\l x") && !starts_with_hyperlink("PAGE") && !starts_with_hyperlink("HYPER"));

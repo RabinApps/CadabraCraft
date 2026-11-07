@@ -1,3 +1,4 @@
+import type { EntryKind } from "@cadabracraft/shared";
 import { sourceFile, sourceTitle } from "./editions";
 import { isTranslated } from "./translations";
 import { readingOrder, type Edition, type EditionEntry, type Manifest } from "./manifest";
@@ -23,6 +24,16 @@ export interface EntryRow {
   id: string;
   title: string;
   file: string;
+  /** The page's sidebar icon name, when it has one. */
+  icon?: string;
+  /** The page's own big-first-letter choice, when it has one (chapters only). */
+  dropCap?: boolean;
+  /** What a front or back matter page is (absent for chapters and for old pages with no kind). */
+  kind?: EntryKind;
+  /** The page's own vertical position choice, when it has one (front and back matter only). */
+  verticalCenter?: boolean;
+  /** The page starts on the next page, blank left-hand page or not (front and back matter only). */
+  startOnNext?: boolean;
 }
 
 /** `{ id, title, file }` rows in the source language, for lists of one section of the book. */
@@ -31,6 +42,11 @@ export const entryRows = (entries: EditionEntry[], editions: Edition[]): EntryRo
     id: e.id,
     title: sourceTitle(e, editions),
     file: sourceFile(e, editions),
+    ...(e.kind ? { kind: e.kind } : {}),
+    ...(e.icon ? { icon: e.icon } : {}),
+    ...(e.dropCap === undefined ? {} : { dropCap: e.dropCap }),
+    ...(e.verticalCenter === undefined ? {} : { verticalCenter: e.verticalCenter }),
+    ...(e.startOnNext === undefined ? {} : { startOnNext: e.startOnNext }),
   }));
 
 /** A list row in one language: its title (the source's when not translated yet) and whether the text is translated. */
@@ -49,4 +65,9 @@ export const entryRowsIn = (
     title: e.titles[language] ?? sourceTitle(e, editions),
     file: e.files[language] ?? sourceFile(e, editions),
     translated: isTranslated(e, language, editions),
+    ...(e.kind ? { kind: e.kind } : {}),
+    ...(e.icon ? { icon: e.icon } : {}),
+    ...(e.dropCap === undefined ? {} : { dropCap: e.dropCap }),
+    ...(e.verticalCenter === undefined ? {} : { verticalCenter: e.verticalCenter }),
+    ...(e.startOnNext === undefined ? {} : { startOnNext: e.startOnNext }),
   }));

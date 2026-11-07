@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { BlockMarkKind, BlockPages } from "@cadabracraft/export-pdf";
-import { exactBreaks, type ExactLeaf, type ExactSource } from "../exactBreaks";
+import { exactBreaks, type ExactLeaf, type ExactSource } from "../page/exactBreaks";
 
 /** A unit of the report: leaf `leaf` of block `block`. */
 const b = (

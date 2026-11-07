@@ -7,7 +7,7 @@ import {
   SNAPSHOT_KEEP_MAX,
   SNAPSHOT_KEEP_MIN,
   cleanRawHtmlPaste,
-} from "../editorPrefs";
+} from "../view/editorPrefs";
 
 describe("cleanRawHtmlPaste", () => {
   it("keeps the three choices and falls back to ask", () => {

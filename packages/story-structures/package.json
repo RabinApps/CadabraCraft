@@ -1,0 +1,17 @@
+{
+  "name": "@cadabracraft/story-structures",
+  "license": "SEE LICENSE IN LICENSE",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@cadabracraft/editor-schema": "workspace:*",
+    "@cadabracraft/shared": "workspace:*"
+  }
+}

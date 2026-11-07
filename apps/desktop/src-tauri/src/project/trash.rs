@@ -56,11 +56,7 @@ pub struct TrashEntry {
 /// language code (2 or 3 letters, then optional `-subtags`) and a file name follows, it is that language's folder.
 pub(super) fn parse_trash_name(name: &str) -> Option<(String, String)> {
     let b = name.as_bytes();
-    let stamp_ok = b.len() > 14
-        && b[..8].iter().all(u8::is_ascii_digit)
-        && b[8] == b'-'
-        && b[9..13].iter().all(u8::is_ascii_digit)
-        && b[13] == b'-';
+    let stamp_ok = b.len() > 14 && b[..8].iter().all(u8::is_ascii_digit) && b[8] == b'-' && b[9..13].iter().all(u8::is_ascii_digit) && b[13] == b'-';
     if !stamp_ok || !name.ends_with(".json") {
         return None;
     }
@@ -88,7 +84,9 @@ pub(super) fn parse_trash_name(name: &str) -> Option<(String, String)> {
 fn is_language_folder(s: &str) -> bool {
     let mut parts = s.split('-');
     let first = parts.next().unwrap_or("");
-    (2..=3).contains(&first.len()) && first.bytes().all(|b| b.is_ascii_alphabetic()) && parts.all(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_alphanumeric()))
+    (2..=3).contains(&first.len())
+        && first.bytes().all(|b| b.is_ascii_alphabetic())
+        && parts.all(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_alphanumeric()))
 }
 
 /// Lists restorable pages in `.cadabra/trash/`, newest first.
@@ -194,7 +192,13 @@ mod tests {
     #[test]
     fn restore_refuses_unsafe_or_foreign_paths() {
         let d = tmp();
-        for bad in ["manuscript/a.json", ".cadabra/trash/../../cadabra.json", ".cadabra/trash/x.json", ".cadabra/trash/20260101-1200-assets__a.json", ".cadabra/trash/20260101-1200-manuscript__a.json"] {
+        for bad in [
+            "manuscript/a.json",
+            ".cadabra/trash/../../cadabra.json",
+            ".cadabra/trash/x.json",
+            ".cadabra/trash/20260101-1200-assets__a.json",
+            ".cadabra/trash/20260101-1200-manuscript__a.json",
+        ] {
             assert!(restore_trash(d.path(), bad).is_err(), "{bad}");
         }
         // Non-page files in the trash are not listed.

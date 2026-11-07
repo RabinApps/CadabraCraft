@@ -2,7 +2,12 @@ import { useRef, useState, type FormEvent } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronDown, ChevronUp, Search, X } from "lucide-react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-import { countsByPage, findMatches, type PdfMatch, type PdfTextItem } from "../../lib/pdfSearch";
+import {
+  countsByPage,
+  findMatches,
+  type PdfMatch,
+  type PdfTextItem,
+} from "../../lib/export/pdfSearch";
 import { IconButton } from "../../ui/Button";
 
 /** The text items of every page, read once per document. */
@@ -84,7 +89,7 @@ export function PdfSearch({
             aria-label={t`Search text`}
             placeholder={t`Find in this PDF`}
             onChange={(e) => setQuery(e.target.value)}
-            className="h-8 w-44 rounded-md border border-border bg-paper px-2 text-sm"
+            className="h-8 w-44 rounded-md border border-border-strong bg-paper px-2 text-sm"
           />
           <span className="min-w-20 text-sm text-ink-muted" role="status">
             {hits === null

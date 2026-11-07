@@ -173,7 +173,8 @@
       {
        "type": "heading",
        "attrs": {
-        "level": 3
+        "level": 3,
+        "textAlign": "center"
        },
        "content": [
         {
@@ -212,7 +213,8 @@
       {
        "type": "heading",
        "attrs": {
-        "level": 2
+        "level": 2,
+        "textAlign": "center"
        },
        "content": [
         {

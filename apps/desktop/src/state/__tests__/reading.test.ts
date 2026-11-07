@@ -9,7 +9,7 @@ async function fresh(stored: unknown) {
     setItem: (k: string, v: string) => void data.set(k, v),
   });
   vi.resetModules();
-  const mod = await import("../reading");
+  const mod = await import("../view/reading");
   return { ...mod, data };
 }
 

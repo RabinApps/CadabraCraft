@@ -8,11 +8,19 @@ import { describe, expect, it } from "vitest";
  * (also listed in docs/architecture.md, "Right-to-left layout").
  */
 const ALLOWED: Record<string, { max: number; why: string }> = {
-  "index.css": {
-    max: 8,
+  "styles/blocks.css": {
+    max: 10,
     why: "Page view sheet, page card and drop cap geometry is physical (left/right pages)",
   },
-  "editor/PageFrame.tsx": {
+  "styles/pages.css": {
+    max: 10,
+    why: "Page view sheet, page card and drop cap geometry is physical (left/right pages)",
+  },
+  "styles/theme.css": {
+    max: 10,
+    why: "The --z-float stacking token is not a direction (the word float matches)",
+  },
+  "editor/pageview/PageFrame.tsx": {
     max: 2,
     why: "Page view margins are measured from the physical left of a left/right page",
   },
@@ -33,7 +41,11 @@ const ALLOWED: Record<string, { max: number; why: string }> = {
     max: 1,
     why: "Centring (left-1/2 with -translate-x-1/2) is symmetric",
   },
-  "ui/Switch.tsx": { max: 1, why: "The knob translation has its own rtl: variant" },
+  "ui/forms/Switch.tsx": { max: 1, why: "The knob translation has its own rtl: variant" },
+  "app/shell/entries/RowMenu.tsx": {
+    max: 2,
+    why: 'The row menu\'s live announcement repeats the Page start label "Start on a right-hand page"; the words are prose, not a layout direction',
+  },
 };
 
 const CLASS_PATTERNS = [

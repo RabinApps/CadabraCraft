@@ -110,3 +110,22 @@ test("home dashboard: a book's stats are recorded while it is open", async ({ pa
     )
     .toMatchObject({ chapters: 1, chapterNo: 1, chapterTitle: "Chapter One" });
 });
+
+test("home dashboard: View all books opens the Library with the book count, and Home returns", async ({
+  page,
+}) => {
+  const now = Date.now();
+  await page.addInitScript(
+    (list) => localStorage.setItem("cadabracraft.recents", JSON.stringify(list)),
+    [
+      { root: "/a", title: "Alpha", openedAt: now },
+      { root: "/b", title: "Beta", openedAt: now - day },
+    ],
+  );
+  await page.goto("/");
+  await page.getByRole("button", { name: "View all books (2)" }).click();
+  await expect(page.getByRole("heading", { name: "Library", level: 1 })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Alpha/ })).toBeVisible();
+  await page.getByRole("button", { name: "Home" }).click();
+  await expect(page.getByRole("heading", { name: "Your books" })).toBeVisible();
+});

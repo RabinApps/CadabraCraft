@@ -11,3 +11,6 @@ tools
 .claude
 **/vendor
 coverage
+.cloud-attachments
+out
+perf-results

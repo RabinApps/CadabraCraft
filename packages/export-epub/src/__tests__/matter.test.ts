@@ -145,3 +145,29 @@ describe("front and back matter in the EPUB", () => {
     ).toThrow(/Unsupported/);
   });
 });
+
+describe("drop cap class", () => {
+  const chapters = (): EpubChapter[] => [
+    ...book().filter((c) => c.id !== "ch-1" && c.id !== "ch-2"),
+    { id: "ch-1", title: "Own on", doc: doc("Own on"), dropCap: true },
+    { id: "ch-2", title: "Own off", doc: doc("Own off"), dropCap: false },
+    { id: "ch-3", title: "Follows", doc: doc("Follows") },
+  ];
+  const classOf = (f: ReturnType<typeof parts>, id: string) =>
+    /class="([^"]*)"/.exec(bodyTag(f, id))![1];
+  it("marks a chapter by its own choice, and the others by the template's default", () => {
+    const off = unzipSync(buildEpub(meta, chapters()));
+    expect(classOf(off, "ch-1")).toBe("chapter dropcap");
+    expect(classOf(off, "ch-2")).toBe("chapter");
+    expect(classOf(off, "ch-3")).toBe("chapter");
+    const on = unzipSync(buildEpub(meta, chapters(), { dropCap: true }));
+    expect(classOf(on, "ch-1")).toBe("chapter dropcap");
+    expect(classOf(on, "ch-2")).toBe("chapter");
+    expect(classOf(on, "ch-3")).toBe("chapter dropcap");
+  });
+  it("never marks front or back matter, even when the default is on", () => {
+    const f = unzipSync(buildEpub(meta, chapters(), { dropCap: true }));
+    expect(classOf(f, "fm-1")).toBe("title-page");
+    expect(classOf(f, "bm-5")).toBe("custom");
+  });
+});

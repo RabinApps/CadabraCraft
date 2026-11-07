@@ -91,6 +91,51 @@ export interface Issue {
   message: string;
 }
 
+type AddIssue = (severity: Issue["severity"], code: string, where: string, message: string) => void;
+
+/** "missing", "invalid" or null (fine) for an image the chapters use. */
+function assetStatus(root: string, src: string): string | null {
+  try {
+    return looksLike(imageExt(src)!, readAsset(root, src)) ? null : "invalid";
+  } catch (err) {
+    return err instanceof ProjectFsError && err.code === "not_found" ? "missing" : "invalid";
+  }
+}
+
+interface CheckCtx {
+  root: string;
+  checkedAssets: Map<string, string | null>;
+  add: AddIssue;
+}
+
+function checkImage({ root, checkedAssets, add }: CheckCtx, id: string, file: string, src: string): void {
+  if (!isAssetPath(src) || !imageExt(src)) {
+    add("error", "asset_path_invalid", id, `${file}: image source "${src}" is not a project-relative assets/<image> path`);
+    return;
+  }
+  if (!checkedAssets.has(src)) checkedAssets.set(src, assetStatus(root, src));
+  const status = checkedAssets.get(src);
+  if (status === "missing") add("error", "asset_missing", id, `${file}: image ${src} does not exist`);
+  else if (status === "invalid") add("error", "asset_invalid", id, `${file}: image ${src} is not a valid ${imageExt(src)} image`);
+}
+
+function checkChapterFile(ctx: CheckCtx, id: string, file: string): void {
+  const { root, add } = ctx;
+  let doc: unknown;
+  try {
+    doc = readChapterFile(root, file).doc;
+  } catch (err) {
+    add("error", err instanceof ToolError ? err.code : "chapter_unreadable", id, errMsg(err));
+    return;
+  }
+  const problem = schemaProblem(doc);
+  if (problem) {
+    add("error", "chapter_schema_invalid", id, `${file}: ${problem}`);
+    return;
+  }
+  for (const src of imageSources(doc)) checkImage(ctx, id, file, src);
+}
+
 export const projectValidate = defineTool({
   name: "cadabra_project_validate",
   title: "Validate project",
@@ -100,7 +145,7 @@ export const projectValidate = defineTool({
   run: ({ path }, ctx) => {
     const root = projectRoot(ctx, path);
     const issues: Issue[] = [];
-    const add = (severity: Issue["severity"], code: string, where: string, message: string) => issues.push({ severity, code, where, message });
+    const add: AddIssue = (severity, code, where, message) => issues.push({ severity, code, where, message });
     let manifest;
     try {
       const raw = readProjectFile(root, MANIFEST);
@@ -113,42 +158,9 @@ export const projectValidate = defineTool({
     const checkedAssets = new Map<string, string | null>();
     // Every page file of every edition (a translation that has no file yet is just untranslated, not an error).
     const files = readingOrder(manifest).flatMap((e) => Object.values(e.files).map((file) => ({ e, file })));
-    for (const { e, file } of files) {
-      let doc: unknown;
-      try {
-        doc = readChapterFile(root, file).doc;
-      } catch (err) {
-        const code = err instanceof ToolError && err.code === "chapter_missing" ? "chapter_missing" : err instanceof ToolError ? err.code : "chapter_unreadable";
-        add("error", code, e.id, errMsg(err));
-        continue;
-      }
-      const problem = schemaProblem(doc);
-      if (problem) {
-        add("error", "chapter_schema_invalid", e.id, `${file}: ${problem}`);
-        continue;
-      }
-      for (const src of imageSources(doc)) {
-        if (!isAssetPath(src) || !imageExt(src)) {
-          add("error", "asset_path_invalid", e.id, `${file}: image source "${src}" is not a project-relative assets/<image> path`);
-          continue;
-        }
-        if (!checkedAssets.has(src)) {
-          let problemText: string | null = null;
-          try {
-            const bytes = readAsset(root, src);
-            if (!looksLike(imageExt(src)!, bytes)) problemText = "invalid";
-          } catch (err) {
-            problemText = err instanceof ProjectFsError && err.code === "not_found" ? "missing" : "invalid";
-          }
-          checkedAssets.set(src, problemText);
-        }
-        const status = checkedAssets.get(src);
-        if (status === "missing") add("error", "asset_missing", e.id, `${file}: image ${src} does not exist`);
-        else if (status === "invalid") add("error", "asset_invalid", e.id, `${file}: image ${src} is not a valid ${imageExt(src)} image`);
-      }
-    }
+    for (const { e, file } of files) checkChapterFile({ root, checkedAssets, add }, e.id, file);
     for (const r of manifest.references)
-      if (!existsSync(join(root, r.file))) add("warning", "reference_missing", r.id, `${r.file} does not exist`);
+      if (r.kind === "file" && !existsSync(join(root, r.file))) add("warning", "reference_missing", r.id, `${r.file} does not exist`);
     for (const l of danglingLinks(manifest))
       add("warning", "reference_link_dangling", l.reference, `linked to ${l.chapter}, which is not in the book`);
     return report(issues);

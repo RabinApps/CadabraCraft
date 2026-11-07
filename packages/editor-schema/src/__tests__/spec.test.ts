@@ -4,6 +4,8 @@ import {
   BookTableHeader,
   CaptionedImage,
   Footnote,
+  Lang,
+  PageBreak,
   SceneBreak,
   SmallCaps,
   Subscript,
@@ -20,6 +22,7 @@ const call = (ext: unknown, key: string, ...args: unknown[]) =>
 describe("node and mark specs", () => {
   it.each([
     [SceneBreak, [{ tag: "hr.scene-break" }], ["hr", { class: "scene-break" }]],
+    [PageBreak, [{ tag: "hr.page-break" }], ["hr", { class: "page-break" }]],
     [Footnote, [{ tag: "span.footnote" }], ["span", { class: "footnote" }, 0]],
   ])("%# parse and render", (ext, parse, render) => {
     expect(call(ext, "parseHTML")).toEqual(parse);
@@ -33,6 +36,20 @@ describe("node and mark specs", () => {
   ])("%# mark parses %s and renders %s", (ext, tag, el, attrs) => {
     expect(call(ext, "parseHTML")).toEqual([{ tag }]);
     expect(call(ext, "renderHTML", { HTMLAttributes: { id: "a" } })).toEqual([el, attrs, 0]);
+  });
+
+  it("lang mark parses a span with a valid lang and renders the attribute", () => {
+    const [rule] = call(Lang, "parseHTML") as { tag: string; getAttrs: (el: unknown) => unknown }[];
+    expect(rule!.tag).toBe("span[lang]");
+    const el = (lang: string) => ({ getAttribute: () => lang });
+    expect(rule!.getAttrs(el("fr"))).toBeNull();
+    expect(rule!.getAttrs(el("not a tag"))).toBe(false);
+    expect(call(Lang, "renderHTML", { HTMLAttributes: { lang: "fr" } })).toEqual([
+      "span",
+      { lang: "fr" },
+      0,
+    ]);
+    expect(call(Lang, "addAttributes")).toEqual({ lang: { default: null } });
   });
 
   it.each([BookTableCell, BookTableHeader])("%# cells fix colspan and rowspan at 1", (ext) => {
@@ -150,6 +167,82 @@ describe("image node view", () => {
     expect(img.src).toBe("b.png");
     expect(next({ src: "c.png" }, {})).toBe(false);
     expect(img.src).toBe("b.png");
+  });
+
+  it("leaves the alt empty for a decorative image, whatever alt it carries", () => {
+    const { img } = make({ src: "a.png", alt: "ignored", decorative: true });
+    expect(img.alt).toBe("");
+  });
+});
+
+describe("decorative images", () => {
+  const attrs = () =>
+    call(CaptionedImage, "addAttributes") as Record<
+      string,
+      {
+        default?: boolean;
+        parseHTML: (e: unknown) => boolean;
+        renderHTML: (a: Record<string, unknown>) => unknown;
+      }
+    >;
+  const el = (v: string | null) => ({ getAttribute: () => v });
+
+  it("stores nothing by default, and reads and writes data-decorative", () => {
+    const decorative = attrs().decorative!;
+    expect(decorative.default).toBe(false);
+    expect(decorative.parseHTML(el("true"))).toBe(true);
+    expect(decorative.parseHTML(el(null))).toBe(false);
+    expect(decorative.renderHTML({ decorative: true })).toEqual({ "data-decorative": "true" });
+    expect(decorative.renderHTML({ decorative: false })).toEqual({});
+  });
+});
+
+describe("definition term Enter", () => {
+  const press = (opts: {
+    empty?: boolean;
+    parent?: string;
+    after?: number;
+    next?: { type: { name: string } } | null;
+  }) => {
+    const selected: number[] = [];
+    const editor = {
+      state: {
+        selection: {
+          empty: opts.empty ?? true,
+          $from: {
+            parent: { type: { name: opts.parent ?? "definitionTerm" } },
+            after: () => opts.after ?? 4,
+          },
+        },
+        doc: { resolve: () => ({ nodeAfter: opts.next ?? null }) },
+      },
+      commands: { setTextSelection: (n: number) => selected.push(n) > 0 },
+    };
+    const keys = (
+      cfg(DefinitionTerm).addKeyboardShortcuts as unknown as () => Record<
+        string,
+        (p: unknown) => boolean
+      >
+    ).call({ name: "definitionTerm", editor });
+    const ran = keys.Enter!({ editor });
+    return { ran, selected };
+  };
+
+  it("moves into the first paragraph of the description that follows the term", () => {
+    const next = { type: { name: "definitionDescription" } };
+    expect(press({ after: 4, next })).toEqual({ ran: true, selected: [6] });
+  });
+
+  it("moves to the next term itself when no description follows", () => {
+    const next = { type: { name: "definitionTerm" } };
+    expect(press({ after: 4, next })).toEqual({ ran: true, selected: [5] });
+  });
+
+  it("leaves Enter alone outside a term, with a selection and at the end", () => {
+    const next = { type: { name: "definitionDescription" } };
+    expect(press({ empty: false, next }).ran).toBe(false);
+    expect(press({ parent: "paragraph", next }).ran).toBe(false);
+    expect(press({ next: null }).ran).toBe(false);
   });
 });
 

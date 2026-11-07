@@ -12,8 +12,10 @@ th,td{border:1px solid #888;padding:.3em .5em;text-align:left;vertical-align:top
 th{font-weight:bold}td p,th p{margin:0;text-indent:0}td p+p,th p+p{margin-top:.4em}tr{page-break-inside:avoid}
 h1,h2,h3{page-break-after:avoid;break-after:avoid}
 body.title-page,body.dedication,body.epigraph{text-align:center}
-body.title-page h1{margin:30% 0 .5em}body.title-page p,body.dedication p,body.epigraph p,body.copyright p{text-indent:0}
-body.dedication,body.epigraph{margin-top:25%}body.dedication p{font-style:italic}
+body.title-page h1{margin:0 0 .5em}body.title-page p,body.dedication p,body.epigraph p,body.copyright p{text-indent:0}
+body.dedication p{font-style:italic}
+body.vcenter{margin-top:25%}body.title-page.vcenter{margin-top:30%}
+@supports (display:flex){body.vcenter,body.title-page.vcenter{display:flex;flex-direction:column;justify-content:center;min-height:90vh;margin-top:0}}
 body.copyright{font-size:.85em}body.copyright p{margin:0 0 .4em}`;
 
 export const NOVEL_CSS = `body{font-family:serif;line-height:1.4}
@@ -54,11 +56,13 @@ blockquote{margin:1.2em 0;padding:0 0 0 1.2em;border-left:.15em solid currentCol
 hr.scene-break{border:0;margin:2em 0;height:0;border-top:.05em solid #999;width:3em}
 ${BASE}`;
 
-/** Chapter-opening rules generated from template data, so the EPUB follows `chapterOpening.dropCap` and `.ornament`. */
-export function openingCss(o: { dropCap: boolean; ornament: string | null }): string {
-  const drop = o.dropCap
-    ? "body.chapter h1+p::first-letter{float:left;font-size:3.2em;line-height:.8;padding:.05em .08em 0 0}"
-    : "";
+/**
+ * Chapter-opening rules generated from template data. The ornament follows the template; the big first letter follows the
+ * `dropcap` class the exporter puts on a chapter's body (the author's choice, see `resolveDropCap`), so every template carries it.
+ */
+export function openingCss(o: { ornament: string | null }): string {
+  const drop =
+    "body.chapter.dropcap h1+p::first-letter{float:left;font-size:3.2em;line-height:.8;padding:.05em .08em 0 0}";
   const orn =
     o.ornament === null
       ? ""

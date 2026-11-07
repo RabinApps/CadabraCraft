@@ -21,7 +21,7 @@ pub fn split_chapters(blocks: Vec<Node>, level: u8, untitled: &str, warn: &mut W
     let mut chapters: Vec<Cur> = Vec::new();
     let mut saw_heading = false;
     for b in blocks {
-        if b.is("heading") && matches!(b.attrs, Some(Attrs::Heading { level: l }) if l == level) {
+        if b.is("heading") && matches!(b.attrs, Some(Attrs::Heading { level: l, .. }) if l == level) {
             saw_heading = true;
             let t = js_trim(&plain_text(b.children())).to_string();
             let title = if t.is_empty() { untitled.to_string() } else { t };
@@ -40,7 +40,11 @@ pub fn split_chapters(blocks: Vec<Node>, level: u8, untitled: &str, warn: &mut W
     } else if !saw_heading {
         warn.at("no-headings", Severity::Warning, &format!("No level {level} headings found, so the whole file is one chapter titled \"{untitled}\"."));
     } else if chapters[0].pre {
-        warn.at("untitled-content", Severity::Warning, &format!("Content before the first level {level} heading was placed in a chapter titled \"{untitled}\"."));
+        warn.at(
+            "untitled-content",
+            Severity::Warning,
+            &format!("Content before the first level {level} heading was placed in a chapter titled \"{untitled}\"."),
+        );
     }
     chapters.into_iter().map(|c| Chapter { title: c.title, doc: Node::with("doc", c.content) }).collect()
 }
@@ -201,7 +205,7 @@ mod tests {
         Node::with("paragraph", vec![t(s)])
     }
     fn heading(level: u8, s: &str) -> Node {
-        Node::with_attrs("heading", Attrs::Heading { level }, if s.is_empty() { vec![] } else { vec![t(s)] })
+        Node::with_attrs("heading", Attrs::Heading { level, align: None }, if s.is_empty() { vec![] } else { vec![t(s)] })
     }
     fn titles(c: &[Chapter]) -> Vec<&str> {
         c.iter().map(|c| c.title.as_str()).collect()
@@ -251,9 +255,20 @@ mod tests {
     fn definition_lists_keep_everything_the_schema_would_refuse() {
         use DefinitionEntry::*;
         let kinds = |v: Vec<Node>| v.iter().map(|n| n.ty).collect::<Vec<_>>();
-        let out = definition_nodes(vec![Desc(vec![p("orphan")]), Term(vec![t("T1")]), Term(vec![]), Desc(vec![p("D1")]), Desc(vec![Node::new("bulletList")]), Term(vec![t("late")]), Term(vec![])]);
+        let out = definition_nodes(vec![
+            Desc(vec![p("orphan")]),
+            Term(vec![t("T1")]),
+            Term(vec![]),
+            Desc(vec![p("D1")]),
+            Desc(vec![Node::new("bulletList")]),
+            Term(vec![t("late")]),
+            Term(vec![]),
+        ]);
         assert_eq!(kinds(out.clone()), ["paragraph", "definitionList", "paragraph", "paragraph"]);
-        assert_eq!(out[1].children().iter().map(|n| n.ty).collect::<Vec<_>>(), ["definitionTerm", "definitionTerm", "definitionDescription", "definitionDescription"]);
+        assert_eq!(
+            out[1].children().iter().map(|n| n.ty).collect::<Vec<_>>(),
+            ["definitionTerm", "definitionTerm", "definitionDescription", "definitionDescription"]
+        );
         assert_eq!(out[1].children()[1], Node::new("definitionTerm"), "an empty term has no content");
         assert_eq!(out[2], p("late"));
         assert_eq!(out[3], Node::paragraph(), "terms moved after the list keep their original order");
@@ -273,10 +288,20 @@ mod tests {
                 Node::with("tableRow", vec![Node::with("tableCell", vec![Node::paragraph()]), Node::with("tableCell", vec![Node::paragraph()])]),
             ],
         );
-        let list = Node::with("bulletList", vec![Node::with("listItem", vec![p("item"), Node::with("bulletList", vec![Node::with("listItem", vec![p("deep")])])])]);
+        let list =
+            Node::with("bulletList", vec![Node::with("listItem", vec![p("item"), Node::with("bulletList", vec![Node::with("listItem", vec![p("deep")])])])]);
         let (out, flat) = cell_paragraphs(vec![p("plain")]);
         assert_eq!((out, flat), (vec![p("plain")], false));
-        let (out, flat) = cell_paragraphs(vec![heading(2, "H"), list, table, code, img, img_no_alt, Node::new("sceneBreak"), Node::with("definitionList", vec![Node::with("definitionTerm", vec![t("term")]), Node::with("definitionDescription", vec![p("desc")])])]);
+        let (out, flat) = cell_paragraphs(vec![
+            heading(2, "H"),
+            list,
+            table,
+            code,
+            img,
+            img_no_alt,
+            Node::new("sceneBreak"),
+            Node::with("definitionList", vec![Node::with("definitionTerm", vec![t("term")]), Node::with("definitionDescription", vec![p("desc")])]),
+        ]);
         assert!(flat);
         let texts: Vec<String> = out.iter().map(|n| plain_text(n.children())).collect();
         assert_eq!(texts, ["H", "item", "deep", "a | bc", "let x", "An image", "term", "desc"]);

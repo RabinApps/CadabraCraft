@@ -1,0 +1,441 @@
+import { describe, expect, it } from "vitest";
+import { folioAt, folioText, formatFolio, layoutBook, type PageEntryInput } from "../pageNumbering";
+
+const ch = (id: string, pages: number, exact = true): PageEntryInput => ({
+  id,
+  section: "chapter",
+  pages,
+  exact,
+});
+const front = (
+  id: string,
+  kind: PageEntryInput["kind"],
+  pages = 1,
+  extra = {},
+): PageEntryInput => ({
+  id,
+  section: "front",
+  kind,
+  pages,
+  exact: true,
+  ...extra,
+});
+const back = (id: string, kind: PageEntryInput["kind"], pages = 1, extra = {}): PageEntryInput => ({
+  id,
+  section: "back",
+  kind,
+  pages,
+  exact: true,
+  ...extra,
+});
+const startOf = (b: ReturnType<typeof layoutBook>, id: string) => b.byId.get(id)!;
+
+describe("layoutBook: a blank page the author added", () => {
+  it("is a page of its own that follows the page before it, prints no number and gets no blank page of its own", () => {
+    const b = layoutBook(
+      [
+        front("t", "title-page"),
+        front("e", "epigraph", 2),
+        front("b1", "blank"),
+        front("b2", "blank"),
+        front("p", "preface"),
+        ch("a", 4),
+      ],
+      { startsOn: "recto" },
+    );
+    // The title page and the epigraph open on right-hand pages; the two blank pages then follow the epigraph's last page.
+    expect(b.entries.map((e) => [e.id, e.start, e.blankBefore, e.folio])).toEqual([
+      ["t", 1, false, ""],
+      ["e", 3, true, "iii"],
+      ["b1", 5, false, ""],
+      ["b2", 6, false, ""],
+      ["p", 7, false, "vii"],
+      ["a", 9, true, "1"],
+    ]);
+  });
+
+  it("is not pushed to a right-hand page, even straight after a dedication", () => {
+    const b = layoutBook(
+      [front("t", "title-page"), front("d", "dedication", 1), front("b", "blank")],
+      { startsOn: "recto" },
+    );
+    expect(startOf(b, "d")).toMatchObject({ start: 3, blankBefore: true });
+    expect(startOf(b, "b")).toMatchObject({
+      start: 4,
+      blankBefore: false,
+      number: null,
+      folio: "",
+    });
+  });
+
+  it("keeps its place when a report says where Typst put it", () => {
+    const b = layoutBook([front("t", "title-page"), front("b", "blank"), front("p", "preface")], {
+      startsOn: "recto",
+    });
+    expect(startOf(b, "b")).toMatchObject({ start: 2, blankBefore: false, number: null });
+    expect(startOf(b, "p")).toMatchObject({ start: 3, blankBefore: false });
+  });
+});
+
+describe("layoutBook: chapters only", () => {
+  it("continues the count from chapter to chapter, with a blank left-hand page where the next would be even", () => {
+    const b = layoutBook([ch("a", 5), ch("b", 6), ch("c", 5)], { startsOn: "recto" });
+    expect(b.entries.map((e) => [e.id, e.start, e.blankBefore, e.number])).toEqual([
+      ["a", 1, false, 1],
+      ["b", 7, true, 7],
+      ["c", 13, false, 13],
+    ]);
+    expect(b.physical).toBe(17);
+    expect(b.bodyPages).toBe(17);
+    expect(b.hasFront).toBe(false);
+    expect(b.arabicFrom).toBe(1);
+  });
+
+  it("starts a chapter on the next page when the template does not care about sides", () => {
+    const b = layoutBook([ch("a", 5), ch("b", 6)], { startsOn: "any" });
+    expect(startOf(b, "b")).toMatchObject({ start: 6, blankBefore: false, number: 6 });
+  });
+
+  it("needs no blank page when the previous chapter ends on a left-hand page", () => {
+    const b = layoutBook([ch("a", 4), ch("b", 1)], { startsOn: "recto" });
+    expect(startOf(b, "b")).toMatchObject({ start: 5, blankBefore: false });
+  });
+
+  it("counts at least one page for an entry, whatever it says", () => {
+    const b = layoutBook([ch("a", 0)], { startsOn: "any" });
+    expect(startOf(b, "a")).toMatchObject({ pages: 1, end: 1 });
+  });
+
+  it("is exact only when every entry is", () => {
+    expect(layoutBook([ch("a", 1), ch("b", 1)], { startsOn: "any" }).exact).toBe(true);
+    expect(layoutBook([ch("a", 1), ch("b", 1, false)], { startsOn: "any" }).exact).toBe(false);
+    expect(layoutBook([], { startsOn: "any" })).toMatchObject({
+      exact: false,
+      physical: 0,
+      bodyPages: 1 - 1,
+    });
+  });
+
+  it("knows which starts are real: those before an estimate are not, the estimate's own start still is", () => {
+    const b = layoutBook([ch("a", 3), ch("b", 4, false), ch("c", 2)], { startsOn: "any" });
+    expect(b.entries.map((e) => [e.id, e.start, e.startExact])).toEqual([
+      ["a", 1, true],
+      ["b", 4, true], // the entries before it are measured
+      ["c", 8, false], // the entry before it is an estimate
+    ]);
+    // A start Typst gave is real whatever the counts around it are.
+    const given = layoutBook([{ ...ch("a", 3, false), start: 5 }], { startsOn: "any" });
+    expect(startOf(given, "a").startExact).toBe(true);
+  });
+
+  it("takes the book's own total over what the entries add up to", () => {
+    const b = layoutBook([ch("a", 2)], { startsOn: "any", total: 8 });
+    expect(b.physical).toBe(8);
+    expect(b.bodyPages).toBe(8);
+    // A total shorter than the entries is impossible: the entries win.
+    expect(layoutBook([ch("a", 6)], { startsOn: "any", total: 2 }).physical).toBe(6);
+    const withFront = layoutBook([front("t", "title-page"), ch("a", 2)], {
+      startsOn: "any",
+      total: 9,
+    });
+    expect(withFront.bodyPages).toBe(7);
+  });
+});
+
+describe("layoutBook: front and back matter", () => {
+  const book = () =>
+    layoutBook(
+      [
+        front("t", "title-page"),
+        front("c", "copyright"),
+        front("toc", "contents"),
+        front("d", "dedication"),
+        front("f", "foreword"),
+        front("p", "preface"),
+        ch("one", 8),
+        ch("two", 6),
+        back("ack", "acknowledgments"),
+      ],
+      { startsOn: "recto" },
+    );
+
+  it("numbers the front matter in roman by physical page and restarts at arabic 1 on a right-hand page", () => {
+    const b = book();
+    // Same layout as real Typst gives (see the render test in export-pdf).
+    expect(b.entries.map((e) => [e.id, e.start, e.style, e.number])).toEqual([
+      ["t", 1, "roman", null],
+      ["c", 2, "roman", null],
+      ["toc", 3, "roman", null],
+      ["d", 5, "roman", 5],
+      ["f", 7, "roman", 7],
+      ["p", 9, "roman", 9],
+      ["one", 11, "arabic", 1],
+      ["two", 19, "arabic", 9],
+      ["ack", 25, "arabic", 15],
+    ]);
+    expect(b.arabicFrom).toBe(11);
+    expect(b.bodyPages).toBe(15);
+    expect(b.physical).toBe(25);
+  });
+
+  it("marks which entries have a blank left-hand page before them", () => {
+    const b = book();
+    expect(b.entries.filter((e) => e.blankBefore).map((e) => e.id)).toEqual(["d", "f", "p", "one"]);
+  });
+
+  it("opens a centred matter page on the next page, and an uncentred one like a chapter", () => {
+    const centred = layoutBook(
+      [front("a", "foreword", 1, { centred: true }), front("b", "preface", 1, { centred: true })],
+      { startsOn: "recto" },
+    );
+    expect(centred.entries.map((e) => e.start)).toEqual([1, 2]);
+    const plain = layoutBook([front("a", "foreword"), front("b", "preface")], {
+      startsOn: "recto",
+    });
+    expect(plain.entries.map((e) => e.start)).toEqual([1, 3]);
+    const any = layoutBook([front("a", "foreword"), front("b", "preface")], { startsOn: "any" });
+    expect(any.entries.map((e) => e.start)).toEqual([1, 2]);
+  });
+
+  it("lets the author start a page on the next one, so no blank page comes before it", () => {
+    const b = layoutBook(
+      [
+        front("t", "title-page"),
+        front("d", "dedication", 1, { startOnNext: true }),
+        front("f", "foreword", 1, { centred: true }),
+      ],
+      { startsOn: "any" },
+    );
+    expect(b.entries.map((e) => [e.id, e.start, e.blankBefore])).toEqual([
+      ["t", 1, false],
+      ["d", 2, false],
+      ["f", 3, false],
+    ]);
+    // Without the choice the dedication opens on a right-hand page, with a blank left-hand page before it.
+    const plain = layoutBook([front("t", "title-page"), front("d", "dedication")], {
+      startsOn: "any",
+    });
+    expect(plain.entries.map((e) => [e.start, e.blankBefore])).toEqual([
+      [1, false],
+      [3, true],
+    ]);
+  });
+
+  it("lets the page after a dedication follow it on the left, or start on a right-hand page as usual", () => {
+    const followOn = layoutBook(
+      [front("d", "epigraph"), front("f", "foreword", 1, { centred: true, startOnNext: true })],
+      { startsOn: "any" },
+    );
+    expect(followOn.entries.map((e) => [e.start, e.blankBefore])).toEqual([
+      [1, false],
+      [2, false],
+    ]);
+    const rules = layoutBook(
+      [front("d", "epigraph"), front("f", "foreword", 1, { centred: true })],
+      { startsOn: "any" },
+    );
+    expect(rules.entries.map((e) => [e.start, e.blankBefore])).toEqual([
+      [1, false],
+      [3, true],
+    ]);
+  });
+
+  it("inserts a blank page before a page the author starts on a right-hand one", () => {
+    // The template starts chapters on any page, so the rules leave the preface on page 2, a left-hand page: no blank page.
+    const rules = layoutBook([front("t", "title-page"), front("p", "preface")], {
+      startsOn: "any",
+    });
+    expect(rules.entries.map((e) => [e.id, e.start, e.blankBefore])).toEqual([
+      ["t", 1, false],
+      ["p", 2, false],
+    ]);
+    // The author's choice puts a blank left-hand page before it and the preface opens on page 3.
+    const chosen = layoutBook(
+      [front("t", "title-page"), front("p", "preface", 1, { startOnNext: false })],
+      { startsOn: "any" },
+    );
+    expect(chosen.entries.map((e) => [e.id, e.start, e.blankBefore, e.cardStart])).toEqual([
+      ["t", 1, false, 1],
+      ["p", 3, true, 2],
+    ]);
+    // A page already on a right-hand page has no blank to insert, and the pages after it move on as they did.
+    const odd = layoutBook(
+      [
+        front("t", "title-page"),
+        front("c", "copyright"),
+        front("p", "preface", 1, { startOnNext: false }),
+        front("q", "foreword"),
+      ],
+      { startsOn: "any" },
+    );
+    expect(odd.entries.map((e) => [e.id, e.start, e.blankBefore])).toEqual([
+      ["t", 1, false],
+      ["c", 2, false],
+      ["p", 3, false],
+      ["q", 4, false],
+    ]);
+  });
+
+  it("puts a page the author starts on a right-hand one there even where the rules start it on the next", () => {
+    // A dedication the rules would already push to page 3 keeps its blank page, and one that starts on the next page does not.
+    const forced = layoutBook(
+      [front("t", "title-page"), front("d", "dedication", 1, { startOnNext: false })],
+      { startsOn: "any" },
+    );
+    expect(forced.entries.map((e) => [e.start, e.blankBefore])).toEqual([
+      [1, false],
+      [3, true],
+    ]);
+    const next = layoutBook(
+      [front("t", "title-page"), front("d", "dedication", 1, { startOnNext: true })],
+      { startsOn: "any" },
+    );
+    expect(next.entries.map((e) => [e.start, e.blankBefore])).toEqual([
+      [1, false],
+      [2, false],
+    ]);
+  });
+
+  it("still restarts the arabic count on a right-hand page whatever the last front matter page chose", () => {
+    const b = layoutBook([front("f", "foreword", 1, { startOnNext: true }), ch("one", 1)], {
+      startsOn: "recto",
+    });
+    expect(b.entries.map((e) => [e.start, e.style, e.number])).toEqual([
+      [1, "roman", 1],
+      [3, "arabic", 1],
+    ]);
+    expect(b.arabicFrom).toBe(3);
+  });
+
+  it("opens the page after an epigraph on a right-hand page", () => {
+    const b = layoutBook([front("e", "epigraph"), front("f", "foreword", 1, { centred: true })], {
+      startsOn: "any",
+    });
+    expect(b.entries.map((e) => e.start)).toEqual([1, 3]);
+  });
+
+  it("is all roman when there is only front matter, and has no arabic pages", () => {
+    const b = layoutBook([front("t", "title-page"), front("f", "foreword", 2)], {
+      startsOn: "any",
+    });
+    expect(b.arabicFrom).toBeNull();
+    expect(b.bodyPages).toBe(0);
+    expect(b.entries.map((e) => e.style)).toEqual(["roman", "roman"]);
+  });
+
+  it("numbers back matter alone from 1 after the front matter", () => {
+    const b = layoutBook([front("f", "foreword"), back("a", "colophon")], { startsOn: "any" });
+    expect(startOf(b, "a")).toMatchObject({ start: 3, style: "arabic", number: 1 });
+  });
+
+  it("trusts the start page Typst gave over the rules", () => {
+    const b = layoutBook(
+      [
+        { ...ch("a", 3), start: 1 },
+        { ...ch("b", 2), start: 6 },
+        { ...ch("c", 2), start: 0 },
+      ],
+      { startsOn: "recto" },
+    );
+    expect(b.entries.map((e) => [e.start, e.blankBefore])).toEqual([
+      [1, false],
+      [6, true],
+      [1, false],
+    ]);
+  });
+
+  it("prints no numbers when the book has none", () => {
+    const b = layoutBook([front("f", "foreword"), ch("a", 2)], {
+      startsOn: "any",
+      numbered: false,
+    });
+    expect(b.numbered).toBe(false);
+    expect(b.entries.map((e) => e.number)).toEqual([null, null]);
+    expect(folioText(b, 1)).toBe("");
+  });
+});
+
+describe("formatFolio, folioAt and folioText", () => {
+  it("writes roman and arabic numerals", () => {
+    expect(formatFolio(4, "arabic")).toBe("4");
+    expect(formatFolio(1994, "roman")).toBe("mcmxciv");
+    expect(formatFolio(8, "roman")).toBe("viii");
+    expect(formatFolio(0, "roman")).toBe("0");
+  });
+
+  it("tells the style and number of any physical page, a blank one included", () => {
+    const b = layoutBook([front("t", "title-page"), front("f", "foreword"), ch("a", 2)], {
+      startsOn: "recto",
+    });
+    expect(b.arabicFrom).toBe(5);
+    expect(folioAt(b, 4)).toEqual({ style: "roman", number: 4 });
+    expect(folioAt(b, 5)).toEqual({ style: "arabic", number: 1 });
+    expect(folioAt(b, 6)).toEqual({ style: "arabic", number: 2 });
+    expect(folioText(b, 3)).toBe("iii");
+    expect(folioText(b, 1)).toBe("");
+    expect(folioText(b, 5)).toBe("1");
+  });
+
+  it("reads a page that is in no entry (past the end) by the same rule", () => {
+    const b = layoutBook([ch("a", 2)], { startsOn: "any" });
+    expect(folioText(b, 9)).toBe("9");
+  });
+
+  it("is all roman for a book with only front matter", () => {
+    const b = layoutBook([front("f", "foreword")], { startsOn: "any" });
+    expect(folioAt(b, 1)).toEqual({ style: "roman", number: 1 });
+  });
+});
+
+describe("layoutBook: a blank page between two chapters", () => {
+  const chBlank = (id: string, pages = 1): PageEntryInput => ({
+    id,
+    section: "chapter",
+    kind: "blank",
+    pages,
+    exact: true,
+  });
+
+  it("follows the chapter before it, prints no number, and the next chapter still opens on a right-hand page", () => {
+    const b = layoutBook([ch("a", 4), chBlank("b"), ch("c", 1)], { startsOn: "recto" });
+    expect(b.entries.map((e) => [e.id, e.start, e.blankBefore, e.number])).toEqual([
+      ["a", 1, false, 1],
+      ["b", 5, false, null],
+      ["c", 7, true, 7],
+    ]);
+    expect(startOf(b, "b").folio).toBe("");
+  });
+
+  it("does not restart the arabic count before the first chapter that has text", () => {
+    const b = layoutBook([front("t", "title-page"), chBlank("b"), ch("c", 3)], {
+      startsOn: "recto",
+    });
+    expect(startOf(b, "b")).toMatchObject({ start: 2, blankBefore: false, number: null });
+    // The first page with text after the front matter is arabic 1, so the blank page's side is not counted as a chapter page.
+    expect(startOf(b, "c")).toMatchObject({ start: 3, number: 1 });
+    expect(b.arabicFrom).toBe(3);
+  });
+});
+
+describe("layoutBook: a part divider", () => {
+  const part = (id: string): PageEntryInput => ({
+    id,
+    section: "chapter",
+    kind: "part",
+    pages: 1,
+    exact: true,
+  });
+
+  it("opens on a right-hand page and prints no number, while the chapters after it keep the count", () => {
+    const b = layoutBook([front("t", "title-page"), part("p"), ch("a", 2)], {
+      startsOn: "recto",
+    });
+    expect(startOf(b, "p")).toMatchObject({
+      start: 3,
+      blankBefore: true,
+      number: null,
+      folio: "",
+    });
+    expect(startOf(b, "a")).toMatchObject({ start: 5, blankBefore: true, number: 3 });
+  });
+});

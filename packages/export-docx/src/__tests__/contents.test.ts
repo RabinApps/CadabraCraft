@@ -95,6 +95,19 @@ describe("DOCX contents page", () => {
     expect(t.indexOf("Contents")).toBeLessThan(t.indexOf("One"));
   });
 
+  it("uses indent for a part's chapters and their headings", () => {
+    const d = xml(pages(), [
+      item(0, "Part One"),
+      { level: 0, title: "One", indent: 1 },
+      { level: 1, title: "Storm", indent: 2 },
+    ]);
+    expect(after(d, "Contents").slice(0, 3)).toEqual([
+      { text: "Part One", left: 0 },
+      { text: "One", left: 720 },
+      { text: "Storm", left: 1440 },
+    ]);
+  });
+
   it("skips hidden entries, writes an empty list as nothing, and handles duplicate titles", () => {
     const d = xml(pages(), [
       item(0, "One", true),
@@ -191,5 +204,22 @@ describe("DOCX contents page", () => {
       );
       expect(d).toContain("Cap\u00edtulo \u7b2c\u4e00\u7ae0 \u0413\u043b\u0430\u0432\u0430");
     }
+  });
+
+  it("reads in order as plain text: the heading first, no tabs, leaders or fields, in the book language", () => {
+    const d = xml(pages(), [item(0, "Un"), item(1, "Orage"), item(0, "Deux")], "fr");
+    const all = lines(d).map((l) => l.text);
+    expect(all.slice(all.indexOf("Contents"), all.indexOf("Contents") + 4)).toEqual([
+      "Contents",
+      "Un",
+      "Orage",
+      "Deux",
+    ]);
+    expect(d).toMatch(/<w:pStyle w:val="Heading1"\/>/);
+    expect(d).not.toMatch(/<w:tab\/>|<w:tabs>|w:leader|<w:fldChar|<w:fldSimple|\.{3}/);
+    const out = unzipSync(
+      buildDocx({ ...book, language: "fr" }, pages(), { contents: [item(0, "Un")] }),
+    );
+    expect(strFromU8(out["word/styles.xml"]!)).toContain('<w:lang w:val="fr"');
   });
 });

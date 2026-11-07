@@ -257,6 +257,21 @@ describe("layoutPages", () => {
     expect(r.pages[1]!.top).toBe(424);
   });
 
+  it("takes the book layout's blank verso as it is, where the recto rule would say otherwise", () => {
+    // An even first page without a blank: the book says no blank page comes first, so none is made.
+    const none = layoutPages(
+      input(flow([3]), { opensChapter: true, startsOn: "recto", firstPage: 2, blankBefore: false }),
+    );
+    expect(none.pages.map((p) => p.kind)).toEqual(["open"]);
+    expect(none.pages.map((p) => p.number)).toEqual([2]);
+    // A blank the book asked for on any page: matter that opens on a right-hand page after an even page.
+    const blank = layoutPages(
+      input(flow([3]), { opensChapter: false, startsOn: "any", firstPage: 3, blankBefore: true }),
+    );
+    expect(blank.pages.map((p) => p.kind)).toEqual(["blank", "body"]);
+    expect(blank.pages.map((p) => p.number)).toEqual([3, 4]);
+  });
+
   it("marks the opening page, and none when the chapter does not open on a new page", () => {
     const opening = layoutPages(input(flow([3]), { opensChapter: true }));
     expect(opening.pages.map((p) => p.kind)).toEqual(["open"]);

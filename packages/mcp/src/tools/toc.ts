@@ -18,6 +18,7 @@ import {
   resolveToc,
   setTocDepth,
   setTocPageNumbers,
+  setTocParts,
   showTocItem,
   sourceEdition,
   staleOverrides,
@@ -58,7 +59,11 @@ function readOutlines(root: string, m: Manifest, entry: EditionEntry, language: 
   const outlines: Record<string, ReturnType<typeof extractOutline>> = {};
   if (tocSettingsOf(entry).depth === 0) return outlines;
   for (const e of readingOrder(m)) {
-    if (e.kind === "contents" || (e.kind !== undefined && TOC_UNLISTED_KINDS.includes(e.kind)))
+    if (
+      e.kind === "contents" ||
+      e.kind === "part" ||
+      (e.kind !== undefined && TOC_UNLISTED_KINDS.includes(e.kind))
+    )
       continue;
     const file = entryFile(e, language);
     if (file) outlines[e.id] = extractOutline(readChapterFile(root, file).doc as ChapterDoc);
@@ -71,14 +76,18 @@ function describeToc(root: string, m: Manifest, language: string) {
   const entry = contentsPage(m);
   const items = resolveToc(m, entry, language, readOutlines(root, m, entry, language));
   const t = tocSettingsOf(entry);
+  const hiddenParts = t.parts
+    ? []
+    : m.chapters.filter((e) => e.kind === "part").map((e) => e.id);
   return {
     contentsId: entry.id,
     language,
-    settings: { depth: t.depth, pageNumbers: t.pageNumbers },
+    settings: { depth: t.depth, pageNumbers: t.pageNumbers, parts: t.parts },
     items: items.map((i) => ({
       key: i.key,
       kind: i.kind,
       level: i.level,
+      ...(i.indent === undefined ? {} : { indent: i.indent }),
       title: i.title,
       renamed: i.renamed,
       hidden: i.hidden,
@@ -87,7 +96,7 @@ function describeToc(root: string, m: Manifest, language: string) {
       ...(i.target === undefined ? {} : { target: i.target }),
       ...(i.stale ? { stale: true } : {}),
     })),
-    stale: staleOverrides(entry, items),
+    stale: staleOverrides(entry, items, hiddenParts),
   };
 }
 
@@ -95,7 +104,7 @@ export const tocGet = defineTool({
   name: "cadabra_toc_get",
   title: "Get table of contents",
   description:
-    "Read the book's Contents page: its settings (depth 0-3: 0 = chapters only, 1-3 add headings up to that level; pageNumbers), the resolved list in display order (key, kind page/heading/custom, level, title, renamed, hidden, entryId, target) and the stale override list (hidden, renamed, ordered keys or custom entries whose page or heading is gone). Keys are what cadabra_toc_update takes: a page is its id (ch-1), a heading is ch-1#2:the storm:0, a custom entry is custom:c-1. Fails with toc_no_contents_page when the book has none.",
+    "Read the book's Contents page: its settings (depth 0-3: 0 = chapters only, 1-3 add headings up to that level; pageNumbers; parts), the resolved list in display order (key, kind page/heading/custom, level, indent under a part when present, title, renamed, hidden, entryId, target) and the stale override list (hidden, renamed, ordered keys or custom entries whose page or heading is gone). Keys are what cadabra_toc_update takes: a page is its id (ch-1), a heading is ch-1#2:the storm:0, a custom entry is custom:c-1. Fails with toc_no_contents_page when the book has none.",
   input: { path: PATH, language: LANGUAGE },
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
   run: ({ path, language }, ctx) => {
@@ -112,6 +121,7 @@ const ACTIONS = [
   "add_page",
   "set_depth",
   "set_page_numbers",
+  "set_parts",
   "rename",
   "hide",
   "show",
@@ -126,11 +136,128 @@ const need = <T>(value: T | undefined, action: string, arg: string): T => {
   return value;
 };
 
+interface UpdateResult {
+  next: Manifest;
+  created?: string;
+  createdFile?: string;
+}
+
+interface UpdateArgs {
+  depth?: number;
+  pageNumbers?: boolean;
+  parts?: boolean;
+  key?: string;
+  title?: string;
+  to?: number;
+  after?: string;
+  target?: string;
+}
+
+/** Adds the Contents page and writes its starter file (the manifest is saved by the caller, after). */
+function addContentsPage(root: string, manifest: Manifest): UpdateResult {
+  if (!canAddMatter(manifest, "contents"))
+    throw new ToolError("toc_page_exists", "the book already has a Contents page");
+  const source = sourceEdition(manifest.editions);
+  const added = addFrontMatter(manifest, "contents", starterTitle("contents", source.language));
+  const file = entryFile(added.entry, source.language)!;
+  if (readProjectFile(root, file))
+    throw new ToolError(
+      "io_error",
+      `${file} already exists on disk but is not listed in the book; refusing to overwrite it`,
+    );
+  const doc = starterDoc("contents", {
+    title: source.title,
+    author: source.author,
+    language: source.language,
+    isbn: source.isbn,
+    year: new Date().getFullYear(),
+  });
+  writeProjectFile(root, file, JSON.stringify(doc, null, 2));
+  return { next: added.manifest, created: added.entry.id, createdFile: file };
+}
+
+const needTitle = (title: string | undefined, action: string): string => {
+  const text = need(title, action, "title");
+  if (text.trim() === "")
+    throw new ToolError("invalid_input", "a custom contents entry needs a title");
+  return text;
+};
+
+/** Applies every action except `add_page` to the Contents page. */
+function changeContents(
+  root: string,
+  manifest: Manifest,
+  lang: string,
+  action: string,
+  args: UpdateArgs,
+): UpdateResult {
+  const { depth, pageNumbers, parts, key, title, to, after, target } = args;
+  const entry = contentsPage(manifest);
+  const id = entry.id;
+  const items = resolveToc(manifest, entry, lang, readOutlines(root, manifest, entry, lang));
+  const hiddenParts = tocSettingsOf(entry).parts
+    ? []
+    : manifest.chapters.filter((e) => e.kind === "part").map((e) => e.id);
+  const stale = staleOverrides(entry, items, hiddenParts).map((s) => s.key);
+  const shown = new Set(items.map((i) => i.key));
+  const known = (k: string, withStale: boolean): string => {
+    if (shown.has(k) || (withStale && stale.includes(k))) return k;
+    throw new ToolError(
+      "toc_item_not_found",
+      `no contents item "${k}"; keys come from cadabra_toc_get`,
+      { key: k },
+    );
+  };
+  switch (action) {
+    case "set_depth":
+      return { next: setTocDepth(manifest, id, need(depth, action, "depth") as TocDepth) };
+    case "set_page_numbers":
+      return { next: setTocPageNumbers(manifest, id, need(pageNumbers, action, "pageNumbers")) };
+    case "set_parts":
+      return { next: setTocParts(manifest, id, need(parts, action, "parts")) };
+    case "rename": {
+      const k = known(need(key, action, "key"), false);
+      const text = need(title, action, "title");
+      if (text.trim() === "" && k.startsWith("custom:"))
+        throw new ToolError("invalid_input", "a custom contents entry needs a title");
+      return { next: renameTocItem(manifest, id, k, lang, text) };
+    }
+    case "hide":
+      return { next: hideTocItem(manifest, id, known(need(key, action, "key"), false)) };
+    case "show":
+      return { next: showTocItem(manifest, id, known(need(key, action, "key"), true)) };
+    case "move":
+      return {
+        next: moveTocItem(
+          manifest,
+          id,
+          items,
+          known(need(key, action, "key"), false),
+          need(to, action, "to"),
+        ),
+      };
+    case "add_custom": {
+      const text = needTitle(title, action);
+      const added = addTocCustom(manifest, id, {
+        language: lang,
+        title: text,
+        after: known(need(after, action, "after"), false),
+        ...(target === undefined ? {} : { target: known(target, false) }),
+      });
+      return { next: added.manifest, created: added.key };
+    }
+    case "remove":
+      return { next: removeTocOverride(manifest, id, known(need(key, action, "key"), true)) };
+    default:
+      return { next: resetToc(manifest, id) };
+  }
+}
+
 export const tocUpdate = defineTool({
   name: "cadabra_toc_update",
   title: "Update table of contents",
   description:
-    'Change the Contents page. action: "add_page" (adds the Contents front-matter page, one per book: toc_page_exists; file first, then the manifest), "set_depth" (depth 0-3), "set_page_numbers" (pageNumbers), "rename" (key, title; an empty title for a page or heading removes the rename; in the edition given by language), "hide" / "show" (key), "move" (key, to: 0-based position in the displayed list, clamped), "add_custom" (title, after: key it follows, target?: key whose page number it shows), "remove" (key: clears the hidden/rename/order override of a key, or deletes a custom: entry; also works on stale keys listed by cadabra_toc_get), "reset" (clears every override, keeps depth and page numbers). The list is generated from the outline, so these are overrides on top of it; nothing is dropped from disk silently. Returns the resolved list like cadabra_toc_get. Unknown keys fail with toc_item_not_found.',
+    'Change the Contents page. action: "add_page" (adds the Contents front-matter page, one per book: toc_page_exists; file first, then the manifest), "set_depth" (depth 0-3), "set_page_numbers" (pageNumbers), "set_parts" (parts: list the book\'s part dividers, default true), "rename" (key, title; an empty title for a page or heading removes the rename; in the edition given by language), "hide" / "show" (key), "move" (key, to: 0-based position in the displayed list, clamped; a part moves with its chapters, headings and custom entries, and a row inside a part stays inside it), "add_custom" (title, after: key it follows, target?: key whose page number it shows), "remove" (key: clears the hidden/rename/order override of a key, or deletes a custom: entry; also works on stale keys listed by cadabra_toc_get), "reset" (clears every override, keeps depth, page numbers and parts). The list is generated from the outline, so these are overrides on top of it; nothing is dropped from disk silently. Returns the resolved list like cadabra_toc_get. Unknown keys fail with toc_item_not_found.',
   input: {
     path: PATH,
     action: z.enum(ACTIONS).describe("What to do; the other arguments depend on it."),
@@ -143,13 +270,18 @@ export const tocUpdate = defineTool({
       .optional()
       .describe("set_depth: 0 chapters only, 1-3 also list headings up to that level."),
     pageNumbers: z.boolean().optional().describe("set_page_numbers: show page numbers."),
+    parts: z.boolean().optional().describe("set_parts: list the book's part dividers (default true)."),
     key: z
       .string()
       .min(1)
       .optional()
       .describe("rename, hide, show, move, remove: item key from cadabra_toc_get."),
     title: z.string().optional().describe("rename, add_custom: the text."),
-    to: z.number().int().optional().describe("move: new 0-based position in the displayed list."),
+    to: z
+      .number()
+      .int()
+      .optional()
+      .describe("move: new 0-based position in the displayed list; part blocks move whole."),
     after: z.string().min(1).optional().describe("add_custom: key of the item it follows."),
     target: z
       .string()
@@ -158,104 +290,14 @@ export const tocUpdate = defineTool({
       .describe("add_custom: key whose page number the entry shows."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
-  run: ({ path, action, language, depth, pageNumbers, key, title, to, after, target }, ctx) =>
+  run: ({ path, action, language, ...args }, ctx) =>
     withLock(projectRoot(ctx, path), () => {
       const { root, manifest, hash } = loadProject(ctx, path);
       const lang = editionOf(manifest, language).language;
-      let next: Manifest;
-      let created: string | undefined;
-      let createdFile: string | undefined;
-      if (action === "add_page") {
-        if (!canAddMatter(manifest, "contents"))
-          throw new ToolError("toc_page_exists", "the book already has a Contents page");
-        const source = sourceEdition(manifest.editions);
-        const added = addFrontMatter(
-          manifest,
-          "contents",
-          starterTitle("contents", source.language),
-        );
-        const file = entryFile(added.entry, source.language)!;
-        if (readProjectFile(root, file))
-          throw new ToolError(
-            "io_error",
-            `${file} already exists on disk but is not listed in the book; refusing to overwrite it`,
-          );
-        const doc = starterDoc("contents", {
-          title: source.title,
-          author: source.author,
-          language: source.language,
-          isbn: source.isbn,
-          year: new Date().getFullYear(),
-        });
-        writeProjectFile(root, file, JSON.stringify(doc, null, 2));
-        createdFile = file;
-        next = added.manifest;
-        created = added.entry.id;
-      } else {
-        const entry = contentsPage(manifest);
-        const id = entry.id;
-        const items = resolveToc(manifest, entry, lang, readOutlines(root, manifest, entry, lang));
-        const stale = staleOverrides(entry, items).map((s) => s.key);
-        const shown = new Set(items.map((i) => i.key));
-        const known = (k: string, withStale: boolean): string => {
-          if (shown.has(k) || (withStale && stale.includes(k))) return k;
-          throw new ToolError(
-            "toc_item_not_found",
-            `no contents item "${k}"; keys come from cadabra_toc_get`,
-            { key: k },
-          );
-        };
-        switch (action) {
-          case "set_depth":
-            next = setTocDepth(manifest, id, need(depth, action, "depth") as TocDepth);
-            break;
-          case "set_page_numbers":
-            next = setTocPageNumbers(manifest, id, need(pageNumbers, action, "pageNumbers"));
-            break;
-          case "rename": {
-            const k = known(need(key, action, "key"), false);
-            const text = need(title, action, "title");
-            if (text.trim() === "" && k.startsWith("custom:"))
-              throw new ToolError("invalid_input", "a custom contents entry needs a title");
-            next = renameTocItem(manifest, id, k, lang, text);
-            break;
-          }
-          case "hide":
-            next = hideTocItem(manifest, id, known(need(key, action, "key"), false));
-            break;
-          case "show":
-            next = showTocItem(manifest, id, known(need(key, action, "key"), true));
-            break;
-          case "move":
-            next = moveTocItem(
-              manifest,
-              id,
-              items,
-              known(need(key, action, "key"), false),
-              need(to, action, "to"),
-            );
-            break;
-          case "add_custom": {
-            const text = need(title, action, "title");
-            if (text.trim() === "")
-              throw new ToolError("invalid_input", "a custom contents entry needs a title");
-            const added = addTocCustom(manifest, id, {
-              language: lang,
-              title: text,
-              after: known(need(after, action, "after"), false),
-              ...(target === undefined ? {} : { target: known(target, false) }),
-            });
-            next = added.manifest;
-            created = added.key;
-            break;
-          }
-          case "remove":
-            next = removeTocOverride(manifest, id, known(need(key, action, "key"), true));
-            break;
-          default:
-            next = resetToc(manifest, id);
-        }
-      }
+      const { next, created, createdFile } =
+        action === "add_page"
+          ? addContentsPage(root, manifest)
+          : changeContents(root, manifest, lang, action, args);
       const changed = next !== manifest;
       let w: ReturnType<typeof saveManifest> | null = null;
       if (changed) {

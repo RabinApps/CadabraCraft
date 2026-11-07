@@ -115,16 +115,16 @@ test.describe("rebinding", () => {
     await openShortcuts(page);
     await change(page, "Bold").click();
     await page.keyboard.press("ControlOrMeta+i");
-    await expect(row(page, "Bold").getByRole("alert")).toHaveText(/Already used by “Italic”/);
+    await expect(row(page, "Bold").getByRole("alert")).toContainText(/Already used by “Italic”/);
     // The system's Copy is listed but fixed.
     await page.keyboard.press("ControlOrMeta+c");
-    await expect(row(page, "Bold").getByRole("alert")).toHaveText(/Already used by “Copy”/);
+    await expect(row(page, "Bold").getByRole("alert")).toContainText(/Already used by “Copy”/);
     // A key without Ctrl/Cmd/Alt would be typed text.
     await page.keyboard.press("j");
-    await expect(row(page, "Bold").getByRole("alert")).toHaveText(/together with the key/);
+    await expect(row(page, "Bold").getByRole("alert")).toContainText(/together with the key/);
     // A key that cannot be bound.
     await page.keyboard.press("ControlOrMeta+Enter");
-    await expect(row(page, "Bold").getByRole("alert")).toHaveText(/cannot be used/);
+    await expect(row(page, "Bold").getByRole("alert")).toContainText(/cannot be used/);
     await page.keyboard.press("Escape");
     await expect(row(page, "Bold").getByRole("alert")).toHaveCount(0);
     await expect(keycaps(page, "Bold", BOLD)).toBeVisible();
@@ -149,5 +149,39 @@ test.describe("rebinding", () => {
     await change(page, "Bold").click();
     await page.keyboard.press("ControlOrMeta+i");
     await expect(keycaps(page, "Bold", /^(Control|Command) I$/)).toBeVisible();
+  });
+});
+
+test.describe("screen reader announcements and focus", () => {
+  const live = (page: Page) => page.locator("#shortcuts-live");
+
+  test("recording, saving, conflict and cancel are announced", async ({ page }) => {
+    await openShortcuts(page);
+    await change(page, "Bold").click();
+    await expect(live(page)).toHaveText("Press the new keys for Bold. Esc cancels.");
+    await expect(row(page, "Bold")).toContainText("Press the new keys…");
+    await page.keyboard.press("ControlOrMeta+i");
+    // The conflict is announced by the visible alert.
+    await expect(row(page, "Bold").getByRole("alert")).toContainText(/Already used by “Italic”/);
+    await page.keyboard.press("Escape");
+    await expect(live(page)).toHaveText("Cancelled. Shortcut for Bold unchanged.");
+    await change(page, "Bold").click();
+    await page.keyboard.press("ControlOrMeta+Alt+j");
+    await expect(live(page)).toHaveText("Shortcut for Bold saved.");
+    await change(page, "Bold").click();
+    await page.keyboard.press("Backspace");
+    await expect(live(page)).toHaveText("Shortcut for Bold removed.");
+  });
+
+  test("Reset keeps focus on the Change button and says so", async ({ page }) => {
+    await openShortcuts(page);
+    await change(page, "Bold").click();
+    await page.keyboard.press("ControlOrMeta+Alt+j");
+    const reset = page.getByRole("button", { name: "Reset shortcut for Bold" });
+    await reset.focus();
+    await page.keyboard.press("Enter");
+    await expect(reset).toHaveCount(0);
+    await expect(change(page, "Bold")).toBeFocused();
+    await expect(live(page)).toHaveText("Reset to default");
   });
 });

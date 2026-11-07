@@ -1,5 +1,12 @@
-import type { ChapterDoc, DocNode, Mark } from "@cadabracraft/shared";
+import {
+  isLangTag,
+  parseTextAlign,
+  type ChapterDoc,
+  type DocNode,
+  type Mark,
+} from "@cadabracraft/shared";
 import { EpubExportError, type EpubErrorCode } from "./errors";
+import { backToTextLabel } from "./strings";
 
 /** Characters XML 1.0 cannot carry at all (not even escaped): most control characters, U+FFFE/U+FFFF and lone surrogates. */
 const XML_ILLEGAL =
@@ -31,6 +38,10 @@ const MARK_TAGS: Record<Mark["type"], (m: Mark) => [string, string]> = {
   superscript: () => ["<sup>", "</sup>"],
   subscript: () => ["<sub>", "</sub>"],
   link: (m) => [`<a href="${esc(m.attrs?.href ?? "")}">`, "</a>"],
+  // `inline` has already checked the tag, so it is safe to write unescaped.
+  lang: (m) => [`<span lang="${m.attrs!.lang}" xml:lang="${m.attrs!.lang}">`, "</span>"],
+  // Comments are a writing tool: the text is written and the mark is dropped.
+  comment: () => ["", ""],
 };
 
 interface Ctx {
@@ -61,12 +72,31 @@ const fail = (ctx: Ctx, code: EpubErrorCode, detail: string, nodeType: string): 
 const blocks = (kids: DocNode[] | undefined, ctx: Ctx): string =>
   (kids ?? []).map((k, i) => at(ctx, k, i, () => block(k, ctx))).join("");
 
+/**
+ * The ` class="align-center"` of a paragraph or heading the author aligned ("" for the template's own): a class, not an inline style,
+ * so the stylesheet decides and the text still reflows. `start` and `end` are CSS's logical sides, so a right-to-left book flips them.
+ */
+function alignAttr(n: DocNode, ctx: Ctx): string {
+  const raw = "attrs" in n ? n.attrs?.textAlign : undefined;
+  const align = parseTextAlign(raw);
+  if (align === undefined)
+    throw fail(
+      ctx,
+      "invalid-alignment",
+      `Text alignment ${JSON.stringify(raw)} is not allowed (start, center or end)`,
+      n.type,
+    );
+  return align === null ? "" : ` class="align-${align}"`;
+}
+
 function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
   return (nodes ?? [])
     .map((n, i) =>
       at(ctx, n, i, () => {
         if (n.type === "text") {
           let out = esc(n.text);
+          // A tab is collapsed to a space by XHTML. In text it is an em space, so the indent the author typed is in the book; code keeps it.
+          if (!(n.marks ?? []).some((m) => m.type === "code")) out = out.replace(/\t/g, "\u2003");
           for (const m of [...(n.marks ?? [])].reverse()) {
             const tags = MARK_TAGS[m.type] as ((m: Mark) => [string, string]) | undefined;
             if (!tags)
@@ -75,6 +105,13 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
                 "unsupported-mark",
                 `Unsupported mark type in chapter: ${String(m.type)}`,
                 `mark ${String(m.type)}`,
+              );
+            if (m.type === "lang" && !isLangTag(m.attrs?.lang))
+              throw fail(
+                ctx,
+                "unsupported-mark",
+                `The language of a passage must be a BCP 47 tag (letters, digits and hyphens, at most 35 characters), not ${JSON.stringify(m.attrs?.lang ?? null)}`,
+                "mark lang",
               );
             const [open, close] = tags(m);
             out = open + out + close;
@@ -98,7 +135,7 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
           }
           const id = ctx.notes.length + 1;
           ctx.notes.push(text);
-          return `<a epub:type="noteref" id="ref${id}" href="#fn${id}" class="noteref">${id}</a>`;
+          return `<a epub:type="noteref" role="doc-noteref" id="ref${id}" href="#fn${id}" class="noteref">${id}</a>`;
         }
         if (n.type === "hardBreak") return "<br/>";
         return block(n, ctx);
@@ -190,13 +227,13 @@ function children(
 }
 
 /** An item body: the first paragraph (which may carry a checkbox before its text), then the other blocks. */
-function itemBody(item: DocNode, ctx: Ctx, lead = ""): string {
+function itemBody(item: DocNode, ctx: Ctx, wrap: (text: string) => string = (t) => t): string {
   const kids = ("content" in item ? item.content : undefined) ?? [];
   const first = kids[0];
   if (first?.type !== "paragraph")
     throw fail(ctx, "unsupported-node", `A ${item.type} must start with a paragraph`, item.type);
   return (
-    `<p>${lead}${at(ctx, first, 0, () => inline(first.content, ctx))}</p>` +
+    `<p${alignAttr(first, ctx)}>${wrap(at(ctx, first, 0, () => inline(first.content, ctx)))}</p>` +
     kids
       .slice(1)
       .map((k, i) => at(ctx, k, i + 1, () => block(k, ctx)))
@@ -216,8 +253,13 @@ function taskList(n: DocNode, ctx: Ctx): string {
           "A task item's checked value must be true or false",
           node.type,
         );
-      const box = `<input type="checkbox" disabled="disabled"${checked ? ' checked="checked"' : ""}/> `;
-      return `<li class="task-item">${itemBody(node, ctx, box)}</li>`;
+      const state = `disabled="disabled"${checked ? ' checked="checked"' : ""}`;
+      // The label gives the checkbox its name (the item's text); with no text there is nothing to name it, so it is hidden from assistive technology.
+      const wrap = (text: string) =>
+        text
+          ? `<label><input type="checkbox" ${state}/> ${text}</label>`
+          : `<input type="checkbox" ${state} aria-hidden="true"/>`;
+      return `<li class="task-item">${itemBody(node, ctx, wrap)}</li>`;
     }),
   );
   return `<ul class="task-list">${items.join("")}</ul>`;
@@ -236,73 +278,95 @@ function definitionList(n: DocNode, ctx: Ctx): string {
   return `<dl>${parts.join("")}</dl>`;
 }
 
+type ElementNode = Exclude<DocNode, { type: "text" }>;
+
+function headingXhtml(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  const level = Number(n.attrs?.level ?? 1);
+  if (![1, 2, 3].includes(level))
+    throw fail(
+      ctx,
+      "invalid-heading",
+      `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
+      "heading",
+    );
+  const id = ctx.headingIds ? ` id="${headingAnchor(ctx.headings)}"` : "";
+  ctx.headings += 1;
+  return `<h${level}${id}${alignAttr(n, ctx)}>${inline(kids, ctx)}</h${level}>`;
+}
+
+function orderedListXhtml(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  const start = n.attrs?.start;
+  const attr =
+    typeof start === "number" && Number.isInteger(start) && start !== 1 ? ` start="${start}"` : "";
+  return `<ol${attr}>${blocks(kids, ctx)}</ol>`;
+}
+
+function codeBlockXhtml(n: ElementNode, kids: DocNode[] | undefined, ctx: Ctx): string {
+  const lang =
+    typeof n.attrs?.language === "string" && n.attrs.language
+      ? ` class="language-${esc(n.attrs.language)}"`
+      : "";
+  const text = (kids ?? [])
+    .map((k, i) =>
+      at(ctx, k, i, () => {
+        if (k.type !== "text")
+          throw fail(
+            ctx,
+            "unsupported-node",
+            `Unsupported node type in code block: ${k.type}`,
+            k.type,
+          );
+        return k.text;
+      }),
+    )
+    .join("");
+  return `<pre><code${lang}>${esc(text)}</code></pre>`;
+}
+
+function imageXhtml(n: ElementNode): string {
+  const a = n.attrs ?? {};
+  // A decorative image keeps an empty alt on purpose and is hidden from assistive technology.
+  const src = esc(String(a.src ?? ""));
+  const img = a.decorative
+    ? `<img src="${src}" alt="" role="presentation"/>`
+    : `<img src="${src}" alt="${esc(String(a.alt ?? ""))}"/>`;
+  return `<figure>${img}${
+    a.title ? `<figcaption>${esc(String(a.title))}</figcaption>` : ""
+  }</figure>`;
+}
+
 function block(n: DocNode, ctx: Ctx): string {
   const kids = "content" in n ? n.content : undefined;
   switch (n.type) {
     case "paragraph":
-      return `<p>${inline(kids, ctx)}</p>`;
-    case "heading": {
-      const level = Number(n.attrs?.level ?? 1);
-      if (![1, 2, 3].includes(level))
-        throw fail(
-          ctx,
-          "invalid-heading",
-          `Heading level ${String(n.attrs?.level)} is not allowed (levels 1-3 only)`,
-          "heading",
-        );
-      const id = ctx.headingIds ? ` id="${headingAnchor(ctx.headings)}"` : "";
-      ctx.headings += 1;
-      return `<h${level}${id}>${inline(kids, ctx)}</h${level}>`;
-    }
+      return `<p${alignAttr(n, ctx)}>${inline(kids, ctx)}</p>`;
+    case "heading":
+      return headingXhtml(n, kids, ctx);
     case "blockquote":
       return `<blockquote>${blocks(kids, ctx)}</blockquote>`;
+    // A scene is structure inside the app: its notes never print, and its blocks print as they are.
+    case "scene":
+      return blocks(kids, ctx);
     case "bulletList":
       return `<ul>${blocks(kids, ctx)}</ul>`;
-    case "orderedList": {
-      const start = n.attrs?.start;
-      const attr =
-        typeof start === "number" && Number.isInteger(start) && start !== 1
-          ? ` start="${start}"`
-          : "";
-      return `<ol${attr}>${blocks(kids, ctx)}</ol>`;
-    }
+    case "orderedList":
+      return orderedListXhtml(n, kids, ctx);
     case "listItem":
       return `<li>${blocks(kids, ctx)}</li>`;
     case "taskList":
       return taskList(n, ctx);
     case "definitionList":
       return definitionList(n, ctx);
-    case "codeBlock": {
-      const lang =
-        typeof n.attrs?.language === "string" && n.attrs.language
-          ? ` class="language-${esc(n.attrs.language)}"`
-          : "";
-      const text = (kids ?? [])
-        .map((k, i) =>
-          at(ctx, k, i, () => {
-            if (k.type !== "text")
-              throw fail(
-                ctx,
-                "unsupported-node",
-                `Unsupported node type in code block: ${k.type}`,
-                k.type,
-              );
-            return k.text;
-          }),
-        )
-        .join("");
-      return `<pre><code${lang}>${esc(text)}</code></pre>`;
-    }
+    case "codeBlock":
+      return codeBlockXhtml(n, kids, ctx);
     case "table":
       return table(n, ctx);
     case "sceneBreak":
       return `<hr class="scene-break"/>`;
-    case "image": {
-      const a = n.attrs ?? {};
-      return `<figure><img src="${esc(String(a.src ?? ""))}" alt="${esc(String(a.alt ?? ""))}"/>${
-        a.title ? `<figcaption>${esc(String(a.title))}</figcaption>` : ""
-      }</figure>`;
-    }
+    case "pageBreak":
+      return `<hr class="page-break"/>`;
+    case "image":
+      return imageXhtml(n);
     default:
       throw fail(ctx, "unsupported-node", `Unsupported node type in chapter: ${n.type}`, n.type);
   }
@@ -313,12 +377,13 @@ export const headingAnchor = (index: number): string => `h-${index}`;
 
 /**
  * Chapter JSON -> XHTML body fragment, with an endnotes section when footnotes exist. `headingIds` puts `id="h-N"` on each
- * heading so a contents page can link to it; off by default.
+ * heading so a contents page can link to it; off by default. `language` (default "en") names the footnote back links.
  */
 export function chapterToXhtmlBody(
   doc: ChapterDoc,
-  options: { headingIds?: boolean } = {},
+  options: { headingIds?: boolean; language?: string } = {},
 ): string {
+  const language = options.language ?? "en";
   const ctx: Ctx = {
     notes: [],
     inNote: false,
@@ -328,13 +393,14 @@ export function chapterToXhtmlBody(
   };
   const body = doc.content.map((n, i) => at(ctx, n, i, () => block(n, ctx))).join("\n");
   if (!ctx.notes.length) return body;
+  const back = esc(backToTextLabel(language));
   const notes = ctx.notes
     .map(
       (t, i) =>
-        `<li id="fn${i + 1}" epub:type="footnote"><p>${t} <a href="#ref${i + 1}">↩</a></p></li>`,
+        `<li><aside id="fn${i + 1}" epub:type="footnote" role="doc-footnote"><p>${t} <a href="#ref${i + 1}" role="doc-backlink" aria-label="${back}">↩</a></p></aside></li>`,
     )
     .join("");
-  return `${body}\n<aside epub:type="footnotes"><ol>${notes}</ol></aside>`;
+  return `${body}\n<section epub:type="footnotes" role="doc-endnotes"><ol>${notes}</ol></section>`;
 }
 
 /** Every distinct image `src` used in a chapter, in document order. */
@@ -350,7 +416,7 @@ export function collectImageSources(doc: ChapterDoc): string[] {
   return [...new Set(out)];
 }
 
-/** How many images a chapter has and how many of them have no alt text (missing or only spaces). */
+/** How many images a chapter has and how many of them have no alt text (missing or only spaces) and are not marked decorative. */
 export function imageAltStats(doc: ChapterDoc): { total: number; missingAlt: number } {
   let total = 0;
   let missingAlt = 0;
@@ -358,7 +424,7 @@ export function imageAltStats(doc: ChapterDoc): { total: number; missingAlt: num
     for (const n of nodes ?? []) {
       if (n.type === "image") {
         total += 1;
-        if (String(n.attrs?.alt ?? "").trim() === "") missingAlt += 1;
+        if (!n.attrs?.decorative && String(n.attrs?.alt ?? "").trim() === "") missingAlt += 1;
       }
       if ("content" in n) walk(n.content);
     }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EpubExportError } from "@cadabracraft/export-epub";
-import { describeEpubError } from "../epubErrors";
+import { describeEpubError } from "../export/epubErrors";
 
 describe("describeEpubError", () => {
   it("names the page and the place for an unknown node", () => {

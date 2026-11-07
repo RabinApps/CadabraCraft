@@ -1,7 +1,7 @@
 import { CURRENT_FORMAT_VERSION, validateManifest, type Manifest } from "./manifest";
 import { FormatError } from "./errors";
 import { migrateV3ToV4 } from "./editions";
-import { migrateV4ToV5 } from "./references";
+import { migrateV4ToV5, migrateV11ToV12 } from "./references";
 import { migrateV5ToV6 } from "./publishing";
 import { migrateV6ToV7 } from "./toc";
 import { errMsg } from "@cadabracraft/shared";
@@ -26,6 +26,17 @@ export const MIGRATIONS: Migration[] = [
   { from: 5, up: migrateV5ToV6 },
   // v6 -> v7: a "contents" page kind with optional `toc` settings. Nothing changes and no file moves.
   { from: 6, up: migrateV6ToV7 },
+  // v7 -> v8: a manifest `dropCap` and, on entries, `icon` and (chapters) `dropCap`. Nothing changes and no file moves.
+  { from: 7, up: (raw) => ({ ...raw }) },
+  // v8 -> v9: front and back matter entries may carry `verticalCenter`. Nothing changes and no file moves.
+  { from: 8, up: (raw) => ({ ...raw }) },
+  // v9 -> v10: front and back matter entries may carry `startOnNext`. Nothing changes and no file moves.
+  { from: 9, up: (raw) => ({ ...raw }) },
+  // v10 -> v11: chapters may carry `kind: "part"` (a divider page) and a contents page may leave parts out. Existing books have
+  // neither, so nothing changes and no file moves.
+  { from: 10, up: (raw) => ({ ...raw }) },
+  // v11 -> v12: every reference gets `kind: "file"`; links and text notes are new kinds. No file moves.
+  { from: 11, up: migrateV11ToV12 },
 ];
 
 export interface MigrationResult {

@@ -52,63 +52,73 @@ function isCalendarDate(v: string): boolean {
   return at.getUTCFullYear() === y && at.getUTCMonth() === mo - 1 && at.getUTCDate() === d;
 }
 
+type Raw = Record<string, unknown>;
+
+function descriptionField(o: Raw, name: string): string {
+  const d = o.description;
+  if (
+    typeof d !== "string" ||
+    d.trim() === "" ||
+    d !== d.trim() ||
+    d.length > PUBLISHING_LIMITS.description ||
+    CONTROL_NO_BREAK.test(d)
+  )
+    throw new FormatError(
+      `manifest: "${name}.description" must be trimmed text of 1 to ${PUBLISHING_LIMITS.description} characters`,
+    );
+  return d;
+}
+
+function subjectsField(o: Raw, name: string): string[] {
+  if (!Array.isArray(o.subjects) || o.subjects.length === 0)
+    throw new FormatError(`manifest: "${name}.subjects" must be a non-empty list`);
+  if (o.subjects.length > PUBLISHING_LIMITS.subjects)
+    throw new FormatError(
+      `manifest: "${name}.subjects" has more than ${PUBLISHING_LIMITS.subjects} entries`,
+    );
+  const subjects = o.subjects.map((s, i) =>
+    line(s, `${name}.subjects[${i}]`, PUBLISHING_LIMITS.subject),
+  );
+  if (new Set(subjects).size !== subjects.length)
+    throw new FormatError(`manifest: "${name}.subjects" repeats an entry`);
+  return subjects;
+}
+
+function seriesNumberField(o: Raw, out: Publishing, name: string): string {
+  if (out.series === undefined)
+    throw new FormatError(`manifest: "${name}.seriesNumber" needs a "${name}.series"`);
+  if (typeof o.seriesNumber !== "string" || !SERIES_NUMBER.test(o.seriesNumber))
+    throw new FormatError(
+      `manifest: "${name}.seriesNumber" must be digits with an optional decimal part`,
+    );
+  return o.seriesNumber;
+}
+
+function publishedField(o: Raw, name: string): string {
+  if (typeof o.published !== "string" || !isCalendarDate(o.published))
+    throw new FormatError(`manifest: "${name}.published" must be a date as YYYY-MM-DD`);
+  return o.published;
+}
+
 /** Validates an edition's `publishing`. Returns only the keys that are set; throws FormatError on anything else. */
 export function validatePublishing(v: unknown, name = "publishing"): Publishing {
   if (typeof v !== "object" || v === null || Array.isArray(v))
     throw new FormatError(`manifest: "${name}" must be an object`);
-  const o = v as Record<string, unknown>;
+  const o = v as Raw;
   for (const k of Object.keys(o))
     if (!(KEYS as readonly string[]).includes(k))
       throw new FormatError(`manifest: unknown key "${name}.${k}"`);
   const out: Publishing = {};
   if (o.publisher !== undefined)
     out.publisher = line(o.publisher, `${name}.publisher`, PUBLISHING_LIMITS.publisher);
-  if (o.description !== undefined) {
-    const d = o.description;
-    if (
-      typeof d !== "string" ||
-      d.trim() === "" ||
-      d !== d.trim() ||
-      d.length > PUBLISHING_LIMITS.description ||
-      CONTROL_NO_BREAK.test(d)
-    )
-      throw new FormatError(
-        `manifest: "${name}.description" must be trimmed text of 1 to ${PUBLISHING_LIMITS.description} characters`,
-      );
-    out.description = d;
-  }
-  if (o.subjects !== undefined) {
-    if (!Array.isArray(o.subjects) || o.subjects.length === 0)
-      throw new FormatError(`manifest: "${name}.subjects" must be a non-empty list`);
-    if (o.subjects.length > PUBLISHING_LIMITS.subjects)
-      throw new FormatError(
-        `manifest: "${name}.subjects" has more than ${PUBLISHING_LIMITS.subjects} entries`,
-      );
-    const subjects = o.subjects.map((s, i) =>
-      line(s, `${name}.subjects[${i}]`, PUBLISHING_LIMITS.subject),
-    );
-    if (new Set(subjects).size !== subjects.length)
-      throw new FormatError(`manifest: "${name}.subjects" repeats an entry`);
-    out.subjects = subjects;
-  }
+  if (o.description !== undefined) out.description = descriptionField(o, name);
+  if (o.subjects !== undefined) out.subjects = subjectsField(o, name);
   if (o.series !== undefined)
     out.series = line(o.series, `${name}.series`, PUBLISHING_LIMITS.series);
-  if (o.seriesNumber !== undefined) {
-    if (out.series === undefined)
-      throw new FormatError(`manifest: "${name}.seriesNumber" needs a "${name}.series"`);
-    if (typeof o.seriesNumber !== "string" || !SERIES_NUMBER.test(o.seriesNumber))
-      throw new FormatError(
-        `manifest: "${name}.seriesNumber" must be digits with an optional decimal part`,
-      );
-    out.seriesNumber = o.seriesNumber;
-  }
+  if (o.seriesNumber !== undefined) out.seriesNumber = seriesNumberField(o, out, name);
   if (o.rights !== undefined)
     out.rights = line(o.rights, `${name}.rights`, PUBLISHING_LIMITS.rights);
-  if (o.published !== undefined) {
-    if (typeof o.published !== "string" || !isCalendarDate(o.published))
-      throw new FormatError(`manifest: "${name}.published" must be a date as YYYY-MM-DD`);
-    out.published = o.published;
-  }
+  if (o.published !== undefined) out.published = publishedField(o, name);
   return out;
 }
 

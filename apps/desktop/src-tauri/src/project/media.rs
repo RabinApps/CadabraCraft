@@ -75,8 +75,16 @@ fn plan(header: Option<&str>, size: u64) -> Plan {
 #[derive(Debug, PartialEq)]
 pub enum MediaRead {
     /// `partial` is true for a range (206): the bytes are `start..start + bytes.len()` of `total`.
-    Slice { bytes: Vec<u8>, start: u64, total: u64, partial: bool, content_type: &'static str },
-    OutOfRange { total: u64 },
+    Slice {
+        bytes: Vec<u8>,
+        start: u64,
+        total: u64,
+        partial: bool,
+        content_type: &'static str,
+    },
+    OutOfRange {
+        total: u64,
+    },
 }
 
 /// Reads what `range` (the value of a `Range` header, if any) asks for from `references/<name>`.
@@ -111,7 +119,18 @@ mod tests {
 
     #[test]
     fn only_audio_and_video_have_a_content_type() {
-        for (ext, ty) in [("mp4", "video/mp4"), ("m4v", "video/mp4"), ("mov", "video/quicktime"), ("webm", "video/webm"), ("mp3", "audio/mpeg"), ("wav", "audio/wav"), ("ogg", "audio/ogg"), ("oga", "audio/ogg"), ("m4a", "audio/mp4"), ("flac", "audio/flac")] {
+        for (ext, ty) in [
+            ("mp4", "video/mp4"),
+            ("m4v", "video/mp4"),
+            ("mov", "video/quicktime"),
+            ("webm", "video/webm"),
+            ("mp3", "audio/mpeg"),
+            ("wav", "audio/wav"),
+            ("ogg", "audio/ogg"),
+            ("oga", "audio/ogg"),
+            ("m4a", "audio/mp4"),
+            ("flac", "audio/flac"),
+        ] {
             assert_eq!(media_type(ext), Some(ty), "{ext}");
         }
         for ext in ["png", "svg", "pdf", "txt", "html", "js", "exe", ""] {

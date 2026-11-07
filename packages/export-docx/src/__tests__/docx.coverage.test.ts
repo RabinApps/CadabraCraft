@@ -107,6 +107,19 @@ describe("blocks", () => {
     expect(d).toContain('descr="Fig"');
     expect(d).toContain('w:val="Caption"');
   });
+  it("ignores the alt text of a decorative image", () => {
+    const assets = new Map([
+      ["assets/a.png", bytes(33, ...PNG_HEAD, [16, [0, 0, 0, 2]], [20, [0, 0, 0, 2]])],
+    ]);
+    const d = documentXml(
+      buildDocx(
+        book,
+        [chapter("A", image({ src: "assets/a.png", alt: "ignored", decorative: true } as never))],
+        { assets },
+      ),
+    );
+    expect(d).toContain('descr=""');
+  });
   it("refuses an image type Word export does not know", () => {
     expect(() =>
       buildDocx(book, [chapter("A", image({ src: "assets/a.bmp" }))], {
@@ -240,6 +253,16 @@ describe("tables", () => {
     expect(d).toContain("<w:tblHeader/>");
     expect(d).toContain("<w:b/>");
     expect(d.match(/<w:cantSplit\/>/g)).toHaveLength(2);
+  });
+  it("sets the first-row flag of tblLook only when the first row is a header row", () => {
+    const head = { type: "tableHeader", content: [p(t("H"))] } as DocNode;
+    const withHeader = build(chapter("A", table(row(head), row({ type: "tableCell" }))));
+    expect(withHeader).toContain('<w:tblLook w:val="0420" w:firstRow="1"');
+    const without = build(
+      chapter("A", table(row({ type: "tableCell" }), row({ type: "tableCell" }))),
+    );
+    expect(without).toContain('<w:tblLook w:val="0400" w:firstRow="0"');
+    expect(without).not.toContain("<w:tblHeader/>");
   });
 });
 

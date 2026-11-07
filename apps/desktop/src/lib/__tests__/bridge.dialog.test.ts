@@ -45,4 +45,20 @@ describe("the pickers that run in Rust", () => {
     invoke.mockRejectedValueOnce({ kind: "not_found", path: "x" });
     await expect(bridge.pickFolder()).rejects.toEqual({ kind: "not_found", path: "x" });
   });
+
+  it("the library commands send the folder and the cover path and return Rust's answer", async () => {
+    const scan = { books: [], skipped: 1, truncated: false };
+    invoke
+      .mockResolvedValueOnce("/books")
+      .mockResolvedValueOnce(scan)
+      .mockResolvedValueOnce({ size: 3, modified: 9 });
+    expect(await bridge.pickLibraryFolder()).toBe("/books");
+    expect(await bridge.scanLibrary("/books")).toBe(scan);
+    expect(await bridge.statAsset("/b", "assets/c.png")).toEqual({ size: 3, modified: 9 });
+    expect(invoke.mock.calls).toEqual([
+      ["pick_library_folder"],
+      ["scan_library", { root: "/books" }],
+      ["stat_asset", { root: "/b", path: "assets/c.png" }],
+    ]);
+  });
 });

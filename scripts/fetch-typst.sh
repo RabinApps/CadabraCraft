@@ -74,6 +74,14 @@ if [ "${1:-}" = "--all" ]; then
     lipo -create -output "$OUT/typst-universal-apple-darwin" "$OUT/typst-aarch64-apple-darwin" "$OUT/typst-x86_64-apple-darwin"
   fi
 else
-  fetch_typst "$(rustc -vV | sed -n 's/^host: //p')"
+  if command -v rustc >/dev/null 2>&1; then
+    fetch_typst "$(rustc -vV | sed -n 's/^host: //p')"
+  else # the JS CI job has no Rust toolchain: Linux only, by CPU
+    case "$(uname -m)" in
+      x86_64) fetch_typst x86_64-unknown-linux-gnu ;;
+      aarch64|arm64) fetch_typst aarch64-unknown-linux-gnu ;;
+      *) echo "rustc not found and no Typst build for $(uname -m)" >&2; exit 1 ;;
+    esac
+  fi
 fi
 fetch_fonts

@@ -113,7 +113,14 @@ describe("contents page actions", () => {
     await a().hideTocItem(id, "ch-2");
     await a().addTocCustom(id, { title: "X", after: "ch-1" });
     await a().resetToc(id);
-    expect(toc()).toEqual({ depth: 1, pageNumbers: true, hidden: [], titles: {}, custom: [] });
+    expect(toc()).toEqual({
+      depth: 1,
+      pageNumbers: true,
+      parts: true,
+      hidden: [],
+      titles: {},
+      custom: [],
+    });
   });
 
   it("says so and keeps the list when the save fails or the change is refused", async () => {

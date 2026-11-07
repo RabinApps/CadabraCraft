@@ -3,7 +3,7 @@ import {
   isFrontMatterKind,
   isTrimSize,
   isValidEntryId,
-  type MatterKind,
+  type EntryKind,
   type TrimSize,
 } from "@cadabracraft/shared";
 import { FormatError } from "./errors";
@@ -13,7 +13,7 @@ import { validatePublishing, type Publishing } from "./publishing";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 7;
+export const CURRENT_FORMAT_VERSION = 12;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -49,6 +49,8 @@ export interface TocCustom {
 export interface TocSettings {
   depth: TocDepth;
   pageNumbers: boolean;
+  /** List the book's parts (formatVersion 11). Default true; false leaves the part pages out of this contents list. */
+  parts: boolean;
   /** Item keys left out of the list. */
   hidden: string[];
   /** Item key to language to replacement text. */
@@ -62,30 +64,60 @@ export interface TocSettings {
 export interface EditionEntry {
   id: string;
   /** Front and back matter pages only: what the page is, for starter content and export semantics. */
-  kind?: MatterKind;
+  kind?: EntryKind;
   /** Language to chapter title. Has the source language. */
   titles: Record<string, string>;
   /** Language to relative project path, using "/". Has the source language. */
   files: Record<string, string>;
   /** Languages whose text is still a copy of the source or blank, waiting for translation. Absent means none. */
   untranslated?: string[];
+  /** Sidebar icon, a name from `ENTRY_ICONS`. Shown in the app only, never exported. Absent means none. Added without a version bump: older apps ignore it. */
+  icon?: string;
+  /** Chapters only (formatVersion 8): a big first letter on this chapter's opening paragraph (true) or none (false). Absent follows the book's `dropCap`. */
+  dropCap?: boolean;
+  /** Front and back matter pages only, except contents and copyright (formatVersion 9): centre the page's content between the margins (true) or keep it at the top (false). Absent follows the template's default for the kind. */
+  verticalCenter?: boolean;
+  /** Front and back matter pages only (formatVersion 10): true starts on the next page even when that is a left-hand page (no blank page before it), false opens on a right-hand page, with a blank left-hand page before it when needed. Absent follows the book's rules, their blank pages included. */
+  startOnNext?: boolean;
   /** Contents pages only (`kind: "contents"`, formatVersion 7): the author's changes to the generated list. Absent means defaults. */
   toc?: TocSettings;
 }
 
-/** A research file kept beside the book (formatVersion 5). The file lives in `references/`. */
-export interface Reference {
+/** The kinds of reference (formatVersion 12). Before that every reference was a file. */
+export type ReferenceType = "file" | "link" | "note";
+
+interface ReferenceBase {
   id: string;
-  /** Relative `references/<name>` path. */
-  file: string;
   title: string;
+  /** The author's own comment on the reference. For a text note the note itself is `text`. */
   note: string;
   tags: string[];
   /** Ids of the chapters or matter pages this reference is linked to. */
   chapters: string[];
-  /** ISO 8601 date and time of the import. */
+  /** ISO 8601 date and time it was added. */
   addedAt: string;
 }
+
+/** A research file kept beside the book (formatVersion 5). The file lives in `references/`. */
+export interface FileReference extends ReferenceBase {
+  kind: "file";
+  /** Relative `references/<name>` path. */
+  file: string;
+}
+
+/** A web address (formatVersion 12). Only http and https; nothing is fetched. */
+export interface LinkReference extends ReferenceBase {
+  kind: "link";
+  url: string;
+}
+
+/** A piece of text kept in the manifest (formatVersion 12); no file. */
+export interface NoteReference extends ReferenceBase {
+  kind: "note";
+  text: string;
+}
+
+export type Reference = FileReference | LinkReference | NoteReference;
 
 /** Font family names the author picked; each is a family name, not a file. */
 export interface BookFonts {
@@ -101,6 +133,8 @@ export interface Manifest {
   trimSize?: TrimSize;
   /** Font families chosen for the book's PDF and editor. Absent means the template's fonts. Added without a version bump: older apps ignore it. */
   fonts?: BookFonts;
+  /** Big first letter on chapter openings (formatVersion 8). Absent means the template decides; a chapter's own `dropCap` wins. */
+  dropCap?: boolean;
   frontMatter: EditionEntry[];
   chapters: EditionEntry[];
   backMatter: EditionEntry[];
@@ -143,6 +177,15 @@ export function readingOrder(m: Manifest): EditionEntry[] {
   return [...m.frontMatter, ...m.chapters, ...m.backMatter];
 }
 
+/**
+ * The book's chapters, without the blank pages the author put between them: the pages a chapter number counts, a narration reads and
+ * a "Chapter 3" title numbers. A blank page in the chapters list is a page of the book, not a chapter.
+ */
+export function chaptersOf(m: Manifest): EditionEntry[] {
+  return m.chapters.filter((e) => e.kind !== "blank" && e.kind !== "part");
+}
+
+const ICON_NAME = /^[a-z][a-z0-9-]{0,39}$/;
 const COVER_PATH = /^assets\/[A-Za-z0-9_-]+\.(png|jpe?g|webp)$/;
 
 const str = (v: unknown, name: string): string => {
@@ -187,47 +230,130 @@ const stringMap = (v: unknown, name: string): Record<string, string> => {
   return Object.fromEntries(Object.entries(v).map(([k, s]) => [k, str(s, `${name}.${k}`)]));
 };
 
+type EntryField = (
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: "front" | "chapter" | "back",
+) => void;
+
+const fail = (message: string): never => {
+  throw new FormatError(`manifest: ${message}`);
+};
+
+function untranslatedField(o: Record<string, unknown>, entry: EditionEntry, at: string): void {
+  if (o.untranslated === undefined) return;
+  if (!Array.isArray(o.untranslated) || !o.untranslated.every((l) => typeof l === "string" && l))
+    fail(`"${at}.untranslated" must be a list of languages`);
+  entry.untranslated = o.untranslated as string[];
+}
+
+function iconField(o: Record<string, unknown>, entry: EditionEntry, at: string): void {
+  if (o.icon === undefined) return;
+  // Names this app does not know are kept (a newer app wrote them) and shown as no icon.
+  if (typeof o.icon !== "string" || !ICON_NAME.test(o.icon))
+    fail(`"${at}.icon" must be an icon name`);
+  entry.icon = o.icon as string;
+}
+
+function dropCapField(
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: string,
+): void {
+  if (o.dropCap === undefined) return;
+  if (section !== "chapter") fail(`"${at}.dropCap" belongs on a chapter only`);
+  if (typeof o.dropCap !== "boolean") fail(`"${at}.dropCap" must be true or false`);
+  entry.dropCap = o.dropCap as boolean;
+}
+
+function kindField(
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: string,
+): void {
+  if (o.kind !== undefined) {
+    // Chapters have no kind, except a blank page the author put between two of them: it is a page of the book, not a chapter.
+    const ok =
+      section === "front"
+        ? isFrontMatterKind(o.kind)
+        : section === "back"
+          ? isBackMatterKind(o.kind)
+          : o.kind === "blank" || o.kind === "part";
+    if (!ok) fail(`invalid kind ${JSON.stringify(o.kind)} in ${at}`);
+    entry.kind = o.kind as EntryKind;
+  }
+  if (entry.kind === "part" && entry.dropCap !== undefined)
+    fail(`"${at}.dropCap" belongs on a chapter only`);
+}
+
+function verticalCenterField(
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: string,
+): void {
+  if (o.verticalCenter === undefined) return;
+  if (section === "chapter" || entry.kind === "contents" || entry.kind === "copyright")
+    fail(
+      `"${at}.verticalCenter" belongs on a front or back matter page other than contents and copyright`,
+    );
+  if (typeof o.verticalCenter !== "boolean") fail(`"${at}.verticalCenter" must be true or false`);
+  entry.verticalCenter = o.verticalCenter as boolean;
+}
+
+function startOnNextField(
+  o: Record<string, unknown>,
+  entry: EditionEntry,
+  at: string,
+  section: string,
+): void {
+  if (o.startOnNext === undefined) return;
+  if (section === "chapter") fail(`"${at}.startOnNext" belongs on a front or back matter page`);
+  if (typeof o.startOnNext !== "boolean") fail(`"${at}.startOnNext" must be true or false`);
+  entry.startOnNext = o.startOnNext as boolean;
+}
+
+function tocField(o: Record<string, unknown>, entry: EditionEntry, at: string): void {
+  if (o.toc === undefined) return;
+  if (entry.kind !== "contents") fail(`"${at}.toc" belongs on a contents page only`);
+  entry.toc = validateToc(o.toc, `${at}.toc`);
+}
+
+/** The optional entry fields, checked in this order (the first problem found is the one reported). */
+const ENTRY_FIELDS: EntryField[] = [
+  untranslatedField,
+  iconField,
+  dropCapField,
+  kindField,
+  verticalCenterField,
+  startOnNextField,
+  tocField,
+];
+
 function entries(v: unknown, name: string, section: "front" | "chapter" | "back"): EditionEntry[] {
   if (!Array.isArray(v)) throw new FormatError(`manifest: "${name}" must be an array`);
   return v.map((e, i) => {
     const o = (e ?? {}) as Record<string, unknown>;
-    const id = str(o.id, `${name}[${i}].id`);
+    const at = `${name}[${i}]`;
+    const id = str(o.id, `${at}.id`);
     if (!isValidEntryId(id))
       throw new FormatError(
-        `manifest: "${name}[${i}].id" must start with a letter and use only letters, digits, "-" and "_" (got ${JSON.stringify(id)})`,
+        `manifest: "${at}.id" must start with a letter and use only letters, digits, "-" and "_" (got ${JSON.stringify(id)})`,
       );
     const entry: EditionEntry = {
       id,
-      titles: stringMap(o.titles, `${name}[${i}].titles`),
-      files: stringMap(o.files, `${name}[${i}].files`),
+      titles: stringMap(o.titles, `${at}.titles`),
+      files: stringMap(o.files, `${at}.files`),
     };
-    if (o.untranslated !== undefined) {
-      if (
-        !Array.isArray(o.untranslated) ||
-        !o.untranslated.every((l) => typeof l === "string" && l)
-      )
-        throw new FormatError(`manifest: "${name}[${i}].untranslated" must be a list of languages`);
-      entry.untranslated = o.untranslated as string[];
-    }
-    if (o.kind !== undefined) {
-      const ok =
-        section === "front"
-          ? isFrontMatterKind(o.kind)
-          : section === "back" && isBackMatterKind(o.kind);
-      if (!ok)
-        throw new FormatError(`manifest: invalid kind ${JSON.stringify(o.kind)} in ${name}[${i}]`);
-      entry.kind = o.kind as MatterKind;
-    }
-    if (o.toc !== undefined) {
-      if (entry.kind !== "contents")
-        throw new FormatError(`manifest: "${name}[${i}].toc" belongs on a contents page only`);
-      entry.toc = validateToc(o.toc, `${name}[${i}].toc`);
-    }
+    for (const apply of ENTRY_FIELDS) apply(o, entry, at, section);
     return entry;
   });
 }
 
-const TOC_KEYS = ["depth", "pageNumbers", "hidden", "titles", "order", "custom"] as const;
+const TOC_KEYS = ["depth", "pageNumbers", "parts", "hidden", "titles", "order", "custom"] as const;
 const TOC_CUSTOM_KEYS = ["id", "titles", "after", "target"] as const;
 
 const keyList = (v: unknown, name: string): string[] => {
@@ -256,6 +382,8 @@ export function validateToc(v: unknown, name = "toc"): TocSettings {
     throw new FormatError(`manifest: "${name}.depth" must be 0, 1, 2 or 3`);
   if (typeof o.pageNumbers !== "boolean")
     throw new FormatError(`manifest: "${name}.pageNumbers" must be true or false`);
+  if (o.parts !== undefined && typeof o.parts !== "boolean")
+    throw new FormatError(`manifest: "${name}.parts" must be true or false`);
   const titlesIn = plainObject(o.titles, `${name}.titles`);
   const titles = Object.fromEntries(
     Object.entries(titlesIn).map(([key, byLang]) => [
@@ -290,6 +418,7 @@ export function validateToc(v: unknown, name = "toc"): TocSettings {
   return {
     depth: o.depth,
     pageNumbers: o.pageNumbers,
+    parts: o.parts !== false,
     hidden: keyList(o.hidden, `${name}.hidden`),
     titles,
     ...(o.order === undefined ? {} : { order: keyList(o.order, `${name}.order`) }),
@@ -348,6 +477,11 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
     m.trimSize = o.trimSize;
   }
   if (o.fonts !== undefined) m.fonts = validateFonts(o.fonts);
+  if (o.dropCap !== undefined) {
+    if (typeof o.dropCap !== "boolean")
+      throw new FormatError(`manifest: "dropCap" must be true or false`);
+    m.dropCap = o.dropCap;
+  }
   validateEditions(m.editions, readingOrder(m));
   const seen = new Set<string>();
   for (const e of readingOrder(m)) {

@@ -1,6 +1,6 @@
 import { expect, test } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject, chapterAction, seedSnapshot } from "./support/helpers";
+import { newProject, chapterAction, seedSnapshot, focusEnd } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -45,8 +45,7 @@ test("book undo and redo: sidebar buttons and shortcut, trash round trip, separa
   expect(await trashCount()).toBe(1);
 
   // Keyboard: Mod+Alt+Z undoes the book edit; Mod+Z in the editor only undoes typing.
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type(" typed");
   await page.keyboard.press("ControlOrMeta+z");
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
@@ -69,8 +68,7 @@ test("History compares an earlier version with the current text and restores it"
   page,
 }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("Marta walked home");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");
@@ -106,8 +104,7 @@ test("a page with a newer snapshot than its saved text is offered for recovery w
   page,
 }) => {
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("older text on disk");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");

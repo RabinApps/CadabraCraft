@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSection, SPY_LINE } from "../settingsScroll";
+import { currentSection, SPY_LINE } from "../reading/settingsScroll";
 
 describe("currentSection", () => {
   it("is the first section at the top, before any heading has reached the line", () => {

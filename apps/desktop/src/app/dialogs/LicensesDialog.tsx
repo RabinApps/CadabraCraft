@@ -1,10 +1,11 @@
 import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { bridge } from "../../lib/bridge";
-import { errText } from "../../lib/projectError";
-import { LICENSE_DOCS, type LicenseDoc, useLicenses } from "../../state/licenses";
+import { whyText } from "../../lib/projectError";
+import { LICENSE_DOCS, type LicenseDoc, useLicenses } from "../../state/app/licenses";
+import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Dialog";
-import { Segmented } from "../../ui/Segmented";
+import { Segmented } from "../../ui/forms/Segmented";
 
 /**
  * Help > Licenses: the app's own license and the notices for everything that ships with it. The text is read from the
@@ -16,6 +17,7 @@ export function LicensesDialog() {
   const [doc, setDoc] = useState<LicenseDoc>("license");
   const [text, setText] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [tries, setTries] = useState(0);
   useEffect(() => {
     if (!open) return;
     let current = true;
@@ -23,12 +25,12 @@ export function LicensesDialog() {
     setError("");
     bridge.readLicense(doc).then(
       (body) => current && setText(body),
-      (e) => current && setError(errText(e)),
+      (e) => current && setError(whyText(e)),
     );
     return () => {
       current = false;
     };
-  }, [open, doc]);
+  }, [open, doc, tries]);
   const labels: Record<LicenseDoc, string> = {
     license: t`License`,
     clarifications: t`Clarifications`,
@@ -55,10 +57,16 @@ export function LicensesDialog() {
           items={LICENSE_DOCS.map((value) => ({ value, label: labels[value] }))}
         />
         {error ? (
-          <p
-            role="alert"
-            className="text-small text-danger"
-          >{t`Could not read this document: ${error}`}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <p
+              id="license-error"
+              role="alert"
+              className="text-small text-danger"
+            >{t`Could not read this document: ${error}. Try again, or choose another document.`}</p>
+            <Button aria-describedby="license-error" onClick={() => setTries((n) => n + 1)}>
+              {t`Try again`}
+            </Button>
+          </div>
         ) : (
           <pre
             tabIndex={0}

@@ -6,10 +6,11 @@ import {
   type EditionEntry,
   type Outlines,
 } from "@cadabracraft/format";
-import { estimateStarts, needsOutlines, tocRows } from "../../lib/tocView";
-import { usableReport } from "../../lib/pageReport";
-import { usePageMeasure } from "../../state/pageMeasure";
+import { needsOutlines, tocRows, type TocNumber } from "../../lib/toc/tocView";
+import { usableReport } from "../../lib/page/pageReport";
+import { usePageMeasure } from "../../state/pages/pageMeasure";
 import { useProject } from "../../state/project/index";
+import { useBookLayout } from "../hooks/useBookLayout";
 import { useMeasuredPages } from "../hooks/useMeasuredPages";
 
 const NONE: Outlines = {};
@@ -18,17 +19,17 @@ const NONE: Outlines = {};
  * Everything the contents editor shows for one contents page: the resolved list (it follows the book: a chapter added, renamed,
  * moved or trashed, or a heading edited, changes it), the page numbers (Typst's report while the book is measured, else the
  * word-count estimate) and the overrides that no longer match. Heading numbers need the page marks, so the book is measured with
- * them only while headings are listed.
+ * them only while headings are listed. `measure` false leaves the measuring to a caller that already does it (Read mode).
  */
-export function useToc(entry: EditionEntry) {
+export function useToc(entry: EditionEntry, measure = true) {
   const manifest = useProject((s) => s.manifest)!;
   const hashes = useProject((s) => s.hashes);
   const language = useProject((s) => s.activeLanguage ?? s.manifest!.editions[0]!.language);
   const actions = useProject((s) => s.actions);
   const settings = tocSettingsOf(entry);
   const [outlines, setOutlines] = useState<Outlines | null>(null);
-  const [estimates, setEstimates] = useState<Record<string, number>>({});
-  useMeasuredPages(true, settings.depth > 0);
+  const layout = useBookLayout();
+  useMeasuredPages(measure, settings.depth > 0);
   const report = usePageMeasure((s) => usableReport(s.report));
   const current = usePageMeasure((s) => s.fresh);
   // The headings of every page, read again when the book or any page's saved text changes.
@@ -44,24 +45,14 @@ export function useToc(entry: EditionEntry) {
       live = false;
     };
   }, [wanted, manifest, hashes, language, actions]);
-  useEffect(() => {
-    let live = true;
-    actions.chapterWordsBefore("").then(
-      (words) =>
-        live &&
-        setEstimates(
-          estimateStarts(
-            manifest,
-            manifest.chapters.map((c) => c.id),
-            words,
-          ),
-        ),
-      () => live && setEstimates({}),
-    );
-    return () => {
-      live = false;
-    };
-  }, [manifest, hashes, actions]);
+  // The numbers the book layout prints for every entry: roman in the front matter, arabic from chapter 1 on. Built once per layout,
+  // so the list, the preview and Read mode all show the number the page will print.
+  const numbers = useMemo(() => {
+    const out: Record<string, TocNumber> = {};
+    for (const e of layout?.entries ?? [])
+      out[e.id] = { text: e.folio === "" ? null : e.folio, estimated: !e.exact };
+    return out;
+  }, [layout]);
   const known = outlines ?? NONE;
   const items = useMemo(
     () => resolveToc(manifest, entry, language, known),
@@ -71,14 +62,18 @@ export function useToc(entry: EditionEntry) {
   const stale = useMemo(() => {
     if (wanted && outlines === null) return [];
     const all = resolveToc(manifest, { ...entry, toc: { ...settings, depth: 3 } }, language, known);
-    return staleOverrides(entry, all);
+    // Parts left out by the switch are not stale: the author did not delete them.
+    const hiddenParts = settings.parts
+      ? []
+      : manifest.chapters.filter((e) => e.kind === "part").map((e) => e.id);
+    return staleOverrides(entry, all, hiddenParts);
   }, [manifest, entry, settings, language, outlines, known, wanted]);
   const rows = useMemo(() => {
     const dangling = new Set(stale.filter((s) => s.kind === "custom").map((s) => s.key));
     const shown = items.map((i) =>
       i.kind === "custom" ? { ...i, stale: dangling.has(i.key) } : i,
     );
-    return tocRows(shown, { report, current, estimates, outlines: known });
-  }, [items, stale, report, current, estimates, known]);
-  return { settings, items, rows, stale, language };
+    return tocRows(shown, { report, current, numbers, outlines: known });
+  }, [items, stale, report, current, numbers, known]);
+  return { settings, items, rows, stale, language, layout };
 }

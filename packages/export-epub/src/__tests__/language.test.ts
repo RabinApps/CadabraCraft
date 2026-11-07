@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { strFromU8, unzipSync } from "fflate";
 import type { ChapterDoc } from "@cadabracraft/shared";
-import { buildEpub } from "../index";
+import { accessibilityMetadata, buildEpub } from "../index";
 
 const doc: ChapterDoc = {
   type: "doc",
@@ -47,5 +47,50 @@ describe("buildEpub languages", () => {
   });
   it("throws instead of falling back to English for an unsupported language", () => {
     expect(() => parts("pl")).toThrow(/no "Contents" translation for language "pl"/);
+  });
+  it("writes the accessibility summary in the book's language for every supported language", () => {
+    const expected: Record<string, string> = {
+      en: "This publication is reflowable text",
+      he: "פרסום זה הוא טקסט זורם",
+      ar: "هذا المنشور نص قابل",
+      it: "Questa pubblicazione è un testo",
+      ja: "この出版物はリフロー型",
+      ru: "Это издание представляет собой",
+      fr: "Cette publication est un texte",
+      de: "Diese Publikation ist ein",
+      es: "Esta publicación es un texto",
+      "fr-CA": "Cette publication est un texte",
+    };
+    for (const [lang, start] of Object.entries(expected)) {
+      const opf = text(parts(lang), "OEBPS/content.opf");
+      const primary = lang.split("-")[0];
+      expect(opf, lang).toContain(
+        `<meta property="schema:accessibilitySummary" xml:lang="${primary}">${start}`,
+      );
+    }
+  });
+  it("has a distinct summary sentence for each image situation in every language", () => {
+    const facts = { images: 0, imagesMissingAlt: 0, hasCover: false, hasGif: false, hasSvg: false };
+    const summary = (lang: string, f: Partial<typeof facts>) =>
+      /accessibilitySummary"[^>]*>([^<]*)</.exec(
+        accessibilityMetadata({ ...facts, ...f }, lang),
+      )![1];
+    for (const lang of ["en", "he", "ar", "it", "ja", "ru", "fr", "de", "es"]) {
+      const none = summary(lang, {});
+      const all = summary(lang, { images: 2 });
+      const some = summary(lang, { images: 2, imagesMissingAlt: 1 });
+      expect(new Set([none, all, some]).size, lang).toBe(3);
+    }
+    expect(summary("fr", { images: 1, imagesMissingAlt: 1 })).toContain(
+      "n'ont pas de texte alternatif",
+    );
+  });
+  it("throws for the accessibility summary of an unsupported language", () => {
+    expect(() =>
+      accessibilityMetadata(
+        { images: 0, imagesMissingAlt: 0, hasCover: false, hasGif: false, hasSvg: false },
+        "pl",
+      ),
+    ).toThrow(/no "Accessibility summary" translation for language "pl"/);
   });
 });

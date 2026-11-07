@@ -9,8 +9,8 @@ import {
   savedPosition,
   takeSavedPosition,
   withPosition,
-} from "../readingMemory";
-import { goToReadMatch, setReadMatch, useReadFind } from "../readFind";
+} from "../view/readingMemory";
+import { goToReadMatch, setReadMatch, useReadFind } from "../view/readFind";
 
 const KEY = "cadabracraft.readingPositions";
 let data: Map<string, string>;

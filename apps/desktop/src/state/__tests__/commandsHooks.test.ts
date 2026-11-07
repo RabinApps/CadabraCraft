@@ -18,7 +18,7 @@ vi.mock("react", () => ({
   },
 }));
 
-import { getCommands, useRegisterCommands, useStartDialogs, type Commands } from "../commands";
+import { getCommands, useRegisterCommands, useStartDialogs, type Commands } from "../app/commands";
 
 function render(commands: Commands) {
   h.refCursor = 0;

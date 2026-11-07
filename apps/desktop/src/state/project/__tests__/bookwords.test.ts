@@ -141,6 +141,16 @@ describe("bookWords is incremental", () => {
     expect(chapterReads().length).toBeGreaterThanOrEqual(39);
   });
 
+  it("entryWords gives every page's words for the layout, the chapters summing to the book's count", async () => {
+    const entries = await a().entryWords();
+    expect(entries.map((e) => [e.id, e.section])).toEqual(
+      s().manifest!.chapters.map((c) => [c.id, "chapter"]),
+    );
+    expect(entries.reduce((n, e) => n + e.words, 0)).toBe(BOOK_WORDS);
+    // The open chapter is counted from the editor, so only the other 39 are read.
+    expect(chapterReads()).toHaveLength(39);
+  });
+
   it("readPages (print preview, export checks, find) still reads and validates every page: 40 reads, inside a generous budget", async () => {
     reads.length = 0;
     const elapsed = cpuClock();
@@ -160,18 +170,5 @@ describe("bookWords is incremental", () => {
     const ms = elapsed();
     console.info(`[perf] bookWords cold, 40 chapters: ${ms.toFixed(1)} ms`);
     expect(ms).toBeLessThan(budget(2000));
-  });
-});
-
-describe("chapterWordsBefore", () => {
-  it("is the words of each chapter before the entry, from the same cache as the book count", async () => {
-    const ids = s().manifest!.chapters.map((c) => c.id);
-    expect(await a().chapterWordsBefore(ids[0]!)).toEqual([]);
-    const before = await a().chapterWordsBefore(ids[3]!);
-    expect(before).toEqual(BOOK.slice(0, 3).map((d) => countWords(d)));
-    // Counting the whole book afterwards reads only what the first call did not.
-    reads.length = 0;
-    expect(await a().bookWords()).toBe(BOOK_WORDS);
-    expect(chapterReads()).toHaveLength(37);
   });
 });

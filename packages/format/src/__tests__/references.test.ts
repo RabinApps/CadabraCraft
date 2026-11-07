@@ -4,7 +4,13 @@ import {
   FormatError,
   addChapter,
   addFrontMatter,
+  addLinkReference,
+  addNoteReference,
   addReference,
+  MAX_NOTE_CHARS,
+  MAX_URL_CHARS,
+  migrateV11ToV12,
+  normalizeWebUrl,
   createManifest,
   danglingLinks,
   linksOf,
@@ -32,6 +38,7 @@ const book = (): Manifest => {
 };
 const ref = (over: Record<string, unknown> = {}) => ({
   id: "ref-1",
+  kind: "file" as const,
   file: "references/map.png",
   title: "Map",
   note: "",
@@ -40,6 +47,14 @@ const ref = (over: Record<string, unknown> = {}) => ({
   addedAt: AT,
   ...over,
 });
+const link = (over: Record<string, unknown> = {}) => {
+  const { file: _file, ...rest } = ref();
+  return { ...rest, kind: "link", url: "https://example.org/a", ...over };
+};
+const note = (over: Record<string, unknown> = {}) => {
+  const { file: _file, ...rest } = ref();
+  return { ...rest, kind: "note", text: "Remember the tide.", ...over };
+};
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
 
 describe("migration v4 -> v5", () => {
@@ -49,7 +64,7 @@ describe("migration v4 -> v5", () => {
     const r = parseManifest(v4);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(4);
-    expect(r.manifest.formatVersion).toBe(7);
+    expect(r.manifest.formatVersion).toBe(12);
     expect(r.manifest.references).toEqual([]);
     expect(r.manifest.editions).toEqual(before.editions);
     expect(r.manifest.chapters).toEqual(before.chapters);
@@ -109,6 +124,21 @@ describe("validateReferences", () => {
     ["bad date", [ref({ addedAt: "yesterday" })], /date and time/],
     ["missing date", [ref({ addedAt: undefined })], /addedAt/],
     ["null item", [null], /references\[0\]\.id/],
+    ["no kind", [ref({ kind: undefined })], /kind/],
+    ["unknown kind", [ref({ kind: "video" })], /kind/],
+    [
+      "a url on a file",
+      [ref({ url: "https://a.org/" })],
+      /"references\[0\]\.url" is not allowed on a file/,
+    ],
+    ["a text on a file", [ref({ text: "x" })], /\.text" is not allowed/],
+    ["a file on a link", [link({ file: "references/a.png" })], /\.file" is not allowed on a link/],
+    ["a link without url", [link({ url: undefined })], /\.url/],
+    ["a link with javascript", [link({ url: "javascript:alert(1)" })], /http or https/],
+    ["a link not normalized", [link({ url: "https://a.org" })], /http or https/],
+    ["a note without text", [note({ text: undefined })], /\.text/],
+    ["a note that is too long", [note({ text: "x".repeat(MAX_NOTE_CHARS + 1) })], /longer than/],
+    ["a note with a url", [note({ url: "https://a.org/" })], /\.url" is not allowed on a note/],
   ])("rejects %s", (_, input, message) => {
     expect(() => validateReferences(input)).toThrow(FormatError);
     expect(() => validateReferences(input)).toThrow(message);
@@ -171,7 +201,7 @@ describe("reference edits", () => {
     const m = addReference(book(), { file: "references/a.pdf", title: "A", addedAt: AT }).manifest;
     const r = removeReference(m, "ref-1");
     expect(r.manifest.references).toEqual([]);
-    expect(r.removed.file).toBe("references/a.pdf");
+    expect(r.removed).toMatchObject({ kind: "file", file: "references/a.pdf" });
   });
 });
 
@@ -232,5 +262,134 @@ describe("links to chapters", () => {
     expect(ids(moveReference(m, "ref-2", -5))).toEqual(["ref-2", "ref-1", "ref-3"].slice(0, 3));
     expect(moveReference(m, "ref-2", 1)).toBe(m);
     expect(() => moveReference(m, "nope", 0)).toThrow("no reference nope");
+  });
+});
+
+describe("links and text notes (formatVersion 12)", () => {
+  it("accepts a link and a note beside a file and keeps their order", () => {
+    const list = validateReferences([ref(), link({ id: "ref-2" }), note({ id: "ref-3" })]);
+    expect(list.map((r) => r.kind)).toEqual(["file", "link", "note"]);
+    expect(list[1]).toEqual(link({ id: "ref-2" }));
+    expect(list[2]).toEqual(note({ id: "ref-3" }));
+  });
+  it("lets two links share an address and two notes share text, but not two files", () => {
+    expect(validateReferences([link(), link({ id: "ref-2" })])).toHaveLength(2);
+    expect(validateReferences([note(), note({ id: "ref-2" })])).toHaveLength(2);
+  });
+  it("adds a link and a note with fresh ids and nothing else set", () => {
+    const a = addLinkReference(book(), { url: "https://example.org/a", title: "A", addedAt: AT });
+    const b = addNoteReference(a.manifest, { text: "Body", title: "B", addedAt: AT });
+    expect(a.reference).toEqual(link({ title: "A" }));
+    expect(b.reference).toEqual(note({ id: "ref-2", title: "B", text: "Body" }));
+    expect(validateManifest(b.manifest).references).toHaveLength(2);
+  });
+  it("refuses to add a bad address or a note over the limit", () => {
+    expect(() =>
+      addLinkReference(book(), { url: "ftp://a.org/", title: "A", addedAt: AT }),
+    ).toThrow(FormatError);
+    expect(() =>
+      addNoteReference(book(), { text: "x".repeat(MAX_NOTE_CHARS + 1), title: "N", addedAt: AT }),
+    ).toThrow(/at most/);
+    const max = "x".repeat(MAX_NOTE_CHARS);
+    expect(
+      addNoteReference(book(), { text: max, title: "N", addedAt: AT }).reference,
+    ).toMatchObject({
+      text: max,
+    });
+  });
+  it("edits a link's address and a note's text, and nothing on the wrong kind", () => {
+    let m = addLinkReference(book(), {
+      url: "https://example.org/a",
+      title: "A",
+      addedAt: AT,
+    }).manifest;
+    m = addNoteReference(m, { text: "Body", title: "B", addedAt: AT }).manifest;
+    expect(
+      updateReference(m, "ref-1", { url: "https://example.org/b" }).references[0],
+    ).toMatchObject({
+      url: "https://example.org/b",
+    });
+    expect(updateReference(m, "ref-2", { text: "New" }).references[1]).toMatchObject({
+      text: "New",
+    });
+    expect(() => updateReference(m, "ref-1", { url: "javascript:alert(1)" })).toThrow(
+      /cannot take/,
+    );
+    expect(() => updateReference(m, "ref-2", { url: "https://example.org/b" })).toThrow(
+      /cannot take/,
+    );
+    expect(() => updateReference(m, "ref-1", { text: "x" })).toThrow(/cannot take that text/);
+    expect(() => updateReference(m, "ref-2", { text: "x".repeat(MAX_NOTE_CHARS + 1) })).toThrow(
+      /cannot take that text/,
+    );
+  });
+  it("removes, moves and links them like files", () => {
+    let m = addLinkReference(book(), {
+      url: "https://example.org/a",
+      title: "A",
+      addedAt: AT,
+    }).manifest;
+    m = addNoteReference(m, { text: "Body", title: "B", addedAt: AT }).manifest;
+    expect(moveReference(m, "ref-2", 0).references.map((r) => r.id)).toEqual(["ref-2", "ref-1"]);
+    expect(referencesFor(updateReference(m, "ref-2", { chapters: ["ch-1"] }), "ch-1")).toHaveLength(
+      1,
+    );
+    expect(removeReference(m, "ref-1").removed).toMatchObject({ kind: "link" });
+  });
+});
+
+describe("normalizeWebUrl", () => {
+  it.each([
+    ["https://example.org", "https://example.org/"],
+    ["  http://Example.org/a?b=1#c  ", "http://example.org/a?b=1#c"],
+    ["HTTPS://example.org/path", "https://example.org/path"],
+  ])("reads %s", (input, out) => expect(normalizeWebUrl(input)).toBe(out));
+  it.each([
+    "",
+    "   ",
+    "example.org",
+    "javascript:alert(1)",
+    "file:///etc/passwd",
+    "mailto:a@b.org",
+    "data:text/html,x",
+    "https://",
+    "https://exa mple.org",
+    "https://example.org/\u0007",
+    "https://example.org/a\nb",
+  ])("refuses %j", (input) => expect(normalizeWebUrl(input)).toBeNull());
+  it("refuses an address over the limit and takes one at it", () => {
+    const base = "https://example.org/";
+    expect(normalizeWebUrl(base + "a".repeat(MAX_URL_CHARS - base.length + 1))).toBeNull();
+    const ok = base + "a".repeat(MAX_URL_CHARS - base.length);
+    expect(normalizeWebUrl(ok)).toBe(ok);
+  });
+});
+
+describe("migration v11 -> v12", () => {
+  it("gives every reference kind file and loses nothing", () => {
+    const json = read("../../../../fixtures/contract/manifest-v11.json");
+    const before = JSON.parse(json);
+    const r = parseManifest(json);
+    expect(r.migrated).toBe(true);
+    expect(r.fromVersion).toBe(11);
+    expect(r.manifest.formatVersion).toBe(12);
+    expect(before.references.length).toBeGreaterThan(0);
+    expect(r.manifest.references).toEqual(
+      before.references.map((x: object) => ({ kind: "file", ...x })),
+    );
+    expect(r.manifest.chapters).toEqual(before.chapters);
+    expect(r.manifest.editions).toEqual(before.editions);
+    expect(parseManifest(serializeManifest(r.manifest)).migrated).toBe(false);
+  });
+  it("is a pure step that keeps a kind that is already there and tolerates no list", () => {
+    const raw = { references: [{ id: "a", kind: "link" }, { id: "b" }] };
+    expect(migrateV11ToV12(raw)).toEqual({
+      references: [
+        { id: "a", kind: "link" },
+        { kind: "file", id: "b" },
+      ],
+    });
+    expect(raw.references[1]).toEqual({ id: "b" });
+    expect(migrateV11ToV12({ x: 1 })).toEqual({ x: 1, references: undefined });
   });
 });

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { useQuickNav } from "../quickNav";
+import { useQuickNav } from "../app/quickNav";
 
 describe("quick navigation state", () => {
   afterEach(() => useQuickNav.getState().close());

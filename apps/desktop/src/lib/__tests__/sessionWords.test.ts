@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { sessionWords } from "../sessionWords";
+import { sessionWords } from "../reading/sessionWords";
 
 describe("session words", () => {
   it("counts words added since the baseline and never goes negative", () => {

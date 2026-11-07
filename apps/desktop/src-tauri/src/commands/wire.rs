@@ -23,7 +23,12 @@ pub(super) fn percent_decode(s: &str) -> Option<String> {
 /// Pulls the named header values and the raw body out of a binary request: the invoke payload is the raw file bytes and
 /// the small string arguments travel in `encodeURIComponent`-encoded headers (never a JSON number array, which would
 /// use several times the payload in memory before any size check). A JSON body is refused.
-fn parse_raw<const N: usize>(command: &str, names: [&str; N], body: &InvokeBody, headers: &tauri::http::HeaderMap) -> Result<([String; N], Vec<u8>), ProjectError> {
+fn parse_raw<const N: usize>(
+    command: &str,
+    names: [&str; N],
+    body: &InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<([String; N], Vec<u8>), ProjectError> {
     let bad = |what: &str| ProjectError::Io { message: format!("{command}: {what}") };
     let InvokeBody::Raw(bytes) = body else {
         return Err(bad("expected a binary request body"));

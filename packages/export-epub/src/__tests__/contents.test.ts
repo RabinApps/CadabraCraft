@@ -70,13 +70,23 @@ const spine = (f: ReturnType<typeof files>) =>
 const chapters0 = [page("ch-1", "One"), page("ch-2", "Two"), page("bm-1", "Thanks")];
 
 describe("EPUB contents page", () => {
+  it("writes a part divider as an epub:type part page and keeps it in the spine and nav", () => {
+    const withPart: EpubChapter[] = [
+      { id: "pt-1", title: "Part One", kind: "part", doc: doc(h(1, "Part One")) },
+      ...book(),
+    ];
+    const f = files(withPart, [page("pt-1", "Part One"), ...chapters0]);
+    expect(text(f, "OEBPS/pt-1.xhtml")).toContain('epub:type="bodymatter part" class="part-page"');
+    expect(spine(f)).toContain("pt-1");
+    expect(navList(f)).toContain('<a href="pt-1.xhtml">Part One</a>');
+  });
   it("writes a linked list on the contents page, at its place in the reading order", () => {
     const f = files(book(), chapters0);
     expect(spine(f)).toEqual(["fm-1", "toc", "ch-1", "ch-2", "bm-1", "nav"]);
     const xhtml = text(f, "OEBPS/toc.xhtml");
     expect(xhtml).toContain('<h1 id="h-0">Contents</h1>');
     expect(xhtml).toContain(
-      '<nav class="contents"><ol><li><a href="ch-1.xhtml">One</a></li><li><a href="ch-2.xhtml">Two</a></li><li><a href="bm-1.xhtml">Thanks</a></li></ol></nav>',
+      '<nav epub:type="toc" role="doc-toc" class="contents" aria-labelledby="h-0"><ol role="list"><li><a href="ch-1.xhtml">One</a></li><li><a href="ch-2.xhtml">Two</a></li><li><a href="bm-1.xhtml">Thanks</a></li></ol></nav>',
     );
     expect(xhtml).toContain('epub:type="frontmatter"');
     expect(text(f, "OEBPS/content.opf")).toContain('<item id="toc" href="toc.xhtml"');
@@ -104,12 +114,32 @@ describe("EPUB contents page", () => {
     const list = text(f, "OEBPS/toc.xhtml");
     // page > H1 > H2 > H3, with the second H2 a sibling of the first
     expect(list).toContain(
-      '<ol><li><a href="ch-1.xhtml">One</a><ol><li><a href="ch-1.xhtml#h-0">One</a><ol><li><a href="ch-1.xhtml#h-1">Storm</a><ol><li><a href="ch-1.xhtml#h-2">Deep</a></li></ol></li><li><a href="ch-1.xhtml#h-3">Calm</a></li></ol></li></ol></li><li><a href="ch-2.xhtml">Two</a><ol><li><a href="ch-2.xhtml#h-2">Storm</a></li></ol></li></ol>',
+      '<ol role="list"><li><a href="ch-1.xhtml">One</a><ol role="list"><li><a href="ch-1.xhtml#h-0">One</a><ol role="list"><li><a href="ch-1.xhtml#h-1">Storm</a><ol role="list"><li><a href="ch-1.xhtml#h-2">Deep</a></li></ol></li><li><a href="ch-1.xhtml#h-3">Calm</a></li></ol></li></ol></li><li><a href="ch-2.xhtml">Two</a><ol role="list"><li><a href="ch-2.xhtml#h-2">Storm</a></li></ol></li></ol>',
     );
     expect(navList(f)).toContain('<a href="ch-2.xhtml#h-2">Storm</a>');
     // The anchors exist in the chapter files, counting the empty heading in chapter two.
     expect(text(f, "OEBPS/ch-1.xhtml")).toContain('<h2 id="h-3">Calm</h2>');
     expect(text(f, "OEBPS/ch-2.xhtml")).toContain('<h2 id="h-1"></h2>\n<h2 id="h-2">Storm</h2>');
+  });
+
+  it("nests a part's chapters and their headings by indent", () => {
+    const chapters: EpubChapter[] = [
+      { id: "pt-1", title: "Part One", kind: "part", doc: doc(h(1, "Part One")) },
+      ...book(),
+    ];
+    const items: ContentsItem[] = [
+      page("pt-1", "Part One"),
+      { ...page("ch-1", "One"), indent: 1 },
+      { ...heading("ch-1", 1, "One", 0), indent: 2 },
+      { ...heading("ch-1", 2, "Storm", 1), indent: 3 },
+    ];
+    const f = files(chapters, items);
+    expect(text(f, "OEBPS/toc.xhtml")).toContain(
+      '<ol role="list"><li><a href="pt-1.xhtml">Part One</a><ol role="list"><li><a href="ch-1.xhtml">One</a><ol role="list"><li><a href="ch-1.xhtml#h-0">One</a><ol role="list"><li><a href="ch-1.xhtml#h-1">Storm</a></li></ol></li></ol></li></ol></li></ol>',
+    );
+    expect(navList(f)).toContain(
+      '<a href="pt-1.xhtml">Part One</a><ol><li><a href="ch-1.xhtml">One</a>',
+    );
   });
 
   it("does not add heading ids when no contents are given", () => {
@@ -146,7 +176,7 @@ describe("EPUB contents page", () => {
     );
     // The contents page lists the same entries, plus the one that links nowhere as plain text.
     expect(text(f, "OEBPS/toc.xhtml")).toContain(
-      '<ol><li><a href="bm-1.xhtml">Acknowledgements (renamed)</a></li><li><a href="ch-1.xhtml">Map of the Quay</a></li><li><a href="ch-2.xhtml">Two</a></li><li><span>Unlinked note</span></li></ol>',
+      '<ol role="list"><li><a href="bm-1.xhtml">Acknowledgements (renamed)</a></li><li><a href="ch-1.xhtml">Map of the Quay</a></li><li><a href="ch-2.xhtml">Two</a></li><li><span>Unlinked note</span></li></ol>',
     );
     expect(text(f, "OEBPS/toc.xhtml")).not.toContain('href="ch-1.xhtml">One<');
   });
@@ -219,7 +249,9 @@ describe("EPUB contents page", () => {
     for (const [lang, title] of Object.entries(titles)) {
       const f = files(empty, chapters0, lang);
       const xhtml = text(f, "OEBPS/toc.xhtml");
-      expect(xhtml).toContain(`<h1>${title}</h1><p>intro</p><nav class="contents">`);
+      expect(xhtml).toContain(
+        `<h1 id="contents-title">${title}</h1><p>intro</p><nav epub:type="toc" role="doc-toc" class="contents" aria-labelledby="contents-title">`,
+      );
       expect(xhtml).toContain(`lang="${lang}"`);
       expect(xhtml).toContain(lang === "he" || lang === "ar" ? ' dir="rtl"' : "<body");
       expect(navList(f)).toContain(`<h1>${title}</h1>`);
@@ -237,7 +269,7 @@ describe("EPUB contents page", () => {
   it("works with a book that has a contents page and the unlisted kinds, for the same kinds the resolver leaves out", () => {
     const f = files(matterBook(), [page("ch-1", "Chapter One")]);
     for (const c of matterBook())
-      if (c.kind && TOC_UNLISTED_KINDS.includes(c.kind))
+      if (c.kind && c.kind !== "part" && TOC_UNLISTED_KINDS.includes(c.kind))
         expect(navList(f)).not.toContain(`${c.id}.xhtml`);
   });
 
@@ -294,7 +326,49 @@ describe("EPUB contents page", () => {
       '<h1>Contents</h1><ol><li><a href="toc.xhtml">Contents</a></li><li><a href="ch-1.xhtml">One</a></li><li><a href="ch-2.xhtml">Two</a></li><li><a href="bm-1.xhtml">Thanks</a></li></ol>',
     );
     expect(text(f, "OEBPS/toc.xhtml")).toContain(
-      "<li><span>Part One</span><ol><li><span>Nowhere</span></li></ol></li>",
+      '<li><span>Part One</span><ol role="list"><li><span>Nowhere</span></li></ol></li>',
     );
+  });
+
+  it("makes the contents page a named doc-toc landmark with real links, unique heading ids and the language", () => {
+    const f = files(book(), [
+      page("ch-1", "One"),
+      heading("ch-1", 2, "Storm", 1),
+      page("ch-2", "Two"),
+      { kind: "custom", level: 0, title: "Unlinked note" },
+    ]);
+    const xhtml = text(f, "OEBPS/toc.xhtml");
+    expect(xhtml).toContain('lang="en" xml:lang="en"');
+    expect(xhtml.match(/<nav /g)).toHaveLength(1);
+    const navHtml = /<nav [^>]*>.*<\/nav>/s.exec(xhtml)![0];
+    // named by the page's own heading (aria-label is not used), and the heading exists
+    expect(navHtml).toContain('epub:type="toc" role="doc-toc"');
+    expect(navHtml).toContain('aria-labelledby="h-0"');
+    expect(navHtml).not.toContain("aria-label=");
+    expect(xhtml).toContain('<h1 id="h-0">Contents</h1>');
+    // an ordered list (role kept: the stylesheet removes the markers), links with text and no empty link, no leaders or numbers
+    expect(navHtml).toContain('<ol role="list">');
+    for (const m of navHtml.matchAll(/<a href="([^"]+)">([^<]*)<\/a>/g))
+      expect(m[2]!.trim()).not.toBe("");
+    expect(navHtml).not.toMatch(/<a [^>]*><\/a>|<span><\/span>/);
+    expect(navHtml).not.toMatch(/aria-hidden|\.\.\.|leader/);
+    // every anchor the list links to exists once, and ids are unique in each page
+    for (const [, file, id] of navHtml.matchAll(/href="([^"#]+)\.xhtml#([^"]+)"/g)) {
+      expect(text(f, `OEBPS/${file}.xhtml`).match(new RegExp(` id="${id}"`, "g"))).toHaveLength(1);
+    }
+    for (const name of ["toc", "ch-1", "ch-2"]) {
+      const ids = [...text(f, `OEBPS/${name}.xhtml`).matchAll(/ id="([^"]+)"/g)].map((m) => m[1]);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+    // the navigation document stays the only page with the main toc nav; it has no duplicate of the page's labelling
+    expect(nav(f).match(/<nav epub:type="toc"/g)).toHaveLength(1);
+    expect(nav(f)).not.toContain("aria-labelledby");
+  });
+
+  it("names the nav by a generated heading when the contents page has none of its own", () => {
+    const empty = book().map((c) => (c.id === "toc" ? { ...c, doc: doc(p("intro")) } : c));
+    const xhtml = text(files(empty, chapters0), "OEBPS/toc.xhtml");
+    expect(xhtml).toContain('<h1 id="contents-title">Contents</h1>');
+    expect(xhtml).toContain('aria-labelledby="contents-title"');
   });
 });

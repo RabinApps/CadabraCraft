@@ -5,7 +5,7 @@ import { plural } from "@lingui/core/macro";
 import { Check, X } from "lucide-react";
 import { highlightSegments } from "../../lib/fuzzy";
 import { IconButton } from "../../ui/Button";
-import { overlayClass, panelClass } from "../../ui/Dialog";
+import { overlayClass, panelClass, useFocusReturn } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
 import { KeyCombo } from "../settings/KeyCombo";
 import type { Key } from "../settings/shortcutList";
@@ -55,11 +55,16 @@ const sheet =
  * the same in left-to-right and right-to-left layouts.
  */
 export function QuickPicker({ open, onOpenChange, title, ...rest }: Props) {
+  const onCloseAutoFocus = useFocusReturn(open);
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
         <D.Overlay className={overlayClass} />
-        <D.Content aria-describedby={undefined} className={cx(panelClass, sheet)}>
+        <D.Content
+          aria-describedby={undefined}
+          onCloseAutoFocus={onCloseAutoFocus}
+          className={cx(panelClass, sheet)}
+        >
           <D.Title className="sr-only">{title}</D.Title>
           <PickerBody title={title} {...rest} />
         </D.Content>
@@ -197,6 +202,9 @@ function Option({
   onHover: () => void;
   onChoose: () => void;
 }) {
+  const { t } = useLingui();
+  // aria-level is not allowed on an option, so the heading level is part of its name (hidden on screen, the indent shows it).
+  const levelName = { 1: t`Heading 1`, 2: t`Heading 2`, 3: t`Heading 3` }[item.level ?? 0];
   return (
     <div
       id={id}
@@ -204,7 +212,6 @@ function Option({
       aria-selected={active}
       aria-disabled={item.enabled ? undefined : true}
       {...(item.checked === undefined ? {} : { "aria-checked": item.checked })}
-      {...(item.level === undefined ? {} : { "aria-level": item.level })}
       {...(item.current ? { "aria-current": "true" as const } : {})}
       // The input keeps focus; a press on a row must not take it away.
       onMouseDown={(e) => e.preventDefault()}
@@ -218,6 +225,7 @@ function Option({
       )}
     >
       <span className="min-w-0 flex-1 break-words">
+        {levelName ? <span className="sr-only">{levelName}: </span> : null}
         {highlightSegments(item.label, item.positions).map((s, i) =>
           s.hit ? (
             <mark key={i} className="bg-transparent font-bold text-accent underline">

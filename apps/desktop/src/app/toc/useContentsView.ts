@@ -1,0 +1,33 @@
+import { useMemo } from "react";
+import { useLingui } from "@lingui/react/macro";
+import type { EditionEntry } from "@cadabracraft/format";
+import { dirFor } from "../../i18n/locales";
+import { fontKindOf } from "../../lib/page/pageLayout";
+import { contentsLayout, previewLines } from "../../lib/toc/tocPreview";
+import { useProject } from "../../state/project/index";
+import { useToc } from "./useToc";
+
+/**
+ * Everything that draws the Contents page of one entry, whoever draws it: the editor (its list and its preview) and Read mode. The
+ * list and its page numbers come from `useToc`; this adds the printed lines, the page layout at the book's trim size, the title and
+ * the direction, so every screen starts from the same data.
+ */
+export function useContentsView(entry: EditionEntry, measure = true) {
+  const { t } = useLingui();
+  const toc = useToc(entry, measure);
+  const manifest = useProject((s) => s.manifest)!;
+  const layout = useMemo(() => contentsLayout(manifest), [manifest]);
+  const lines = useMemo(
+    () => previewLines(toc.rows, toc.settings.pageNumbers),
+    [toc.rows, toc.settings.pageNumbers],
+  );
+  const title = entry.titles[toc.language] ?? Object.values(entry.titles)[0] ?? t`Contents`;
+  // Where the contents page itself falls: a continuation card's folio follows it in roman (the layout knows, the front-matter index is the fallback while it is built).
+  const placed = toc.layout?.byId.get(entry.id);
+  const before = placed
+    ? placed.start - 1
+    : manifest.frontMatter.findIndex((e) => e.id === entry.id);
+  const rtl = dirFor(toc.language) === "rtl";
+  const serif = fontKindOf(manifest.template) === "serif";
+  return { ...toc, lines, layout, title, before, rtl, serif };
+}

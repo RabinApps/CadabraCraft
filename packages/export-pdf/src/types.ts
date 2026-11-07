@@ -1,4 +1,4 @@
-import type { BookMetadata, ChapterDoc, MatterKind, Section } from "@cadabracraft/shared";
+import type { BookMetadata, ChapterDoc, EntryKind, Section } from "@cadabracraft/shared";
 import type { Template, TrimSizeId } from "@cadabracraft/templates";
 
 export type TrimSize = TrimSizeId;
@@ -23,7 +23,13 @@ export interface PdfChapter {
   /** Where the page sits in the book; default "chapter". Pass pages in reading order: front matter, chapters, back matter. */
   section?: Section;
   /** Front/back matter pages only. */
-  kind?: MatterKind;
+  kind?: EntryKind;
+  /** Chapters only: a big first letter on this chapter's opening paragraph (true) or none (false), the author's choice. Absent follows the template. */
+  dropCap?: boolean;
+  /** Front/back matter pages only: the author's choice to centre the page's content between the margins (true) or keep it at the top (false). Absent follows the template's kinds. */
+  verticalCenter?: boolean;
+  /** Front/back matter pages only: true starts on the next page even when that is a left-hand page (no blank page before it), false opens on a right-hand one, with a blank left-hand page before it when needed. Absent follows the book's rules, their blank pages included. */
+  startOnNext?: boolean;
 }
 
 /** Margins in inches. `inside` is the gutter side when `mirrored`, else the left margin. */
@@ -58,6 +64,11 @@ export interface PdfOptions {
   cover?: string;
   /** Emit PDF/A-2b (archival). */
   pdfA?: boolean;
+  /**
+   * Emit a tagged PDF that conforms to PDF/UA-1 (accessible). Typst tags headings, lists, tables and images (alt text; an empty alt
+   * marks a decorative image) and marks running headers and page numbers as artifacts. It combines with `pdfA` (PDF/A-2b plus PDF/UA-1).
+   */
+  pdfUa?: boolean;
   /**
    * Bleed in inches (0 to 0.5, default none): the page grows by this much past the trim on the top, bottom and outside edges
    * (KDP: 0.125 in). Margins stay measured from the trim, so the text does not move. A cover image fills the bleed.
@@ -95,6 +106,8 @@ export interface PdfTocItem {
   kind: "page" | "heading" | "custom";
   /** 0 for a page, 1 to 3 for a heading. */
   level: number;
+  /** Display depth under a part divider (a chapter in a part is 1); absent means `level`. */
+  indent?: number;
   title: string;
   /** Headings: the entry the heading is in. */
   entryId?: string;

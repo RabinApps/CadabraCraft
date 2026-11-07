@@ -1,3 +1,4 @@
+import { contentsLines, CONTENTS_MAX_INDENT, CONTENTS_MAX_LEVEL } from "@cadabracraft/format";
 import { typstString } from "../escape";
 import { PdfExportError } from "../errors";
 import type { PdfTocItem } from "../types";
@@ -23,14 +24,15 @@ export function tocHeadingKeys(items: readonly PdfTocItem[]): Map<string, Map<nu
 
 /** The visible items as a Typst array of `(key, level, title, target)`; `target` is the key whose page the entry shows, or `none`. */
 export function tocEntries(items: readonly PdfTocItem[]): string {
-  const rows = items
-    .filter((i) => i.hidden !== true)
-    .map((i) => {
-      if (!Number.isInteger(i.level) || i.level < 0 || i.level > 3)
-        throw new PdfExportError(`Contents entry "${i.key}": level ${i.level} is not 0 to 3`);
-      const target = i.kind === "custom" ? i.target : i.key;
-      return `  (key: ${typstString(i.key)}, level: ${i.level}, title: ${typstString(i.title)}, target: ${target === undefined ? "none" : typstString(target)}),`;
-    });
+  const rows = contentsLines(items).map(({ item: i, title }) => {
+    if (!Number.isInteger(i.level) || i.level < 0 || i.level > CONTENTS_MAX_LEVEL)
+      throw new PdfExportError(`Contents entry "${i.key}": level ${i.level} is not 0 to 3`);
+    const indent = i.indent ?? i.level;
+    if (!Number.isInteger(indent) || indent < 0 || indent > CONTENTS_MAX_INDENT)
+      throw new PdfExportError(`Contents entry "${i.key}": indent ${indent} is not 0 to 4`);
+    const target = i.kind === "custom" ? i.target : i.key;
+    return `  (key: ${typstString(i.key)}, level: ${indent}, title: ${typstString(title)}, target: ${target === undefined ? "none" : typstString(target)}),`;
+  });
   return rows.length === 0 ? "()" : `(\n${rows.join("\n")}\n)`;
 }
 
@@ -55,12 +57,15 @@ export function tocDefs(sinkEm: number, numbers: boolean): string {
     } else { "" }
     let ind = 1.4em * e.level
     // explicit par(): a set rule inside the block gives the wrapped lines no hanging indent
+    // the title is an internal link to the place it lists (an entry that links nowhere is plain text); a link may not hold an artifact, so the dots and number sit outside it
+    let label = if e.level > 0 { text(size: 0.92em, e.title) } else { e.title }
     block(above: 0.55em, below: 0.55em, width: 100%, par(first-line-indent: 0pt, justify: false, hanging-indent: ind + 1.2em, {
       h(ind)
-      if e.level > 0 { text(size: 0.92em, e.title) } else { e.title }
+      if loc != none { link(loc, label) } else { label }
       if number != "" {
         h(0.4em)
-        box(width: 1fr, repeat(gap: 0.3em)[.])
+        // the dot leaders are decoration: an artifact is not read out between the title and the number
+        pdf.artifact(box(width: 1fr, repeat(gap: 0.3em)[.]))
         h(0.4em)
         number
       }

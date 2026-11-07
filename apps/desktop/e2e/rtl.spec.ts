@@ -3,7 +3,8 @@ import { fakeTauri } from "./support/fakeTauri";
 import { frenchWithOneChapter, newProject, seedChapters, sidebar } from "./support/helpers";
 import type { Page } from "@playwright/test";
 
-// No Hebrew or Arabic catalog exists yet, so the layout is checked with the direction forced (English text, mirrored layout).
+// The layout is checked here with the direction forced (English text, mirrored layout). The Hebrew and Arabic catalogs have their own
+// sweeps over every screen: `pnpm --filter @cadabracraft/desktop test:a11y:locales` (docs/accessibility.md), and locales.spec.ts drives them through the picker.
 const forceRtl = (page: Page) =>
   page.evaluate(() => {
     document.documentElement.dir = "rtl";
@@ -333,7 +334,6 @@ test("RTL: Page view breaks a list between its items where Typst did, and does n
   await page.evaluate((r) => {
     window.__typstQueryResultFor = (source) => (source.includes("bm-s(") ? r : undefined);
   }, report);
-  await page.getByRole("button", { name: "Page view", exact: true }).click();
   await forceRtl(page);
   await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
   await expect(page.locator(".page")).toHaveCount(2);
@@ -383,7 +383,6 @@ test("RTL: Page view cuts a table row in each cell where Typst did and does not 
   await page.evaluate((r) => {
     window.__typstQueryResultFor = (source) => (source.includes("bm-s(") ? r : undefined);
   }, report);
-  await page.getByRole("button", { name: "Page view", exact: true }).click();
   await forceRtl(page);
   await expect(page.locator(".page-chip")).toHaveText(/breaks as in the PDF/, { timeout: 10_000 });
   await expect(page.locator(".page")).toHaveCount(2);
@@ -403,4 +402,69 @@ test("RTL: Page view cuts a table row in each cell where Typst did and does not 
   );
   expect(Math.abs(tops[0]! - tops[1]!)).toBeLessThan(2);
   expect(await noOverflow(page)).toBe(true);
+});
+
+test("RTL: a Hebrew book is bound on the right, so its recto pages have the inside margin on the right", async ({
+  page,
+}) => {
+  await newProject(page);
+  await page.evaluate(() => {
+    // The book's language is its edition's: rewrite "en" (the edition and the keys of its chapter files) to Hebrew.
+    window.__disk["cadabra.json"] = (window.__disk["cadabra.json"] as string).replaceAll(
+      '"en"',
+      '"he"',
+    );
+    sessionStorage.setItem("disk", JSON.stringify(window.__disk));
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Open folder" }).click();
+  await expect(page.locator(".ProseMirror")).toHaveAttribute("dir", "rtl");
+  await page.getByLabel("Page zoom").selectOption({ label: "100%" });
+  await expect(page.locator(".page").first()).toBeVisible();
+  const pad = () =>
+    page.evaluate(() => {
+      const cs = getComputedStyle(document.querySelector(".ProseMirror")!);
+      return { left: parseFloat(cs.paddingLeft), right: parseFloat(cs.paddingRight) };
+    });
+  const p = await pad();
+  // The novel template: 0.9 in inside and 0.65 in outside (96 px to the inch).
+  expect(p.right).toBeCloseTo(0.9 * 96, 0);
+  expect(p.left).toBeCloseTo(0.65 * 96, 0);
+});
+
+test("RTL: the chapter row menu, icon picker and templates control mirror and do not overflow", async ({
+  page,
+}) => {
+  await newProject(page);
+  await forceRtl(page);
+  const vw = page.viewportSize()?.width ?? 1280;
+  // The grip sits at the start (right) of the row, before the title.
+  const grip = await page.getByRole("button", { name: "Reorder Chapter One" }).boundingBox();
+  const title = await page.getByRole("button", { name: "Chapter One", exact: true }).boundingBox();
+  expect(grip && title && grip.x > title.x).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+
+  await page.getByRole("button", { name: "Actions for Chapter One" }).click();
+  const menu = page.getByRole("menu");
+  await expect(menu.getByRole("group", { name: "First letter" })).toBeVisible();
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "chapter-menu");
+  await page.getByRole("menuitem", { name: "Change icon…" }).click();
+  const dialog = page.getByRole("dialog", { name: /Icon for/ });
+  await expect(dialog).toBeVisible();
+  const box = await dialog.boundingBox();
+  expect(box && Math.abs(box.x + box.width / 2 - vw / 2) < 2).toBe(true);
+  // The check mark of the pressed choice sits at the end corner of its button, which is the left one in RTL.
+  const none = dialog.getByRole("button", { name: "None" });
+  const mark = await none.locator("svg").boundingBox();
+  const nb = await none.boundingBox();
+  expect(mark && nb && mark.x + mark.width / 2 < nb.x + nb.width / 2).toBe(true);
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "icon-picker");
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button", { name: "Change template" }).click();
+  await expect(page.getByRole("radiogroup", { name: "Big first letter" })).toBeVisible();
+  expect(await noOverflow(page)).toBe(true);
+  await shot(page, "templates");
 });

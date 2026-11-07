@@ -20,7 +20,7 @@ export interface TypstRunner {
   compile(
     source: string,
     files: Map<string, Uint8Array>,
-    options: { pdfA: boolean },
+    options: { pdfA: boolean; pdfUa?: boolean },
   ): Promise<Uint8Array>;
   /**
    * Run `typst query --field value --one <selector>` on `source` with `files` next to it, without producing a PDF.

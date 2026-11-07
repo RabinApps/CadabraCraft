@@ -3,15 +3,16 @@ import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { ExternalLink, X } from "lucide-react";
 import { bridge } from "../../lib/bridge";
-import { formatSize, referenceKind } from "../../lib/referenceKinds";
+import { formatSize, kindOf } from "../../lib/references/referenceKinds";
 import { errText } from "../../lib/projectError";
 import { useProject } from "../../state/project/index";
 import { Button, IconButton } from "../../ui/Button";
 import { overlayClass, panelClass } from "../../ui/Dialog";
-import { Notice } from "../../ui/Notice";
+import { Notice } from "../../ui/feedback/Notice";
 import { ReferenceDetails } from "./ReferenceDetails";
 import { Preview } from "./Previews";
 import { kindIcon, useKindLabel } from "./ReferenceRow";
+import { LinkView, NoteView, openLink } from "./TextReferenceViews";
 
 /** The big viewer for one reference: the file on the left, its details on the right. */
 export function ReferenceViewer({ id, onClose }: { id: string | null; onClose: () => void }) {
@@ -21,7 +22,7 @@ export function ReferenceViewer({ id, onClose }: { id: string | null; onClose: (
   const label = useKindLabel();
   const [size, setSize] = useState<number | null>(null);
   const [error, setError] = useState("");
-  const file = reference?.file;
+  const file = reference?.kind === "file" ? reference.file : undefined;
   useEffect(() => {
     setSize(null);
     setError("");
@@ -36,7 +37,7 @@ export function ReferenceViewer({ id, onClose }: { id: string | null; onClose: (
     };
   }, [root, file]);
   if (!reference || !root) return null;
-  const kind = referenceKind(reference.file);
+  const kind = kindOf(reference);
   const Icon = kindIcon(kind);
   const meta = [label(kind), size === null ? "" : formatSize(size)].filter(Boolean).join(" · ");
   return (
@@ -55,7 +56,7 @@ export function ReferenceViewer({ id, onClose }: { id: string | null; onClose: (
               <D.Title className="truncate text-lead font-semibold">{reference.title}</D.Title>
               <p className="truncate text-xs text-ink-muted">{meta}</p>
             </div>
-            {kind !== "text" && !reference.file.endsWith(".svg") && (
+            {reference.kind === "file" && kind !== "text" && !reference.file.endsWith(".svg") && (
               <Button
                 size="sm"
                 icon={ExternalLink}
@@ -64,6 +65,16 @@ export function ReferenceViewer({ id, onClose }: { id: string | null; onClose: (
                   bridge.openReference(root, reference.file).catch((e) => setError(errText(e)));
                 }}
               >{t`Open in default app`}</Button>
+            )}
+            {reference.kind === "link" && (
+              <Button
+                size="sm"
+                icon={ExternalLink}
+                onClick={() => {
+                  setError("");
+                  openLink(reference.url, setError);
+                }}
+              >{t`Open in browser`}</Button>
             )}
             <D.Close asChild>
               <IconButton icon={X} label={t`Close viewer`} />
@@ -76,13 +87,19 @@ export function ReferenceViewer({ id, onClose }: { id: string | null; onClose: (
           )}
           <div className="flex min-h-0 flex-1 flex-col md:flex-row">
             <div className="flex min-h-64 min-w-0 flex-1 flex-col">
-              <Preview
-                key={reference.id}
-                root={root}
-                file={reference.file}
-                title={reference.title}
-                kind={kind}
-              />
+              {reference.kind === "file" && kind !== "link" && kind !== "note" ? (
+                <Preview
+                  key={reference.id}
+                  root={root}
+                  file={reference.file}
+                  title={reference.title}
+                  kind={kind}
+                />
+              ) : reference.kind === "link" ? (
+                <LinkView key={reference.id} reference={reference} />
+              ) : reference.kind === "note" ? (
+                <NoteView key={reference.id} reference={reference} />
+              ) : null}
             </div>
             <aside
               aria-label={t`Reference details`}

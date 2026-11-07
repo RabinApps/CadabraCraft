@@ -2,13 +2,14 @@ import { useEffect, useRef, type KeyboardEvent } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { IconButton } from "../../ui/Button";
-import { Chip } from "../../ui/Chip";
+import { Chip } from "../../ui/feedback/Chip";
 import { cx } from "../../ui/cx";
-import { Field } from "../../ui/Input";
+import { Field } from "../../ui/forms/Input";
 import { countLabel, isComposing } from "../../lib/search/findHelpers";
+import { loadRegexEngine } from "../../lib/search/match";
 import { readRows } from "../../lib/search/readFind";
-import { MAX_QUERY_CHARS, useFind } from "../findStore";
-import { FindResults } from "../FindResults";
+import { MAX_QUERY_CHARS, useFind } from "../find/findStore";
+import { FindResults } from "../find/FindResults";
 import type { useReadFindState } from "./useReadFind";
 
 /**
@@ -34,6 +35,8 @@ export function ReadFindBar({ find }: { find: ReturnType<typeof useReadFindState
     }
   };
   return (
+    // The keydown only catches Escape from the controls inside, which are the focusable parts (as in the Write bar).
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       role="search"
       aria-label={t`Find in the book`}
@@ -100,7 +103,14 @@ export function ReadFindBar({ find }: { find: ReturnType<typeof useReadFindState
           pressed={f.wholeWord}
           onClick={() => f.set({ wholeWord: !f.wholeWord })}
         >{t`Whole word`}</Chip>
-        <Chip pressed={f.regex} onClick={() => f.set({ regex: !f.regex })}>{t`Regex`}</Chip>
+        <Chip
+          pressed={f.regex}
+          onClick={() => {
+            // The engine loads on first use; Regex turns on once it is there so no search runs without it.
+            if (f.regex) f.set({ regex: false });
+            else void loadRegexEngine().then(() => f.set({ regex: true }));
+          }}
+        >{t`Regex`}</Chip>
       </div>
       <FindResults rows={readRows(find.hits, find.index)} onOpen={find.openPage} />
     </div>

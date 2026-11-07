@@ -8,6 +8,7 @@ import {
   manifestOf,
   sidebar,
   exportBook,
+  focusEnd,
 } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
@@ -39,6 +40,31 @@ test("add front and back matter pages with generated content, and they open in t
   await sidebar(page).getByRole("button", { name: "Title Page", exact: true }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("E2E Book");
   await expect(page.getByText("Front matter", { exact: true }).last()).toBeVisible();
+});
+
+test("front and back matter sections collapse and expand", async ({ page }) => {
+  await newProject(page);
+  await addPage(page, "Title page");
+  await addPage(page, "About the author");
+  const titlePage = sidebar(page).getByRole("button", { name: "Title Page", exact: true });
+  const about = sidebar(page).getByRole("button", { name: "About the Author", exact: true });
+
+  const collapseFront = sidebar(page).getByRole("button", { name: "Collapse Front matter" });
+  await expect(collapseFront).toHaveAttribute("aria-expanded", "true");
+  await collapseFront.click();
+  await expect(titlePage).toBeHidden();
+  await expect(sidebar(page).getByRole("heading", { name: "Front matter" })).toBeVisible();
+  const expandFront = sidebar(page).getByRole("button", { name: "Expand Front matter" });
+  await expect(expandFront).toHaveAttribute("aria-expanded", "false");
+  await expandFront.click();
+  await expect(titlePage).toBeVisible();
+
+  const collapseBack = sidebar(page).getByRole("button", { name: "Collapse Back matter" });
+  await collapseBack.click();
+  await expect(about).toBeHidden();
+  const expandBack = sidebar(page).getByRole("button", { name: "Expand Back matter" });
+  await expandBack.click();
+  await expect(about).toBeVisible();
 });
 
 test("title page and copyright page can only be added once", async ({ page }) => {
@@ -105,10 +131,12 @@ test("keyboard: the Add page menu opens and selects with the keyboard", async ({
   await page.keyboard.press("Enter");
   await expect(page.getByRole("menu")).toBeVisible();
   await expect(page.getByRole("menuitem").first()).toBeFocused();
+  // The menu opens on Blank page, so two ArrowDowns pass Title page and land on Copyright.
   await page.keyboard.press("ArrowDown");
-  await expect(page.getByRole("menuitem").nth(1)).toBeFocused(); // Enter before focus moves would pick the first item
+  await expect(page.getByRole("menuitem").nth(1)).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("menuitem").nth(2)).toBeFocused(); // Enter before focus moves would pick the first item
   await page.keyboard.press("Enter");
-  // The menu opens on Title page, so one ArrowDown lands on Copyright.
   await expect(sidebar(page).getByRole("button", { name: "Copyright", exact: true })).toBeVisible();
   expect((await manifestOf(page)).frontMatter.map((e: { kind: string }) => e.kind)).toEqual([
     "copyright",
@@ -155,8 +183,7 @@ test("restoring a page from the trash puts it back at the end and opens it", asy
   // A new chapter takes the freed file name, so the restored page must not overwrite it.
   await page.getByRole("button", { name: "Add chapter" }).click();
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter 2");
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("new one");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");

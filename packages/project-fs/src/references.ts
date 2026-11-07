@@ -209,83 +209,140 @@ export function importReference(root: string, sourcePath: string): ImportedRefer
   if (BLOCKED_REFERENCE_EXTENSIONS.includes(ext)) throw unsupported(name);
   const kind = referenceKind(ext);
   const cap = maxReferenceBytes(kind);
-  const notFile = () => new ProjectFsError("not_a_file", `${name} is not a file`);
+  checkSourceFile(sourcePath, name, kind, cap);
+
+  let src = -1;
+  let tmpPath: string | null = null;
+  try {
+    src = openSource(sourcePath, name);
+    const dir = referencesDir(root);
+    const staged = stageCopy(src, dir, { cap, name, kind });
+    tmpPath = staged.path;
+    checkContent(tmpPath, { name, ext, kind }, staged.header);
+    return placeReference(root, tmpPath, { name, ext, kind }, staged);
+  } catch (e) {
+    throw fsError(e, name);
+  } finally {
+    if (src >= 0) closeSync(src);
+    // After a successful rename there is nothing left to remove.
+    if (tmpPath) rmSync(tmpPath, { force: true });
+  }
+}
+
+interface RefInfo {
+  name: string;
+  ext: string;
+  kind: ReferenceKind;
+}
+
+const notFile = (name: string) => new ProjectFsError("not_a_file", `${name} is not a file`);
+
+function checkSourceFile(sourcePath: string, name: string, kind: ReferenceKind, cap: number): void {
   let st;
   try {
     st = statSync(sourcePath);
   } catch (e) {
     throw openError(e, sourcePath, name);
   }
-  if (!st.isFile()) throw notFile();
+  if (!st.isFile()) throw notFile(name);
   if (st.size > cap) throw tooLarge(name, kind);
+}
 
-  let src = -1;
-  let tmp: { path: string; fd: number } | null = null;
+function openSource(sourcePath: string, name: string): number {
+  let src;
   try {
-    try {
-      src = openSync(sourcePath, "r");
-    } catch (e) {
-      throw openError(e, sourcePath, name);
-    }
-    // v8 ignore next -- guards a path swapped for a fifo or folder between the stat and the open; cannot be staged in a test
-    if (!fstatSync(src).isFile()) throw notFile();
-    const dir = resolveSafe(root, REFERENCES_DIR);
-    try {
-      mkdirSync(dir, { recursive: true });
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code === "EEXIST")
-        throw new ProjectFsError("not_a_file", `${REFERENCES_DIR} is not a folder`);
-      throw e;
-    }
-    const path = join(dir, `.${randomBytes(6).toString("hex")}.tmp`);
-    tmp = { path, fd: openSync(path, "wx", 0o600) }; // never an existing file; 48 random bits
-    let copied;
-    try {
-      copied = copyCapped(src, tmp.fd, cap, () => tooLarge(name, kind));
-      fsyncSync(tmp.fd);
-      fchmodSync(tmp.fd, 0o644);
-    } finally {
-      closeSync(tmp.fd);
-    }
-    const { size, hash, header } = copied;
-
-    const invalid = () => new ProjectFsError("bad_reference", `${name} is not a valid ${ext} file`);
-    if (kind === "image" && ext !== "svg") {
-      try {
-        checkImage(name, ext, header);
-      } catch (e) {
-        throw e instanceof ProjectFsError && e.code === "bad_image" ? invalid() : e;
-      }
-    } else if (kind === "text") {
-      const bytes = readFileSync(tmp.path);
-      if (!isUtf8(bytes) || bytes.includes(0)) throw invalid();
-    } else if (kind !== "other" && !signatureOk(ext, header)) throw invalid();
-
-    const dot = name.lastIndexOf(".");
-    const stemText = dot < 0 ? name : name.slice(0, dot);
-    const stem = stemFor(stemText);
-    const title = stemText.trim() || stem;
-    for (let n = 1; ; n++) {
-      const base = n === 1 ? stem : `${stem}-${n}`;
-      const rel = `${REFERENCES_DIR}/${ext ? `${base}.${ext}` : base}`;
-      const path = resolveSafe(root, rel);
-      let existing;
-      try {
-        existing = lstatSync(path);
-      } catch {
-        // Nothing there: the rename either succeeds or reports why it cannot.
-        renameSync(tmp.path, path);
-        tmp = null;
-        return { file: rel, title, size, kind, reused: false };
-      }
-      if (existing.isFile() && existing.size === size && hashFile(path) === hash)
-        return { file: rel, title, size, kind, reused: true };
-    }
+    src = openSync(sourcePath, "r");
   } catch (e) {
-    throw fsError(e, name);
+    throw openError(e, sourcePath, name);
+  }
+  // v8 ignore next -- guards a path swapped for a fifo or folder between the stat and the open; cannot be staged in a test
+  if (!fstatSync(src).isFile()) throw notFile(name);
+  return src;
+}
+
+function referencesDir(root: string): string {
+  const dir = resolveSafe(root, REFERENCES_DIR);
+  try {
+    mkdirSync(dir, { recursive: true });
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === "EEXIST")
+      throw new ProjectFsError("not_a_file", `${REFERENCES_DIR} is not a folder`);
+    throw e;
+  }
+  return dir;
+}
+
+interface Staged {
+  path: string;
+  size: number;
+  hash: string;
+  header: Uint8Array;
+}
+
+/** Copies `src` into a new temp file in `dir` (hashing it, enforcing the cap); removes the temp file if the copy fails. */
+function stageCopy(
+  src: number,
+  dir: string,
+  limits: { cap: number; name: string; kind: ReferenceKind },
+): Staged {
+  const path = join(dir, `.${randomBytes(6).toString("hex")}.tmp`);
+  const fd = openSync(path, "wx", 0o600); // never an existing file; 48 random bits
+  try {
+    const copied = copyCapped(src, fd, limits.cap, () => tooLarge(limits.name, limits.kind));
+    fsyncSync(fd);
+    fchmodSync(fd, 0o644);
+    return { path, ...copied };
+  } catch (e) {
+    rmSync(path, { force: true });
+    throw e;
   } finally {
-    if (src >= 0) closeSync(src);
-    if (tmp) rmSync(tmp.path, { force: true });
+    closeSync(fd);
+  }
+}
+
+/** Checks the staged bytes are what the extension says. */
+function checkContent(tmpPath: string, info: RefInfo, header: Uint8Array): void {
+  const { name, ext, kind } = info;
+  const invalid = () => new ProjectFsError("bad_reference", `${name} is not a valid ${ext} file`);
+  if (kind === "image" && ext !== "svg") {
+    try {
+      checkImage(name, ext, header);
+    } catch (e) {
+      throw e instanceof ProjectFsError && e.code === "bad_image" ? invalid() : e;
+    }
+  } else if (kind === "text") {
+    const bytes = readFileSync(tmpPath);
+    if (!isUtf8(bytes) || bytes.includes(0)) throw invalid();
+  } else if (kind !== "other" && !signatureOk(ext, header)) throw invalid();
+}
+
+/** Moves the staged file to the first free name, or reuses an existing file with the same bytes. */
+function placeReference(
+  root: string,
+  tmpPath: string,
+  info: RefInfo,
+  staged: { size: number; hash: string },
+): ImportedReference {
+  const { name, ext, kind } = info;
+  const { size, hash } = staged;
+  const dot = name.lastIndexOf(".");
+  const stemText = dot < 0 ? name : name.slice(0, dot);
+  const stem = stemFor(stemText);
+  const title = stemText.trim() || stem;
+  for (let n = 1; ; n++) {
+    const base = n === 1 ? stem : `${stem}-${n}`;
+    const rel = `${REFERENCES_DIR}/${ext ? `${base}.${ext}` : base}`;
+    const path = resolveSafe(root, rel);
+    let existing;
+    try {
+      existing = lstatSync(path);
+    } catch {
+      // Nothing there: the rename either succeeds or reports why it cannot.
+      renameSync(tmpPath, path);
+      return { file: rel, title, size, kind, reused: false };
+    }
+    if (existing.isFile() && existing.size === size && hashFile(path) === hash)
+      return { file: rel, title, size, kind, reused: true };
   }
 }
 

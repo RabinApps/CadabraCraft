@@ -9,16 +9,56 @@ import { parseStyles } from "./styles";
 import type { DCtx } from "./types";
 import { child, childrenNamed, kids, parseXml, rawText, tagOf } from "./xml";
 
+/** The part that holds the document body: the one the package relationships point at, else `word/document.xml`. */
+function documentPath(topRels: ReturnType<typeof parseRels>): string {
+  let docPath = "word/document.xml";
+  for (const r of topRels.values())
+    if (/\/(word\/)?document\.xml$/i.test(r.target) && !r.external)
+      docPath = r.target.replace(/^\//, "");
+  return docPath;
+}
+
+/** Comments, headers and footers live in other parts: report them so nothing disappears silently. */
+function reportSkippedParts(
+  files: ReturnType<typeof readArchive>,
+  commentRefs: number,
+  warn: Warnings,
+): void {
+  let comments = commentRefs;
+  if (files["word/comments.xml"]) {
+    const root = parseXml(files["word/comments.xml"], "word/comments.xml").find(
+      (n) => tagOf(n) === "comments",
+    );
+    comments = Math.max(comments, root ? childrenNamed(root, "comment").length : 0);
+  }
+  if (comments > 0)
+    warn.tally(
+      "comments",
+      "warning",
+      `The file has ${comments} comment(s); comments are not imported.`,
+    );
+  const hf: string[] = [];
+  for (const name of Object.keys(files)) {
+    if (!/^word\/(header|footer)\d*\.xml$/.test(name)) continue;
+    const root = parseXml(files[name]!, name)[0];
+    // parseXml only returns well-formed documents, which always have a root element.
+    /* v8 ignore next -- @preserve */
+    const text = root ? rawText(root).trim() : "";
+    if (text) hf.push(text);
+  }
+  if (hf.length) {
+    for (const t of hf)
+      warn.tally("header-footer", "warning", "Headers and footers are not imported.", t);
+  }
+}
+
 /** Import a .docx file held in memory. Pure: no disk or network access; image bytes are returned in `assets`. */
 export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportResult {
   const files = readArchive(bytes, opts);
 
   const warn = new Warnings();
   const topRels = parseRels(files["_rels/.rels"], "_rels/.rels");
-  let docPath = "word/document.xml";
-  for (const r of topRels.values())
-    if (/\/(word\/)?document\.xml$/i.test(r.target) && !r.external)
-      docPath = r.target.replace(/^\//, "");
+  const docPath = documentPath(topRels);
   const docBytes = files[docPath] ?? files["word/document.xml"];
   if (!docBytes)
     throw new ImportError(
@@ -51,33 +91,7 @@ export function importDocx(bytes: Uint8Array, opts: ImportOptions = {}): ImportR
   builder.walk(kids(body));
   builder.flush();
 
-  // comments, headers and footers live in other parts: report them so nothing disappears silently
-  let comments = ctx.commentRefs;
-  if (files["word/comments.xml"]) {
-    const root = parseXml(files["word/comments.xml"], "word/comments.xml").find(
-      (n) => tagOf(n) === "comments",
-    );
-    comments = Math.max(comments, root ? childrenNamed(root, "comment").length : 0);
-  }
-  if (comments > 0)
-    warn.tally(
-      "comments",
-      "warning",
-      `The file has ${comments} comment(s); comments are not imported.`,
-    );
-  const hf: string[] = [];
-  for (const name of Object.keys(files)) {
-    if (!/^word\/(header|footer)\d*\.xml$/.test(name)) continue;
-    const root = parseXml(files[name]!, name)[0];
-    // parseXml only returns well-formed documents, which always have a root element.
-    /* v8 ignore next -- @preserve */
-    const text = root ? rawText(root).trim() : "";
-    if (text) hf.push(text);
-  }
-  if (hf.length) {
-    for (const t of hf)
-      warn.tally("header-footer", "warning", "Headers and footers are not imported.", t);
-  }
+  reportSkippedParts(files, ctx.commentRefs, warn);
 
   const chapters = splitChapters(builder.out, opts, warn);
   return { chapters, warnings: warn.list(), assets: ctx.assets.assets };

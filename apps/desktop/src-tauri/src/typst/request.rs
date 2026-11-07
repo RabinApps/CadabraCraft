@@ -7,6 +7,7 @@ pub struct CompileRequest {
     pub source: String,
     pub files: Vec<(String, Vec<u8>)>,
     pub pdf_a: bool,
+    pub pdf_ua: bool,
 }
 
 /// A decoded `typst_query` request.
@@ -48,21 +49,23 @@ fn split_frame<H: serde::de::DeserializeOwned>(body: &[u8], files_of: impl Fn(&H
 /// Decodes the binary body of `typst_compile`: a 4-byte little-endian header length, the header (UTF-8 JSON with
 /// `source`, `pdfA` and `files: [{ name, len }]`), then every file's bytes back to back, in header order.
 /// The bytes must add up exactly; anything else is refused rather than guessed at. (The TypeScript writer is
-/// `packCompileRequest` in `src/lib/compileFrame.ts`.)
+/// `packCompileRequest` in `src/lib/export/compileFrame.ts`.)
 pub fn parse_compile_request(body: &[u8]) -> Result<CompileRequest, TypstError> {
     #[derive(serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
     struct Header {
         source: String,
         pdf_a: bool,
+        #[serde(default)]
+        pdf_ua: bool,
         files: Vec<FileHeader>,
     }
     let (header, files) = split_frame(body, |h: &Header| &h.files)?;
-    Ok(CompileRequest { source: header.source, files, pdf_a: header.pdf_a })
+    Ok(CompileRequest { source: header.source, files, pdf_a: header.pdf_a, pdf_ua: header.pdf_ua })
 }
 
 /// Decodes the binary body of `typst_query`: the same frame as `typst_compile` with a `selector` header field in
-/// place of `pdfA` (`packQueryRequest` in `src/lib/compileFrame.ts` writes it).
+/// place of `pdfA` (`packQueryRequest` in `src/lib/export/compileFrame.ts` writes it).
 pub fn parse_query_request(body: &[u8]) -> Result<QueryRequest, TypstError> {
     #[derive(serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
@@ -89,17 +92,25 @@ mod tests {
 
     #[test]
     fn compile_request_decodes_options_source_and_files_in_order() {
-        let h = r#"{"source":"Hello ✓","pdfA":true,"files":[{"name":"assets/a.png","len":3},{"name":"assets/b.jpg","len":0},{"name":"c.bin","len":2}]}"#;
+        let h = r#"{"source":"Hello ✓","pdfA":true,"pdfUa":true,"files":[{"name":"assets/a.png","len":3},{"name":"assets/b.jpg","len":0},{"name":"c.bin","len":2}]}"#;
         let r = parse_compile_request(&frame(h, &[1, 2, 3, 9, 8])).unwrap();
-        assert_eq!(r, CompileRequest { source: "Hello ✓".into(), files: vec![("assets/a.png".into(), vec![1, 2, 3]), ("assets/b.jpg".into(), vec![]), ("c.bin".into(), vec![9, 8])], pdf_a: true });
+        assert_eq!(
+            r,
+            CompileRequest {
+                source: "Hello ✓".into(),
+                files: vec![("assets/a.png".into(), vec![1, 2, 3]), ("assets/b.jpg".into(), vec![]), ("c.bin".into(), vec![9, 8])],
+                pdf_a: true,
+                pdf_ua: true
+            }
+        );
         let none = parse_compile_request(&frame(r#"{"source":"","pdfA":false,"files":[]}"#, &[])).unwrap();
-        assert_eq!((none.files.len(), none.pdf_a), (0, false));
+        assert_eq!((none.files.len(), none.pdf_a, none.pdf_ua), (0, false, false));
     }
 
     #[test]
     fn a_program_path_in_the_header_is_ignored() {
         let with = r#"{"typstPath":"/bin/sh","source":"s","pdfA":false,"selector":"<x>","files":[]}"#;
-        assert_eq!(parse_compile_request(&frame(with, &[])).unwrap(), CompileRequest { source: "s".into(), files: vec![], pdf_a: false });
+        assert_eq!(parse_compile_request(&frame(with, &[])).unwrap(), CompileRequest { source: "s".into(), files: vec![], pdf_a: false, pdf_ua: false });
         assert_eq!(parse_query_request(&frame(with, &[])).unwrap(), QueryRequest { source: "s".into(), files: vec![], selector: "<x>".into() });
     }
 

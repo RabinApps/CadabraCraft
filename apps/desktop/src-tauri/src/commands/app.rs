@@ -16,7 +16,8 @@ const LICENSE_FILES: [(&str, &str); 6] = [
 
 /// Reads one license document from the bundled `licenses/` folder.
 pub fn read_license_file(dir: &Path, id: &str) -> Result<String, ProjectError> {
-    let (_, file) = LICENSE_FILES.iter().find(|(known, _)| *known == id).ok_or_else(|| ProjectError::Io { message: format!("unknown license document: {id}") })?;
+    let (_, file) =
+        LICENSE_FILES.iter().find(|(known, _)| *known == id).ok_or_else(|| ProjectError::Io { message: format!("unknown license document: {id}") })?;
     Ok(std::fs::read_to_string(dir.join(file))?)
 }
 

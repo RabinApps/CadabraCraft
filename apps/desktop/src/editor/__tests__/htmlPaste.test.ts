@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { convertHtmlText, literalContent, pasteAction, plainOf, truncate } from "../htmlPaste";
+import {
+  convertHtmlText,
+  literalContent,
+  pasteAction,
+  plainOf,
+  truncate,
+} from "../paste/htmlPaste";
 
 const base = {
   text: "<p>The gate was <b>old</b></p>",

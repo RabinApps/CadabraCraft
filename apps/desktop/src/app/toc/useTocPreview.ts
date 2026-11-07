@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { contentHash } from "@cadabracraft/export-audio";
-import { createPreviewJob, type JobState, type PreviewJob } from "../../lib/previewJob";
+import { createPreviewJob, type JobState, type PreviewJob } from "../../lib/export/previewJob";
 import {
   approxKey,
   approxPages,
@@ -8,7 +8,7 @@ import {
   type ContentsLayout,
   type PreviewLine,
   type PreviewPage,
-} from "../../lib/tocPreview";
+} from "../../lib/toc/tocPreview";
 import { useProject } from "../../state/project/index";
 import type { ContentsPreview } from "../../state/project/types";
 

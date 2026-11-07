@@ -4,21 +4,51 @@ import {
   removeReference as removeFromManifest,
   moveReference as moveInManifest,
   treeOf,
+  type Manifest,
+  type Reference,
   updateReference as updateInManifest,
 } from "@cadabracraft/format";
 import { bridge } from "../../lib/bridge";
 import { baseName } from "../../lib/paths";
-import { forgetReference } from "../../lib/references";
-import { errText, isProjectError } from "../../lib/projectError";
-import { removedReferences, titleFromFile } from "../../lib/referenceKinds";
-import { HISTORY_LIMIT } from "./util";
+import { forgetReference } from "../../lib/references/references";
+import { isProjectError, whyText } from "../../lib/projectError";
+import { removedReferences, titleFromFile } from "../../lib/references/referenceKinds";
+import { alertOf, HISTORY_LIMIT } from "./util";
 import type { ReferenceActions, ReferenceNotice } from "./types";
 import type { Ctx } from "./context";
+import { createWebReferenceActions } from "./referencesWeb";
 
-/** Reference files: importing into `references/`, the manifest list, and removal to the project trash. */
+/** Pushes the Book Undo entry of a removed reference: the item and its place, and where its file went in the trash (files only). */
+function rememberRemoval(
+  { set, get }: Ctx,
+  r: { manifest: Manifest; ref: Reference; index: number; trashPath?: string },
+): void {
+  const tree = treeOf(r.manifest);
+  set({
+    history: {
+      undo: [
+        ...get().history.undo,
+        {
+          label: t`Remove ${r.ref.title}`,
+          before: tree,
+          after: tree,
+          reference: {
+            item: r.ref,
+            index: r.index,
+            ...(r.trashPath ? { trashPath: r.trashPath } : {}),
+          },
+        },
+      ].slice(-HISTORY_LIMIT),
+      redo: [],
+    },
+  });
+}
+
+/** References: files (importing into `references/`, removal to the project trash), and the manifest list; links and notes are in `referencesWeb.ts`. */
 export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
   const { set, get, need, saveManifest } = ctx;
   return {
+    ...createWebReferenceActions(ctx),
     async addReferences(paths) {
       const { root } = need();
       const picked = paths ?? (await bridge.pickReferenceFiles());
@@ -30,7 +60,7 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
         try {
           const got = await bridge.importReference(root, source);
           const { manifest } = need();
-          if (manifest.references.some((r) => r.file === got.file)) {
+          if (manifest.references.some((r) => r.kind === "file" && r.file === got.file)) {
             notices.push({
               tone: "warn",
               text: t`${name} is already in this book. Using the existing file.`,
@@ -44,7 +74,10 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
           });
           await saveManifest(added.manifest);
         } catch (e) {
-          notices.push({ tone: "danger", text: t`Could not add ${name}: ${errText(e)}` });
+          notices.push({
+            tone: "danger",
+            text: t`Could not add ${name}: ${whyText(e)}. Choose another file and try again.`,
+          });
         }
       }
       set({ referenceImport: null, referenceNotices: notices });
@@ -53,7 +86,7 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
       try {
         await saveManifest(updateInManifest(need().manifest, id, patch));
       } catch (e) {
-        set({ notice: t`Could not save the reference: ${errText(e)}` });
+        set(alertOf(t`Could not save the reference: ${whyText(e)}. Try again.`));
       }
     },
     async refreshRemovedReferences() {
@@ -75,7 +108,7 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
         });
         await saveManifest(added.manifest);
       } catch (e) {
-        return t`Could not restore ${name}: ${errText(e)}`;
+        return t`Could not restore ${name}: ${whyText(e)}. Try again, or add the file again.`;
       }
       set({ removedReferences: get().removedReferences.filter((r) => r.path !== trashPath) });
       return null;
@@ -84,7 +117,7 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
       try {
         await saveManifest(moveInManifest(need().manifest, id, to));
       } catch (e) {
-        set({ notice: t`Could not reorder the references: ${errText(e)}` });
+        set(alertOf(t`Could not reorder the references: ${whyText(e)}. Try again.`));
       }
     },
     async removeReference(id) {
@@ -94,35 +127,27 @@ export const createReferenceActions = (ctx: Ctx): ReferenceActions => {
       try {
         await saveManifest(removeFromManifest(manifest, id).manifest);
       } catch (e) {
-        set({ notice: t`Could not remove ${ref.title}: ${errText(e)}` });
+        set(alertOf(t`Could not remove ${ref.title}: ${whyText(e)}. Try again.`));
         return;
       }
+      const index = manifest.references.indexOf(ref);
+      const remember = (trashPath?: string) =>
+        rememberRemoval(ctx, { manifest, ref, index, ...(trashPath ? { trashPath } : {}) });
+      // A link or a note has no file: only the list entry goes.
+      if (ref.kind !== "file") return remember();
       forgetReference(root, ref.file);
       try {
         const trashPath = await bridge.trashReference(root, ref.file);
         void get().actions.refreshRemovedReferences();
-        // Book Undo brings it back (file from the trash, list entry at its old place).
-        const tree = treeOf(manifest);
-        set({
-          history: {
-            undo: [
-              ...get().history.undo,
-              {
-                label: t`Remove ${ref.title}`,
-                before: tree,
-                after: tree,
-                reference: { item: ref, index: manifest.references.indexOf(ref), trashPath },
-              },
-            ].slice(-HISTORY_LIMIT),
-            redo: [],
-          },
-        });
+        remember(trashPath);
       } catch (e) {
         // A file that is already gone needs nothing; any other failure leaves the file behind, which is harmless.
         if (!(isProjectError(e) && e.kind === "not_found"))
-          set({
-            notice: t`${ref.title} was removed, but its file could not be moved to the trash: ${errText(e)}`,
-          });
+          set(
+            alertOf(
+              t`${ref.title} was removed, but its file could not be moved to the trash: ${whyText(e)}. You can delete the file from the references folder yourself.`,
+            ),
+          );
       }
     },
     dismissReferenceNotices() {

@@ -204,6 +204,13 @@ describe("package structure", () => {
 });
 
 describe("manuscript format", () => {
+  it("writes a page break as a hard page break", () => {
+    const page = parts(
+      buildDocx(book, [chapter("One", p(t("Before.")), { type: "pageBreak" }, p(t("After.")))]),
+    );
+    expect(page["word/document.xml"]).toContain('<w:br w:type="page"/>');
+  });
+
   const files = parts(
     buildDocx(book, [
       chapter("One", p(t("Hello world.")), { type: "sceneBreak" }, p(t("After."))),
@@ -314,6 +321,12 @@ describe("marks", () => {
     expect(run(m("subscript"))).toContain('<w:vertAlign w:val="subscript"/>');
     expect(run(m("code"))).toContain('w:ascii="Courier New"');
     expect(run(m("link", "https://x.org"))).toContain("<w:hyperlink");
+  });
+  it("writes the language of a passage as w:lang on the run and refuses a bad tag", () => {
+    const lang = (attrs?: object): Mark => ({ type: "lang", ...(attrs ? { attrs } : {}) }) as Mark;
+    expect(run(lang({ lang: "fr-CA" }))).toContain('<w:lang w:val="fr-CA"/>');
+    expect(() => run(lang())).toThrow(/BCP 47/);
+    expect(() => run(lang({ lang: 'fr"/>' }))).toThrow(DocxExportError);
   });
   it("throws on an unknown mark, a link without href and superscript with subscript", () => {
     expect(() => run({ type: "wobble" } as never)).toThrow(DocxExportError);
@@ -531,5 +544,27 @@ describe("round trip through the CadabraCraft DOCX importer", () => {
       if (!name.startsWith("word/media/")) expect(XMLValidator.validate(text), name).toBe(true);
     const r = importDocx(bytes);
     expect(r.chapters.length).toBeGreaterThan(0);
+  });
+});
+
+describe("scenes", () => {
+  it("prints a scene's blocks and none of its notes", () => {
+    const xml = documentXml(
+      buildDocx(book, [
+        chapter("One", {
+          type: "scene",
+          attrs: {
+            id: "sc-1",
+            title: "Secret title",
+            synopsis: "Plans",
+            status: "draft",
+            target: 800,
+          },
+          content: [p(t("In the scene."))],
+        }),
+      ]),
+    );
+    expect(xml).toContain("In the scene.");
+    expect(xml).not.toContain("Secret title");
   });
 });

@@ -72,3 +72,17 @@ describe("typstString", () => {
     expect(typstString("#[x] $")).toBe('"#[x] $"');
   });
 });
+
+describe("a typed tab", () => {
+  it("is a fixed gap, because Typst collapses a tab to one space", () => {
+    expect(escapeMarkup("a\tb")).toBe("a#h(1.5em)b");
+    expect(escapeMarkup("\tIndented", { lineStart: true })).toBe("#h(1.5em)Indented");
+  });
+  it("escapes what the call would swallow: a field access or arguments after it", () => {
+    expect(escapeMarkup("\t.x")).toBe("#h(1.5em)\\.x");
+    expect(escapeMarkup("\t(x)")).toBe("#h(1.5em)\\(x)");
+  });
+  it("does not make a tab at the start of a line a heading or list marker", () => {
+    expect(escapeMarkup("\t= not a heading", { lineStart: true })).toBe("#h(1.5em)= not a heading");
+  });
+});

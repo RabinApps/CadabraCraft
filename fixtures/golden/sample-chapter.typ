@@ -23,20 +23,21 @@
   })
 #set text(font: "Libertinus Serif", size: 11pt, hyphenate: true, lang: "en")
 #set par(justify: true, leading: 0.62em, spacing: 0.62em, first-line-indent: (amount: 1.4em, all: false))
+#let heading-align(it, template) = if it.supplement == [ha-center] { center } else if it.supplement == [ha-end] { end } else if it.supplement == [ha-start] { start } else { template }
 #show heading.where(level: 1): it => block(width: 100%, above: 0pt, below: 2.2em, sticky: true, {
-  set align(center)
+  set align(heading-align(it, center))
   set text(font: "Libertinus Serif", size: 1.7em, weight: "regular", style: "normal")
   set par(first-line-indent: 0pt, justify: false, hanging-indent: 0pt)
   it.body
 })
 #show heading.where(level: 2): it => block(width: 100%, above: 2em, below: 1em, sticky: true, {
-  set align(center)
+  set align(heading-align(it, center))
   set text(font: "Libertinus Serif", size: 1.2em, weight: "regular", style: "normal")
   set par(first-line-indent: 0pt, justify: false, hanging-indent: 0pt)
   smallcaps(it.body)
 })
 #show heading.where(level: 3): it => block(width: 100%, above: 1.5em, below: 0.75em, sticky: true, {
-  set align(left)
+  set align(heading-align(it, left))
   set text(font: "Libertinus Serif", size: 1em, weight: "regular", style: "italic")
   set par(first-line-indent: 0pt, justify: false, hanging-indent: 0pt)
   it.body
@@ -63,7 +64,9 @@
 #show figure.caption: it => text(size: 0.85em, it.body)
 #let fit-image(path, alt, max-height) = layout(size => {
   let img = image(path, width: size.width, alt: alt)
-  if measure(img).height > max-height { image(path, height: max-height, alt: alt) } else { img }
+  let out = if measure(img).height > max-height { image(path, height: max-height, alt: alt) } else { img }
+  // No alt text means decorative: PDF/UA rejects an untagged image, so mark it as an artifact.
+  if alt == none { pdf.artifact(out) } else { out }
 })
 #let task-box(checked) = box(width: 0.7em, height: 0.7em, baseline: 0.05em, stroke: 0.6pt, {
   if checked {
@@ -77,15 +80,21 @@
   body
 }))
 #let scene-break() = align(center, block(above: 1em, below: 1em, "*   *   *"))
-#let chapter-start(title, n, id: "", kind: "chapter") = {
-  pagebreak(weak: true, to: "odd")
+// A paragraph the author left empty is one line of the body, as in the page view and the EPUB: the pitch of a line is measured there, so
+// it follows the font, the size and the leading of whatever it sits in, and the paragraph spacing on either side stays as it is.
+#let blank-line() = context v(measure([a\ b]).height - measure([a]).height)
+// opening: the template's chapter opening above the title (the sink, the ornament and the label). A page that does not open with a
+// level-1 heading has no title to hang them on (Page view and the EPUB give it none either), so the page starts at the top margin.
+#let chapter-start(title, n, id: "", kind: "chapter", odd: true, opening: true) = {
+  if odd { pagebreak(weak: true, to: "odd") } else { pagebreak(weak: true) }
   mark("chapter-start", info: (id: id, kind: kind))
   state("chapter-title").update(title)
   counter(footnote).update(0)
+  if opening {
   v(8em)
   align(center, text(size: 1.2em, "⁂"))
   v(0.6em)
-}
+}}
 // Front and back matter pages with their own layout. The marks sit inside the aligned block so they stay on the page they describe.
 #let matter-marks(id, kind, start, end, body) = {
   mark("chapter-start", info: (id: id, kind: kind))
@@ -94,9 +103,9 @@
   mark(end)
   mark("chapter-end")
 }
-#let title-page(id, kind, body) = {
+#let title-page(id, kind, body, centre: true) = {
   pagebreak(weak: true)
-  align(center + horizon, matter-marks(id, kind, "folio-off-start", "folio-off-end", {
+  align(center + if centre { horizon } else { top }, matter-marks(id, kind, "folio-off-start", "folio-off-end", {
     show heading: it => block(width: 100%, below: 1em, text(font: "Libertinus Serif", size: if it.level == 1 { 1.9em } else { 1.1em }, weight: "bold", it.body))
     set par(first-line-indent: 0pt, justify: false)
     set text(size: 1.25em)
@@ -111,19 +120,29 @@
     body
   })))
 }
-#let centered-page(id, kind, body) = {
+#let centered-page(id, kind, body, centre: true) = {
   pagebreak(weak: true)
-  align(center + horizon, block(width: 78%, matter-marks(id, kind, "header-off-start", "header-off-end", {
+  align(center + if centre { horizon } else { top }, block(width: 78%, matter-marks(id, kind, "header-off-start", "header-off-end", {
     set par(first-line-indent: 0pt, justify: false)
     body
   })))
 }
+#let part-page(id, kind, body) = {
+  pagebreak(weak: true)
+  align(center + horizon, block(width: 78%, matter-marks(id, kind, "folio-off-start", "folio-off-end", {
+    show heading: it => block(width: 100%, below: 1em, text(font: "Libertinus Serif", size: if it.level == 1 { 2.1em } else { 1.1em }, weight: "bold", it.body))
+    set par(first-line-indent: 0pt, justify: false)
+    set text(size: 1.35em)
+    body
+  })))
+}
 
+#import "typst-droplet/lib.typ": dropcap
 #chapter-start("Chapter One", 1, id: "ch1", kind: "chapter")
 
 #heading(level: 1)[Chapter One]
 
-It was a #strong[bright] cold day & the clocks were #emph[striking] thirteen#footnote[Orwell, 1949.]\.
+#dropcap(height: 3, gap: 0.12em)[It was a #strong[bright] cold day & the clocks were #emph[striking] thirteen#footnote[Orwell, 1949.]\.]
 
 #quote(block: true)[
 A quoted \<line\>.
@@ -144,7 +163,7 @@ One
   ],
 )
 
-#strike[struck] #raw("a<b") H#sub[2]O x#super[2]
+#h(1.4em)#strike[struck] #raw("a<b") H#sub[2]O x#super[2]
 
 #enum(start: 3, 
   [
@@ -184,6 +203,20 @@ A fixed signal light.
   table.header([Item], [Cost & note]),
   [a\<b], [Ten#footnote[In cells.]],
 )
+
+#[#set align(center)
+#set par(first-line-indent: 0pt, justify: false)
+A centred line.]
+
+#[#set align(end)
+#set par(first-line-indent: 0pt, justify: false)
+A right-aligned line, #emph[with emphasis]\.]
+
+#[#set align(start)
+#set par(first-line-indent: 0pt, justify: false)
+A left-aligned line.]
+
+#heading(level: 3, supplement: [ha-center])[A centred heading]
 
 #mark("chapter-end")
 

@@ -4,12 +4,14 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "main": "src/index.ts",
   "scripts": {
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@cadabracraft/format": "workspace:*",
     "@cadabracraft/shared": "workspace:*"
   },
   "devDependencies": {

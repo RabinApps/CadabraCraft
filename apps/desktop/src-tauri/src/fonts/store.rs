@@ -1,6 +1,6 @@
 //! What is installed under the fonts folder: listing, deleting and reading font files. Ids and file names that reach
 //! this layer come from the webview, so they are checked before they become part of a path.
-use super::catalog::{find_family, FAMILIES};
+use super::catalog::{families, find_family};
 use super::error::{io_err, FontError};
 use super::import::{family_name, read_font};
 use serde::Serialize;
@@ -28,18 +28,12 @@ pub struct InstalledFont {
 }
 
 fn unknown(id: &str) -> FontError {
-    FontError::UnknownFont {
-        font: id.to_string(),
-    }
+    FontError::UnknownFont { font: id.to_string() }
 }
 
 /// A single path segment: not empty, no separators, no NUL, not `.` or `..` and no `..` anywhere.
 pub fn is_safe_segment(s: &str) -> bool {
-    !s.is_empty()
-        && s.len() <= 255
-        && !s.contains(['/', '\\', '\0'])
-        && !s.contains("..")
-        && s != "."
+    !s.is_empty() && s.len() <= 255 && !s.contains(['/', '\\', '\0']) && !s.contains("..") && s != "."
 }
 
 fn is_font_file(name: &str) -> bool {
@@ -54,15 +48,9 @@ pub fn family_dir(root: &Path, id: &str) -> Result<PathBuf, FontError> {
         return Err(unknown(id));
     }
     if let Some(slug) = id.strip_prefix(IMPORTED_PREFIX) {
-        return if is_safe_segment(slug) {
-            Ok(root.join(IMPORTED_DIR).join(slug))
-        } else {
-            Err(unknown(id))
-        };
+        return if is_safe_segment(slug) { Ok(root.join(IMPORTED_DIR).join(slug)) } else { Err(unknown(id)) };
     }
-    find_family(id)
-        .map(|f| root.join(f.id))
-        .ok_or_else(|| unknown(id))
+    find_family(id).map(|f| root.join(f.id)).ok_or_else(|| unknown(id))
 }
 
 /// The font files of a folder, sorted. None when there are none (or the folder is missing).
@@ -79,26 +67,15 @@ fn font_files(dir: &Path) -> Vec<String> {
     files
 }
 
-pub(crate) fn installed_in(
-    dir: &Path,
-    id: String,
-    family: String,
-    source: Source,
-) -> Option<InstalledFont> {
+pub(crate) fn installed_in(dir: &Path, id: String, family: String, source: Source) -> Option<InstalledFont> {
     let files = font_files(dir);
-    (!files.is_empty()).then_some(InstalledFont {
-        id,
-        family,
-        source,
-        files,
-    })
+    (!files.is_empty()).then_some(InstalledFont { id, family, source, files })
 }
 
 /// Downloaded families (complete ones only, as the catalog defines it) and imported ones.
 pub fn list_installed(root: Option<&Path>) -> Vec<InstalledFont> {
     let Some(root) = root else { return Vec::new() };
-    let mut out: Vec<InstalledFont> = FAMILIES
-        .iter()
+    let mut out: Vec<InstalledFont> = families()
         .filter(|f| f.installed(root))
         .map(|f| InstalledFont {
             id: f.id.into(),
@@ -107,37 +84,18 @@ pub fn list_installed(root: Option<&Path>) -> Vec<InstalledFont> {
             files: f.files.iter().map(|x| x.name.to_string()).collect(),
         })
         .collect();
-    let mut imported: Vec<PathBuf> = fs::read_dir(root.join(IMPORTED_DIR))
-        .into_iter()
-        .flatten()
-        .flatten()
-        .filter(|e| e.file_type().is_ok_and(|t| t.is_dir()))
-        .map(|e| e.path())
-        .collect();
+    let mut imported: Vec<PathBuf> =
+        fs::read_dir(root.join(IMPORTED_DIR)).into_iter().flatten().flatten().filter(|e| e.file_type().is_ok_and(|t| t.is_dir())).map(|e| e.path()).collect();
     imported.sort();
     for dir in imported {
-        let Some(slug) = dir
-            .file_name()
-            .and_then(|n| n.to_str())
-            .filter(|n| is_safe_segment(n))
-            .map(str::to_string)
-        else {
+        let Some(slug) = dir.file_name().and_then(|n| n.to_str()).filter(|n| is_safe_segment(n)).map(str::to_string) else {
             continue;
         };
         let files = font_files(&dir);
         // The family is read from the first file that still parses; a folder with none is not a font.
-        let family = files.iter().find_map(|f| {
-            read_font(&dir.join(f))
-                .ok()
-                .and_then(|b| family_name(&b).ok())
-        });
+        let family = files.iter().find_map(|f| read_font(&dir.join(f)).ok().and_then(|b| family_name(&b).ok()));
         if let Some(family) = family {
-            out.push(InstalledFont {
-                id: format!("{IMPORTED_PREFIX}{slug}"),
-                family,
-                source: Source::Imported,
-                files,
-            });
+            out.push(InstalledFont { id: format!("{IMPORTED_PREFIX}{slug}"), family, source: Source::Imported, files });
         }
     }
     out
@@ -180,9 +138,7 @@ mod tests {
 
     #[test]
     fn segments_with_separators_dots_or_nothing_are_refused() {
-        for bad in [
-            "", ".", "..", "a/b", "a\\b", "../x", "x/..", "a..b", "/abs", "a\0b", "..\\x",
-        ] {
+        for bad in ["", ".", "..", "a/b", "a\\b", "../x", "x/..", "a..b", "/abs", "a\0b", "..\\x"] {
             assert!(!is_safe_segment(bad), "{bad:?}");
         }
         for good in ["lora", "imported-a-b", "Lora-VF.ttf", "a.b.ttf"] {
@@ -195,25 +151,9 @@ mod tests {
     fn a_family_folder_comes_only_from_the_catalog_or_the_imported_prefix() {
         let root = Path::new("/r");
         assert_eq!(family_dir(root, "lora").unwrap(), root.join("lora"));
-        assert_eq!(
-            family_dir(root, "imported-my-font").unwrap(),
-            root.join("imported/my-font")
-        );
-        for bad in [
-            "nope",
-            "imported",
-            "imported-",
-            "imported-../x",
-            "imported-a/b",
-            "../lora",
-            "lora/..",
-            "imported/my-font",
-            "",
-        ] {
-            assert!(
-                matches!(family_dir(root, bad), Err(FontError::UnknownFont { .. })),
-                "{bad:?}"
-            );
+        assert_eq!(family_dir(root, "imported-my-font").unwrap(), root.join("imported/my-font"));
+        for bad in ["nope", "imported", "imported-", "imported-../x", "imported-a/b", "../lora", "lora/..", "imported/my-font", ""] {
+            assert!(matches!(family_dir(root, bad), Err(FontError::UnknownFont { .. })), "{bad:?}");
         }
     }
 
@@ -244,24 +184,13 @@ mod tests {
         fs::write(root.path().join("imported/stray.txt"), b"x").unwrap();
         let list = list_installed(Some(root.path()));
         assert_eq!(
-            list.iter()
-                .map(|f| (f.id.as_str(), f.family.as_str(), f.source))
-                .collect::<Vec<_>>(),
-            vec![
-                ("cardo", "Cardo", Source::Downloaded),
-                ("imported-my-font", "My Font", Source::Imported)
-            ]
+            list.iter().map(|f| (f.id.as_str(), f.family.as_str(), f.source)).collect::<Vec<_>>(),
+            vec![("cardo", "Cardo", Source::Downloaded), ("imported-my-font", "My Font", Source::Imported)]
         );
-        assert_eq!(
-            list[0].files,
-            vec!["Cardo-Regular.ttf", "Cardo-Italic.ttf", "Cardo-Bold.ttf"]
-        );
+        assert_eq!(list[0].files, vec!["Cardo-Regular.ttf", "Cardo-Italic.ttf", "Cardo-Bold.ttf"]);
         assert_eq!(list[1].files, vec!["a.ttf"]);
         let v = serde_json::to_value(&list[1]).unwrap();
-        assert_eq!(
-            v,
-            serde_json::json!({ "id": "imported-my-font", "family": "My Font", "source": "imported", "files": ["a.ttf"] })
-        );
+        assert_eq!(v, serde_json::json!({ "id": "imported-my-font", "family": "My Font", "source": "imported", "files": ["a.ttf"] }));
     }
 
     #[test]
@@ -276,22 +205,10 @@ mod tests {
         import_font(&src.path().join("a.ttf"), root.path()).unwrap();
         delete_font(root.path(), "imported-my-font").unwrap();
         assert!(!root.path().join("imported/my-font").exists());
-        assert!(
-            root.path().join("imported").exists(),
-            "only the family goes"
-        );
-        assert!(matches!(
-            delete_font(root.path(), "imported-my-font"),
-            Err(FontError::UnknownFont { .. })
-        ));
+        assert!(root.path().join("imported").exists(), "only the family goes");
+        assert!(matches!(delete_font(root.path(), "imported-my-font"), Err(FontError::UnknownFont { .. })));
         for bad in ["..", "../cardo", "a/b", "nope", ""] {
-            assert!(
-                matches!(
-                    delete_font(root.path(), bad),
-                    Err(FontError::UnknownFont { .. })
-                ),
-                "{bad:?}"
-            );
+            assert!(matches!(delete_font(root.path(), bad), Err(FontError::UnknownFont { .. })), "{bad:?}");
         }
         assert!(root.path().exists());
     }
@@ -302,16 +219,8 @@ mod tests {
         install_catalog(root.path(), "cardo");
         fs::write(src.path().join("a.ttf"), ttf("My Font")).unwrap();
         import_font(&src.path().join("a.ttf"), root.path()).unwrap();
-        assert_eq!(
-            read_font_file(root.path(), "imported-my-font", "a.ttf").unwrap(),
-            ttf("My Font")
-        );
-        assert_eq!(
-            read_font_file(root.path(), "cardo", "Cardo-Bold.ttf")
-                .unwrap()
-                .len(),
-            find_family("cardo").unwrap().files[2].size as usize
-        );
+        assert_eq!(read_font_file(root.path(), "imported-my-font", "a.ttf").unwrap(), ttf("My Font"));
+        assert_eq!(read_font_file(root.path(), "cardo", "Cardo-Bold.ttf").unwrap().len(), find_family("cardo").unwrap().files[2].size as usize);
         for (id, file) in [
             ("cardo", "OFL.txt"),
             ("cardo", "../lato/x.ttf"),
@@ -325,13 +234,7 @@ mod tests {
             ("imported-my-font", "../../cardo/Cardo-Bold.ttf"),
             ("cardo", "x.ttf.part"),
         ] {
-            assert!(
-                matches!(
-                    read_font_file(root.path(), id, file),
-                    Err(FontError::UnknownFont { .. })
-                ),
-                "{id} {file}"
-            );
+            assert!(matches!(read_font_file(root.path(), id, file), Err(FontError::UnknownFont { .. })), "{id} {file}");
         }
     }
 
@@ -341,15 +244,8 @@ mod tests {
         let (root, outside) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
         fs::write(outside.path().join("secret.ttf"), b"secret").unwrap();
         fs::create_dir_all(root.path().join("imported/x")).unwrap();
-        std::os::unix::fs::symlink(
-            outside.path().join("secret.ttf"),
-            root.path().join("imported/x/link.ttf"),
-        )
-        .unwrap();
-        assert!(matches!(
-            read_font_file(root.path(), "imported-x", "link.ttf"),
-            Err(FontError::UnknownFont { .. })
-        ));
+        std::os::unix::fs::symlink(outside.path().join("secret.ttf"), root.path().join("imported/x/link.ttf")).unwrap();
+        assert!(matches!(read_font_file(root.path(), "imported-x", "link.ttf"), Err(FontError::UnknownFont { .. })));
     }
 
     #[test]

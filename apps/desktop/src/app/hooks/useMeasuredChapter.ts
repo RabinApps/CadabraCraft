@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { setChapterMeasured, usePageMeasure } from "../../state/pageMeasure";
+import { setChapterMeasured, usePageMeasure } from "../../state/pages/pageMeasure";
 import { useProject } from "../../state/project/index";
 
 /** How long the open chapter must be unchanged before it is measured on its own (the whole book waits longer, see `MEASURE_DELAY_MS`). */

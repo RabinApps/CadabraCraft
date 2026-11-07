@@ -67,6 +67,25 @@ describe("list rows", () => {
     });
     expect(rows[1]!.translated).toBe(false);
   });
+  it("carries a chapter's icon and its own drop cap choice, in both kinds of row", () => {
+    const m = book();
+    const chapters = m.chapters.map((c, i) =>
+      i === 0 ? { ...c, icon: "star", dropCap: false } : i === 1 ? { ...c, dropCap: true } : c,
+    );
+    const [one, two] = entryRows(chapters, m.editions);
+    expect(one).toMatchObject({ icon: "star", dropCap: false });
+    expect(two).toMatchObject({ dropCap: true });
+    expect(two).not.toHaveProperty("icon");
+    const [inOne, inTwo] = entryRowsIn(chapters, m.editions, "en");
+    expect(inOne).toMatchObject({ icon: "star", dropCap: false });
+    expect(inTwo).toMatchObject({ dropCap: true });
+    expect(inTwo).not.toHaveProperty("icon");
+  });
+  it("leaves icon and dropCap out of rows that have neither", () => {
+    const m = book();
+    expect(entryRows(m.chapters, m.editions)[0]).not.toHaveProperty("dropCap");
+    expect(entryRowsIn(m.chapters, m.editions, "en")[0]).not.toHaveProperty("icon");
+  });
   it("falls back to the source title and file when the language has none yet", () => {
     const m = addChapter(addEdition(book(), fr, "copy").manifest, "Three").manifest;
     const row = entryRowsIn(m.chapters, m.editions, "fr")[2]!;

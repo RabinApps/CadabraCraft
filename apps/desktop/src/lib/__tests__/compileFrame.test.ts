@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { packCompileRequest, packQueryRequest } from "../compileFrame";
+import { packCompileRequest, packQueryRequest } from "../export/compileFrame";
 
 /** Reads the layout back the way the Rust side does. */
 function unpack(frame: Uint8Array) {
@@ -31,6 +31,7 @@ describe("packCompileRequest", () => {
         { name: "assets/img-2.jpg", len: 2 },
       ],
       pdfA: true,
+      pdfUa: false,
       source: '#set page(width: 5in)\nHello, "wörld" ✓',
     });
     expect(files).toEqual([
@@ -38,6 +39,12 @@ describe("packCompileRequest", () => {
       ["assets/img-2.jpg", [255, 0]],
     ]);
     expect(rest).toBe(0);
+  });
+  it("carries the PDF/UA flag", () => {
+    const { header } = unpack(
+      packCompileRequest({ source: "", files: [], pdfA: true, pdfUa: true }),
+    );
+    expect(header).toMatchObject({ pdfA: true, pdfUa: true });
   });
   it("works with empty files and never names a program", () => {
     const { header, files, rest } = unpack(
@@ -47,7 +54,12 @@ describe("packCompileRequest", () => {
         pdfA: false,
       }),
     );
-    expect(header).toEqual({ source: "", pdfA: false, files: [{ name: "a.bin", len: 0 }] });
+    expect(header).toEqual({
+      source: "",
+      pdfA: false,
+      pdfUa: false,
+      files: [{ name: "a.bin", len: 0 }],
+    });
     expect(files).toEqual([["a.bin", []]]);
     expect(rest).toBe(0);
     expect(unpack(packCompileRequest({ source: "x", files: [], pdfA: false })).files).toEqual([]);

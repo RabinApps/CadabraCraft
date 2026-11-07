@@ -6,12 +6,13 @@ import { z } from "zod";
 import { buildDocx } from "@cadabracraft/export-docx";
 import { buildEpub } from "@cadabracraft/export-epub";
 import { bookToMarkdown } from "@cadabracraft/export-markdown";
+import { OUTLINE_FORMATS, buildOutline, serializeOutline } from "@cadabracraft/outline";
 import { bleedOf, renderPdf, type TrimSize } from "@cadabracraft/export-pdf";
 import { createNodeRunner } from "@cadabracraft/export-pdf/node";
 import { buildRtf } from "@cadabracraft/export-rtf";
-import { ProjectFsError, writeBytes } from "@cadabracraft/project-fs";
+import { ProjectFsError, readProjectFile, writeBytes } from "@cadabracraft/project-fs";
 import { getTemplate, hasTemplate, resolveBookFonts, resolveTrimSize } from "@cadabracraft/templates";
-import { exportDir, readingOrder, sectionOf, type Manifest } from "@cadabracraft/format";
+import { exportDir, isCodexFile, readingOrder, sectionOf, type Manifest } from "@cadabracraft/format";
 import { loadBook, type Book } from "../book";
 import { ToolError } from "../errors";
 import { poppler, runEpubcheck, typstPath } from "../external";
@@ -39,7 +40,7 @@ export const exportEpub = defineTool({
       const EPUB = `${dir}/book.epub`;
       let bytes: Uint8Array;
       try {
-        bytes = buildEpub({ title: edition.title, author: edition.author, language: edition.language, identifier: edition.identifier, isbn: edition.isbn, publishing: edition.publishing, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css });
+        bytes = buildEpub({ title: edition.title, author: edition.author, language: edition.language, identifier: edition.identifier, isbn: edition.isbn, publishing: edition.publishing, modified: new Date() }, chapters, { assets, css: getTemplate(templateId).epub.css, dropCap: getTemplate(templateId).print.chapterOpening.dropCap, centerKinds: getTemplate(templateId).print.matter.verticalCenter });
       } catch (e) {
         throw new ToolError("epub_error", errMsg(e));
       }
@@ -54,7 +55,7 @@ export const exportMarkdown = defineTool({
   name: "cadabra_export_markdown",
   title: "Export Markdown",
   description:
-    "Write exports/<language>/book.md (CommonMark + GFM: footnotes, tables, strikethrough) with every page in reading order; chapters without a level-1 heading get '# Title'. Image paths are written relative to exports/ (../assets/x.png). Underline, small caps, superscript and subscript have no Markdown syntax: the export fails (markdown_error) unless htmlMarks is true, which writes them as inline HTML. Only writes under exports/.",
+    "Write exports/<language>/book.md (CommonMark + GFM: footnotes, tables, strikethrough) with every page in reading order; chapters without a level-1 heading get '# Title'. Image paths are written relative to exports/ (../assets/x.png). Underline, small caps, superscript and subscript have no Markdown syntax: the export fails (markdown_error) unless htmlMarks is true, which writes them as inline HTML. Left, centred and right aligned paragraphs and headings are wrapped in <div align=...> with htmlMarks, and written as plain text without it. Only writes under exports/.",
   input: { path: PATH, htmlMarks: z.boolean().optional().describe("Write underline, small caps, superscript and subscript as inline HTML instead of failing."), language: LANGUAGE, skipUntranslated: SKIP },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
   run: ({ path, htmlMarks, language, skipUntranslated }, ctx) =>
@@ -70,6 +71,35 @@ export const exportMarkdown = defineTool({
       const bytes = new TextEncoder().encode(markdown);
       writeBytes(root, MARKDOWN, bytes);
       return { summary: `Wrote ${MARKDOWN} (${bytes.length} bytes, ${chapters.length} chapters)${skippedNote(skipped)}`, data: { file: MARKDOWN, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), htmlMarks: htmlMarks === true } };
+    }),
+});
+
+export const exportOutline = defineTool({
+  name: "cadabra_export_outline",
+  title: "Export outline",
+  description:
+    "Write the book's scene outline (chapters, their scenes with synopsis, POV, status, label, target and word counts, date and cast names; no manuscript text) to exports/<language>/outline.opml, outline.md or outline.csv. OPML is for outliners, Markdown for reading, CSV is a generic spreadsheet shape (one row per scene). Cast ids are turned into names from codex.json when it exists. Front and back matter are left out. Only writes under exports/.",
+  input: { path: PATH, format: z.enum(["opml", "markdown", "csv"]).describe("opml, markdown or csv"), language: LANGUAGE, skipUntranslated: SKIP },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+  run: ({ path, format, language, skipUntranslated }, ctx) =>
+    withLock(projectRoot(ctx, path), async () => {
+      const { root, edition, dir, skipped, chapters } = loadBook(ctx, path, { language, skipUntranslated });
+      const pages = chapters.filter((c) => c.section === undefined);
+      if (!pages.length) throw new ToolError("empty_book", "the book has no chapters; add one with cadabra_chapter_add");
+      // The codex only names the cast; a missing or unreadable one leaves the ids in place.
+      let codex: { id: string; name: string }[] = [];
+      try {
+        const r = readProjectFile(root, "codex.json");
+        const parsed: unknown = r ? JSON.parse(r.contents) : null;
+        if (isCodexFile(parsed)) codex = parsed.entries;
+      } catch {
+        codex = [];
+      }
+      const text = serializeOutline(buildOutline({ title: edition.title, author: edition.author }, pages, codex), format);
+      const FILE = `${dir}/${OUTLINE_FORMATS[format].file}`;
+      const bytes = new TextEncoder().encode(text);
+      writeBytes(root, FILE, bytes);
+      return { summary: `Wrote ${FILE} (${bytes.length} bytes, ${pages.length} chapters)${skippedNote(skipped)}`, data: { file: FILE, language: edition.language, format, bytes: bytes.length, chapterCount: pages.length, skipped: skippedData(skipped) } };
     }),
 });
 
@@ -277,4 +307,4 @@ export const inspectEpub = defineTool({
   },
 });
 
-export const exportTools: ToolDef[] = [exportEpub, exportPdf, exportMarkdown, exportDocx, exportRtf, inspectPdf, inspectEpub];
+export const exportTools: ToolDef[] = [exportEpub, exportPdf, exportMarkdown, exportOutline, exportDocx, exportRtf, inspectPdf, inspectEpub];

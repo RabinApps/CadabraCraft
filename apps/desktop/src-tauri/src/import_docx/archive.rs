@@ -127,7 +127,10 @@ pub fn read_archive(bytes: &[u8], limits: &Limits) -> Result<Files, ImportError>
         };
         total = total.saturating_add(size);
         if total > limits.max_decompressed_bytes {
-            return Err(ImportError::new(ImportErrorCode::ArchiveTooLarge, format!("The archive would expand to more than {} MB.", mb(limits.max_decompressed_bytes))));
+            return Err(ImportError::new(
+                ImportErrorCode::ArchiveTooLarge,
+                format!("The archive would expand to more than {} MB.", mb(limits.max_decompressed_bytes)),
+            ));
         }
         if name.ends_with('/') || !is_wanted(&name) || is_unsafe_name(&name) {
             continue;
@@ -165,7 +168,8 @@ mod tests {
         w.finish().unwrap().into_inner()
     }
 
-    const LIMITS: Limits = Limits { max_decompressed_bytes: 200 * 1024 * 1024, max_entries: 10_000, max_document_bytes: 64 << 20, max_xml_part_bytes: 16 << 20 };
+    const LIMITS: Limits =
+        Limits { max_decompressed_bytes: 200 * 1024 * 1024, max_entries: 10_000, max_document_bytes: 64 << 20, max_xml_part_bytes: 16 << 20 };
     fn lim(total: u64, entries: usize) -> Limits {
         Limits { max_decompressed_bytes: total, max_entries: entries, ..LIMITS }
     }
@@ -193,7 +197,19 @@ mod tests {
         ] {
             assert!(is_wanted(yes), "{yes}");
         }
-        for no in ["word/theme/theme1.xml", "word/header1a.xml", "word/headers.xml", "word/media/", "word/media/a\nb.png", "word/media/a\u{2028}.png", "docProps/core.xml", "Word/document.xml", "word/document.xml.rels", "word/settings.xml", "x/word/document.xml"] {
+        for no in [
+            "word/theme/theme1.xml",
+            "word/header1a.xml",
+            "word/headers.xml",
+            "word/media/",
+            "word/media/a\nb.png",
+            "word/media/a\u{2028}.png",
+            "docProps/core.xml",
+            "Word/document.xml",
+            "word/document.xml.rels",
+            "word/settings.xml",
+            "x/word/document.xml",
+        ] {
             assert!(!is_wanted(no), "{no}");
         }
     }

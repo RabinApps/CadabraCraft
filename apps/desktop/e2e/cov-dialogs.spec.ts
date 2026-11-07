@@ -12,7 +12,7 @@ import {
   reopen,
   stopFailing,
 } from "./support/cov";
-import { chapterAction, newProject, seedSnapshot } from "./support/helpers";
+import { chapterAction, newProject, seedSnapshot, focusEnd } from "./support/helpers";
 
 // Failure, timing and rare-state paths of the dialogs (src/app/dialogs). The cases that need a particular backend answer
 // or a held call use the wrapper in support/cov.ts on top of the fake Tauri backend.
@@ -25,7 +25,7 @@ test.beforeEach(async ({ page }) => {
 const waitForCall = (page: Page, cmd: string, n: number) =>
   expect.poll(() => calls(page, cmd)).toBe(n);
 
-test("update dialog: Escape and Later wait for the next launch, a failed install keeps the dialog, an install blocks closing", async ({
+test("update dialog: Escape and Later wait for the next launch, a failed install keeps the dialog and offers Try again, an install blocks closing", async ({
   page,
 }) => {
   await newProject(page);
@@ -61,10 +61,11 @@ test("update dialog: Escape and Later wait for the next launch, a failed install
   await expect(failed).toBeVisible();
   await failOn(page, "plugin:updater|download_and_install", "disk full");
   await release(page, "plugin:updater|download_and_install");
-  await expect(failed.getByRole("alert")).toHaveText("Could not install the update: disk full");
-  await expect(failed.getByRole("button", { name: "Install now" })).toBeDisabled();
+  // The failed install keeps the update, so Try again can run it without checking first.
+  await expect(dialog.getByRole("alert")).toContainText("Could not install the update: disk full.");
+  await expect(dialog.getByRole("button", { name: "Try again" })).toBeEnabled();
   await page.keyboard.press("Escape");
-  await expect(failed).toHaveCount(0);
+  await expect(dialog).toHaveCount(0);
 
   // After a failure the next check starts again, and this time the install goes through.
   await stopFailing(page, "plugin:updater|download_and_install");
@@ -93,7 +94,9 @@ test("recover dialog: Escape keeps the saved text, a failed restore is shown, th
   await reopen(page, () => {}, null);
   await failOn(page, "restore_page_snapshot", "restore broke");
   await dialog.getByRole("button", { name: "Use newer text" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText("restore broke");
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Could not use the newer text (restore broke)",
+  );
   await dialog.getByRole("button", { name: "Keep saved text" }).click();
   await expect(dialog).toHaveCount(0);
 
@@ -119,8 +122,8 @@ test("sponsor dialog: a browser that cannot be opened is reported", async ({ pag
   const sponsor = page.getByRole("dialog", { name: "Enjoying CadabraCraft?" });
   await sponsor.getByRole("button", { name: "Sponsor", exact: true }).click();
   await expect(sponsor).toHaveCount(0);
-  await expect(page.getByRole("status")).toHaveText(
-    "Could not open https://github.com/sponsors/RabinApps: no browser",
+  await expect(page.getByRole("alert")).toHaveText(
+    "Could not open https://github.com/sponsors/RabinApps: no browser. Copy the address into your browser instead.",
   );
 });
 
@@ -197,15 +200,15 @@ test("book details: validation, a cancelled or failed cover picker, an unreadabl
 
   await dialog.getByLabel("Author").fill("");
   await save.click();
-  await expect(alert).toHaveText("Give the book an author.");
+  await expect(alert).toContainText("Give the book an author.");
   await dialog.getByLabel("Author").fill("Someone");
   await dialog.getByLabel("Identifier").fill("");
   await save.click();
-  await expect(alert).toHaveText("The identifier cannot be empty.");
+  await expect(alert).toContainText("The identifier cannot be empty.");
   await dialog.getByLabel("Identifier").fill("urn:test:1");
   await dialog.getByLabel("Title").fill("");
   await save.click();
-  await expect(alert).toHaveText("Give the book a title.");
+  await expect(alert).toContainText("Give the book a title.");
   await dialog.getByLabel("Title").fill("Renamed");
 
   // The picker is cancelled (nothing happens), then the copy of the image fails (the reason is shown).
@@ -297,8 +300,7 @@ test("history: unreadable, invalid, equal and different versions, and a failed r
     });
   });
   await newProject(page);
-  await page.locator(".ProseMirror").click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type("hello world");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("status")).toHaveText("Saved");
@@ -335,7 +337,9 @@ test("history: unreadable, invalid, equal and different versions, and a failed r
 
   await failOn(page, "restore_page_snapshot", "restore broke");
   await dialog.getByRole("button", { name: "Restore this version" }).click();
-  await expect(dialog.getByRole("alert")).toHaveText("restore broke");
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Could not restore this version (restore broke)",
+  );
   await stopFailing(page, "restore_page_snapshot");
   await dialog.getByRole("button", { name: "Restore this version" }).click();
   await expect(dialog).toHaveCount(0);
@@ -376,7 +380,9 @@ test("history: closing while the versions load drops the answer, and a failed li
   await release(page, "list_page_snapshots");
 
   await chapterAction(page, "Chapter One", "History");
-  await expect(dialog.getByRole("alert")).toHaveText("listing broke");
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Could not load the earlier versions (listing broke)",
+  );
   await dialog.getByRole("button", { name: "Close" }).click();
   await expect(dialog).toHaveCount(0);
 });

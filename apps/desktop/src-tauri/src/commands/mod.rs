@@ -4,6 +4,7 @@
 mod app;
 mod assets;
 mod import;
+mod library;
 mod media;
 mod picked;
 mod project;
@@ -14,6 +15,7 @@ mod wire;
 pub use app::*;
 pub use assets::*;
 pub use import::*;
+pub use library::*;
 pub use media::*;
 pub use picked::*;
 pub use project::*;

@@ -2,18 +2,14 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
-export async function editingSteps({
-  app,
-  book,
-  png,
-  out,
-  repo,
-  shot,
-  dlg,
-  menuState,
-  runMenu,
-  step,
-}: Context) {
+export async function editingSteps(ctx: Context) {
+  await editingPart1(ctx);
+  await editingPart2(ctx);
+  await editingPart3(ctx);
+}
+
+async function editingPart1(ctx: Context) {
+  const { app, book, shot, menuState, runMenu, step } = ctx;
   await step("start screen shows New project, Open folder, Import", async () => {
     // The sponsor dialog after an export would cover the page in every export step; it has its own Playwright tests.
     await app.js("location.reload()").catch(() => {});
@@ -82,8 +78,9 @@ export async function editingSteps({
     );
     await app.click("Bold");
     await app.js(`document.execCommand('insertText', false, 'Bold part.')`);
-    await app.click("Scene break");
-    await app.click("Footnote");
+    // Scene break and Footnote are menu-only (Insert menu), not toolbar buttons.
+    await runMenu("editor.sceneBreak");
+    await runMenu("editor.footnote");
     const html = await app.js<string>(`document.querySelector('.ProseMirror').innerHTML`);
     for (const needle of [
       "Typed by an agent.",
@@ -93,7 +90,10 @@ export async function editingSteps({
     ])
       assert(html.includes(needle), `editor lacks ${needle}`);
   });
+}
 
+async function editingPart2(ctx: Context) {
+  const { app, book, png, out, repo, shot, menuState, step } = ctx;
   await step(
     "menu in a book: book actions and formatting are available, the current mode is ticked",
     async () => {
@@ -185,7 +185,10 @@ export async function editingSteps({
       );
     },
   );
+}
 
+async function editingPart3(ctx: Context) {
+  const { app, book, shot, dlg, runMenu, step } = ctx;
   await step(
     "strikethrough, code block and table: menu commands reach the editor and the chapter file",
     async () => {
@@ -222,7 +225,7 @@ export async function editingSteps({
       await runMenu("editor.codeBlock");
       await type("let x = 1 < 2;");
       assert(
-        (await editorHtml()).includes("<pre><code>let x = 1 &lt; 2;</code></pre>"),
+        /<pre[^>]*><code>let x = 1 &lt; 2;<\/code><\/pre>/.test(await editorHtml()),
         "code block did not reach the editor",
       );
       await key("Enter");

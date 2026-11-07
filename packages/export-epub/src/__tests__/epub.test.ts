@@ -59,7 +59,7 @@ describe("chapterToXhtmlBody", () => {
       '<table><thead><tr><th scope="col"><p>Item</p></th><th scope="col"><p>Cost &amp; note</p></th></tr></thead><tbody>',
     );
     expect(html).toContain("<td><p>a&lt;b</p></td>");
-    expect(html).toMatch(/<td><p>Ten<a epub:type="noteref" id="ref2"/);
+    expect(html).toMatch(/<td><p>Ten<a epub:type="noteref" role="doc-noteref" id="ref2"/);
   });
   it("rejects malformed tables", () => {
     const p = { type: "paragraph" } as never;
@@ -244,7 +244,8 @@ describe("custom stylesheet", () => {
   it("uses the supplied css instead of the default", () => {
     const css = "body{color:#123456}";
     const f = unzipSync(buildEpub(meta, [{ id: "ch1", title: "One", doc }], { css }));
-    expect(strFromU8(f["OEBPS/style.css"]!)).toBe(css);
+    // The alignment rules follow the supplied css.
+    expect(strFromU8(f["OEBPS/style.css"]!).startsWith(`${css}\n`)).toBe(true);
     expect(
       strFromU8(unzipSync(buildEpub(meta, [{ id: "ch1", title: "One", doc }]))["OEBPS/style.css"]!),
     ).not.toBe(css);

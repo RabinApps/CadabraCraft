@@ -16,7 +16,11 @@ fn import_picked(picked: &PickedPaths, root: &str, source: &str) -> Result<Strin
 /// Copies an image the user picked (`pick_image`) into `assets/`; returns `assets/<name>`. Any other source is refused.
 #[tauri::command]
 pub async fn import_asset(picked: State<'_, PickedPaths>, root: String, source: String) -> Result<String, ProjectError> {
-    blocking({ let picked = picked.inner().clone(); move || import_picked(&picked, &root, &source) }).await
+    blocking({
+        let picked = picked.inner().clone();
+        move || import_picked(&picked, &root, &source)
+    })
+    .await
 }
 
 /// The body of `import_asset_bytes`, taking the parts of the request so it can run without a webview.

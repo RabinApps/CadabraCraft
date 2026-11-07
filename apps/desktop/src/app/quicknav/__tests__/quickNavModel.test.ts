@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Commands } from "../../../state/commands";
-import { buildMenuModel, type MenuEntry } from "../../shell/menuModel";
+import type { Commands } from "../../../state/app/commands";
+import { buildMenuModel, type MenuEntry } from "../../shell/native/menuModel";
 import { outlineEntries, outlineResults, paletteEntries, paletteResults } from "../quickNavModel";
 
 const run = () => {};

@@ -8,11 +8,12 @@ import {
   cardScale,
   contentsLayout,
   previewDelay,
+  numberText,
   previewLines,
   typstKey,
   type PreviewLine,
-} from "../tocPreview";
-import type { TocRow } from "../tocView";
+} from "../toc/tocPreview";
+import type { TocRow } from "../toc/tocView";
 
 const row = (
   key: string,
@@ -20,7 +21,6 @@ const row = (
   level: number,
   text: string | null,
   extra: Partial<TocItem> = {},
-  estimated = false,
 ): TocRow => ({
   item: {
     key,
@@ -32,7 +32,7 @@ const row = (
     ...extra,
   } as TocItem,
   text,
-  estimated,
+  estimated: false,
 });
 
 describe("previewLines", () => {
@@ -55,12 +55,52 @@ describe("previewLines", () => {
   it("sets chapters in bold and headings in regular type", () => {
     expect(previewLines(rows, true).map((l) => l.bold)).toEqual([true, true, false, true]);
   });
+  it("carries the part indent into the printed lines, apart from the heading level", () => {
+    const lines = previewLines(
+      [
+        row("pt", "Part One", 0, "1"),
+        row("ch", "One", 0, "2", { indent: 1 }),
+        row("ch#1:x:0", "Scene", 1, "3", { indent: 2 }),
+      ],
+      true,
+    );
+    expect(lines.map((l) => [l.title, l.level, l.indent])).toEqual([
+      ["Part One", 0, 0],
+      ["One", 0, 1],
+      ["Scene", 1, 2],
+    ]);
+  });
   it("has no numbers when the page numbers are off", () => {
     expect(previewLines(rows, false).every((l) => l.number === null)).toBe(true);
   });
   it("marks an estimate with ≈ and an unknown page with a dash", () => {
-    const lines = previewLines([row("a", "A", 0, "4", {}, true), row("b", "B", 0, null)], true);
+    const lines = previewLines(
+      [{ ...row("a", "A", 0, "4"), estimated: true }, row("b", "B", 0, null)],
+      true,
+    );
     expect(lines.map((l) => l.number)).toEqual(["≈4", "–"]);
+    expect(numberText({ text: "4", estimated: false })).toBe("4");
+  });
+  it("says where each entry goes: its page, and for a heading (or a custom entry pointing at one) its position", () => {
+    const lines = previewLines(
+      [
+        row("a", "Arrival", 0, "1", { entryId: "a" }),
+        row("a#1:x:0", "The harbour", 1, "2", { entryId: "a", index: 3 }),
+        row("custom:1", "See harbour", 1, "2", { kind: "custom", entryId: "a", targetIndex: 3 }),
+        row("custom:2", "Elsewhere", 0, "5", { kind: "custom" }),
+      ],
+      true,
+    );
+    expect(lines.map((l) => [l.entryId, l.heading])).toEqual([
+      ["a", undefined],
+      ["a", 3],
+      ["a", 3],
+      [undefined, undefined],
+    ]);
+  });
+  it("falls back to the entry id for a blank title, as the exports do", () => {
+    const [line] = previewLines([row("a", "  ", 0, "1", { entryId: "ch-1" })], false);
+    expect(line!.title).toBe("ch-1");
   });
 });
 

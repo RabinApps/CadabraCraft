@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createPreviewJob, type JobState } from "../previewJob";
+import { createPreviewJob, type JobState } from "../export/previewJob";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());

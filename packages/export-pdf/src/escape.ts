@@ -29,33 +29,65 @@ function normalise(s: string): string {
   );
 }
 
+interface EscapeState {
+  s: string;
+  i: number;
+  lineStart: boolean;
+  digitCount: number;
+  /** The previous character was a tab, which Typst writes as a call. */
+  callJust: boolean;
+  afterCall: boolean | undefined;
+}
+
+/** A "." or "(" right after a call would be read as part of it: at the very start after a call, or after a tab. */
+const followsCall = (i: number, afterCall: boolean | undefined, callJust: boolean): boolean =>
+  (i === 0 && !!afterCall) || callJust;
+
+/** Whether the character at `state.i` needs a backslash to stay literal. */
+function mustEscape(state: EscapeState): boolean {
+  const { s, i, lineStart, digitCount, callJust, afterCall } = state;
+  const c = s[i]!;
+  const next = s[i + 1];
+  const prev = s[i - 1];
+  if (ALWAYS.has(c)) return true;
+  if (c === "/") return next === "/" || next === "*" || lineStart;
+  if (lineStart && (c === "=" || c === "-" || c === "+")) return true;
+  if (c === "-") return next === "-" || next === "?" || prev === "-";
+  if (c === "." && s.startsWith("...", i)) return true; // would become an ellipsis
+  if (c === "." && lineStart && digitCount > 0) return true; // "1." enum marker
+  return (c === "." || c === "(") && followsCall(i, afterCall, callJust);
+}
+
 /** Escape plain text for Typst markup mode so it renders verbatim. */
 export function escapeMarkup(input: string, opts: EscapeOptions = {}): string {
   const s = normalise(input);
   let out = "";
   let lineStart = opts.lineStart ?? false;
   let digitCount = 0;
+  let afterCallHere = false;
   for (let i = 0; i < s.length; i++) {
     const c = s[i]!;
-    const next = s[i + 1];
-    const prev = s[i - 1];
     if (c === "\n") {
+      afterCallHere = false;
       out += "\\\n"; // Typst line break
       lineStart = true;
       digitCount = 0;
       continue;
     }
-    if (lineStart && (c === " " || c === "\t")) {
+    if (c === "\t") {
+      // Typst collapses a tab to a space: the indent the author typed is a fixed gap, as wide as a first-line indent.
+      out += "#h(1.5em)";
+      lineStart = false;
+      afterCallHere = true;
+      continue;
+    }
+    if (lineStart && c === " ") {
       out += c;
       continue;
     }
-    let esc = ALWAYS.has(c);
-    if (!esc && c === "/") esc = next === "/" || next === "*" || lineStart;
-    if (!esc && lineStart && (c === "=" || c === "-" || c === "+")) esc = true;
-    if (!esc && c === "-") esc = next === "-" || next === "?" || prev === "-";
-    if (!esc && c === "." && s.startsWith("...", i)) esc = true; // would become an ellipsis
-    if (!esc && c === "." && lineStart && digitCount > 0) esc = true; // "1." enum marker
-    if (!esc && i === 0 && opts.afterCall && (c === "." || c === "(")) esc = true;
+    const callJust = afterCallHere;
+    afterCallHere = false;
+    const esc = mustEscape({ s, i, lineStart, digitCount, callJust, afterCall: opts.afterCall });
     out += esc ? "\\" + c : c;
     if (lineStart) {
       if (isDigit(c)) digitCount++;
