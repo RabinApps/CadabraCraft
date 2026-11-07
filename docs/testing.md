@@ -8,6 +8,7 @@ From the repository root:
 pnpm typecheck
 pnpm lint
 pnpm test                     # Vitest in every package
+pnpm test:scripts             # node --test: check-size and the A11yLens CLI, rule and app-gate tests (scripts/a11ylens)
 pnpm --filter @cadabracraft/desktop test:e2e
 cd apps/desktop/src-tauri && cargo test
 ```

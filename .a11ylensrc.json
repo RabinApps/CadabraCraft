@@ -1,0 +1,6 @@
+{
+  "exclude": ["**/node_modules/**", "**/__tests__/**", "**/*.test.*", "**/locales/**", "**/gen/**"],
+  "ignoreRules": [],
+  "failOn": "error",
+  "minScore": 95
+}
