@@ -319,6 +319,8 @@ function formatMenu(b: Builder, _ctx: MenuContext): MenuEntry {
       cmd("editor.tableHeaderRow", t`Toggle Header Row`),
       cmd("editor.tableDelete", t`Delete Table`),
     ]),
+    sep,
+    cmd("editor.convertQuotes", t`Convert Quotes and Dashes`),
   ]);
 }
 
