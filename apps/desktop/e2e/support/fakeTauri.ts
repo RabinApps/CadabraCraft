@@ -62,6 +62,7 @@ export async function fakeTauri(page: Page) {
     interface BookFile {
       name: string;
       automatic: boolean;
+      pinned?: boolean;
       manifest: string;
       pages: Record<string, string>;
       assets: string[];
@@ -84,6 +85,7 @@ export async function fakeTauri(page: Page) {
       at: path.slice(BOOK_DIR.length, BOOK_DIR.length + 13),
       name: f.name,
       automatic: f.automatic,
+      pinned: f.pinned === true,
       pages: Object.keys(f.pages).sort(),
       assets: f.assets.length,
       bytes: JSON.stringify(f).length,
@@ -490,7 +492,28 @@ export async function fakeTauri(page: Page) {
           case "create_book_snapshot": {
             const name = String(a.name).trim();
             if (!name || name.length > 100) throw { kind: "invalid_file_name" };
-            return bookEntry(...makeBookSnap(name, false));
+            return {
+              ...bookEntry(...makeBookSnap(name, false)),
+              pruned: { moved: 0, pinned_moved: [] },
+            };
+          }
+          case "prune_book_snapshots":
+            return { moved: 0, pinned_moved: [] };
+          case "rename_book_snapshot": {
+            const name = String(a.name).trim();
+            if (!name || name.length > 100) throw { kind: "invalid_file_name" };
+            const f = bookFile(a.snapshot);
+            const renamed = { ...f, name, automatic: false };
+            disk[a.snapshot] = JSON.stringify(renamed);
+            persist();
+            return bookEntry(a.snapshot, renamed);
+          }
+          case "pin_book_snapshot": {
+            const f = bookFile(a.snapshot);
+            const pinned = { ...f, pinned: (a as { pinned?: unknown }).pinned === true };
+            disk[a.snapshot] = JSON.stringify(pinned);
+            persist();
+            return bookEntry(a.snapshot, pinned);
           }
           case "read_book_snapshot_page": {
             const text = bookFile(a.snapshot).pages[a.path];

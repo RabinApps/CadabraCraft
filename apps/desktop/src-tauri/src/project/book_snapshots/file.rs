@@ -15,6 +15,10 @@ pub(super) struct Summary {
     pub(super) assets: usize,
 }
 
+fn is_false(v: &bool) -> bool {
+    !*v
+}
+
 /// What is stored. `pages` maps a project-relative path to the file's text. Files written before `summary` existed
 /// lack it and are listed by reading them through once.
 #[derive(Serialize, Deserialize)]
@@ -22,6 +26,10 @@ pub(super) struct BookFile {
     pub(super) version: u32,
     pub(super) name: String,
     pub(super) automatic: bool,
+    /// Kept by the author: never pruned for the count or the byte limit. Written right after `automatic` (so the head
+    /// holds it) and only when true, so a file that was never pinned is exactly what older versions wrote.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub(super) pinned: bool,
     #[serde(default)]
     pub(super) summary: Option<Summary>,
     pub(super) manifest: String,
@@ -36,6 +44,8 @@ struct BookHead {
     version: u32,
     name: String,
     automatic: bool,
+    #[serde(default)]
+    pinned: bool,
     pages: BTreeMap<String, IgnoredAny>,
     assets: Vec<String>,
 }
@@ -45,14 +55,27 @@ pub(super) struct Head {
     pub(super) version: u32,
     pub(super) name: String,
     pub(super) automatic: bool,
+    pub(super) pinned: bool,
     pub(super) summary: Summary,
 }
 
 /// Reads fields up to `summary` and then stops by failing on purpose (`deserialize_map` would otherwise insist on
 /// reading the rest of the file); the result is left in the cell.
-/// With `early` it stops as soon as `automatic` is read (the fields before the summary), leaving the summary empty: enough
-/// to tell whether a snapshot is automatic without looking for the summary.
+/// With `early` it stops after `automatic` and the `pinned` that may follow it (the fields before the summary), leaving
+/// the summary empty: enough to tell whether a snapshot is automatic or pinned without looking for the summary.
 struct Scan<'a>(&'a RefCell<Option<Head>>, bool);
+
+type Lead = (Option<u32>, Option<String>, Option<bool>);
+
+impl Scan<'_> {
+    /// Leaves the head in the cell (when the leading fields were all seen) and returns the error that stops the read.
+    fn stop<E: de::Error>(&self, lead: Lead, pinned: bool, summary: Summary) -> E {
+        if let (Some(version), Some(name), Some(automatic)) = lead {
+            *self.0.borrow_mut() = Some(Head { version, name, automatic, pinned, summary });
+        }
+        E::custom("head complete")
+    }
+}
 
 impl<'de> Visitor<'de> for Scan<'_> {
     type Value = ();
@@ -62,24 +85,26 @@ impl<'de> Visitor<'de> for Scan<'_> {
     }
 
     fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> std::result::Result<(), A::Error> {
-        let (mut version, mut name, mut automatic) = (None, None, None);
+        let (mut version, mut name, mut automatic, mut pinned) = (None, None, None, false);
+        let empty = || Summary { pages: vec![], assets: 0 };
         while let Some(key) = map.next_key::<String>()? {
+            // Early: the first field after `automatic` that is not `pinned` ends the scan (the file is not pinned).
+            if self.1 && automatic.is_some() && key != "pinned" {
+                return Err(self.stop((version, name, automatic), pinned, empty()));
+            }
             match key.as_str() {
                 "version" => version = Some(map.next_value::<u32>()?),
                 "name" => name = Some(map.next_value::<String>()?),
-                "automatic" => {
-                    automatic = Some(map.next_value::<bool>()?);
-                    if let (true, Some(version), Some(name), Some(automatic)) = (self.1, version, name.as_ref(), automatic) {
-                        *self.0.borrow_mut() = Some(Head { version, name: name.clone(), automatic, summary: Summary { pages: vec![], assets: 0 } });
-                        return Err(de::Error::custom("flags complete"));
+                "automatic" => automatic = Some(map.next_value::<bool>()?),
+                "pinned" => {
+                    pinned = map.next_value::<bool>()?;
+                    if self.1 && automatic.is_some() {
+                        return Err(self.stop((version, name, automatic), pinned, empty()));
                     }
                 }
                 "summary" => {
                     let summary = map.next_value::<Summary>()?;
-                    if let (Some(version), Some(name), Some(automatic)) = (version, name, automatic) {
-                        *self.0.borrow_mut() = Some(Head { version, name, automatic, summary });
-                    }
-                    return Err(de::Error::custom("head complete"));
+                    return Err(self.stop((version, name, automatic), pinned, summary));
                 }
                 _ => {
                     map.next_value::<IgnoredAny>()?;
@@ -95,9 +120,10 @@ pub(super) fn scan_head(path: &Path, limit: u64) -> Option<Head> {
     scan(path, limit, false)
 }
 
-/// Only whether the snapshot at `path` is automatic, from its first `limit` bytes (never streams the whole file).
-pub(super) fn scan_automatic(path: &Path, limit: u64) -> Option<bool> {
-    scan(path, limit, true).filter(|h| h.version == FORMAT).map(|h| h.automatic)
+/// Only whether the snapshot at `path` is automatic and whether it is pinned, from its first `limit` bytes (never
+/// streams the whole file).
+pub(super) fn scan_flags(path: &Path, limit: u64) -> Option<(bool, bool)> {
+    scan(path, limit, true).filter(|h| h.version == FORMAT).map(|h| (h.automatic, h.pinned))
 }
 
 fn scan(path: &Path, limit: u64, early: bool) -> Option<Head> {
@@ -121,6 +147,7 @@ pub(super) fn read_head_slow(path: &Path, limit: u64) -> Option<(Head, bool)> {
             version: head.version,
             name: head.name,
             automatic: head.automatic,
+            pinned: head.pinned,
             summary: Summary { pages: head.pages.into_keys().collect(), assets: head.assets.len() },
         },
         true,

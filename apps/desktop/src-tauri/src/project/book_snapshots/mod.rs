@@ -7,15 +7,20 @@
 //! which images a restored chapter needs and are gone.
 //!
 //! Limits: a snapshot file is at most `MAX_SNAPSHOT_BYTES` (the read cap, so one that can be created can always be loaded
-//! and restored; a larger book is refused with `too_large` instead). At most `MAX_SNAPSHOTS` are kept, within
-//! `MAX_TOTAL_BYTES` together: after a new one is taken the oldest beyond that move to `.cadabra/trash/` as
-//! `<stamp>-snapshot__<name>.json`. Automatic ones go first (oldest first); the author's named ones only when the limits
-//! are still exceeded once every automatic one is gone. The app never deletes them, but it does not list or restore
-//! trashed snapshots either: the file is intact there and can be copied back into `.cadabra/snapshots/` by hand.
+//! and restored; a larger book is refused with `too_large` instead). How many are kept and how many bytes they take
+//! together are the author's settings, passed in by the caller and clamped (see `prune.rs`; defaults 50 and 1 GiB, hard
+//! bounds `MAX_SNAPSHOTS` and `MAX_TOTAL_BYTES`): after a new one is taken, and when a book is opened, the oldest beyond
+//! that move to `.cadabra/trash/` as `<stamp>-snapshot__<name>.json`. Automatic ones go first (oldest first); the
+//! author's named ones only when the limits are still exceeded once every automatic one is gone. Pinned ones are never
+//! moved for the limits, only (and then reported) when they alone exceed the hard byte ceiling. The app never deletes
+//! them in a prune, but it does not list or restore trashed snapshots either: the file is intact there and can be copied
+//! back into `.cadabra/snapshots/` by hand. Renaming and pinning rewrite one file (see `edit.rs`).
 //! Listing reads only the start of each file (a `summary` field written before the texts), not the whole file. A file
 //! from before `summary` existed is read through once and rewritten with one (same name, same content).
-use self::file::{read_head_slow, scan_automatic, BookFile, Summary};
-use super::fsio::move_to_free_copy_name;
+pub use self::edit::{pin_book_snapshot, rename_book_snapshot};
+use self::file::{read_head_slow, BookFile, Summary};
+use self::prune::prune_book_snapshots;
+pub use self::prune::{prune_to_limits, Limits, PruneReport};
 use super::pages::MAX_READ_BYTES;
 use super::snapshots::{is_snapshotable, SnapshotMode};
 use super::{atomic_write, free_copy_name, hash_bytes, read_file, resolve, trash_file, write_file_with, FileRead, ProjectError, Result, WriteResult, MANIFEST};
@@ -31,11 +36,9 @@ pub const MAX_NAME_CHARS: usize = 100;
 /// Largest snapshot file, in bytes: the same as the cap on reading any project file, so every snapshot that is created
 /// can be loaded again. A larger book is refused rather than half kept.
 pub const MAX_SNAPSHOT_BYTES: u64 = MAX_READ_BYTES;
-/// Most snapshots kept; older ones move to the project trash.
-pub const MAX_SNAPSHOTS: usize = 50;
-/// Most bytes all snapshots may take together; older ones move to the project trash.
-pub const MAX_TOTAL_BYTES: u64 = 1024 * 1024 * 1024;
+mod edit;
 mod file;
+mod prune;
 
 /// How much of a snapshot file is read to list it.
 const HEAD_BYTES: u64 = 256 * 1024;
@@ -84,6 +87,8 @@ pub struct BookSnapshotEntry {
     pub name: String,
     /// Taken by the app (before a restore), not named by the author.
     pub automatic: bool,
+    /// Kept by the author: never pruned for the count or byte limit.
+    pub pinned: bool,
     /// Project-relative paths of the pages it holds.
     pub pages: Vec<String>,
     /// How many image files it lists.
@@ -194,6 +199,7 @@ fn list_with(root: &Path, head_bytes: u64) -> Result<Vec<BookSnapshotEntry>> {
                 at: key.0,
                 name: head.name,
                 automatic: head.automatic,
+                pinned: head.pinned,
                 pages: head.summary.pages,
                 assets: head.summary.assets,
                 bytes: meta.len(),
@@ -212,11 +218,29 @@ fn valid_name(name: &str) -> Result<String> {
     Ok(name.to_string())
 }
 
-/// Takes a snapshot of the whole book as it is on disk now and returns its entry.
-pub fn create_book_snapshot(root: &Path, name: &str, now: DateTime<Utc>) -> Result<BookSnapshotEntry> {
-    create(root, &valid_name(name)?, false, now)
+/// A snapshot just taken, and what keeping to the limits moved to the trash because of it.
+#[derive(Serialize, Debug, PartialEq)]
+pub struct BookSnapshotMade {
+    #[serde(flatten)]
+    pub entry: BookSnapshotEntry,
+    pub pruned: PruneReport,
 }
 
+/// Takes a snapshot of the whole book as it is on disk now (default limits) and returns its entry.
+#[allow(dead_code)] // the command takes the author's limits (`create_book_snapshot_with`); this is for the tests and tools/perf
+pub fn create_book_snapshot(root: &Path, name: &str, now: DateTime<Utc>) -> Result<BookSnapshotEntry> {
+    Ok(create_book_snapshot_with(root, name, now, Limits::DEFAULT)?.entry)
+}
+
+/// Takes a snapshot, then keeps to `limits`; the result says how many snapshots that moved to the trash.
+pub fn create_book_snapshot_with(root: &Path, name: &str, now: DateTime<Utc>, limits: Limits) -> Result<BookSnapshotMade> {
+    let entry = create(root, &valid_name(name)?, false, now)?;
+    let pruned = prune_book_snapshots(root, &entry.path, limits, now).into();
+    Ok(BookSnapshotMade { entry, pruned })
+}
+
+/// Writes a snapshot and returns its entry. It does not prune: a safety snapshot before a restore must not trim the
+/// author's snapshots to limits it does not know; the next snapshot taken or book opened does.
 fn create(root: &Path, name: &str, automatic: bool, now: DateTime<Utc>) -> Result<BookSnapshotEntry> {
     let manifest = read_file(root, MANIFEST)?.ok_or_else(|| ProjectError::NotFound { path: MANIFEST.to_string() })?.contents;
     let mut total = manifest.len() as u64;
@@ -231,7 +255,7 @@ fn create(root: &Path, name: &str, automatic: bool, now: DateTime<Utc>) -> Resul
     }
     let assets: Vec<String> = file_names(root, "assets", false)?.into_iter().map(|f| format!("assets/{f}")).collect();
     let summary = Summary { pages: pages.keys().cloned().collect(), assets: assets.len() };
-    let file = BookFile { version: FORMAT, name: name.to_string(), automatic, summary: Some(summary), manifest, pages, assets };
+    let file = BookFile { version: FORMAT, name: name.to_string(), automatic, pinned: false, summary: Some(summary), manifest, pages, assets };
     let bytes = serde_json::to_vec(&file).map_err(|e| ProjectError::Io { message: e.to_string() })?;
     // The file (not just the text) must stay within what loading accepts, or the snapshot could never be restored.
     if bytes.len() as u64 > MAX_SNAPSHOT_BYTES {
@@ -246,66 +270,17 @@ fn create(root: &Path, name: &str, automatic: bool, now: DateTime<Utc>) -> Resul
         atomic_write(&resolve(root, &to)?, &bytes)?;
         to
     };
-    prune_book_snapshots(root, &to, MAX_SNAPSHOTS, MAX_TOTAL_BYTES, now);
-    Ok(BookSnapshotEntry {
-        path: to,
-        at: stamp_of(now),
-        name: file.name,
-        automatic,
-        pages: file.pages.into_keys().collect(),
-        assets: file.assets.len(),
-        bytes: bytes.len() as u64,
-    })
+    Ok(entry_of(to, stamp_of(now), file, bytes.len() as u64))
 }
 
-fn snapshot_too_large() -> ProjectError {
+/// The listing entry of a snapshot file that was just written.
+fn entry_of(path: String, at: String, file: BookFile, bytes: u64) -> BookSnapshotEntry {
+    let pages = file.summary.map_or_else(|| file.pages.into_keys().collect(), |s| s.pages);
+    BookSnapshotEntry { path, at, name: file.name, automatic: file.automatic, pinned: file.pinned, pages, assets: file.assets.len(), bytes }
+}
+
+pub(super) fn snapshot_too_large() -> ProjectError {
     ProjectError::TooLarge { path: SNAPSHOTS_DIR.to_string(), max_mb: MAX_SNAPSHOT_BYTES / 1024 / 1024 }
-}
-
-/// Moves snapshots to `.cadabra/trash/` until at most `max_count` remain within `max_bytes` together: automatic ones
-/// first (oldest first), then, only if the limits are still exceeded, the author's named ones (oldest first). The
-/// snapshot at `keep` (the one just taken) is never moved, and nothing is deleted. Best effort: a snapshot that cannot be
-/// moved stays where it is, and the new snapshot is still reported. Returns the paths moved.
-///
-/// Uses only file names and sizes, plus the first bytes of the files that are candidates (to see whether each is
-/// automatic): never the summary or the texts, so a legacy file is not streamed through here. A file that is not a
-/// snapshot of this format is neither counted nor moved.
-pub(crate) fn prune_book_snapshots(root: &Path, keep: &str, max_count: usize, max_bytes: u64, now: DateTime<Utc>) -> Vec<String> {
-    let Ok(names) = file_names(root, SNAPSHOTS_DIR, false) else { return vec![] };
-    let mut files: Vec<((String, u32), String, u64)> = vec![];
-    for name in names {
-        let Some(key) = parse_name(&name) else { continue };
-        let path = format!("{SNAPSHOTS_DIR}/{name}");
-        let Ok(meta) = resolve(root, &path).and_then(|f| fs::metadata(f).map_err(Into::into)) else { continue };
-        files.push((key, path, meta.len()));
-    }
-    files.sort_by(|a, b| a.0.cmp(&b.0));
-    let (mut count, mut total) = (files.len(), files.iter().map(|f| f.2).sum::<u64>());
-    let mut moved = vec![];
-    let mut pending: Vec<&((String, u32), String, u64)> = files.iter().filter(|f| f.1 != keep).collect();
-    for want_automatic in [true, false] {
-        let mut next = vec![];
-        for f in pending {
-            if count <= max_count && total <= max_bytes {
-                return moved;
-            }
-            let Ok(file) = resolve(root, &f.1) else { continue };
-            match scan_automatic(&file, HEAD_BYTES) {
-                None => (count, total) = (count - 1, total - f.2), // not a snapshot: not counted, never moved
-                Some(auto) if auto != want_automatic => next.push(f),
-                Some(_) => {
-                    let _held = files_lock();
-                    let want = format!(".cadabra/trash/{}-snapshot__{}", stamp_of(now), f.1.rsplit('/').next().unwrap_or_default());
-                    if move_to_free_copy_name(root, &file, &want, &f.1).is_ok() {
-                        (count, total) = (count - 1, total - f.2);
-                        moved.push(f.1.clone());
-                    }
-                }
-            }
-        }
-        pending = next;
-    }
-    moved
 }
 
 /// The snapshot path must be one of the listed snapshots, so a caller cannot make this read or delete any other file.
@@ -394,3 +369,5 @@ pub fn delete_book_snapshot(root: &Path, snapshot: &str) -> Result<()> {
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_limits;

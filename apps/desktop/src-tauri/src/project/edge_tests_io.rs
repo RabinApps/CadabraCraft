@@ -335,7 +335,10 @@ fn clocks_before_1970_and_far_in_the_future_never_panic_and_still_list_in_order(
         0,
         "nothing is 30 days old to a clock that is earlier than all of it"
     );
-    assert!(book_snapshots::prune_book_snapshots(d.path(), &listed[0].path, 1, u64::MAX, at(1969, 1, 1, 0, 0)).len() <= listed.len());
+    assert!(
+        book_snapshots::prune_to_limits(d.path(), book_snapshots::Limits { max_count: 1, max_bytes: u64::MAX }, at(1969, 1, 1, 0, 0)).moved as usize
+            <= listed.len()
+    );
 }
 
 #[test]

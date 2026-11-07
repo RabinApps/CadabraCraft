@@ -62,11 +62,29 @@ export interface BookSnapshotEntry {
   name: string;
   /** Taken by the app before a restore, not named by the author. */
   automatic: boolean;
+  /** Kept by the author: never pruned for the count or size limit. */
+  pinned: boolean;
   /** Project-relative paths of the pages it holds. */
   pages: string[];
   /** How many image files it lists (the files themselves are not copied). */
   assets: number;
   bytes: number;
+}
+/** What keeping the book's snapshots to the limits moved to `.cadabra/trash` (nothing is deleted). */
+export interface BookSnapshotPrune {
+  /** How many snapshots moved to the trash. */
+  moved: number;
+  /** The pinned ones among them: only when pinned snapshots alone exceed the hard size ceiling. Always tell the author. */
+  pinned_moved: string[];
+}
+/** A snapshot just taken, and what keeping to the limits moved to the trash because of it. */
+export type BookSnapshotMade = BookSnapshotEntry & { pruned: BookSnapshotPrune };
+/** The author's limits for whole-book snapshots; Rust clamps a bad value and a missing one is the default. */
+export interface BookSnapshotLimits {
+  /** Most snapshots kept. */
+  maxCount: number;
+  /** Most megabytes all snapshots may take together. */
+  maxMb: number;
 }
 /** What restoring a whole book did. */
 export interface BookRestore {

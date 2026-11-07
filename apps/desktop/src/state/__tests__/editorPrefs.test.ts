@@ -3,6 +3,14 @@ import {
   cleanGoal,
   MAX_SESSION_GOAL,
   cleanSnapshotKeep,
+  cleanBookSnapshotKeep,
+  cleanBookSnapshotMaxMb,
+  BOOK_SNAPSHOT_KEEP_DEFAULT,
+  BOOK_SNAPSHOT_KEEP_MAX,
+  BOOK_SNAPSHOT_KEEP_MIN,
+  BOOK_SNAPSHOT_MAX_MB_DEFAULT,
+  BOOK_SNAPSHOT_MAX_MB_MAX,
+  BOOK_SNAPSHOT_MAX_MB_MIN,
   SNAPSHOT_KEEP_DEFAULT,
   SNAPSHOT_KEEP_MAX,
   SNAPSHOT_KEEP_MIN,
@@ -23,6 +31,34 @@ describe("cleanSnapshotKeep", () => {
     expect(cleanSnapshotKeep(100000)).toBe(SNAPSHOT_KEEP_MAX);
     for (const bad of [NaN, 2.5, "50", null, undefined])
       expect(cleanSnapshotKeep(bad)).toBe(SNAPSHOT_KEEP_DEFAULT);
+  });
+});
+
+describe("cleanBookSnapshotKeep", () => {
+  it("keeps whole numbers from 5 to 200, clamps other numbers and defaults to 50 for non-numbers", () => {
+    expect([BOOK_SNAPSHOT_KEEP_MIN, BOOK_SNAPSHOT_KEEP_MAX, BOOK_SNAPSHOT_KEEP_DEFAULT]).toEqual([
+      5, 200, 50,
+    ]);
+    expect(cleanBookSnapshotKeep(20)).toBe(20);
+    expect(cleanBookSnapshotKeep(1)).toBe(BOOK_SNAPSHOT_KEEP_MIN);
+    expect(cleanBookSnapshotKeep(100000)).toBe(BOOK_SNAPSHOT_KEEP_MAX);
+    for (const bad of [NaN, 2.5, "50", null, undefined, Infinity])
+      expect(cleanBookSnapshotKeep(bad)).toBe(BOOK_SNAPSHOT_KEEP_DEFAULT);
+  });
+});
+
+describe("cleanBookSnapshotMaxMb", () => {
+  it("keeps whole numbers from 100 to 4096, clamps other numbers and defaults to 1024 for non-numbers", () => {
+    expect([
+      BOOK_SNAPSHOT_MAX_MB_MIN,
+      BOOK_SNAPSHOT_MAX_MB_MAX,
+      BOOK_SNAPSHOT_MAX_MB_DEFAULT,
+    ]).toEqual([100, 4096, 1024]);
+    expect(cleanBookSnapshotMaxMb(500)).toBe(500);
+    expect(cleanBookSnapshotMaxMb(1)).toBe(BOOK_SNAPSHOT_MAX_MB_MIN);
+    expect(cleanBookSnapshotMaxMb(1e9)).toBe(BOOK_SNAPSHOT_MAX_MB_MAX);
+    for (const bad of [NaN, 2.5, "1024", null, undefined, -Infinity])
+      expect(cleanBookSnapshotMaxMb(bad)).toBe(BOOK_SNAPSHOT_MAX_MB_DEFAULT);
   });
 });
 

@@ -111,6 +111,36 @@ describe("project commands", () => {
       { root: "/r", name: "n" },
     ],
     [
+      "createBookSnapshot with limits",
+      () => bridge.createBookSnapshot("/r", "n", { maxCount: 20, maxMb: 500 }),
+      "create_book_snapshot",
+      { root: "/r", name: "n", maxCount: 20, maxMb: 500 },
+    ],
+    [
+      "pruneBookSnapshots",
+      () => bridge.pruneBookSnapshots("/r"),
+      "prune_book_snapshots",
+      { root: "/r" },
+    ],
+    [
+      "pruneBookSnapshots with limits",
+      () => bridge.pruneBookSnapshots("/r", { maxCount: 5, maxMb: 100 }),
+      "prune_book_snapshots",
+      { root: "/r", maxCount: 5, maxMb: 100 },
+    ],
+    [
+      "renameBookSnapshot",
+      () => bridge.renameBookSnapshot("/r", "s", "New name"),
+      "rename_book_snapshot",
+      { root: "/r", snapshot: "s", name: "New name" },
+    ],
+    [
+      "pinBookSnapshot",
+      () => bridge.pinBookSnapshot("/r", "s", true),
+      "pin_book_snapshot",
+      { root: "/r", snapshot: "s", pinned: true },
+    ],
+    [
       "readBookSnapshotPage",
       () => bridge.readBookSnapshotPage("/r", "s", "a"),
       "read_book_snapshot_page",

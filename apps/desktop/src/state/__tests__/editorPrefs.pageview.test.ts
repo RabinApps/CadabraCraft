@@ -15,6 +15,45 @@ async function load(stored: unknown) {
 }
 afterEach(() => vi.unstubAllGlobals());
 
+describe("book snapshot limits", () => {
+  it("default to 50 snapshots and 1024 MB, also for settings saved before they existed", async () => {
+    const want = { bookSnapshotKeep: 50, bookSnapshotMaxMb: 1024 };
+    expect((await load(undefined)).useSettings.getState()).toMatchObject(want);
+    expect((await load(base)).useSettings.getState()).toMatchObject(want);
+  });
+  it("keep valid stored values and clean corrupt ones without losing the others", async () => {
+    const ok = await load({ ...base, bookSnapshotKeep: 120, bookSnapshotMaxMb: 2048 });
+    expect(ok.useSettings.getState()).toMatchObject({
+      bookSnapshotKeep: 120,
+      bookSnapshotMaxMb: 2048,
+    });
+    const bad = await load({
+      ...base,
+      typewriterScroll: true,
+      bookSnapshotKeep: "x",
+      bookSnapshotMaxMb: 5,
+    });
+    expect(bad.useSettings.getState()).toMatchObject({
+      typewriterScroll: true,
+      bookSnapshotKeep: 50,
+      bookSnapshotMaxMb: 100,
+    });
+  });
+  it("persist and clean what is set", async () => {
+    const { useSettings, data } = await load(base);
+    useSettings.getState().set({ bookSnapshotKeep: 7, bookSnapshotMaxMb: 300 });
+    expect(JSON.parse(data.get(KEY)!)).toMatchObject({
+      bookSnapshotKeep: 7,
+      bookSnapshotMaxMb: 300,
+    });
+    useSettings.getState().set({ bookSnapshotKeep: 9999, bookSnapshotMaxMb: 1 });
+    expect(JSON.parse(data.get(KEY)!)).toMatchObject({
+      bookSnapshotKeep: 200,
+      bookSnapshotMaxMb: 100,
+    });
+  });
+});
+
 describe("page zoom preference", () => {
   it("defaults to fit width, also for settings saved before it existed", async () => {
     expect((await load(undefined)).useSettings.getState()).toMatchObject({ pageZoom: "fit" });
