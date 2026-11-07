@@ -187,7 +187,17 @@ fn book_snapshot_commands_work_through_the_ipc() {
     assert_eq!((made["name"].as_str(), made["automatic"].as_bool(), made["pages"].clone()), (Some("Before the rewrite"), Some(false), json!([PAGE])));
     let snap = made["path"].clone();
     assert_eq!(json_of(call(&w, "list_book_snapshots", json!({ "root": r })))[0]["path"], snap);
+    assert_eq!(made["pinned"], false);
+    assert_eq!(made["pruned"], json!({ "moved": 0, "pinned_moved": [] }));
     assert_eq!(kind_of(call(&w, "create_book_snapshot", json!({ "root": r, "name": "  " }))), "invalid_file_name");
+    let renamed = json_of(call(&w, "rename_book_snapshot", json!({ "root": r, "snapshot": snap, "name": " Renamed " })));
+    assert_eq!((renamed["name"].as_str(), renamed["path"].clone()), (Some("Renamed"), snap.clone()));
+    assert_eq!(kind_of(call(&w, "rename_book_snapshot", json!({ "root": r, "snapshot": snap, "name": "" }))), "invalid_file_name");
+    assert_eq!(kind_of(call(&w, "rename_book_snapshot", json!({ "root": r, "snapshot": "cadabra.json", "name": "x" }))), "cannot_restore");
+    assert_eq!(json_of(call(&w, "pin_book_snapshot", json!({ "root": r, "snapshot": snap, "pinned": true })))["pinned"], true);
+    assert_eq!(kind_of(call(&w, "pin_book_snapshot", json!({ "root": r, "snapshot": "cadabra.json", "pinned": true }))), "cannot_restore");
+    assert_eq!(json_of(call(&w, "prune_book_snapshots", json!({ "root": r, "maxCount": 5, "maxMb": 100 }))), json!({ "moved": 0, "pinned_moved": [] }));
+    assert_eq!(kind_of(call(&w, "prune_book_snapshots", json!({ "root": "/not/a/project" }))), "not_a_project");
     json_of(call(&w, "write_project_file", json!({ "root": r, "path": PAGE, "contents": "two", "baseHash": null })));
     assert_eq!(json_of(call(&w, "read_book_snapshot_page", json!({ "root": r, "snapshot": snap, "path": PAGE })))["contents"], "one");
     assert!(json_of(call(&w, "restore_page_from_book_snapshot", json!({ "root": r, "snapshot": snap, "path": PAGE })))["hash"].is_string());
@@ -426,6 +436,9 @@ fn every_command() -> Vec<(&'static str, Value)> {
         ("find_stale_pages", json!({ "root": "/r", "paths": [] })),
         ("list_book_snapshots", json!({ "root": "/r" })),
         ("create_book_snapshot", json!({ "root": "/r", "name": "n" })),
+        ("prune_book_snapshots", json!({ "root": "/r" })),
+        ("rename_book_snapshot", json!({ "root": "/r", "snapshot": "s", "name": "n" })),
+        ("pin_book_snapshot", json!({ "root": "/r", "snapshot": "s", "pinned": true })),
         ("read_book_snapshot_page", json!({ "root": "/r", "snapshot": "s", "path": "p" })),
         ("restore_book_snapshot", json!({ "root": "/r", "snapshot": "s" })),
         ("restore_page_from_book_snapshot", json!({ "root": "/r", "snapshot": "s", "path": "p" })),
@@ -488,6 +501,23 @@ fn an_optional_argument_may_be_absent_or_null_but_not_mistyped() {
         wrong[key] = json!({ "wrong": [true] });
         let err = call(&w, cmd, wrong).expect_err(cmd);
         assert!(err.as_str().is_some_and(|m| m.contains(key)), "{cmd}: {err}");
+    }
+    // The snapshot limits are optional (a missing or null one is the default) but never a wrong type.
+    for (cmd, base) in
+        [("create_book_snapshot", json!({ "root": "/not/a/project", "name": "n" })), ("prune_book_snapshots", json!({ "root": "/not/a/project" }))]
+    {
+        for key in ["maxCount", "maxMb"] {
+            for ok in [json!(null), json!(7), json!(2.5)] {
+                let mut args = base.clone();
+                args[key] = ok;
+                let err = call(&w, cmd, args).expect_err(cmd);
+                assert!(err.to_string().contains("not_a_project"), "{cmd} {key}: {err}");
+            }
+            let mut wrong = base.clone();
+            wrong[key] = json!({ "wrong": [true] });
+            let err = call(&w, cmd, wrong).expect_err(cmd);
+            assert!(err.as_str().is_some_and(|m| m.contains(key)), "{cmd} {key}: {err}");
+        }
     }
 }
 

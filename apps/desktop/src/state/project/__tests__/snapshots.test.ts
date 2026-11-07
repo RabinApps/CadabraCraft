@@ -52,6 +52,10 @@ vi.mock("../../../lib/bridge", async () =>
       calls.push(`prune ${paths.join(",")} ${keep}`);
       return 0;
     },
+    pruneBookSnapshots: async (_r: string, limits?: { maxCount: number; maxMb: number }) => {
+      calls.push(`prune-books ${limits?.maxCount} ${limits?.maxMb}`);
+      return { moved: 0, pinned_moved: [] };
+    },
   }),
 );
 
@@ -81,6 +85,12 @@ describe("opening a book", () => {
     useSettings.getState().set({ snapshotKeep: 20 });
     await a().openProject("/proj");
     expect(calls).toContain("prune manuscript/001-chapter-one.json 20");
+  });
+
+  it("prunes the whole-book snapshots with the configured count and size", async () => {
+    useSettings.getState().set({ bookSnapshotKeep: 30, bookSnapshotMaxMb: 512 });
+    await a().openProject("/proj");
+    expect(calls).toContain("prune-books 30 512");
   });
 
   it("offers a page whose newest snapshot is newer than the saved page, by title", async () => {

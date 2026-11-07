@@ -1,18 +1,19 @@
 use super::file::scan_head;
+use super::prune::{Limits, DEFAULT_SNAPSHOTS, MAX_TOTAL_BYTES};
 use super::*;
 use crate::project::write_file;
 
-fn at(s: &str) -> DateTime<Utc> {
+pub(super) fn at(s: &str) -> DateTime<Utc> {
     chrono::NaiveDateTime::parse_from_str(s, "%Y%m%d-%H%M").unwrap().and_utc()
 }
 
-fn put(d: &Path, rel: &str, text: &str) {
+pub(super) fn put(d: &Path, rel: &str, text: &str) {
     let p = d.join(rel);
     fs::create_dir_all(p.parent().unwrap()).unwrap();
     fs::write(p, text).unwrap();
 }
 
-fn book() -> tempfile::TempDir {
+pub(super) fn book() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
     put(d.path(), "cadabra.json", "{\"v\":1}");
     put(d.path(), "manuscript/001-a.json", "A1");
@@ -24,7 +25,7 @@ fn book() -> tempfile::TempDir {
     d
 }
 
-fn read(d: &Path, rel: &str) -> String {
+pub(super) fn read(d: &Path, rel: &str) -> String {
     fs::read_to_string(d.join(rel)).unwrap()
 }
 
@@ -165,7 +166,7 @@ fn delete_removes_only_a_listed_snapshot() {
 fn a_snapshot_naming_a_path_outside_the_pages_is_refused_before_anything_is_written() {
     let d = book();
     let pages = BTreeMap::from([("manuscript/001-a.json".to_string(), "HACK".to_string()), ("assets/evil.json".to_string(), "x".to_string())]);
-    let hostile = BookFile { version: FORMAT, name: "x".into(), automatic: false, summary: None, manifest: "{}".into(), pages, assets: vec![] };
+    let hostile = BookFile { version: FORMAT, name: "x".into(), automatic: false, pinned: false, summary: None, manifest: "{}".into(), pages, assets: vec![] };
     put(d.path(), ".cadabra/snapshots/20261027-1000.json", &serde_json::to_string(&hostile).unwrap());
     let err = restore_book_snapshot(d.path(), ".cadabra/snapshots/20261027-1000.json", at("20261027-1100")).unwrap_err();
     assert_eq!(err, ProjectError::CannotRestore { path: "assets/evil.json".into() });
@@ -219,7 +220,7 @@ fn a_listed_snapshot_whose_full_text_cannot_be_read_is_not_restored() {
     assert!(read(d.path(), "manuscript/001-a.json") == "A1", "nothing was touched");
 }
 
-fn put_old_format(d: &Path, stamp: &str, name: &str) -> String {
+pub(super) fn put_old_format(d: &Path, stamp: &str, name: &str) -> String {
     let rel = format!("{SNAPSHOTS_DIR}/{stamp}.json");
     put(d, &rel, &format!("{{\"version\":1,\"name\":\"{name}\",\"automatic\":false,\"manifest\":\"{{}}\",\"pages\":{{\"manuscript/001-a.json\":\"A\"}},\"assets\":[\"assets/a.png\"]}}"));
     rel
@@ -258,7 +259,7 @@ fn a_zero_byte_or_headless_snapshot_file_is_skipped_when_listing() {
 }
 
 /// A one-page book whose page text is `n` ASCII bytes.
-fn book_with_page_of(n: usize) -> tempfile::TempDir {
+pub(super) fn book_with_page_of(n: usize) -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
     put(d.path(), "cadabra.json", "{}");
     put(d.path(), "manuscript/001-a.json", &"x".repeat(n));
@@ -303,11 +304,16 @@ fn a_book_whose_text_is_over_the_cap_is_refused_before_it_is_serialized() {
     assert!(matches!(create_book_snapshot(d.path(), "q", at("20261027-1000")), Err(ProjectError::TooLarge { max_mb: 32, .. })));
 }
 
-fn snapshot_files(d: &Path) -> Vec<String> {
+/// The paths the prune moved, for limits given as plain numbers.
+fn prune_book_snapshots(root: &Path, keep: &str, max_count: usize, max_bytes: u64, now: DateTime<Utc>) -> Vec<String> {
+    super::prune::prune_book_snapshots(root, keep, Limits { max_count, max_bytes }, now).moved
+}
+
+pub(super) fn snapshot_files(d: &Path) -> Vec<String> {
     list_book_snapshots(d).unwrap().into_iter().map(|e| e.name).collect()
 }
 
-fn trashed_snapshot_files(d: &Path) -> Vec<String> {
+pub(super) fn trashed_snapshot_files(d: &Path) -> Vec<String> {
     let Ok(read) = fs::read_dir(d.join(".cadabra/trash")) else { return vec![] };
     let mut v: Vec<String> = read.map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).filter(|n| n.contains("-snapshot__")).collect();
     v.sort();
@@ -318,11 +324,11 @@ fn trashed_snapshot_files(d: &Path) -> Vec<String> {
 fn the_oldest_snapshots_beyond_the_count_go_to_the_trash_never_deleted() {
     let d = book();
     let first = at("20261001-1000");
-    for i in 0..(MAX_SNAPSHOTS + 3) {
+    for i in 0..(DEFAULT_SNAPSHOTS + 3) {
         create_book_snapshot(d.path(), &format!("s{i}"), first + chrono::Duration::days(i as i64)).unwrap();
     }
     let names = snapshot_files(d.path());
-    assert_eq!(names.len(), MAX_SNAPSHOTS);
+    assert_eq!(names.len(), DEFAULT_SNAPSHOTS);
     assert_eq!((names.first().unwrap().as_str(), names.last().unwrap().as_str()), ("s52", "s3"), "the newest are kept");
     let trashed = trashed_snapshot_files(d.path());
     assert_eq!(trashed.len(), 3, "{trashed:?}");
@@ -379,7 +385,7 @@ fn a_snapshot_that_cannot_be_moved_stays_and_is_not_an_error() {
 }
 
 /// Writes a snapshot-shaped file with `page` as its one page. `summary` false writes the legacy layout.
-fn write_snap(d: &Path, stamp: &str, name: &str, automatic: bool, summary: bool, page: &str) -> String {
+pub(super) fn write_snap(d: &Path, stamp: &str, name: &str, automatic: bool, summary: bool, page: &str) -> String {
     let rel = format!("{SNAPSHOTS_DIR}/{stamp}.json");
     let sum = if summary { "\"summary\":{\"pages\":[\"manuscript/001-a.json\"],\"assets\":0}," } else { "" };
     put(d, &rel, &format!("{{\"version\":1,\"name\":\"{name}\",\"automatic\":{automatic},{sum}\"manifest\":\"{{}}\",\"pages\":{{\"manuscript/001-a.json\":\"{page}\"}},\"assets\":[]}}"));
@@ -420,12 +426,12 @@ fn the_byte_budget_also_takes_automatic_ones_first() {
 fn more_than_the_limit_of_named_snapshots_still_prunes_the_oldest_into_the_trash_and_keeps_the_new_one() {
     let d = book();
     let first = create_book_snapshot(d.path(), "oldest", at("20260101-0000")).unwrap();
-    for i in 1..=MAX_SNAPSHOTS {
+    for i in 1..=DEFAULT_SNAPSHOTS {
         create_book_snapshot(d.path(), &format!("named-{i}"), at("20260102-0000") + chrono::Duration::minutes(i as i64)).unwrap();
     }
     let names = snapshot_files(d.path());
-    assert_eq!(names.len(), MAX_SNAPSHOTS);
-    assert_eq!(names[0], format!("named-{MAX_SNAPSHOTS}"), "the one just taken is kept");
+    assert_eq!(names.len(), DEFAULT_SNAPSHOTS);
+    assert_eq!(names[0], format!("named-{DEFAULT_SNAPSHOTS}"), "the one just taken is kept");
     assert!(!names.contains(&"oldest".to_string()));
     let trashed = trashed_snapshot_files(d.path());
     assert_eq!(trashed.len(), 1);

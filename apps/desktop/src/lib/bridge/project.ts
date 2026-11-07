@@ -2,6 +2,9 @@ import { invoke } from "@tauri-apps/api/core";
 import type {
   BookRestore,
   BookSnapshotEntry,
+  BookSnapshotLimits,
+  BookSnapshotMade,
+  BookSnapshotPrune,
   FileRead,
   SnapshotEntry,
   StalePage,
@@ -44,9 +47,18 @@ export const projectBridge = {
     invoke<StalePage[]>("find_stale_pages", { root, paths }),
   /** Snapshots of the whole book (manifest, every page, the image list), newest first. */
   listBookSnapshots: (root: string) => invoke<BookSnapshotEntry[]>("list_book_snapshots", { root }),
-  /** Takes a named snapshot of the book as it is on disk. */
-  createBookSnapshot: (root: string, name: string) =>
-    invoke<BookSnapshotEntry>("create_book_snapshot", { root, name }),
+  /** Takes a named snapshot of the book as it is on disk, then keeps to `limits` (the defaults without them). */
+  createBookSnapshot: (root: string, name: string, limits?: BookSnapshotLimits) =>
+    invoke<BookSnapshotMade>("create_book_snapshot", { root, name, ...limits }),
+  /** Keeps the book's snapshots to `limits` (when a book opens): older ones move to the trash, pinned ones stay. */
+  pruneBookSnapshots: (root: string, limits?: BookSnapshotLimits) =>
+    invoke<BookSnapshotPrune>("prune_book_snapshots", { root, ...limits }),
+  /** Gives a book snapshot a new name; an automatic one becomes a named one. */
+  renameBookSnapshot: (root: string, snapshot: string, name: string) =>
+    invoke<BookSnapshotEntry>("rename_book_snapshot", { root, snapshot, name }),
+  /** Pins or unpins a book snapshot; a pinned one is not pruned for the count or size limit. */
+  pinBookSnapshot: (root: string, snapshot: string, pinned: boolean) =>
+    invoke<BookSnapshotEntry>("pin_book_snapshot", { root, snapshot, pinned }),
   /** One page's text as a book snapshot holds it. */
   readBookSnapshotPage: (root: string, snapshot: string, path: string) =>
     invoke<FileRead>("read_book_snapshot_page", { root, snapshot, path }),

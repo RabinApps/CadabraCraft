@@ -122,6 +122,12 @@ export const createOpener = (ctx: Ctx) => {
       () => bridge.pruneSnapshots(root, pageFiles, useSettings.getState().snapshotKeep),
       0,
     );
+    const { bookSnapshotKeep, bookSnapshotMaxMb } = useSettings.getState();
+    void bestEffort(
+      () =>
+        bridge.pruneBookSnapshots(root, { maxCount: bookSnapshotKeep, maxMb: bookSnapshotMaxMb }),
+      null,
+    );
   };
   return { join, closedState };
 };

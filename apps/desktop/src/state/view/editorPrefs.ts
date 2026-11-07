@@ -32,6 +32,26 @@ export const cleanSnapshotKeep = (v: unknown): number =>
     ? Math.min(SNAPSHOT_KEEP_MAX, Math.max(SNAPSHOT_KEEP_MIN, v))
     : SNAPSHOT_KEEP_DEFAULT;
 
+/** How many whole-book snapshots are kept (older ones move to the project trash; pinned ones are not counted out). */
+export const BOOK_SNAPSHOT_KEEP_MIN = 5;
+export const BOOK_SNAPSHOT_KEEP_MAX = 200;
+export const BOOK_SNAPSHOT_KEEP_DEFAULT = 50;
+/** A whole number in the allowed range; anything else becomes the default. */
+export const cleanBookSnapshotKeep = (v: unknown): number =>
+  typeof v === "number" && Number.isInteger(v)
+    ? Math.min(BOOK_SNAPSHOT_KEEP_MAX, Math.max(BOOK_SNAPSHOT_KEEP_MIN, v))
+    : BOOK_SNAPSHOT_KEEP_DEFAULT;
+
+/** The most megabytes all whole-book snapshots of a book may take together. */
+export const BOOK_SNAPSHOT_MAX_MB_MIN = 100;
+export const BOOK_SNAPSHOT_MAX_MB_MAX = 4096;
+export const BOOK_SNAPSHOT_MAX_MB_DEFAULT = 1024;
+/** A whole number in the allowed range; anything else becomes the default. */
+export const cleanBookSnapshotMaxMb = (v: unknown): number =>
+  typeof v === "number" && Number.isInteger(v)
+    ? Math.min(BOOK_SNAPSHOT_MAX_MB_MAX, Math.max(BOOK_SNAPSHOT_MAX_MB_MIN, v))
+    : BOOK_SNAPSHOT_MAX_MB_DEFAULT;
+
 export type RawHtmlPaste = "ask" | "convert" | "text";
 const rawHtmlPastes: readonly RawHtmlPaste[] = ["ask", "convert", "text"];
 /** A stored choice for pasted HTML text, or "ask" when it is missing or unknown. */
@@ -61,6 +81,8 @@ interface Prefs {
   /** Words to write per session; 0 turns the goal off. */ sessionGoal: number;
   /** What pasting text that contains HTML tags does. */ rawHtmlPaste: RawHtmlPaste;
   /** Snapshots kept per page. */ snapshotKeep: number;
+  /** Whole-book snapshots kept per book. */ bookSnapshotKeep: number;
+  /** Megabytes all whole-book snapshots of a book may take together. */ bookSnapshotMaxMb: number;
   /** Zoom of the pages in the editor. */ pageZoom: PageZoom;
   /** Keys the author changed in Settings > Shortcuts, by command id; everything else keeps its default. */ shortcutOverrides: Overrides;
 }
@@ -69,6 +91,8 @@ const defaults: Prefs = {
   sessionGoal: 0,
   rawHtmlPaste: "ask",
   snapshotKeep: SNAPSHOT_KEEP_DEFAULT,
+  bookSnapshotKeep: BOOK_SNAPSHOT_KEEP_DEFAULT,
+  bookSnapshotMaxMb: BOOK_SNAPSHOT_MAX_MB_DEFAULT,
   audioVoice: "",
   audioFormats: ["opus"],
   pageZoom: "fit",
@@ -88,6 +112,8 @@ function parsePrefs(v: unknown): Prefs | null {
       sessionGoal: cleanGoal(o.sessionGoal),
       rawHtmlPaste: cleanRawHtmlPaste(o.rawHtmlPaste),
       snapshotKeep: cleanSnapshotKeep(o.snapshotKeep),
+      bookSnapshotKeep: cleanBookSnapshotKeep(o.bookSnapshotKeep),
+      bookSnapshotMaxMb: cleanBookSnapshotMaxMb(o.bookSnapshotMaxMb),
       audioVoice: cleanAudioVoice(o.audioVoice),
       audioFormats: cleanAudioFormats(o.audioFormats),
       pageZoom: cleanPageZoom(o.pageZoom),
@@ -107,6 +133,8 @@ export const useSettings = createPersistedStore<Prefs>({
     sessionGoal: cleanGoal(p.sessionGoal),
     rawHtmlPaste: cleanRawHtmlPaste(p.rawHtmlPaste),
     snapshotKeep: cleanSnapshotKeep(p.snapshotKeep),
+    bookSnapshotKeep: cleanBookSnapshotKeep(p.bookSnapshotKeep),
+    bookSnapshotMaxMb: cleanBookSnapshotMaxMb(p.bookSnapshotMaxMb),
     audioVoice: cleanAudioVoice(p.audioVoice),
     audioFormats: cleanAudioFormats(p.audioFormats),
     pageZoom: cleanPageZoom(p.pageZoom),
