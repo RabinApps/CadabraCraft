@@ -1,8 +1,12 @@
 import { useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { Modal } from "../../ui/Dialog";
-import { loadImport, type ImportChoices } from "../../lib/import/importBook";
-import { causeText } from "../../lib/projectError";
+import { Modal } from "../../../ui/Dialog";
+import { loadImport, type ImportChoices } from "../../../lib/import/importBook";
+import { causeText } from "../../../lib/projectError";
+import { useProject } from "../../../state/project/index";
+import { previewChoices } from "../../../lib/import/importDestination";
+import { AT_END, ImportDestination } from "./ImportDestination";
+import { useImportPicker } from "./useImportPicker";
 import {
   PickStep,
   PreviewStep,
@@ -44,35 +48,24 @@ export function ImportDialog({
   const feedback = useImportFeedback();
   const [busy, setBusy] = useState(false);
   const state = useImportPreview(feedback, busy, setBusy);
+  const manifest = useProject((s) => s.manifest);
+  const [after, setAfter] = useState(AT_END);
   const { preview, setPreview } = state;
   const { source, root, title, author } = fields;
   const { error, fail } = feedback;
-  // Bumped whenever the dialog closes or the source changes: an answer that arrives for an older state is dropped.
   const gen = useRef(0);
   const change = (o: boolean) => {
     if (busy) return;
     if (!o) {
       gen.current++;
       fields.reset();
+      setAfter(AT_END);
       setPreview(null);
       feedback.clear();
     }
     onOpenChange(o);
   };
-  const pick = (which: "file" | "folder", then: (p: string) => void) => {
-    if (busy) return;
-    feedback.clear();
-    const mine = gen.current;
-    // A cancelled picker answers null; a picker that answers after the dialog was closed is ignored.
-    (which === "file" ? pickSource : pickFolder)()
-      .then((p) => {
-        if (p && mine === gen.current) then(p);
-      })
-      .catch((e) => {
-        if (mine === gen.current)
-          fail(t`Could not open the chooser (${causeText(e)}). Try again.`, which);
-      });
-  };
+  const pick = useImportPicker({ gen, busy, feedback, pickSource, pickFolder });
   const next = () => {
     if (busy) return;
     // The button is not dead: pressing it says what is missing and puts the cursor there.
@@ -96,9 +89,11 @@ export function ImportDialog({
     if (!source || busy || (!append && !root)) return;
     setBusy(true);
     feedback.setError("");
-    const choices = preview
-      ? { splitHeadingLevel: preview.level, plan: preview.plan, outline: preview.outline }
-      : undefined;
+    const choices = previewChoices(
+      preview,
+      append ? manifest : null,
+      after === AT_END ? null : after,
+    );
     (onImportInto
       ? onImportInto(source, choices)
       : onImport(source, root!, title.trim(), author.trim() || t`Unknown`, choices)
@@ -121,7 +116,7 @@ export function ImportDialog({
       title={append ? t`Import into this book` : t`Import a manuscript`}
       description={
         append
-          ? t`Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file.`
+          ? t`Adds the chapters of a Word (.docx), Markdown or HTML file to this book, where you choose. Existing chapters are not changed, and neither is the original file.`
           : t`Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed.`
       }
     >
@@ -132,10 +127,17 @@ export function ImportDialog({
           append={append}
           busy={busy}
           error={error}
-          onBack={() => {
-            setPreview(null);
-            feedback.setError("");
-          }}
+          destination={
+            append && (
+              <ImportDestination
+                manifest={manifest}
+                value={after}
+                disabled={busy}
+                onChange={setAfter}
+              />
+            )
+          }
+          onBack={state.back}
           onSubmit={submit}
         />
       ) : (

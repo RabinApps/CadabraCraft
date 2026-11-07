@@ -95,7 +95,7 @@ msgid "{0, plural, one {# result} other {# results}}"
 msgstr "{0, plural, one {# risultato} other {# risultati}}"
 
 #. placeholder {0}: scenesOf(item, result)
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/import/ImportChapterList.tsx
 msgid "{0, plural, one {# scene} other {# scenes}}"
 msgstr "{0, plural, one {# scena} other {# scene}}"
 
@@ -103,7 +103,7 @@ msgstr "{0, plural, one {# scena} other {# scene}}"
 #. placeholder {0}: v.words
 #. placeholder {0}: wordsOf(item, result)
 #: src/app/dialogs/HistoryDialog.tsx
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/import/ImportChapterList.tsx
 #: src/app/home/Dashboard.tsx
 msgid "{0, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {# parola} other {# parole}}"
@@ -363,7 +363,7 @@ msgstr "{added, plural, one {Aggiunto # nuovo libro.} other {Aggiunti # nuovi li
 msgid "{bookWords} in the book"
 msgstr "{bookWords} nel libro"
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {Importato # capitolo da {fileName}.} other {Importati # capitoli da {fileName}.}}"
 
@@ -389,7 +389,7 @@ msgstr "{file} non è un capitolo valido, quindi non è stato aperto. Il file no
 msgid "{file} is not valid JSON, so it was not opened. The file was left untouched."
 msgstr "{file} non è JSON valido, quindi non è stato aperto. Il file non è stato toccato."
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgstr "{imageCount, plural, one {Aggiunta # immagine.} other {Aggiunte # immagini.}}"
 
@@ -397,11 +397,11 @@ msgstr "{imageCount, plural, one {Aggiunta # immagine.} other {Aggiunte # immagi
 msgid "{index} of {total}"
 msgstr "{index} di {total}"
 
-#: src/app/dialogs/ImportParts.tsx
+#: src/app/dialogs/import/ImportParts.tsx
 msgid "{kept, plural, one {# chapter will be imported.} other {# chapters will be imported.}}"
 msgstr "{kept, plural, one {Verrà importato # capitolo.} other {Verranno importati # capitoli.}}"
 
-#: src/app/dialogs/ImportParts.tsx
+#: src/app/dialogs/import/ImportParts.tsx
 msgid "{kept, plural, one {# chapter} other {# chapters}} and {scenes, plural, one {# scene} other {# scenes}} will be imported."
 msgstr "Verranno importati {kept, plural, one {# capitolo} other {# capitoli}} e {scenes, plural, one {# scena} other {# scene}}."
 
@@ -571,6 +571,10 @@ msgstr "0,125 in"
 msgid "A BCP 47 tag such as fr, fr-CA or zh-Hans. Screen readers and exports use it to pronounce and hyphenate the passage."
 msgstr "Un tag BCP 47 come fr, fr-CA o zh-Hans. Gli screen reader e le esportazioni lo usano per pronunciare e sillabare il passaggio."
 
+#: src/state/project/pages/split.ts
+msgid "A book with translations cannot be split yet: the translations would no longer line up with the original. Split the chapter by hand, or remove the translations first."
+msgstr "Un libro con traduzioni non può ancora essere diviso: le traduzioni non corrisponderebbero più all'originale. Dividi il capitolo a mano o rimuovi prima le traduzioni."
+
 #: src/state/project/book/external.ts
 msgid "A change made outside the app could not be read: {why}. The version you have open is kept; saving keeps a copy of the changed file. You can also restore an earlier version from History."
 msgstr "Una modifica fatta fuori dall'app non è stata letta: {why}. La versione aperta viene mantenuta; il salvataggio conserva una copia del file modificato. Puoi anche ripristinare una versione precedente dalla Cronologia."
@@ -598,6 +602,10 @@ msgstr "Nella Cronologia è stata trovata una versione di questa pagina più rec
 #: src/state/project/comments.ts
 msgid "A page holds at most {MAX_COMMENT_THREADS} comments."
 msgstr "Una pagina può contenere al massimo {MAX_COMMENT_THREADS} commenti."
+
+#: src/app/dialogs/import/ImportDestination.tsx
+msgid "A part holds everything up to the next part, so chapters added at the start of a part or after a chapter inside it join that part."
+msgstr "Una parte comprende tutto fino alla parte successiva, quindi i capitoli aggiunti all'inizio di una parte o dopo un capitolo al suo interno ne fanno parte."
 
 #: src/state/project/output/formats/pdf.ts
 msgid "A PDF export is already running"
@@ -761,7 +769,11 @@ msgstr "Aggiungi riga sotto"
 msgid "Add story structure"
 msgstr "Aggiungi struttura narrativa"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportDestination.tsx
+msgid "Add the chapters"
+msgstr "Aggiungi i capitoli"
+
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Add to book"
 msgstr "Aggiungi al libro"
 
@@ -786,7 +798,7 @@ msgstr "Aggiunta come prima pagina, con una pagina bianca dietro, a meno che tu 
 msgid "Adding {0}"
 msgstr "Aggiunta di {0}"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Adding…"
 msgstr "Aggiunta in corso…"
 
@@ -800,13 +812,18 @@ msgstr "Indirizzo"
 msgid "Address copied."
 msgstr "Indirizzo copiato."
 
-#: src/app/dialogs/ImportDialogs.tsx
-msgid "Adds the chapters of a Word (.docx), Markdown or HTML file after the last chapter of this book. Existing chapters are not changed, and neither is the original file."
-msgstr "Aggiunge i capitoli di un file Word (.docx), Markdown o HTML dopo l’ultimo capitolo di questo libro. I capitoli esistenti non vengono modificati, e nemmeno il file originale."
+#: src/app/dialogs/import/ImportDialogs.tsx
+msgid "Adds the chapters of a Word (.docx), Markdown or HTML file to this book, where you choose. Existing chapters are not changed, and neither is the original file."
+msgstr "Aggiunge a questo libro i capitoli di un file Word (.docx), Markdown o HTML, dove scegli. I capitoli esistenti non vengono modificati, né il file originale."
 
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr "Aggiunge la copertina come prima pagina, con una pagina bianca dietro. Disattivalo per un interno pronto per la stampa; le tipografie di solito vogliono la copertina come file separato."
+
+#. placeholder {0}: o.title
+#: src/app/dialogs/import/ImportDestination.tsx
+msgid "After {0}"
+msgstr "Dopo {0}"
 
 #: src/app/codex/CodexDialog.tsx
 msgid "Aliases (one per line)"
@@ -912,6 +929,15 @@ msgstr "Chiedi ogni volta"
 msgid "at {size}"
 msgstr "a {size}"
 
+#: src/app/dialogs/import/ImportDestination.tsx
+msgid "At the end of the book"
+msgstr "In fondo al libro"
+
+#. placeholder {0}: o.title
+#: src/app/dialogs/import/ImportDestination.tsx
+msgid "At the start of {0}"
+msgstr "All'inizio di {0}"
+
 #: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
 #: src/app/settings/Settings.tsx
@@ -936,7 +962,7 @@ msgid "Audiobook…"
 msgstr "Audiolibro…"
 
 #: src/app/dialogs/BookDetailsFields.tsx
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/home/Home.tsx
 #: src/app/library/Library.tsx
 #: src/app/shell/Details.tsx
@@ -948,7 +974,7 @@ msgid "Automatic"
 msgstr "Automatica"
 
 #: src/app/board/SceneBoard.tsx
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/export/PrintPreview.tsx
 #: src/app/export/Templates.tsx
 #: src/app/settings/Settings.tsx
@@ -1155,7 +1181,8 @@ msgstr "CadabraCraft è aggiornato."
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
+#: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/export/AudioFooter.tsx
 #: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/home/Home.tsx
@@ -1331,7 +1358,7 @@ msgstr "Apertura del capitolo"
 msgid "Chapter title"
 msgstr "Titolo del capitolo"
 
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/import/ImportChapterList.tsx
 #: src/app/export/AudioExport.tsx
 #: src/app/export/parts/AudioFieldParts.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
@@ -1398,7 +1425,7 @@ msgstr "Scegli Cambia, poi premi i nuovi tasti. Esc annulla e Backspace toglie i
 msgid "Choose Change, then press the new keys. Esc cancels and Backspace removes the key. Ctrl is Control."
 msgstr "Scegli Cambia, poi premi i nuovi tasti. Esc annulla e Backspace toglie il tasto. Ctrl è Control."
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/settings/FontsSection.tsx
 msgid "Choose file…"
 msgstr "Scegli file…"
@@ -1412,7 +1439,7 @@ msgstr "Scegli come gestire {0} per esportarlo."
 msgid "Choose image…"
 msgstr "Scegli immagine…"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/home/Home.tsx
 msgid "Choose…"
 msgstr "Scegli…"
@@ -1447,6 +1474,7 @@ msgid "Clear the story date of {title}"
 msgstr "Cancella la data della storia di {title}"
 
 #: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/export/AudioFooter.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
@@ -1602,7 +1630,7 @@ msgstr "Converti l’HTML della selezione in testo formattato"
 msgid "Convert to styled text"
 msgstr "Converti in testo formattato"
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "Copied"
 msgstr "Copiato"
 
@@ -1614,7 +1642,7 @@ msgstr "Copia"
 msgid "Copy address"
 msgstr "Copia indirizzo"
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "Copy report"
 msgstr "Copia il rapporto"
 
@@ -1687,7 +1715,7 @@ msgid "Could not draw the preview"
 msgstr "Impossibile disegnare l'anteprima"
 
 #. placeholder {0}: causeText(err)
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/ImportDialogs.tsx
 msgid "Could not import ({0}). Your original file was not changed. Try again, or go back and choose a different file."
 msgstr "Impossibile importare ({0}). Il file originale non è stato modificato. Riprova oppure torna indietro e scegli un altro file."
 
@@ -1714,7 +1742,7 @@ msgid "Could not open {title}: {error}"
 msgstr "Impossibile aprire {title}: {error}"
 
 #. placeholder {0}: causeText(e)
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/useImportPicker.ts
 msgid "Could not open the chooser ({0}). Try again."
 msgstr "Impossibile aprire il selettore ({0}). Riprova."
 
@@ -1729,7 +1757,7 @@ msgid "Could not read the book snapshots ({0}). Close this dialog and open Histo
 msgstr "Impossibile leggere le istantanee del libro ({0}). Chiudi questa finestra e riapri la Cronologia per riprovare."
 
 #. placeholder {0}: causeText(e)
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Could not read the file that way ({0}). Pick the other choice, or go back and choose a different file."
 msgstr "Impossibile leggere il file in questo modo ({0}). Scegli l’altra opzione oppure torna indietro e scegli un altro file."
 
@@ -1738,12 +1766,17 @@ msgstr "Impossibile leggere il file in questo modo ({0}). Scegli l’altra opzio
 msgid "Could not read the trash ({0}). Close this dialog and open the trash again to retry."
 msgstr "Impossibile leggere il cestino ({0}). Chiudi questa finestra e riapri il cestino per riprovare."
 
+#. placeholder {0}: reading.message
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "Could not read this chapter ({0}). Nothing was changed."
+msgstr "Impossibile leggere questo capitolo ({0}). Non è stato modificato nulla."
+
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "Could not read this document: {error}. Try again, or choose another document."
 msgstr "Impossibile leggere questo documento: {error}. Riprova o scegli un altro documento."
 
 #. placeholder {0}: causeText(e)
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/ImportDialogs.tsx
 msgid "Could not read this file ({0}). Choose a different file (Word .docx, Markdown or HTML) and try again."
 msgstr "Impossibile leggere questo file ({0}). Scegli un altro file (Word .docx, Markdown o HTML) e riprova."
 
@@ -1815,7 +1848,12 @@ msgid "Could not show this PDF: {error}"
 msgstr "Impossibile mostrare questo PDF: {error}"
 
 #. placeholder {0}: causeText(e)
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "Could not split the chapter ({0}). Nothing was changed."
+msgstr "Impossibile dividere il capitolo ({0}). Non è stato modificato nulla."
+
+#. placeholder {0}: causeText(e)
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Could not split the file at that heading level ({0}). Pick another heading level, or go back and choose a different file."
 msgstr "Impossibile dividere il file a quel livello di titolo ({0}). Scegli un altro livello di titolo oppure torna indietro e scegli un altro file."
 
@@ -1855,7 +1893,7 @@ msgstr "Copertine"
 msgid "Create book"
 msgstr "Crea libro"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/ImportDialogs.tsx
 msgid "Creates a new book from a Word (.docx), Markdown or HTML file. The original file is never changed."
 msgstr "Crea un nuovo libro da un file Word (.docx), Markdown o HTML. Il file originale non viene mai modificato."
 
@@ -2018,7 +2056,7 @@ msgstr "Documenti"
 msgid "Don't show again"
 msgstr "Non mostrare più"
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 #: src/app/export/AudioExport.tsx
 #: src/app/export/AudioFooter.tsx
 msgid "Done"
@@ -2327,7 +2365,7 @@ msgstr "Veloce e chiaro."
 msgid "Feather"
 msgstr "Piuma"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/references/ReferenceRow.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
@@ -2536,7 +2574,7 @@ msgstr "Indica l’autore del libro."
 msgid "Group by series"
 msgstr "Raggruppa per serie"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
@@ -2544,7 +2582,7 @@ msgstr "Raggruppa per serie"
 msgid "Heading 1"
 msgstr "Titolo 1"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
@@ -2552,7 +2590,7 @@ msgstr "Titolo 1"
 msgid "Heading 2"
 msgstr "Titolo 2"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
@@ -2563,6 +2601,10 @@ msgstr "Titolo 3"
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Heading font"
 msgstr "Carattere dei titoli"
+
+#: src/app/dialogs/import/SplitAtHeadingMenu.tsx
+msgid "Headings in chapter {n}"
+msgstr "Titoli del capitolo {n}"
 
 #: src/app/toc/TocEditorParts.tsx
 msgid "Headings to list"
@@ -2703,7 +2745,7 @@ msgstr "Immagine…"
 msgid "Images"
 msgstr "Immagini"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Import"
 msgstr "Importa"
 
@@ -2716,11 +2758,11 @@ msgstr "Importa {0}"
 msgid "Import a font file"
 msgstr "Importa un file di carattere"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/ImportDialogs.tsx
 msgid "Import a manuscript"
 msgstr "Importa un manoscritto"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/ImportDialogs.tsx
 #: src/app/shell/header/AppHeader.tsx
 msgid "Import into this book"
 msgstr "Importa in questo libro"
@@ -2729,11 +2771,11 @@ msgstr "Importa in questo libro"
 msgid "Import into This Book…"
 msgstr "Importa in questo libro…"
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "Import report"
 msgstr "Rapporto di importazione"
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "Import warnings"
 msgstr "Avvisi di importazione"
 
@@ -2750,7 +2792,7 @@ msgstr "Importa…"
 msgid "Imported"
 msgstr "Importato"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Importing…"
 msgstr "Importazione…"
 
@@ -2776,7 +2818,7 @@ msgid "In use"
 msgstr "In uso"
 
 #. placeholder {0}: i + 1
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/import/ImportChapterList.tsx
 msgid "Include chapter {0}"
 msgstr "Includi il capitolo {0}"
 
@@ -3008,6 +3050,10 @@ msgstr "Li esclude da questo audiolibro; l’elenco qui sopra indica quali."
 msgid "Leaves them out of this export; the list above says which."
 msgstr "Le lascia fuori da questa esportazione; l’elenco qui sopra indica quali."
 
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "Left as it is, the new chapter is named after its heading."
+msgstr "Se lo lasci così, il nuovo capitolo prende il nome dal suo titolo."
+
 #: src/app/library/Library.tsx
 msgid "Library"
 msgstr "Libreria"
@@ -3152,7 +3198,7 @@ msgstr "Creazione dell'anteprima…"
 msgid "Manual order"
 msgstr "Ordine manuale"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Manuscript"
 msgstr "Manoscritto"
 
@@ -3199,7 +3245,11 @@ msgstr "Corrispondenze per lingua"
 msgid "Maybe later"
 msgstr "Forse più tardi"
 
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/import/ImportChapterList.tsx
+msgid "Merge chapter {n} into the next one"
+msgstr "Unisci il capitolo {n} al successivo"
+
+#: src/app/dialogs/import/ImportChapterList.tsx
 msgid "Merge chapter {n} into the previous one"
 msgstr "Unisci il capitolo {n} al precedente"
 
@@ -3267,11 +3317,11 @@ msgstr "Sposta {0}"
 msgid "Move {0} to trash"
 msgstr "Sposta {0} nel cestino"
 
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/import/ImportChapterList.tsx
 msgid "Move chapter {n} down"
 msgstr "Sposta in basso il capitolo {n}"
 
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/import/ImportChapterList.tsx
 msgid "Move chapter {n} up"
 msgstr "Sposta in alto il capitolo {n}"
 
@@ -3363,7 +3413,7 @@ msgstr "Pagina stretta"
 msgid "New book"
 msgstr "Nuovo libro"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "New book folder"
 msgstr "Cartella del nuovo libro"
 
@@ -3388,7 +3438,7 @@ msgstr "Nuovo progetto"
 msgid "Newest first"
 msgstr "Prima i più recenti"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Next"
 msgstr "Avanti"
 
@@ -3462,20 +3512,20 @@ msgstr "Nessuna data"
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr "Ancora nessuna versione precedente. Ne viene conservata una ogni volta che salvi sopra un testo diverso, al massimo ogni 10 minuti."
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "No file chosen"
 msgstr "Nessun file scelto"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/ImportDialogs.tsx
 msgid "No file is chosen. Choose the file to import."
 msgstr "Nessun file scelto. Scegli il file da importare."
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/home/Home.tsx
 msgid "No folder chosen"
 msgstr "Nessuna cartella scelta"
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/ImportDialogs.tsx
 msgid "No folder is chosen. Choose an empty folder for the new book."
 msgstr "Nessuna cartella scelta. Scegli una cartella vuota per il nuovo libro."
 
@@ -3611,7 +3661,7 @@ msgstr "Non ancora tradotto in {0}: {1}"
 msgid "Not translated yet in {language}: {names}. Translate them or skip them."
 msgstr "Non ancora tradotto in {language}: {names}. Traducili oppure saltali."
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 #: src/app/references/add/AddNoteDialog.tsx
 #: src/app/references/ReferenceDetails.tsx
 #: src/app/references/ReferenceRow.tsx
@@ -3658,8 +3708,8 @@ msgstr "Niente da raggruppare"
 msgid "Nothing was added: {title} could not be read"
 msgstr "Non è stato aggiunto nulla: {title} non è stato letto"
 
-#: src/app/dialogs/ImportParts.tsx
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportParts.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "Nothing was lost or changed."
 msgstr "Nulla è andato perso o è cambiato."
 
@@ -3711,6 +3761,10 @@ msgstr "Uno per riga: codici BISAC come FIC014000, o parole chiave."
 #: src/app/export/OutlinePanel.tsx
 msgid "One row per scene, for a spreadsheet."
 msgstr "Una riga per scena, per un foglio di calcolo."
+
+#: src/state/project/pages/split.ts
+msgid "Only a chapter can be split."
+msgstr "Si può dividere solo un capitolo."
 
 #: src/app/references/TextReferenceViews.tsx
 msgid "Only http and https addresses. Nothing is fetched from it."
@@ -3817,7 +3871,7 @@ msgstr "Altra (usa il campo Tag della lingua)"
 msgid "Outdent list item"
 msgstr "Riduci rientro dell’elemento di elenco"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/quicknav/OutlineNavigator.tsx
 #: src/app/scenes/labels.ts
@@ -3969,7 +4023,7 @@ msgstr "PDF/UA (accessibile)"
 msgid "Pick an edition to export."
 msgstr "Scegli un’edizione da esportare."
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Pick or create an empty folder. The imported book is stored there."
 msgstr "Scegli o crea una cartella vuota. Il libro importato viene memorizzato lì."
 
@@ -4149,7 +4203,7 @@ msgstr "Leggi"
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr "Letta ad alta voce dagli screen reader. Descrivi ciò che mostra l'immagine."
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Read this file as"
 msgstr "Leggi questo file come"
 
@@ -4166,7 +4220,8 @@ msgid "Reading your chapters…"
 msgstr "Lettura dei capitoli…"
 
 #: src/app/board/BoardColumn.tsx
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
+#: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/timeline/Timeline.tsx
 msgid "Reading…"
 msgstr "Lettura…"
@@ -4355,7 +4410,7 @@ msgstr "Riordina {0}"
 msgid "Reorder {title}"
 msgstr "Riordina {title}"
 
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/import/ImportChapterList.tsx
 msgid "Reorder chapter {n}"
 msgstr "Riordina il capitolo {n}"
 
@@ -4889,11 +4944,11 @@ msgid "Some audiobook stores do not accept synthetic voices. Check their rules b
 msgstr "Alcuni negozi di audiolibri non accettano voci sintetiche. Controlla le loro regole prima di caricarlo."
 
 #. placeholder {0}: lost.map((g) => g.code).join(", ")
-#: src/app/dialogs/ImportParts.tsx
+#: src/app/dialogs/import/ImportParts.tsx
 msgid "Some content could not be kept: {0}. A full report follows the import."
 msgstr "Alcuni contenuti non è stato possibile conservarli: {0}. Dopo l’importazione segue un rapporto completo."
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "Some content or formatting could not be kept. Review these before you continue."
 msgstr "Alcuni contenuti o formattazioni non è stato possibile conservarli. Controllali prima di continuare."
 
@@ -4917,9 +4972,39 @@ msgstr "Ordina riferimenti"
 msgid "Speed"
 msgstr "Velocità"
 
-#: src/app/dialogs/ImportChapterList.tsx
+#. placeholder {0}: page?.title ?? ""
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "Split “{0}”"
+msgstr "Dividi «{0}»"
+
+#. placeholder {0}: sourceTitle(entry, manifest.editions)
+#: src/state/project/pages/split.ts
+msgid "Split {0}"
+msgstr "Dividi {0}"
+
+#: src/app/shell/entries/RowMenu.tsx
+msgid "Split at heading…"
+msgstr "Dividi a un titolo…"
+
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "Split chapter"
+msgstr "Dividi capitolo"
+
+#: src/app/dialogs/import/SplitAtHeadingMenu.tsx
+msgid "Split chapter {n} at a heading"
+msgstr "Dividi il capitolo {n} a un titolo"
+
+#: src/app/dialogs/import/ImportChapterList.tsx
 msgid "Split chapter {n} back into {merged} chapters"
 msgstr "Dividi di nuovo il capitolo {n} in {merged} capitoli"
+
+#: src/state/project/pages/split.ts
+msgid "Split off “{name}”. Undo puts the chapter back together."
+msgstr "«{name}» è stato separato. Annulla riunisce il capitolo."
+
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "Splitting…"
+msgstr "Divisione in corso…"
 
 #: src/app/dialogs/SponsorDialog.tsx
 msgid "Sponsor"
@@ -4949,7 +5034,7 @@ msgstr "Stella"
 msgid "Start a new book"
 msgstr "Inizia un nuovo libro"
 
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 msgid "Start a new chapter at"
 msgstr "Inizia un nuovo capitolo a"
 
@@ -4976,6 +5061,10 @@ msgstr "Inizia sulla pagina successiva"
 #: src/app/shell/entries/RowMenu.tsx
 msgid "Start part here"
 msgstr "Inizia la parte qui"
+
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "Start the new chapter at"
+msgstr "Inizia il nuovo capitolo a"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start the new edition"
@@ -5191,6 +5280,10 @@ msgstr "Questo tasto non si può usare. Premine un altro."
 msgid "That page is not in the book."
 msgstr "Questa pagina non è nel libro."
 
+#: src/state/project/pages/split.ts
+msgid "That place is not a heading the chapter can be split at."
+msgstr "Quel punto non è un titolo in cui si possa dividere il capitolo."
+
 #: src/state/project/referencesWeb.ts
 msgid "That text is too long for a note, so it was not added."
 msgstr "Quel testo è troppo lungo per una nota, quindi non è stato aggiunto."
@@ -5228,7 +5321,7 @@ msgstr "Il libro non ha ancora capitoli da leggere ad alta voce. Aggiungi prima 
 msgid "The book has no pages to export yet. Add a chapter first."
 msgstr "Il libro non ha ancora pagine da esportare. Aggiungi prima un capitolo."
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/ImportDialogs.tsx
 msgid "The book has no title. Type one."
 msgstr "Il libro non ha titolo. Scrivine uno."
 
@@ -5243,6 +5336,15 @@ msgstr "Il libro usa uno stile di testo che l’esportazione EPUB non può scriv
 #: src/lib/projectError.ts
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr "Il cadabra.json del libro non è un oggetto JSON. Ripristinalo dalla Cronologia o da un backup in .cadabra/backups."
+
+#: src/state/project/pages/split.ts
+msgid "The chapter file is missing."
+msgstr "Il file del capitolo non c'è."
+
+#. placeholder {0}: errText(e)
+#: src/state/project/pages/split.ts
+msgid "The chapter was not split: {0}. Nothing in the book was changed."
+msgstr "Il capitolo non è stato diviso: {0}. Nel libro non è stato modificato nulla."
 
 #: src/state/project/scenes.ts
 msgid "The chapter you dropped it in already holds a scene with the same id."
@@ -5276,6 +5378,14 @@ msgstr "Impossibile aprire i commenti di questa pagina: {problem}. Il file non �
 #: src/state/project/comments.ts
 msgid "The comments for this page could not be read: {0}. The file was left as it is."
 msgstr "Impossibile leggere i commenti di questa pagina: {0}. Il file è rimasto com’era."
+
+#: src/state/project/pages/split.ts
+msgid "the comments of this chapter are not valid JSON, so they could not be divided"
+msgstr "i commenti di questo capitolo non sono JSON valido, quindi non è stato possibile dividerli"
+
+#: src/state/project/pages/split.ts
+msgid "the comments of this chapter could not be read, so they could not be divided"
+msgstr "non è stato possibile leggere i commenti di questo capitolo, quindi non è stato possibile dividerli"
 
 #: src/state/project/output/contentsPreview.ts
 msgid "The contents page is not in the typeset book."
@@ -5413,6 +5523,10 @@ msgstr "Impossibile applicare il modello: {why}. Riprova o scegli un altro model
 msgid "The template's print font is not installed here, so the bundled serif is used."
 msgstr "Il carattere di stampa del modello non è installato qui, quindi viene usato il serif incluso."
 
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "The text before the heading you pick stays in this chapter. The heading and everything after it become a new chapter right after it. Undo puts it back."
+msgstr "Il testo prima del titolo scelto resta in questo capitolo. Il titolo e tutto ciò che segue diventano un nuovo capitolo subito dopo. Annulla lo riunisce."
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "The text this was attached to is gone; the comment is kept."
 msgstr "Il testo a cui era collegato non c’è più; il commento viene conservato."
@@ -5486,7 +5600,7 @@ msgstr "Non c’è nulla da leggere ad alta voce in questo capitolo."
 msgid "There is nothing to read aloud, so there is no audiobook to build."
 msgstr "Non c’è nulla da leggere ad alta voce, quindi non c’è nessun audiolibro da creare."
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "These are routine adjustments; nothing was lost."
 msgstr "Sono aggiustamenti di routine; nulla è andato perso."
 
@@ -5524,6 +5638,14 @@ msgstr "Questo libro non ha un’immagine di copertina. KDP riceve la copertina 
 #: src/app/timeline/Timeline.tsx
 msgid "This book has no scenes yet."
 msgstr "Questo libro non ha ancora scene."
+
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "This book has translations, and a split would no longer line up with them. Splitting a chapter is not available in a book with translations yet."
+msgstr "Questo libro ha delle traduzioni e una divisione non corrisponderebbe più a esse. Per ora non si può dividere un capitolo in un libro con traduzioni."
+
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "This chapter has no heading to split at. Add a heading where the new chapter should start, then try again."
+msgstr "Questo capitolo non ha titoli in cui dividere. Aggiungi un titolo dove deve iniziare il nuovo capitolo e riprova."
 
 #: src/lib/import/importErrorText.ts
 msgid "This document contains too many parts to import safely. Choose another file, or split it into parts."
@@ -5623,7 +5745,7 @@ msgid "Times New Roman 12 pt is what most agents and editors ask for. Courier Ne
 msgstr "Times New Roman 12 pt è ciò che chiedono la maggior parte di agenti ed editor. Courier New è l’aspetto da macchina da scrivere che alcuni preferiscono ancora. Il computer del lettore ha bisogno di qualsiasi altro carattere per vederlo."
 
 #: src/app/dialogs/BookDetailsFields.tsx
-#: src/app/dialogs/ImportSteps.tsx
+#: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/home/Home.tsx
 #: src/app/library/Library.tsx
 #: src/app/references/ReferenceDetails.tsx
@@ -5641,9 +5763,13 @@ msgid "Title A-Z"
 msgstr "Titolo A-Z"
 
 #. placeholder {0}: i + 1
-#: src/app/dialogs/ImportChapterList.tsx
+#: src/app/dialogs/import/ImportChapterList.tsx
 msgid "Title of chapter {0}"
 msgstr "Titolo del capitolo {0}"
+
+#: src/app/dialogs/SplitChapterDialog.tsx
+msgid "Title of the new chapter"
+msgstr "Titolo del nuovo capitolo"
 
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
@@ -5779,7 +5905,7 @@ msgstr "Annulla: {0}"
 msgid "Unique id stored in the EPUB. Change it only if a store or library asked you to."
 msgstr "Identificatore univoco memorizzato nell’EPUB. Cambialo solo se te lo ha chiesto un negozio o una biblioteca."
 
-#: src/app/dialogs/ImportDialogs.tsx
+#: src/app/dialogs/import/ImportDialogs.tsx
 #: src/app/home/Home.tsx
 msgid "Unknown"
 msgstr "Sconosciuto"
@@ -5922,7 +6048,7 @@ msgstr "Voci da scaricare"
 msgid "Waiting"
 msgstr "In attesa"
 
-#: src/app/dialogs/ImportReportDialog.tsx
+#: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "Warning"
 msgstr "Avviso"
 

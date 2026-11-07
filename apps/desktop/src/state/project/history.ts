@@ -35,8 +35,9 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
       const entry = get().history[from].at(-1);
       if (!entry) return false;
       if (entry.reference) await travelReference({ ...entry, reference: entry.reference }, from);
-      else if (entry.docs) await travelDocs({ ...entry, docs: entry.docs }, from);
+      // An import or a split carries its own `docs` (a split shortens the chapter it cut), so it is checked first.
       else if (entry.imported) await travelImport({ ...entry, imported: entry.imported }, from);
+      else if (entry.docs) await travelDocs({ ...entry, docs: entry.docs }, from);
       else await travelTree(entry, from);
       return true;
     } catch (e) {

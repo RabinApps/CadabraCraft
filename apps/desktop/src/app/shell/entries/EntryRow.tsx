@@ -23,6 +23,7 @@ export type SharedRowProps = Pick<
   | "setDeleting"
   | "setHistory"
   | "setIcon"
+  | "setSplit"
   | "onNavigate"
   | "underRow"
   | "openRows"
@@ -215,6 +216,7 @@ export function EntryRow({
           setDeleting={shared.setDeleting}
           setHistory={shared.setHistory}
           setIcon={shared.setIcon}
+          setSplit={shared.setSplit}
         />
       </div>
       {c.kind === "part" && count === 0 && (

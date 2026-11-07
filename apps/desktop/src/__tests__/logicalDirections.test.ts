@@ -37,7 +37,7 @@ const ALLOWED: Record<string, { max: number; why: string }> = {
     max: 1,
     why: "Centring (left-1/2 with -translate-x-1/2) is symmetric",
   },
-  "app/dialogs/ImportReportDialog.tsx": {
+  "app/dialogs/import/ImportReportDialog.tsx": {
     max: 1,
     why: "Centring (left-1/2 with -translate-x-1/2) is symmetric",
   },

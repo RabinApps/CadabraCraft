@@ -20,7 +20,7 @@ import { decodeDocxImport } from "../export/docxFrame";
 import { describeImportCode, describeOutlineCode } from "./importErrorText";
 import { newSceneId } from "../scenes/scenes";
 import { isProjectError } from "../projectError";
-import { applyPlan, type ImportPlan } from "./importPlan";
+import { applyPlan, initialPlan, type ImportPlan } from "./importPlan";
 
 export interface ImportReport {
   /** Source file name (no folder), for display. */
@@ -273,9 +273,9 @@ export async function parseImport(
 
 /** Applies the author's preview edits: skipped chapters are dropped (with the images only they used), blank titles keep the original. */
 export function applyChapterEdits(result: ImportResult, edits: ChapterEdit[]): ImportResult {
-  const plan = result.chapters.map((c, i) => ({
-    sources: [i],
-    title: edits[i]?.title ?? c.title,
+  const plan = initialPlan(result).map((item, i) => ({
+    ...item,
+    title: edits[i]?.title ?? item.title,
     include: edits[i]?.include ?? true,
   }));
   return applyPlan(result, plan, t`Keep at least one chapter.`);
