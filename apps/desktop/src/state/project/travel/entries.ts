@@ -3,7 +3,6 @@ import {
   readingOrder,
   retargetFile,
   withTree,
-  sourceFile,
   entryFile,
   sourceEdition,
   relink,
@@ -14,27 +13,12 @@ import {
 import { bridge } from "../../../lib/bridge";
 import { forgetReference } from "../../../lib/references/references";
 import { retargetEntry } from "../util";
-import type { History, HistoryEntry } from "../types";
+import type { HistoryEntry } from "../types";
 import type { Ctx } from "../context";
+import { createShowAfterTravel, doneNotice, flipHistory, type Direction } from "./shared";
+import { importTravel } from "./imports";
 
-export type Direction = "undo" | "redo";
-
-/** The history after `from`'s newest entry moved to the other stack as `flipped` (`fix` rewrites the other entries, e.g. after a rename). */
-const flipHistory = (
-  history: History,
-  from: Direction,
-  flipped: HistoryEntry,
-  fix: (e: HistoryEntry) => HistoryEntry = (e) => e,
-): History => {
-  const kept = history[from].slice(0, -1).map(fix);
-  const other = (from === "undo" ? history.redo : history.undo).map(fix);
-  return from === "undo"
-    ? { undo: kept, redo: [...other, flipped] }
-    : { undo: [...other, flipped], redo: kept };
-};
-
-const doneNotice = (from: Direction, label: string): string =>
-  from === "undo" ? t`Undid: ${label}` : t`Redid: ${label}`;
+export type { Direction };
 
 type Others = NonNullable<HistoryEntry["others"]>;
 type Rename = { language: string; from: string; to: string };
@@ -121,7 +105,8 @@ const docsTravel = (ctx: Ctx) => {
 
 /** Undo and redo of a chapter-tree edit (add, move, remove or restore a page). */
 const treeTravel = (ctx: Ctx) => {
-  const { set, get, need, entryOf, saveManifest, load } = ctx;
+  const { set, get, need, saveManifest } = ctx;
+  const showAfterTravel = createShowAfterTravel(ctx);
   /** Brings a removed page (and its translation files) back from the trash; the tree is retargeted where a name was taken since. */
   const restoreFiles = async (
     entry: HistoryEntry,
@@ -158,24 +143,6 @@ const treeTravel = (ctx: Ctx) => {
     const gone: Others = [];
     for (const o of others) gone.push({ ...o, trashPath: await bridge.trashFile(root, o.path) });
     return { trashPath, others: gone };
-  };
-
-  /** Shows a page that came back; otherwise keeps the open page unless it no longer exists. */
-  const showAfterTravel = async (file: string | undefined, present: boolean) => {
-    const next = need().manifest;
-    const shown =
-      file && present
-        ? readingOrder(next).find((e) => sourceFile(e, next.editions) === file)
-        : undefined;
-    const cur = get().currentId;
-    if (shown) {
-      await load(shown.id);
-      return;
-    }
-    if (!cur || entryOf(next, cur)) return;
-    set({ currentId: null, currentDoc: null });
-    const fallback = next.chapters[0] ?? readingOrder(next)[0];
-    if (fallback) await load(fallback.id);
   };
 
   return async (entry: HistoryEntry, from: Direction): Promise<void> => {
@@ -224,9 +191,10 @@ const treeTravel = (ctx: Ctx) => {
   };
 };
 
-/** Undo and redo of one history entry, by kind: a removed reference, a text edit across pages, or a chapter-tree edit. */
+/** Undo and redo of one history entry, by kind: a removed reference, a text edit across pages, an import or a chapter-tree edit. */
 export const createTravelEntries = (ctx: Ctx) => ({
   travelReference: referenceTravel(ctx),
   travelDocs: docsTravel(ctx),
   travelTree: treeTravel(ctx),
+  travelImport: importTravel(ctx),
 });

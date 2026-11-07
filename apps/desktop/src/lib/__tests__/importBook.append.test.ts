@@ -66,7 +66,7 @@ describe("import into the open book", () => {
     expect(s().root).toBe("/book");
     expect(s().currentId).toBe(s().manifest!.chapters[1]!.id);
     expect(s().importReport).toMatchObject({ chapterCount: 2, imageCount: 1, title: "Mine" });
-    expect(s().history.undo).toEqual([]);
+    expect(s().history.undo.map((e) => e.label)).toEqual(["Import My_Book.md"]);
   });
 
   it("follows the plan: reordered, merged and renamed chapters", async () => {

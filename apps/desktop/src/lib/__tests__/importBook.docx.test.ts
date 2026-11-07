@@ -27,7 +27,8 @@ vi.mock("../bridge", async () =>
   }),
 );
 
-import { loadImport, parseImport, runImport } from "../import/importBook";
+import { loadImport, parseImport } from "../import/importBook";
+import { runImport } from "../import/importWrite";
 
 const PNG = [1, 2, 3, 4];
 const doc = (text: string) => ({

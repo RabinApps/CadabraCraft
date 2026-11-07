@@ -228,7 +228,7 @@ msgstr "{0} יוצא מתיקיית הפרויקט דרך קישור סימבו�
 
 #. placeholder {0}: written.chapters
 #. placeholder {1}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
 msgstr "{0} קובצי פרקים חדשים ו־{1} תמונות נשמרו בתיקיית הספר, אך רשימת הפרקים לא שונתה."
 
@@ -853,7 +853,7 @@ msgstr "כבר בשימוש על ידי ”{owner}“. לחצו על מקש אח
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 msgstr "כבר נכתבו אל {0}: {1} קובצי פרקים ו־{2} תמונות; רשימת הפרקים של הספר לא נשמרה."
 
@@ -2663,13 +2663,13 @@ msgid "Image"
 msgstr "תמונה"
 
 #. placeholder {0}: a.sourcePath
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be imported: {why}. Add the picture to the page yourself after the import."
 msgstr "לא ניתן היה לייבא את התמונה {0}: {why}. הוסיפו את התמונה לדף בעצמכם לאחר הייבוא."
 
 #. placeholder {0}: img.name
 #. placeholder {1}: whyText(e)
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be stored: {1}. Add the picture to the page yourself after the import."
 msgstr "לא ניתן היה לשמור את התמונה {0}: {1}. הוסיפו את התמונה לדף בעצמכם לאחר הייבוא."
 
@@ -2706,6 +2706,11 @@ msgstr "תמונות"
 #: src/app/dialogs/ImportSteps.tsx
 msgid "Import"
 msgstr "ייבוא"
+
+#. placeholder {0}: report.fileName
+#: src/state/project/book/open.ts
+msgid "Import {0}"
+msgstr "ייבוא {0}"
 
 #: src/app/settings/FontsSection.tsx
 msgid "Import a font file"
@@ -4179,9 +4184,9 @@ msgstr "פרויקטים אחרונים"
 msgid "Recover newer text for “{0}”?"
 msgstr "לשחזר את הטקסט החדש יותר של “{0}”?"
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Redid: {label}"
-msgstr ""
+msgstr "בוצע שוב: {label}"
 
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useToolbarItems.ts
@@ -5372,6 +5377,7 @@ msgid "The page changed while searching, so nothing was replaced. Try again."
 msgstr "העמוד השתנה בזמן החיפוש ולכן דבר לא הוחלף. נסה שוב."
 
 #: src/state/project/travel/entries.ts
+#: src/state/project/travel/imports.ts
 msgid "the page is no longer in the trash"
 msgstr "העמוד כבר אינו באשפה"
 
@@ -5741,9 +5747,9 @@ msgstr "Typst לקח יותר מ־{0} שניות ונעצר. נסה שוב, או
 msgid "Underline"
 msgstr "קו תחתון"
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Undid: {label}"
-msgstr ""
+msgstr "בוטל: {label}"
 
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useToolbarItems.ts

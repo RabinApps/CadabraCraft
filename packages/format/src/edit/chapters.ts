@@ -17,6 +17,34 @@ export function addChapter(
   return { manifest: { ...m, chapters: [...m.chapters, entry] }, entry };
 }
 
+/**
+ * Inserts one new chapter per title at `index` of the chapters list (clamped to 0..length), in order. Part dividers are
+ * positional, so the chapters join whichever part `index` falls in (right after a divider: that part). File names come
+ * from `freeFile`, so they never collide with an existing file, a translation or each other.
+ */
+export function insertChaptersAt(
+  m: Manifest,
+  titles: readonly string[],
+  index: number,
+): { manifest: Manifest; entries: EditionEntry[] } {
+  const lang = sourceOf(m);
+  const at = Math.min(Math.max(Math.trunc(index), 0), m.chapters.length);
+  let manifest = m;
+  const entries: EditionEntry[] = [];
+  for (const title of titles) {
+    const entry: EditionEntry = {
+      id: uniqueId(manifest),
+      titles: { [lang]: title },
+      files: { [lang]: freeFile(manifest, title) },
+    };
+    const list = [...manifest.chapters];
+    list.splice(at + entries.length, 0, entry);
+    manifest = { ...manifest, chapters: list };
+    entries.push(entry);
+  }
+  return { manifest, entries };
+}
+
 function partEntry(m: Manifest, title: string): EditionEntry {
   const lang = sourceOf(m);
   const used = allEntries(m);
