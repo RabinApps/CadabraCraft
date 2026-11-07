@@ -39,15 +39,24 @@ export function Row({ title, hint, control }: { title: string; hint: string; con
   );
 }
 
-/** Snapshots to keep: edits stay local while typing and are applied on blur, so "2" on the way to "20" is not clamped to the minimum. */
+/** A whole-number field with a range (snapshots to keep, size limit): edits stay local while typing and are applied on blur, so "2" on the way to "20" is not clamped to the minimum. */
 export function KeepField({
   label,
   value,
   onCommit,
+  min = SNAPSHOT_KEEP_MIN,
+  max = SNAPSHOT_KEEP_MAX,
+  step = 5,
+  clean = cleanSnapshotKeep,
 }: {
   label: string;
   value: number;
   onCommit: (n: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  /** Turns what was typed into an allowed value. */
+  clean?: (v: unknown) => number;
 }) {
   const [text, setText] = useState(String(value));
   return (
@@ -56,13 +65,13 @@ export function KeepField({
       hideLabel
       className="py-2"
       type="number"
-      min={SNAPSHOT_KEEP_MIN}
-      max={SNAPSHOT_KEEP_MAX}
-      step={5}
+      min={min}
+      max={max}
+      step={step}
       value={text}
       onChange={(e) => setText(e.target.value)}
       onBlur={() => {
-        const n = cleanSnapshotKeep(Number(text));
+        const n = clean(Number(text));
         onCommit(n);
         setText(String(n));
       }}

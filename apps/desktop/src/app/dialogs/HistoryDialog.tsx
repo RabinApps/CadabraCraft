@@ -2,21 +2,16 @@ import { useEffect, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { Undo2 } from "lucide-react";
-import { isChapterDoc } from "@cadabracraft/editor-schema";
-import { countWords, type ChapterDoc } from "@cadabracraft/shared";
 import { Modal } from "../../ui/Dialog";
 import { Button } from "../../ui/Button";
 import { Segmented } from "../../ui/forms/Segmented";
 import { cx } from "../../ui/cx";
 import { BookSnapshotsPanel } from "./BookSnapshotsPanel";
+import { Comparison } from "./snapshots/Comparison";
+import { useVersions, type Version } from "./snapshots/useVersions";
 import { formatStamp } from "./formatStamp";
-import { bridge, type SnapshotEntry } from "../../lib/bridge";
 import { causeText } from "../../lib/projectError";
-import { changeSummary, diffChapters, paragraphsOf, type DiffLine } from "../../lib/wordDiff";
 import { useProject } from "../../state/project/index";
-
-/** Most snapshots listed (the newest); each one is read and compared when the dialog opens. */
-const MAX_LISTED = 50;
 
 export interface HistoryPage {
   id: string;
@@ -24,76 +19,7 @@ export interface HistoryPage {
   file: string;
 }
 
-interface Version {
-  entry: SnapshotEntry;
-  /** Null when the snapshot file could not be read or is not a valid chapter. */
-  words: number | null;
-  lines: DiffLine[];
-  added: number;
-  removed: number;
-}
-
-function parseDoc(contents: string | undefined): ChapterDoc | null {
-  if (contents === undefined) return null;
-  try {
-    const raw: unknown = JSON.parse(contents);
-    return isChapterDoc(raw) ? raw : null;
-  } catch {
-    return null;
-  }
-}
-
 type View = "page" | "book";
-
-/** Reads the earlier versions of `file` and compares each with the current text, newest first, while `active`. */
-function useVersions(root: string | null, file: string | undefined, active: boolean) {
-  const { t } = useLingui();
-  const actions = useProject((s) => s.actions);
-  const [versions, setVersions] = useState<Version[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  useEffect(() => {
-    if (!active || !root || !file) return;
-    let live = true;
-    setVersions([]);
-    setSelected(null);
-    setError("");
-    setLoading(true);
-    (async () => {
-      await actions.flush(); // so "the current text" is what is on disk
-      const now = await bridge.readFile(root, file);
-      const current = paragraphsOf(parseDoc(now?.contents));
-      const list = (await bridge.listSnapshots(root, file)).slice(0, MAX_LISTED);
-      if (!live) return;
-      setSelected(list[0]?.path ?? null);
-      for (const entry of list) {
-        const read = await bridge.readSnapshot(root, file, entry.path).catch(() => null);
-        if (!live) return;
-        const doc = parseDoc(read?.contents);
-        const lines = doc ? diffChapters(current, paragraphsOf(doc)) : [];
-        const { added, removed } = changeSummary(lines);
-        setVersions((v) => [
-          ...v,
-          { entry, words: doc ? countWords(doc) : null, lines, added, removed },
-        ]);
-      }
-    })()
-      .catch((e) => {
-        if (live)
-          setError(
-            t`Could not load the earlier versions (${causeText(e)}). Close this dialog and open History again to retry.`,
-          );
-      })
-      .finally(() => {
-        if (live) setLoading(false);
-      });
-    return () => {
-      live = false;
-    };
-  }, [active, root, file, actions]);
-  return { versions, selected, setSelected, loading, error, setError };
-}
 
 /** The pick list of earlier versions. */
 function VersionList({
@@ -140,60 +66,6 @@ function VersionList({
         );
       })}
     </ul>
-  );
-}
-
-/** One part of a compared line: plain, inserted or deleted text. */
-function DiffPart({ part }: { part: DiffLine[number] }) {
-  const { t } = useLingui();
-  if (part.kind === "add") {
-    return (
-      <ins className="rounded-sm bg-success-soft px-0.5 text-success underline">
-        <span className="sr-only">{t`Inserted:`} </span>
-        {part.text}
-      </ins>
-    );
-  }
-  if (part.kind === "del") {
-    return (
-      <del className="rounded-sm bg-danger-soft px-0.5 text-danger line-through">
-        <span className="sr-only">{t`Deleted:`} </span>
-        {part.text}
-      </del>
-    );
-  }
-  return <>{part.text}</>;
-}
-
-/** The legend and the compared text of the chosen version. */
-function Comparison({ chosen }: { chosen: Version | undefined }) {
-  const { t } = useLingui();
-  return (
-    <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-      <div className="flex flex-wrap items-center gap-2.5 text-xs">
-        <span className="text-ink-muted">{t`Compared with the current text`}</span>
-        <ins className="rounded-sm bg-success-soft px-2 py-0.5 font-semibold text-success underline">{t`In this version only`}</ins>
-        <del className="rounded-sm bg-danger-soft px-2 py-0.5 font-semibold text-danger line-through">{t`Only in the current text`}</del>
-      </div>
-      <div
-        aria-label={t`Comparison`}
-        className="flex max-h-[340px] min-h-40 flex-col gap-3 overflow-y-auto rounded-md border border-border bg-paper p-5 font-book text-base text-ink md:max-h-[360px]"
-      >
-        {chosen && chosen.words !== null && chosen.added === 0 && chosen.removed === 0 && (
-          <p className="font-ui text-sm text-ink-muted">{t`This version has the same words as the current text.`}</p>
-        )}
-        {chosen?.lines.map((line, i) => (
-          <p key={i} className="m-0">
-            {line.map((part, j) => (
-              <span key={j}>
-                {j > 0 && " "}
-                <DiffPart part={part} />
-              </span>
-            ))}
-          </p>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -294,7 +166,7 @@ export function HistoryDialog({
           ) : (
             <div className="flex flex-col gap-5 md:flex-row">
               <VersionList versions={versions} selected={selected} onSelect={setSelected} />
-              <Comparison chosen={chosen} />
+              <Comparison chosen={chosen} label={t`Comparison`} />
             </div>
           )}
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">

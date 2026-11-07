@@ -157,6 +157,11 @@ export function Modal({
         <D.Content
           onCloseAutoFocus={onCloseAutoFocus}
           onFocus={keepFocusInView}
+          // A field marked data-own-escape (inline rename) uses Escape to cancel itself; the dialog stays open.
+          onEscapeKeyDown={(e) => {
+            if (e.target instanceof Element && e.target.closest("[data-own-escape]"))
+              e.preventDefault();
+          }}
           {...(description ? {} : { "aria-describedby": undefined })}
           className={cx(
             panelClass,

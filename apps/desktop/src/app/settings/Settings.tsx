@@ -8,12 +8,8 @@ import { useSettings } from "../../state/view/editorPrefs";
 import { AudioSection } from "./AudioSection";
 import { FontsSection } from "./FontsSection";
 import { ShortcutsSection } from "./ShortcutsSection";
-import {
-  AppearanceSection,
-  BackupsSection,
-  EditorSection,
-  GeneralSection,
-} from "./SettingsSections";
+import { BackupsSection } from "./BackupsSection";
+import { AppearanceSection, EditorSection, GeneralSection } from "./SettingsSections";
 
 const sections = [
   "appearance",

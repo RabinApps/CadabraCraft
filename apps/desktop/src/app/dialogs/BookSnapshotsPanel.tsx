@@ -1,252 +1,44 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { plural } from "@lingui/core/macro";
-import { Camera, Trash2, Undo2 } from "lucide-react";
-import { Button } from "../../ui/Button";
-import { Confirm } from "../../ui/Dialog";
-import { Field, focusField } from "../../ui/forms/Input";
-import { cx } from "../../ui/cx";
+import { focusField } from "../../ui/forms/Input";
 import { bridge, type BookSnapshotEntry } from "../../lib/bridge";
-import { causeText } from "../../lib/projectError";
 import { useProject } from "../../state/project/index";
-import { formatStamp } from "./formatStamp";
+import { useSettings } from "../../state/view/editorPrefs";
 import type { HistoryPage } from "./HistoryDialog";
+import { BookCompare } from "./snapshots/BookCompare";
+import {
+  NAME_ID,
+  SnapshotActions,
+  SnapshotConfirms,
+  SnapshotNameForm,
+  type Pending,
+} from "./snapshots/SnapshotControls";
+import { SnapshotList } from "./snapshots/SnapshotList";
+import { limitsOf, nameProblem, pruneNotice, type PruneNotice } from "./snapshots/snapshotText";
+import { useRestoreJobs } from "./snapshots/useRestoreJobs";
+import { useSnapshotJobs } from "./snapshots/useSnapshotJobs";
+import { useBookCompare } from "./snapshots/useBookCompare";
+import { useSnapshotList } from "./snapshots/useSnapshotList";
 
-/** Longest name Rust accepts. */
-const MAX_NAME = 100;
-
-type Pending = "book" | "delete" | null;
-
-const NAME_ID = "snapshot-name";
-const ERROR_ID = "snapshot-error";
-
-type ErrorAbout = "name" | "take" | "other";
-
-/** The snapshots of the book, with the selected one; `onError` hears about a failed read. */
-function useSnapshotList(root: string | null, onError: (message: string) => void) {
-  const { t } = useLingui();
-  const [list, setList] = useState<BookSnapshotEntry[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const refresh = useCallback(
-    async (pick?: string) => {
-      if (!root) return;
-      const next = await bridge.listBookSnapshots(root);
-      setList(next);
-      setSelected(
-        (cur) => pick ?? (next.some((e) => e.path === cur) ? cur : (next[0]?.path ?? null)),
-      );
-    },
-    [root],
-  );
-  useEffect(() => {
-    let live = true;
-    setLoading(true);
-    refresh()
-      .catch((e) => {
-        if (live) {
-          onError(
-            t`Could not read the book snapshots (${causeText(e)}). Close this dialog and open History again to retry.`,
-          );
-        }
-      })
-      .finally(() => {
-        if (live) setLoading(false);
-      });
-    return () => {
-      live = false;
-    };
-  }, [refresh]);
-  return { list, selected, setSelected, loading, refresh };
-}
-
-/** The pick list of snapshots, or a hint when there are none. */
-function SnapshotList({
-  list,
-  loading,
-  selected,
-  onSelect,
-}: {
-  list: BookSnapshotEntry[];
-  loading: boolean;
-  selected: string | null;
-  onSelect: (path: string) => void;
-}) {
-  const { t, i18n } = useLingui();
-  const detail = (e: BookSnapshotEntry) =>
-    `${plural(e.pages.length, { one: "# page", other: "# pages" })} · ${plural(e.assets, { one: "# image", other: "# images" })}`;
-  if (list.length === 0 && !loading) {
-    return (
-      <p className="m-0 text-sm text-ink-muted">{t`No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now.`}</p>
-    );
-  }
+/** What keeping to the limits moved to the trash: an ordinary notice, and a warning when pinned snapshots moved too. */
+function PruneNotices({ notice }: { notice: PruneNotice | null }) {
+  if (!notice) return null;
   return (
-    <ul
-      aria-label={t`Book snapshots`}
-      className="m-0 flex max-h-56 list-none flex-col gap-1 overflow-y-auto p-0"
-    >
-      {list.map((e) => {
-        const on = e.path === selected;
-        return (
-          <li key={e.path}>
-            <button
-              type="button"
-              aria-current={on ? "true" : undefined}
-              onClick={() => onSelect(e.path)}
-              className={cx(
-                "flex w-full flex-col gap-0.5 rounded-md px-3 py-2 text-start focus-visible:outline-2 focus-visible:outline-accent",
-                on ? "bg-accent-soft" : "hover:bg-accent-soft",
-              )}
-            >
-              <span className={cx("text-sm font-semibold", on ? "text-accent" : "text-ink")}>
-                {e.name}
-                {e.automatic && (
-                  <span className="ms-2 rounded-sm bg-warn-soft px-1.5 py-0.5 text-xs font-semibold text-warn">{t`Automatic`}</span>
-                )}
-              </span>
-              <span className="text-xs text-ink-muted">
-                {formatStamp(e.at, i18n.locale)} · {detail(e)}
-              </span>
-            </button>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-/** The name field and the "Take snapshot" button. */
-function SnapshotNameForm({
-  name,
-  busy,
-  error,
-  errorAbout,
-  onName,
-  onTake,
-}: {
-  name: string;
-  busy: boolean;
-  error: string;
-  errorAbout: ErrorAbout;
-  onName: (name: string) => void;
-  onTake: () => void;
-}) {
-  const { t } = useLingui();
-  return (
-    <>
-      <form
-        className="flex flex-wrap items-end gap-2.5"
-        onSubmit={(ev) => {
-          ev.preventDefault();
-          if (!busy) onTake();
-        }}
-      >
-        <div className="min-w-0 flex-1 basis-56">
-          <Field
-            id={NAME_ID}
-            label={t`Snapshot name`}
-            placeholder={t`For example, Before the rewrite`}
-            maxLength={MAX_NAME}
-            value={name}
-            errorId={error && errorAbout === "name" ? ERROR_ID : undefined}
-            onChange={(ev) => onName(ev.target.value)}
-          />
-        </div>
-        <Button
-          type="submit"
-          variant="primary"
-          icon={Camera}
-          disabled={busy}
-          aria-describedby={error && errorAbout === "take" ? ERROR_ID : undefined}
-        >{t`Take snapshot`}</Button>
-      </form>
-      {error && (
-        <p id={ERROR_ID} role="alert" className="m-0 text-sm text-danger">
-          {error}
+    <div className="flex flex-col gap-1.5">
+      {notice.older && (
+        <p role="status" className="m-0 rounded-md bg-accent-soft px-3 py-2 text-sm text-ink">
+          {notice.older}
         </p>
       )}
-    </>
-  );
-}
-
-/** The delete / restore buttons under the list. */
-function SnapshotActions({
-  hasChosen,
-  hasPage,
-  busy,
-  onDelete,
-  onRestorePage,
-  onRestoreBook,
-}: {
-  hasChosen: boolean;
-  hasPage: boolean;
-  busy: boolean;
-  onDelete: () => void;
-  onRestorePage: () => void;
-  onRestoreBook: () => void;
-}) {
-  const { t } = useLingui();
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <p className="m-0 max-w-prose text-xs text-ink-muted">{t`Restoring the whole book first keeps the book as it is now as an automatic snapshot. Pages the snapshot does not have go to the trash, and images are never removed.`}</p>
-      <div className="flex flex-wrap gap-2.5">
-        <Button
-          icon={Trash2}
-          disabled={!hasChosen || busy}
-          onClick={onDelete}
-        >{t`Delete snapshot`}</Button>
-        {hasPage && (
-          <Button
-            icon={Undo2}
-            disabled={busy}
-            onClick={onRestorePage}
-          >{t`Restore this page only`}</Button>
-        )}
-        <Button
-          variant="primary"
-          icon={Undo2}
-          disabled={!hasChosen || busy}
-          onClick={onRestoreBook}
-        >{t`Restore whole book`}</Button>
-      </div>
+      {notice.pinned && (
+        <p
+          role="alert"
+          className="m-0 rounded-md bg-warn-soft px-3 py-2 text-sm font-semibold text-warn"
+        >
+          {notice.pinned}
+        </p>
+      )}
     </div>
-  );
-}
-
-/** The two confirmations: restore the whole book, delete a snapshot. */
-function SnapshotConfirms({
-  pending,
-  chosen,
-  onClose,
-  onRestoreBook,
-  onDelete,
-}: {
-  pending: Pending;
-  chosen: BookSnapshotEntry | undefined;
-  onClose: () => void;
-  onRestoreBook: () => void;
-  onDelete: () => void;
-}) {
-  const { t } = useLingui();
-  return (
-    <>
-      <Confirm
-        open={pending === "book"}
-        onOpenChange={(o) => !o && onClose()}
-        title={t`Restore the whole book?`}
-        description={t`Every chapter and the chapter list go back to “${chosen?.name ?? ""}”. The book as it is now is kept as an automatic snapshot first.`}
-        confirmLabel={t`Restore whole book`}
-        onConfirm={onRestoreBook}
-      />
-      <Confirm
-        open={pending === "delete"}
-        onOpenChange={(o) => !o && onClose()}
-        title={t`Delete this snapshot?`}
-        description={t`“${chosen?.name ?? ""}” is removed from this computer. Your chapters are not changed.`}
-        confirmLabel={t`Delete snapshot`}
-        onConfirm={onDelete}
-      />
-    </>
   );
 }
 
@@ -266,39 +58,18 @@ export function BookSnapshotsPanel({
   const root = useProject((s) => s.root);
   const actions = useProject((s) => s.actions);
   const [name, setName] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  /** What the message is about: the name field (refused), the Take button (failed) or another action. */
-  const [errorAbout, setErrorAbout] = useState<ErrorAbout>("other");
   const [pending, setPending] = useState<Pending>(null);
-  const { list, selected, setSelected, loading, refresh } = useSnapshotList(root, (message) => {
-    setErrorAbout("other");
-    setError(message);
-  });
-
-  /** Runs one action: the buttons stay off until it settles, and a failure is shown here. */
-  const run = async (
-    job: () => Promise<void>,
-    failure: (reason: string) => string,
-    about: "take" | "other" = "other",
-  ) => {
-    setBusy(true);
-    setError("");
-    try {
-      await job();
-    } catch (e) {
-      setErrorAbout(about);
-      setError(failure(causeText(e)));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const { busy, error, errorAbout, notice, setNotice, setError, fail, run } = useSnapshotJobs();
+  const { list, selected, setSelected, loading, refresh } = useSnapshotList(root, (message) =>
+    fail("other", message),
+  );
 
   const take = () => {
-    if (!name.trim()) {
+    const problem = nameProblem(name);
+    if (problem) {
       // The button is not dead: pressing it says what is missing and puts the cursor where it goes.
-      setErrorAbout("name");
-      setError(t`The snapshot has no name. Type one, for example “Before the rewrite”.`);
+      fail("name", problem);
       focusField(NAME_ID);
       return;
     }
@@ -306,8 +77,9 @@ export function BookSnapshotsPanel({
       async () => {
         if (!root) return;
         await actions.flush(); // so the snapshot has what was just typed
-        const made = await bridge.createBookSnapshot(root, name);
+        const made = await bridge.createBookSnapshot(root, name, limitsOf(useSettings.getState()));
         setName("");
+        setNotice(pruneNotice(made.pruned));
         await refresh(made.path);
       },
       (reason) =>
@@ -317,33 +89,31 @@ export function BookSnapshotsPanel({
   };
 
   const chosen = list.find((e) => e.path === selected);
+  const compare = useBookCompare(root, page ? chosen : undefined, page?.file);
   const hasPage = !!page && !!chosen && chosen.pages.includes(page.file);
-  const restoreBook = () =>
-    run(
-      async () => {
-        if (!chosen) return;
-        await actions.restoreBook(chosen.path);
-        onDone();
-      },
-      (reason) => t`Could not restore the book (${reason}). Try again, or pick another snapshot.`,
+  const { restoreBook, restorePage } = useRestoreJobs(run, chosen, page, onDone);
+  /** Changes the snapshot files, then reads the list again. */
+  const edit = (change: (root: string) => Promise<unknown>, failure: (reason: string) => string) =>
+    run(async () => {
+      if (!root) return;
+      await change(root);
+      await refresh();
+    }, failure);
+  const pin = (e: BookSnapshotEntry) =>
+    edit(
+      (r) => bridge.pinBookSnapshot(r, e.path, !e.pinned),
+      (reason) => t`Could not change the pin (${reason}). Try again.`,
     );
-  const restorePage = () =>
-    run(
-      async () => {
-        if (!chosen || !page) return;
-        await actions.restorePageFromBook(page.id, chosen.path);
-        onDone();
-      },
-      (reason) =>
-        t`Could not restore this page (${reason}). Your current text was not changed. Try again, or pick another snapshot.`,
-    );
+  /** Throws a failure so the row can show it next to its field. */
+  const rename = async (e: BookSnapshotEntry, newName: string) => {
+    if (!root) return;
+    await bridge.renameBookSnapshot(root, e.path, newName);
+    await refresh();
+    setRenaming(null);
+  };
   const remove = () =>
-    run(
-      async () => {
-        if (!root || !chosen) return;
-        await bridge.deleteBookSnapshot(root, chosen.path);
-        await refresh();
-      },
+    edit(
+      async (r) => chosen && bridge.deleteBookSnapshot(r, chosen.path),
       (reason) => t`Could not delete the snapshot (${reason}). It is still in the list. Try again.`,
     );
 
@@ -360,7 +130,20 @@ export function BookSnapshotsPanel({
         }}
         onTake={take}
       />
-      <SnapshotList list={list} loading={loading} selected={selected} onSelect={setSelected} />
+      <PruneNotices notice={notice} />
+      <SnapshotList
+        list={list}
+        loading={loading}
+        selected={selected}
+        renaming={renaming}
+        busy={busy}
+        onSelect={setSelected}
+        onPin={(e) => void pin(e)}
+        onStartRename={setRenaming}
+        onCancelRename={() => setRenaming(null)}
+        onRename={rename}
+      />
+      {page && <BookCompare state={compare} title={page.title} />}
       <SnapshotActions
         hasChosen={!!chosen}
         hasPage={hasPage}
