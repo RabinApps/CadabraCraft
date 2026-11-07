@@ -10,6 +10,7 @@ import { useProject } from "../../../state/project/index";
 import { attempt } from "../../../state/attempt";
 import { HistoryDialog, type HistoryPage } from "../../dialogs/HistoryDialog";
 import { IconDialog, type IconPage } from "../../dialogs/IconDialog";
+import { SplitChapterDialog, type SplitPage } from "../../dialogs/SplitChapterDialog";
 import { useKindLabels } from "../useKindLabels";
 import { EntryList, type Editing } from "../EntryList";
 import { SceneList } from "../../scenes/SceneList";
@@ -257,6 +258,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const [codexOpen, setCodexOpen] = useState(false);
   const [versionsOf, setVersionsOf] = useState<HistoryPage | null>(null);
   const [iconOf, setIconOf] = useState<IconPage | null>(null);
+  const [splitOf, setSplitOf] = useState<SplitPage | null>(null);
   const [bookHistory, setBookHistory] = useState(false);
   if (!manifest) return null;
   const shared = {
@@ -266,6 +268,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     setDeleting,
     setHistory: setVersionsOf,
     setIcon: setIconOf,
+    setSplit: setSplitOf,
     onNavigate,
   };
   return (
@@ -347,6 +350,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         onNavigate={onNavigate}
       />
       <IconDialog page={iconOf} onClose={() => setIconOf(null)} />
+      <SplitChapterDialog page={splitOf} onClose={() => setSplitOf(null)} onNavigate={onNavigate} />
       <TrashDialog open={trashOpen} onOpenChange={setTrashOpen} onNavigate={onNavigate} />
       <CodexDialog open={codexOpen} onOpenChange={setCodexOpen} />
       <DeleteConfirm deleting={deleting} onClose={() => setDeleting(null)} />

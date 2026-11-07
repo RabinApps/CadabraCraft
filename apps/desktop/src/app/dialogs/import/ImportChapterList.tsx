@@ -1,23 +1,30 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
-import { ArrowDown, ArrowUp, GripVertical, Merge, Split } from "lucide-react";
+import { ArrowDown, ArrowDownToLine, ArrowUp, GripVertical, Merge, Split } from "lucide-react";
 import { countWords } from "@cadabracraft/shared";
 import type { ImportResult } from "@cadabracraft/import-docx";
-import { IconButton } from "../../ui/Button";
-import { cx } from "../../ui/cx";
-import { useGripHint } from "../../ui/GripHint";
-import { dropPosition, insertionIndex } from "../../lib/references/referenceKinds";
-import { sceneCountOf } from "../../lib/import/importBook";
+import { IconButton } from "../../../ui/Button";
+import { cx } from "../../../ui/cx";
+import { useGripHint } from "../../../ui/GripHint";
+import { dropPosition, insertionIndex } from "../../../lib/references/referenceKinds";
+import { sceneCountOf } from "../../../lib/import/importBook";
 import {
+  canMergeDown,
   canMergeUp,
   canSplit,
+  itemDoc,
+  mergePlanItemDown,
   mergePlanItemUp,
   movePlanItem,
+  planKey,
+  planSplitPoints,
   splitPlanItem,
+  splitPlanItemAt,
   type ImportPlan,
   type PlanItem,
-} from "../../lib/import/importPlan";
+} from "../../../lib/import/importPlan";
+import { SplitAtHeadingMenu } from "./SplitAtHeadingMenu";
 
 interface Props {
   result: ImportResult;
@@ -27,11 +34,15 @@ interface Props {
   outline?: boolean;
 }
 
-const keyOf = (item: PlanItem) => item.sources.join("-");
-const wordsOf = (item: PlanItem, result: ImportResult) =>
-  item.sources.reduce((n, s) => n + countWords(result.chapters[s]!.doc), 0);
-const scenesOf = (item: PlanItem, result: ImportResult) =>
-  item.sources.reduce((n, s) => n + sceneCountOf(result.chapters[s]!.doc), 0);
+const keyOf = planKey;
+const wordsOf = (item: PlanItem, result: ImportResult) => {
+  const doc = itemDoc(result, item);
+  return doc ? countWords(doc) : 0;
+};
+const scenesOf = (item: PlanItem, result: ImportResult) => {
+  const doc = itemDoc(result, item);
+  return doc ? sceneCountOf(doc) : 0;
+};
 
 /** One chapter of the preview: include box, title, grip, move / merge / split buttons and the size. */
 function ChapterRow({
@@ -64,7 +75,7 @@ function ChapterRow({
   const { t } = useLingui();
   const key = keyOf(item);
   const n = i + 1;
-  const merged = item.sources.length;
+  const merged = item.ranges.length;
   return (
     <li
       data-key={key}
@@ -122,6 +133,17 @@ function ChapterRow({
           label={t`Merge chapter ${n} into the previous one`}
           disabled={!canMergeUp(plan, i)}
           onClick={() => onChange(mergePlanItemUp(plan, i))}
+        />
+        <IconButton
+          icon={ArrowDownToLine}
+          label={t`Merge chapter ${n} into the next one`}
+          disabled={!canMergeDown(plan, i)}
+          onClick={() => onChange(mergePlanItemDown(plan, i))}
+        />
+        <SplitAtHeadingMenu
+          n={n}
+          points={outline ? [] : planSplitPoints(plan, i, result)}
+          onSplit={(point) => onChange(splitPlanItemAt(plan, i, result, point))}
         />
         {canSplit(plan, i) && (
           <IconButton

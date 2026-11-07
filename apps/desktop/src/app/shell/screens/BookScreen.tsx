@@ -24,7 +24,7 @@ import { attempt } from "../../../state/attempt";
 import { useStartDialogs } from "../../../state/app/commands";
 import { ReferenceViewer } from "../../references/ReferenceViewer";
 import { BookDetailsDialog } from "../../dialogs/BookDetailsDialog";
-import { ImportDialog, ImportReportDialog } from "../../dialogs/LazyImportDialogs";
+import { ImportDialog, ImportReportDialog } from "../../dialogs/import/LazyImportDialogs";
 import { SponsorDialog } from "../../dialogs/SponsorDialog";
 import { LicensesDialog } from "../../dialogs/LicensesDialog";
 import { UpdateDialog } from "../../dialogs/UpdateDialog";

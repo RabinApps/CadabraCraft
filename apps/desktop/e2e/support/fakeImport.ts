@@ -15,6 +15,9 @@ export const OUTLINE_MD =
   "# Arrival\n\n## The quay at dusk\n\nMara waits.\n\n> pov: Mara; status: draft; date: 2024-05-01\n\n## The letter\n\nShe reads it twice.\n\n# Departure\n\n## Low tide\n";
 export const OUTLINE_CSV =
   "chapter,title,summary,pov,status\r\nArrival,The quay at dusk,Mara waits.,Mara,draft\r\nArrival,The letter,She reads it twice.,,\r\nDeparture,Low tide,,,outline\r\n";
+/** One chapter with two sections (level 2 headings), for splitting at a heading. */
+export const SECTIONS_MD =
+  "# Book\n\nIntro text.\n\n## Alpha\n\nAlpha text.\n\n## Beta\n\nBeta text.\n\n# Last\n\nLast text.\n";
 export const THREE_MD = "# One\n\nFirst text.\n\n# Two\n\nSecond text.\n\n# Three\n\nThird text.\n";
 
 /**
@@ -89,6 +92,7 @@ function docxReply(level: number): number[] {
 interface Fixtures {
   md: number[];
   md3: number[];
+  sections: number[];
   docx: number[];
   /** `import_docx_source` replies by split level. */
   docxReplies: Record<string, number[]>;
@@ -101,6 +105,7 @@ interface Fixtures {
 const fixtures = (): Fixtures => ({
   md: Array.from(new TextEncoder().encode(TINY_MD)),
   md3: Array.from(new TextEncoder().encode(THREE_MD)),
+  sections: Array.from(new TextEncoder().encode(SECTIONS_MD)),
   docx: Array.from(tinyDocx({ image: true })),
   docxReplies: { "1": docxReply(1), "2": docxReply(2), "3": docxReply(3) },
   png: Array.from(PNG_BYTES),
@@ -115,7 +120,7 @@ const fixtures = (): Fixtures => ({
 });
 
 export type ImportPick =
-  "md" | "md3" | "docx" | "html" | "broken" | "opml" | "outlineMd" | "csv" | "badOpml";
+  "md" | "md3" | "sections" | "docx" | "html" | "broken" | "opml" | "outlineMd" | "csv" | "badOpml";
 
 export async function fakeImportTauri(page: Page, pick: ImportPick, importFolder = true) {
   await fakeTauri(page);
@@ -129,6 +134,7 @@ export async function fakeImportSources(page: Page, pick: ImportPick, importFold
       const sources: Record<string, number[]> = {
         "/src/My_Book.md": f.md,
         "/src/three.md": f.md3,
+        "/src/sections.md": f.sections,
         "/src/book.docx": f.docx,
         "/src/page.html": f.html,
         "/src/broken.docx": Array.from(new TextEncoder().encode("not a zip")),
@@ -140,6 +146,7 @@ export async function fakeImportSources(page: Page, pick: ImportPick, importFold
       const picked: Record<string, string> = {
         md: "/src/My_Book.md",
         md3: "/src/three.md",
+        sections: "/src/sections.md",
         docx: "/src/book.docx",
         html: "/src/page.html",
         broken: "/src/broken.docx",

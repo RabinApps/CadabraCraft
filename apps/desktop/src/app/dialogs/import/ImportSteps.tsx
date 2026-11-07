@@ -1,23 +1,23 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft, ArrowRight, FileUp, FolderOpen } from "lucide-react";
 import type { ImportResult } from "@cadabracraft/import-docx";
-import { Segmented } from "../../ui/forms/Segmented";
-import { Button } from "../../ui/Button";
-import { Field, focusField } from "../../ui/forms/Input";
+import { Segmented } from "../../../ui/forms/Segmented";
+import { Button } from "../../../ui/Button";
+import { Field, focusField } from "../../../ui/forms/Input";
 import {
   outlineFormatFor,
   parseImport,
   sceneCountOf,
   titleFromFile,
   type LoadedSource,
-} from "../../lib/import/importBook";
-import { baseName } from "../../lib/paths";
-import { causeText } from "../../lib/projectError";
-import { initialPlan, keptCount, type ImportPlan } from "../../lib/import/importPlan";
+} from "../../../lib/import/importBook";
+import { baseName } from "../../../lib/paths";
+import { causeText } from "../../../lib/projectError";
+import { initialPlan, itemDoc, keptCount, type ImportPlan } from "../../../lib/import/importPlan";
 import { ImportChapterList } from "./ImportChapterList";
 import { PickRow, Summary } from "./ImportParts";
-import { Notice } from "../../ui/feedback/Notice";
+import { Notice } from "../../../ui/feedback/Notice";
 
 export type Level = 1 | 2 | 3;
 /** The box a message is about, so it is marked invalid and read with the message. */
@@ -38,11 +38,10 @@ export interface Preview {
 export const keptScenes = (p: Preview): number =>
   p.plan
     .filter((item) => item.include)
-    .reduce(
-      (n, item) =>
-        n + item.sources.reduce((m, s) => m + sceneCountOf(p.result.chapters[s]!.doc), 0),
-      0,
-    );
+    .reduce((n, item) => {
+      const doc = itemDoc(p.result, item);
+      return n + (doc ? sceneCountOf(doc) : 0);
+    }, 0);
 
 /** The message under the form and the box it is about. */
 export function useImportFeedback() {
@@ -119,8 +118,13 @@ export function useImportPreview(
         t`Could not read the file that way (${causeText(e)}). Pick the other choice, or go back and choose a different file.`,
     );
   };
+  /** Back to the first step; nothing was written. */
+  const back = () => {
+    setPreview(null);
+    setError("");
+  };
   const setPlan = useCallback((plan: ImportPlan) => setPreview((p) => p && { ...p, plan }), []);
-  return { preview, setPreview, parse, setLevel, setOutline, setPlan };
+  return { preview, setPreview, parse, setLevel, setOutline, setPlan, back };
 }
 export type PreviewState = ReturnType<typeof useImportPreview>;
 
@@ -228,6 +232,7 @@ export function PreviewStep({
   append,
   busy,
   error,
+  destination,
   onBack,
   onSubmit,
 }: {
@@ -236,6 +241,8 @@ export function PreviewStep({
   append: boolean;
   busy: boolean;
   error: string;
+  /** Adding to the open book: where the chapters go. */
+  destination?: ReactNode | false;
   onBack: () => void;
   onSubmit: () => void;
 }) {
@@ -249,6 +256,7 @@ export function PreviewStep({
         if (kept > 0) onSubmit();
       }}
     >
+      {destination}
       {outlineFormatFor(preview.loaded, true) === "markdown" && (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-xs font-semibold text-ink-muted">{t`Read this file as`}</span>

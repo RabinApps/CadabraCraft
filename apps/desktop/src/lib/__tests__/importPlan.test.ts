@@ -36,13 +36,14 @@ const result = (): ImportResult => ({
 });
 const titles = (r: ImportResult) => r.chapters.map((c) => c.title);
 const none = "none";
+const whole = (source: number, to: number) => ({ source, from: 0, to });
 
 describe("initialPlan", () => {
   it("lists every parsed chapter once, in order, included", () => {
     expect(initialPlan(result())).toEqual([
-      { sources: [0], title: "A", include: true },
-      { sources: [1], title: "B", include: true },
-      { sources: [2], title: "C", include: true },
+      { ranges: [whole(0, 3)], title: "A", include: true },
+      { ranges: [whole(1, 2)], title: "B", include: true },
+      { ranges: [whole(2, 3)], title: "C", include: true },
     ]);
   });
 });
@@ -79,15 +80,15 @@ describe("merging and splitting", () => {
   it("keeps the earlier title and joins the sources in order", () => {
     const merged = mergePlanItemUp(plan, 1);
     expect(merged).toEqual([
-      { sources: [0, 1], title: "A", include: true },
-      { sources: [2], title: "C", include: true },
+      { ranges: [whole(0, 3), whole(1, 2)], title: "A", include: true },
+      { ranges: [whole(2, 3)], title: "C", include: true },
     ]);
-    expect(mergePlanItemUp(merged, 1)[0]!.sources).toEqual([0, 1, 2]);
+    expect(mergePlanItemUp(merged, 1)[0]!.ranges.map((r) => r.source)).toEqual([0, 1, 2]);
     expect(plan).toHaveLength(3);
   });
   it("merges reordered chapters in the order shown", () => {
     const moved = movePlanItem(plan, 2, 0); // C A B
-    expect(mergePlanItemUp(moved, 1)[0]!.sources).toEqual([2, 0]);
+    expect(mergePlanItemUp(moved, 1)[0]!.ranges.map((r) => r.source)).toEqual([2, 0]);
   });
   it("splits a merged item back into its chapters, keeping the author's title on the first", () => {
     const merged = mergePlanItemUp(mergePlanItemUp(plan, 1), 1).map((p) => ({
@@ -96,9 +97,9 @@ describe("merging and splitting", () => {
     }));
     expect(canSplit(merged, 0)).toBe(true);
     expect(splitPlanItem(merged, 0, result())).toEqual([
-      { sources: [0], title: "Whole", include: true },
-      { sources: [1], title: "B", include: true },
-      { sources: [2], title: "C", include: true },
+      { ranges: [whole(0, 3)], title: "Whole", include: true },
+      { ranges: [whole(1, 2)], title: "B", include: true },
+      { ranges: [whole(2, 3)], title: "C", include: true },
     ]);
   });
   it("keeps the author's title for a chapter the parser gave no title", () => {
@@ -162,8 +163,8 @@ describe("applyPlan", () => {
   it("throws the given message when nothing is kept, and skips sources that do not exist", () => {
     const plan = initialPlan(result()).map((p) => ({ ...p, include: false }));
     expect(() => applyPlan(result(), plan, none)).toThrow("none");
-    expect(() => applyPlan(result(), [{ sources: [9], title: "x", include: true }], none)).toThrow(
-      "none",
-    );
+    expect(() =>
+      applyPlan(result(), [{ ranges: [whole(9, 1)], title: "x", include: true }], none),
+    ).toThrow("none");
   });
 });

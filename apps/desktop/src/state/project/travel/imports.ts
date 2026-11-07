@@ -15,7 +15,7 @@ type Imported = NonNullable<HistoryEntry["imported"]>;
  * since) is retargeted in the tree and in every history entry. Pictures stay in assets/ either way.
  */
 export const importTravel = (ctx: Ctx) => {
-  const { set, get, need, saveManifest } = ctx;
+  const { set, get, need, saveManifest, writePages, reloadCurrent } = ctx;
   const showAfterTravel = createShowAfterTravel(ctx);
 
   /** Sends files that came back to the trash again and gives the redo step their new trash paths, so a later try still finds them. */
@@ -56,14 +56,31 @@ export const importTravel = (ctx: Ctx) => {
     const { root, manifest } = need();
     let imported: Imported;
     let fix = (e: HistoryEntry): HistoryEntry => e;
+    // A split also rewrites the chapter it cut (and its comments): `to` is the text to leave behind.
+    const rewrite = (to: "before" | "after") =>
+      writePages(
+        (entry.docs ?? []).map((d) => ({
+          file: d.file,
+          from: to === "before" ? d.after : d.before,
+          to: d[to],
+        })),
+      );
     if (undoing) {
-      await saveManifest(withTree(manifest, entry.before));
+      // The cut chapter gets its whole text back first, so the text is in two places (never in none) until the new chapter is gone.
+      await rewrite("before");
+      try {
+        await saveManifest(withTree(manifest, entry.before));
+      } catch (e) {
+        await rewrite("after").catch(() => {});
+        throw e;
+      }
       imported = [];
       try {
         for (const i of entry.imported)
           imported.push({ path: i.path, trashPath: await bridge.trashFile(root, i.path) });
       } catch (e) {
         await saveManifest(manifest); // the chapters stay listed, so the book is unchanged
+        await rewrite("after").catch(() => {});
         throw e;
       }
     } else {
@@ -79,7 +96,9 @@ export const importTravel = (ctx: Ctx) => {
       fix = (e) => renames.reduce((acc, r) => retargetEntry(acc, lang, r.from, r.to), e);
       try {
         await saveManifest(withTree(manifest, after));
+        await rewrite("after"); // the cut chapter is shortened last: until then its text is whole
       } catch (e) {
+        await saveManifest(manifest).catch(() => {});
         await putBack(root, imported, entry.imported);
         throw e;
       }
@@ -89,6 +108,7 @@ export const importTravel = (ctx: Ctx) => {
       history: flipHistory(get().history, from, flipped, fix),
     });
     await showAfterTravel(undefined, false);
+    if (entry.docs?.length && get().currentId) await reloadCurrent(); // the open chapter may be the one that was cut
     set({ notice: doneNotice(from, entry.label) });
     if (get().trash.length)
       void get()
