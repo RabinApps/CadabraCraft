@@ -1,5 +1,9 @@
 name: ci
-on: [push, pull_request, workflow_call]
+on:
+  push:
+    branches: [main] # a PR branch is tested by its pull_request run; a push run as well would double the load and collide on e2e port 1420
+  pull_request:
+  workflow_call:
 permissions:
   contents: read
 jobs:
