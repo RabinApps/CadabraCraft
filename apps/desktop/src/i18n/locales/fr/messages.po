@@ -1602,9 +1602,21 @@ msgstr "Convertir"
 msgid "Convert HTML in Selection to Styled Text"
 msgstr "Convertir le HTML de la sélection en texte mis en forme"
 
+#: src/editor/toolbar/useMenuOnlyItems.ts
+msgid "Convert quotes and dashes"
+msgstr "Convertir les guillemets et les tirets"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Convert Quotes and Dashes"
+msgstr "Convertir les guillemets et les tirets"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Convert to styled text"
 msgstr "Convertir en texte mis en forme"
+
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "Converted quotes and dashes in the selection"
+msgstr "Guillemets et tirets de la sélection convertis"
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copied"
@@ -3552,6 +3564,10 @@ msgstr "Aucun raccourci ne correspond à « {0} »."
 msgid "No status"
 msgstr "Aucun statut"
 
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "No straight quotes or dashes to convert in the selection"
+msgstr "Aucun guillemet droit ni tiret à convertir dans la sélection"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr "Pas encore de texte"
@@ -4880,6 +4896,10 @@ msgstr "Petits fichiers, environ 14 Mo par heure. Se lit sur les téléphones et
 msgid "Smaller text"
 msgstr "Texte plus petit"
 
+#: src/app/settings/SettingsSections.tsx
+msgid "Smart quotes and dashes"
+msgstr "Guillemets et tirets typographiques"
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
 msgstr "Nom de l’instantané"
@@ -5710,6 +5730,10 @@ msgstr "Réessayer"
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
 msgstr "Réessayer de télécharger {0}"
+
+#: src/app/settings/SettingsSections.tsx
+msgid "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
+msgstr "Remplace les guillemets droits, -- et ... par des signes typographiques pendant la saisie. Désactivé par défaut."
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"

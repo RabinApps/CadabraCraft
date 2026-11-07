@@ -1602,9 +1602,21 @@ msgstr "Convertir"
 msgid "Convert HTML in Selection to Styled Text"
 msgstr "Convertir el HTML de la selección en texto con estilo"
 
+#: src/editor/toolbar/useMenuOnlyItems.ts
+msgid "Convert quotes and dashes"
+msgstr "Convertir comillas y guiones"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Convert Quotes and Dashes"
+msgstr "Convertir comillas y guiones"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Convert to styled text"
 msgstr "Convertir en texto con estilo"
+
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "Converted quotes and dashes in the selection"
+msgstr "Se convirtieron las comillas y los guiones de la selección"
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copied"
@@ -3552,6 +3564,10 @@ msgstr "Ningún atajo coincide con “{0}”."
 msgid "No status"
 msgstr "Sin estado"
 
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "No straight quotes or dashes to convert in the selection"
+msgstr "No hay comillas rectas ni guiones que convertir en la selección"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr "Todavía no hay texto"
@@ -4880,6 +4896,10 @@ msgstr "Archivos pequeños, unos 14 MB por hora. Se reproduce en teléfonos y re
 msgid "Smaller text"
 msgstr "Texto más pequeño"
 
+#: src/app/settings/SettingsSections.tsx
+msgid "Smart quotes and dashes"
+msgstr "Comillas y guiones tipográficos"
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
 msgstr "Nombre de la instantánea"
@@ -5710,6 +5730,10 @@ msgstr "Reintentar"
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
 msgstr "Intenta de nuevo descargar {0}"
+
+#: src/app/settings/SettingsSections.tsx
+msgid "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
+msgstr "Convierte las comillas rectas, -- y ... en signos tipográficos mientras escribes. Desactivado por defecto."
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"

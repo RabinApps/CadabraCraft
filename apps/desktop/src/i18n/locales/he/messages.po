@@ -1602,9 +1602,21 @@ msgstr "המרה"
 msgid "Convert HTML in Selection to Styled Text"
 msgstr "המרת ה־HTML שבבחירה לטקסט מעוצב"
 
+#: src/editor/toolbar/useMenuOnlyItems.ts
+msgid "Convert quotes and dashes"
+msgstr "המרת מרכאות ומקפים"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Convert Quotes and Dashes"
+msgstr "המרת מרכאות ומקפים"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Convert to styled text"
 msgstr "המרה לטקסט מעוצב"
+
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "Converted quotes and dashes in the selection"
+msgstr "המרכאות והמקפים בבחירה הומרו"
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copied"
@@ -3552,6 +3564,10 @@ msgstr "אין קיצור שתואם ל־“{0}”."
 msgid "No status"
 msgstr "ללא מצב"
 
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "No straight quotes or dashes to convert in the selection"
+msgstr "אין בבחירה מרכאות ישרות או מקפים להמרה"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr "אין עדיין טקסט"
@@ -4880,6 +4896,10 @@ msgstr "קבצים קטנים, כ־14 MB לשעה. מתנגן בטלפונים �
 msgid "Smaller text"
 msgstr "טקסט קטן יותר"
 
+#: src/app/settings/SettingsSections.tsx
+msgid "Smart quotes and dashes"
+msgstr "מרכאות ומקפים טיפוגרפיים"
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
 msgstr "שם תצלום המצב"
@@ -5710,6 +5730,10 @@ msgstr "ניסיון חוזר"
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
 msgstr "ניסיון חוזר להורדת {0}"
+
+#: src/app/settings/SettingsSections.tsx
+msgid "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
+msgstr "הופך מרכאות ישרות, -- ו-... לסימנים טיפוגרפיים תוך כדי הקלדה. כבוי כברירת מחדל."
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"

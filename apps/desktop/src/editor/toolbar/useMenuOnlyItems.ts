@@ -5,6 +5,7 @@ import {
   Code,
   Code2,
   Languages,
+  Quote,
   List,
   ListTodo,
   SeparatorHorizontal,
@@ -22,7 +23,7 @@ export function useMenuOnlyItems(
   editor: Editor,
   s: ToolbarState,
   c: () => ReturnType<Editor["chain"]>,
-  lang: { openLang: () => void; clearLang: () => void },
+  lang: { openLang: () => void; clearLang: () => void; convertQuotes: () => void },
   editImage: () => void,
 ): ToolbarItem[] {
   const { t } = useLingui();
@@ -113,6 +114,14 @@ export function useMenuOnlyItems(
       icon: Languages,
       disabled: !s.lang,
       run: lang.clearLang,
+    },
+    {
+      // A command of the Format menu and the palette; it is not one of the More formatting items.
+      id: "convertQuotes",
+      label: t`Convert quotes and dashes`,
+      icon: Quote,
+      disabled: !s.hasSelection,
+      run: lang.convertQuotes,
     },
     {
       id: "codeBlock",

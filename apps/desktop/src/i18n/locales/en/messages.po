@@ -1602,9 +1602,21 @@ msgstr "Convert"
 msgid "Convert HTML in Selection to Styled Text"
 msgstr "Convert HTML in Selection to Styled Text"
 
+#: src/editor/toolbar/useMenuOnlyItems.ts
+msgid "Convert quotes and dashes"
+msgstr "Convert quotes and dashes"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Convert Quotes and Dashes"
+msgstr "Convert Quotes and Dashes"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Convert to styled text"
 msgstr "Convert to styled text"
+
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "Converted quotes and dashes in the selection"
+msgstr "Converted quotes and dashes in the selection"
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copied"
@@ -3552,6 +3564,10 @@ msgstr "No shortcut matches “{0}”."
 msgid "No status"
 msgstr "No status"
 
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "No straight quotes or dashes to convert in the selection"
+msgstr "No straight quotes or dashes to convert in the selection"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr "No text yet"
@@ -4880,6 +4896,10 @@ msgstr "Small files, about 14 MB per hour. Plays on phones and modern players."
 msgid "Smaller text"
 msgstr "Smaller text"
 
+#: src/app/settings/SettingsSections.tsx
+msgid "Smart quotes and dashes"
+msgstr "Smart quotes and dashes"
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
 msgstr "Snapshot name"
@@ -5710,6 +5730,10 @@ msgstr "Try again"
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
 msgstr "Try again to download {0}"
+
+#: src/app/settings/SettingsSections.tsx
+msgid "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
+msgstr "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"
