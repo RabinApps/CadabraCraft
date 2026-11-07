@@ -11,7 +11,7 @@ import { Switch } from "../../ui/forms/Switch";
 import { useTheme, type Theme } from "../../state/view/theme";
 import { useUpdates } from "../../state/app/updates";
 import { MAX_SESSION_GOAL, useSettings, type RawHtmlPaste } from "../../state/view/editorPrefs";
-import { KeepField, Row, Section } from "./SettingsParts";
+import { Row, Section } from "./SettingsParts";
 
 /** Settings > Appearance: the theme. */
 export function AppearanceSection({ title }: { title: string }) {
@@ -164,40 +164,6 @@ export function EditorSection({ title }: { title: string }) {
             </Select>
           </div>
         }
-      />
-    </Section>
-  );
-}
-
-/** Settings > Backups: how many snapshots are kept and where they live. */
-export function BackupsSection({ title }: { title: string }) {
-  const { t } = useLingui();
-  const { snapshotKeep, set } = useSettings();
-  return (
-    <Section id="backups" title={title}>
-      <Row
-        title={t`Snapshots to keep per chapter`}
-        hint={t`Older snapshots are removed, but anything from the last 30 days stays.`}
-        control={
-          <div className="w-32 max-sm:w-full">
-            <KeepField
-              key={snapshotKeep}
-              label={t`Snapshots to keep per chapter`}
-              value={snapshotKeep}
-              onCommit={(n) => set({ snapshotKeep: n })}
-            />
-          </div>
-        }
-      />
-      <Row
-        title={t`When snapshots are taken`}
-        hint={t`Before a save replaces different text, at most once every 10 minutes per chapter.`}
-        control={null}
-      />
-      <Row
-        title={t`Where they are stored`}
-        hint={t`In the .cadabra/backups folder inside your book folder.`}
-        control={null}
       />
     </Section>
   );

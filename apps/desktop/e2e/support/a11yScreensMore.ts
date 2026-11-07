@@ -1,7 +1,8 @@
 import { expect, type Page } from "@playwright/test";
 import { fakeImportSources } from "./fakeImport";
 import { answer, covBackend, failOn } from "./cov";
-import { addReference, newProject } from "./helpers";
+import { seedBookSnapshots } from "./bookSnapshots";
+import { addReference, chapterAction, newProject } from "./helpers";
 import { filterBook, openBoard, openTimeline, pick, search } from "./sceneFilterBook";
 import {
   toolbar,
@@ -261,6 +262,33 @@ export const moreScreens: Screen[] = [
     open: async (p) => {
       await withSnapshot(p);
       await shown(snapshotsDialog(p).getByRole("button", { name: "Restore whole book" }));
+    },
+  },
+  {
+    name: "Book snapshots, pinned, automatic and renaming",
+    open: async (p) => {
+      await newProject(p);
+      await seedBookSnapshots(p, [
+        { name: "Before the rewrite", pinned: true },
+        { name: "Before restoring Draft", automatic: true },
+      ]);
+      await p.getByRole("button", { name: "Book snapshots" }).click();
+      const dialog = snapshotsDialog(p);
+      await dialog.getByRole("button", { name: "Rename Before the rewrite" }).click();
+      await dialog.getByLabel("New name").fill("");
+      await p.keyboard.press("Enter");
+      await shown(dialog.getByRole("alert"));
+    },
+  },
+  {
+    name: "History of a chapter, whole book compare",
+    open: async (p) => {
+      await newProject(p);
+      await seedBookSnapshots(p, [{ name: "Before the rewrite" }]);
+      await chapterAction(p, "Chapter One", "History");
+      const dialog = dialogOf(p, "History · Chapter One");
+      await dialog.getByRole("radio", { name: "Whole book" }).click();
+      await shown(dialog.getByLabel("Comparison of “Chapter One” with the snapshot"));
     },
   },
   {

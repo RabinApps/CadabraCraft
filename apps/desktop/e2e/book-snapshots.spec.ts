@@ -1,5 +1,6 @@
 import { expect, test } from "./support/coverage";
-import { covBackend, failOn, stopFailing } from "./support/cov";
+import { answer, covBackend, failOn, stopFailing } from "./support/cov";
+import { seedBookSnapshots } from "./support/bookSnapshots";
 import { fakeTauri } from "./support/fakeTauri";
 import { chapterAction, manifestOf, newProject, sidebar, focusEnd } from "./support/helpers";
 
@@ -75,7 +76,7 @@ test("a named snapshot is taken, listed, restored for the whole book and deleted
   await expect(items.first()).toContainText("2 pages");
 
   // Going back is a restore of that automatic snapshot.
-  await items.first().getByRole("button").click();
+  await items.first().getByRole("button").first().click();
   await dialog.getByRole("button", { name: "Restore whole book" }).click();
   await page
     .getByRole("dialog", { name: "Restore the whole book?" })
@@ -85,7 +86,7 @@ test("a named snapshot is taken, listed, restored for the whole book and deleted
 
   // Delete the named snapshot; the confirmation can be cancelled first.
   dialog = await openBookSnapshots(page);
-  await dialog.getByRole("list", { name: "Book snapshots" }).getByRole("button").last().click();
+  await items.last().getByRole("button").first().click();
   await dialog.getByRole("button", { name: "Delete snapshot" }).click();
   await page
     .getByRole("dialog", { name: "Delete this snapshot?" })
@@ -181,5 +182,209 @@ test("a failed snapshot or restore is shown in the dialog and nothing else chang
   dialog = await openBookSnapshots(page);
   await expect(dialog.getByRole("alert")).toContainText(
     "Could not read the book snapshots (listing broke)",
+  );
+});
+
+const MB = 1024 * 1024;
+const snapshotList = (dialog: import("@playwright/test").Locator) =>
+  dialog.getByRole("list", { name: "Book snapshots" });
+
+test("the list shows how many snapshots there are and their size, with Named, Automatic and Pinned badges", async ({
+  page,
+}) => {
+  await newProject(page);
+  const names = Array.from({ length: 12 }, (_, i) => `Snapshot ${i + 1}`);
+  await seedBookSnapshots(
+    page,
+    names.map((name, i) => ({
+      name,
+      automatic: i === 3,
+      pinned: i === 5,
+      padBytes: i === 11 ? 10 * MB : 30 * MB,
+    })),
+  );
+  const dialog = await openBookSnapshots(page);
+  await expect(dialog.getByText("12 snapshots · 340 MB")).toBeVisible();
+  const items = snapshotList(dialog).getByRole("listitem");
+  await expect(items).toHaveCount(12);
+  await expect(items.nth(0)).toContainText("Named");
+  await expect(items.nth(8)).toContainText("Automatic"); // Snapshot 4, the 4th oldest
+  await expect(items.nth(8)).not.toContainText("Named");
+  await expect(items.nth(6)).toContainText("Pinned"); // Snapshot 6
+  await expect(items.nth(6)).toContainText("Named");
+  await expect(items.nth(0)).not.toContainText("Pinned");
+});
+
+test("pinning a snapshot toggles Pinned, is kept on disk and a failure is shown", async ({
+  page,
+}) => {
+  await newProject(page);
+  const [path] = await seedBookSnapshots(page, [{ name: "Keep me" }]);
+  const dialog = await openBookSnapshots(page);
+  const pin = dialog.getByRole("button", { name: "Pin Keep me" });
+  await expect(pin).toHaveAttribute("aria-pressed", "false");
+  await pin.click();
+  await expect(pin).toHaveAttribute("aria-pressed", "true");
+  await expect(snapshotList(dialog)).toContainText("Pinned");
+  expect(await page.evaluate((k) => window.__disk[k], path!)).toContain('"pinned":true');
+  await pin.click();
+  await expect(pin).toHaveAttribute("aria-pressed", "false");
+  await expect(snapshotList(dialog)).not.toContainText("Pinned");
+  await failOn(page, "pin_book_snapshot", { kind: "permission_denied", path: "x" });
+  await pin.click();
+  await expect(dialog.getByRole("alert")).toContainText("Could not change the pin");
+});
+
+test("Rename: Enter saves, Escape cancels without closing the dialog, focus returns, errors are shown", async ({
+  page,
+}) => {
+  await newProject(page);
+  const [path] = await seedBookSnapshots(page, [{ name: "Draft one", automatic: true }]);
+  const dialog = await openBookSnapshots(page);
+  await expect(snapshotList(dialog)).toContainText("Automatic");
+  const rename = dialog.getByRole("button", { name: "Rename Draft one" });
+  await rename.click();
+  const field = dialog.getByLabel("New name");
+  await expect(field).toBeFocused();
+  await expect(field).toHaveValue("Draft one");
+
+  // Escape cancels the edit only.
+  await field.fill("Throwaway");
+  await page.keyboard.press("Escape");
+  await expect(field).toHaveCount(0);
+  await expect(dialog).toBeVisible();
+  await expect(rename).toBeFocused();
+  await expect(snapshotList(dialog)).toContainText("Draft one");
+
+  // An empty name is refused in place.
+  await rename.click();
+  await field.fill("   ");
+  await page.keyboard.press("Enter");
+  await expect(dialog.getByRole("alert")).toContainText("The snapshot has no name");
+  await expect(field).toBeFocused();
+  await expect(field).toHaveAttribute("aria-invalid", "true");
+
+  // A failure from the backend keeps the field and the typed name.
+  await field.fill("Final draft");
+  await failOn(page, "rename_book_snapshot", { kind: "invalid_file_name" });
+  await page.keyboard.press("Enter");
+  await expect(dialog.getByRole("alert")).toContainText("Could not rename the snapshot");
+  await expect(field).toHaveValue("Final draft");
+  await stopFailing(page, "rename_book_snapshot");
+
+  // Enter saves; an automatic snapshot becomes a named one.
+  await page.keyboard.press("Enter");
+  await expect(field).toHaveCount(0);
+  await expect(snapshotList(dialog)).toContainText("Final draft");
+  await expect(snapshotList(dialog)).toContainText("Named");
+  await expect(snapshotList(dialog)).not.toContainText("Automatic");
+  await expect(dialog.getByRole("button", { name: "Rename Final draft" })).toBeFocused();
+  expect(await page.evaluate((k) => window.__disk[k], path!)).toContain('"name":"Final draft"');
+
+  // Save and Cancel are buttons too.
+  await dialog.getByRole("button", { name: "Rename Final draft" }).click();
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(field).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Rename Final draft" })).toBeFocused();
+});
+
+test("taking a snapshot passes the limits from Settings and tells the author what moved to the trash", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      "cadabracraft.settings",
+      JSON.stringify({ typewriterScroll: false, bookSnapshotKeep: 5, bookSnapshotMaxMb: 200 }),
+    ),
+  );
+  await newProject(page);
+  await seedBookSnapshots(
+    page,
+    ["Auto A", "Auto B", "Mine", "Pinned one", "Auto C"].map((name, i) => ({
+      name,
+      automatic: name.startsWith("Auto"),
+      pinned: i === 3,
+    })),
+  );
+  const dialog = await openBookSnapshots(page);
+  await dialog.getByLabel("Snapshot name").fill("Sixth");
+  await dialog.getByRole("button", { name: "Take snapshot" }).click();
+  await expect(dialog.getByRole("status")).toHaveText("1 older snapshot moved to .cadabra/trash");
+  await expect(snapshotList(dialog).getByRole("listitem")).toHaveCount(5);
+  await expect(snapshotList(dialog)).not.toContainText("Auto A"); // the oldest automatic one went first
+  await expect(snapshotList(dialog)).toContainText("Pinned one");
+  expect(await keys(page, ".cadabra/trash/")).toHaveLength(1);
+  expect(await keys(page, ".cadabra/snapshots/")).toHaveLength(5);
+
+  // Taking another one clears the earlier notice, and the plural form is used.
+  await dialog.getByLabel("Snapshot name").fill("Seventh");
+  await dialog.getByRole("button", { name: "Take snapshot" }).click();
+  await expect(dialog.getByRole("status")).toHaveText("1 older snapshot moved to .cadabra/trash");
+  await expect(snapshotList(dialog)).toContainText("Seventh");
+});
+
+test("a pinned snapshot that moved to the trash is a warning of its own", async ({ page }) => {
+  await newProject(page);
+  const [path] = await seedBookSnapshots(page, [{ name: "Big pinned", pinned: true }]);
+  const dialog = await openBookSnapshots(page);
+  await answer(page, "create_book_snapshot", {
+    path,
+    pruned: { moved: 3, pinned_moved: [".cadabra/snapshots/a.json"] },
+  });
+  await dialog.getByLabel("Snapshot name").fill("Another");
+  await dialog.getByRole("button", { name: "Take snapshot" }).click();
+  await expect(dialog.getByRole("status")).toHaveText("2 older snapshots moved to .cadabra/trash");
+  await expect(dialog.getByRole("alert")).toContainText(
+    "1 pinned snapshot moved to .cadabra/trash",
+  );
+  await expect(dialog.getByRole("alert")).toContainText("raise the size limit in Settings");
+});
+
+test("on a phone the rows and the rename field fit the dialog", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await newProject(page);
+  await seedBookSnapshots(page, [
+    { name: "A snapshot with quite a long name that has to wrap on a narrow screen", pinned: true },
+    { name: "Second", automatic: true },
+  ]);
+  await page.getByRole("button", { name: "Show chapters" }).click();
+  await page
+    .getByRole("dialog", { name: "Chapters" })
+    .getByRole("button", { name: "Book snapshots" })
+    .click();
+  const dialog = page.getByRole("dialog", { name: "History · Whole book" });
+  await expect(dialog.getByRole("button", { name: /^Rename A snapshot/ })).toBeVisible();
+  const fits = () =>
+    page.evaluate(() => {
+      const d = document.querySelector("[role=dialog]")!;
+      return (
+        d.scrollWidth <= d.clientWidth + 1 && document.documentElement.scrollWidth <= innerWidth + 1
+      );
+    });
+  expect(await fits()).toBe(true);
+  await dialog.getByRole("button", { name: /^Rename A snapshot/ }).click();
+  await expect(dialog.getByLabel("New name")).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Save" })).toBeVisible();
+  expect(await fits()).toBe(true);
+  const box = await dialog.getByRole("button", { name: "Save" }).boundingBox();
+  expect(box && box.height >= 44).toBe(true); // a touch target
+});
+
+test("RTL: the rows mirror, with the pin and rename buttons at the end of the row", async ({
+  page,
+}) => {
+  await newProject(page);
+  await seedBookSnapshots(page, [{ name: "Mirror" }]);
+  const dialog = await openBookSnapshots(page);
+  await page.evaluate(() => {
+    document.documentElement.dir = "rtl";
+  });
+  const pick = await dialog.getByRole("button", { name: /^Mirror/ }).boundingBox();
+  const pin = await dialog.getByRole("button", { name: "Pin Mirror" }).boundingBox();
+  const rename = await dialog.getByRole("button", { name: "Rename Mirror" }).boundingBox();
+  // Right to left: the name first (rightmost), then Pin, then Rename.
+  expect(pick && pin && rename && pick.x > pin.x && pin.x > rename.x).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
   );
 });

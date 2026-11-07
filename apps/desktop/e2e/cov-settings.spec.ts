@@ -70,6 +70,45 @@ test("snapshots to keep is applied on blur and clamped", async ({ page }) => {
   await expect(keep).toHaveValue("40");
 });
 
+test("book snapshot limits are applied on blur, clamped, kept and stacked on a phone", async ({
+  page,
+}) => {
+  await openSettings(page);
+  const keep = page.getByLabel("Book snapshots to keep");
+  const size = page.getByLabel("Size limit for book snapshots (MB)");
+  await expect(keep).toHaveValue("50");
+  await expect(size).toHaveValue("1024");
+  await expect(page.getByText(".cadabra/trash").first()).toBeVisible(); // the hints say where older ones go
+  await keep.fill("2");
+  await keep.blur();
+  await expect(keep).toHaveValue("5"); // clamped to the minimum
+  await keep.fill("20");
+  await keep.blur();
+  await expect(keep).toHaveValue("20");
+  await size.fill("999999");
+  await size.blur();
+  await expect(size).toHaveValue("4096"); // clamped to the maximum
+  await size.fill("500");
+  await size.blur();
+  await expect(size).toHaveValue("500");
+  const stored = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("cadabracraft.settings")!),
+  );
+  expect(stored).toMatchObject({ bookSnapshotKeep: 20, bookSnapshotMaxMb: 500 });
+  await page.reload();
+  await page.getByRole("button", { name: "Settings" }).first().click();
+  await expect(page.getByLabel("Book snapshots to keep")).toHaveValue("20");
+
+  // The limits go to Rust with every snapshot: a book with the default 50 is trimmed to the author's 20.
+  await page.setViewportSize({ width: 390, height: 844 });
+  const row = page.getByLabel("Book snapshots to keep");
+  const box = await row.boundingBox();
+  expect(box && box.width > 200).toBe(true); // the field is full width on a phone
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+});
+
 test("audio defaults: voice and formats, and the last format cannot be unticked", async ({
   page,
 }) => {

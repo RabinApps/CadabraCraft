@@ -16,7 +16,7 @@ msgid ".ttf and .otf files. A copy is kept in the app, never in your book."
 msgstr ".ttf and .otf files. A copy is kept in the app, never in your book."
 
 #. placeholder {0}: chosen?.name ?? ""
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "“{0}” is removed from this computer. Your chapters are not changed."
 msgstr "“{0}” is removed from this computer. Your chapters are not changed."
 
@@ -66,8 +66,8 @@ msgstr "{0, plural, one {# folder with a damaged cadabra.json was skipped.} othe
 msgid "{0, plural, one {# image it used is no longer in the book folder.} other {# images it used are no longer in the book folder.}}"
 msgstr "{0, plural, one {# image it used is no longer in the book folder.} other {# images it used are no longer in the book folder.}}"
 
-#. placeholder {0}: e.assets
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#. placeholder {0}: entry.assets
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
 msgid "{0, plural, one {# image} other {# images}}"
 msgstr "{0, plural, one {# image} other {# images}}"
 
@@ -81,9 +81,9 @@ msgstr "{0, plural, one {# page could not be put back and keeps the replacement;
 msgid "{0, plural, one {# page that was not in the snapshot is in the trash.} other {# pages that were not in the snapshot are in the trash.}}"
 msgstr "{0, plural, one {# page that was not in the snapshot is in the trash.} other {# pages that were not in the snapshot are in the trash.}}"
 
-#. placeholder {0}: e.pages.length
+#. placeholder {0}: entry.pages.length
 #. placeholder {0}: layout.physical
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
 #: src/app/shell/header/PageEstimate.tsx
 msgid "{0, plural, one {# page} other {# pages}}"
 msgstr "{0, plural, one {# page} other {# pages}}"
@@ -102,6 +102,11 @@ msgstr "{0, plural, one {# result} other {# results}}"
 #: src/app/dialogs/import/ImportChapterList.tsx
 msgid "{0, plural, one {# scene} other {# scenes}}"
 msgstr "{0, plural, one {# scene} other {# scenes}}"
+
+#. placeholder {0}: list.length
+#: src/app/dialogs/snapshots/snapshotText.ts
+msgid "{0, plural, one {# snapshot} other {# snapshots}}"
+msgstr "{0, plural, one {# snapshot} other {# snapshots}}"
 
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
@@ -446,6 +451,10 @@ msgstr "{n} scenes"
 msgid "{name} is already in this book. Using the existing file."
 msgstr "{name} is already in this book. Using the existing file."
 
+#: src/app/dialogs/snapshots/snapshotText.ts
+msgid "{older, plural, one {# older snapshot moved to .cadabra/trash} other {# older snapshots moved to .cadabra/trash}}"
+msgstr "{older, plural, one {# older snapshot moved to .cadabra/trash} other {# older snapshots moved to .cadabra/trash}}"
+
 #: src/app/comments/CommentsPanel.tsx
 msgid "{open} open"
 msgstr "{open} open"
@@ -457,6 +466,10 @@ msgstr "{page} / {pages}"
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{pdfPages, plural, one {# page in the PDF} other {# pages in the PDF}}"
 msgstr "{pdfPages, plural, one {# page in the PDF} other {# pages in the PDF}}"
+
+#: src/app/dialogs/snapshots/snapshotText.ts
+msgid "{pinned, plural, one {# pinned snapshot moved to .cadabra/trash too, because the pinned snapshots alone take more than the size limit allows. Unpin or delete some, or raise the size limit in Settings.} other {# pinned snapshots moved to .cadabra/trash too, because the pinned snapshots alone take more than the size limit allows. Unpin or delete some, or raise the size limit in Settings.}}"
+msgstr "{pinned, plural, one {# pinned snapshot moved to .cadabra/trash too, because the pinned snapshots alone take more than the size limit allows. Unpin or delete some, or raise the size limit in Settings.} other {# pinned snapshots moved to .cadabra/trash too, because the pinned snapshots alone take more than the size limit allows. Unpin or delete some, or raise the size limit in Settings.}}"
 
 #: src/app/shell/header/StatusBar.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
@@ -868,6 +881,10 @@ msgstr "Alignment"
 msgid "All"
 msgstr "All"
 
+#: src/app/settings/BackupsSection.tsx
+msgid "All book snapshots together stay under this size. Older ones move to .cadabra/trash, nothing is deleted."
+msgstr "All book snapshots together stay under this size. Older ones move to .cadabra/trash, nothing is deleted."
+
 #: src/app/export/parts/AudioFieldParts.tsx
 #: src/editor/find/FindBar.tsx
 msgid "All chapters"
@@ -987,7 +1004,7 @@ msgstr "Audiobook…"
 msgid "Author"
 msgstr "Author"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
 msgid "Automatic"
 msgstr "Automatic"
 
@@ -1035,7 +1052,7 @@ msgstr "Backups"
 msgid "Becomes"
 msgstr "Becomes"
 
-#: src/app/settings/SettingsSections.tsx
+#: src/app/settings/BackupsSection.tsx
 msgid "Before a save replaces different text, at most once every 10 minutes per chapter."
 msgstr "Before a save replaces different text, at most once every 10 minutes per chapter."
 
@@ -1131,10 +1148,14 @@ msgstr "Book order"
 msgid "Book progress"
 msgstr "Book progress"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotList.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Book snapshots"
 msgstr "Book snapshots"
+
+#: src/app/settings/BackupsSection.tsx
+msgid "Book snapshots to keep"
+msgstr "Book snapshots to keep"
 
 #: src/app/library/Library.tsx
 msgid "Books without a series"
@@ -1200,6 +1221,7 @@ msgstr "CadabraCraft is up to date."
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
 #: src/app/dialogs/import/ImportSteps.tsx
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
 #: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/export/AudioFooter.tsx
 #: src/app/export/parts/ExportDialogParts.tsx
@@ -1628,13 +1650,21 @@ msgstr "Comment on the selection"
 msgid "Comments"
 msgstr "Comments"
 
-#: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/snapshots/Comparison.tsx
 msgid "Compared with the current text"
 msgstr "Compared with the current text"
+
+#: src/app/dialogs/snapshots/BookCompare.tsx
+msgid "Comparing “{title}” with the snapshot…"
+msgstr "Comparing “{title}” with the snapshot…"
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "Comparison"
 msgstr "Comparison"
+
+#: src/app/dialogs/snapshots/BookCompare.tsx
+msgid "Comparison of “{title}” with the snapshot"
+msgstr "Comparison of “{title}” with the snapshot"
 
 #: src/lib/useIconChoices.ts
 msgid "Compass"
@@ -1745,9 +1775,18 @@ msgstr "Could not be read"
 msgid "Could not change the contents page: {why}. Try again."
 msgstr "Could not change the contents page: {why}. Try again."
 
+#: src/app/dialogs/BookSnapshotsPanel.tsx
+msgid "Could not change the pin ({reason}). Try again."
+msgstr "Could not change the pin ({reason}). Try again."
+
 #: src/app/home/Home.tsx
 msgid "Could not choose that folder: {why}. Try again."
 msgstr "Could not choose that folder: {why}. Try again."
+
+#. placeholder {0}: causeText(state.error)
+#: src/app/dialogs/snapshots/BookCompare.tsx
+msgid "Could not compare “{title}” with the snapshot ({0}). The rest of this dialog still works."
+msgstr "Could not compare “{title}” with the snapshot ({0}). The rest of this dialog still works."
 
 #: src/editor/paste/pasteFlow.ts
 msgid "Could not convert the HTML in the selection"
@@ -1783,7 +1822,7 @@ msgid "Could not load {name}. The language stays as it was. Choose it again, or 
 msgstr "Could not load {name}. The language stays as it was. Choose it again, or pick another language."
 
 #. placeholder {0}: causeText(e)
-#: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/snapshots/useVersions.ts
 msgid "Could not load the earlier versions ({0}). Close this dialog and open History again to retry."
 msgstr "Could not load the earlier versions ({0}). Close this dialog and open History again to retry."
 
@@ -1807,7 +1846,7 @@ msgid "Could not open this book: {0}. Check the folder is not open elsewhere, or
 msgstr "Could not open this book: {0}. Check the folder is not open elsewhere, or remove it from the list and open it again."
 
 #. placeholder {0}: causeText(e)
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/useSnapshotList.ts
 msgid "Could not read the book snapshots ({0}). Close this dialog and open History again to retry."
 msgstr "Could not read the book snapshots ({0}). Close this dialog and open History again to retry."
 
@@ -1845,6 +1884,11 @@ msgstr "Could not redo: {why}. Try again, or restore the page from History."
 msgid "Could not remove {0}: {1}. Try again."
 msgstr "Could not remove {0}: {1}. Try again."
 
+#. placeholder {0}: causeText(e)
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
+msgid "Could not rename the snapshot ({0}). Your name is kept. Try again."
+msgstr "Could not rename the snapshot ({0}). Your name is kept. Try again."
+
 #. placeholder {0}: whyText(e)
 #: src/state/project/references.ts
 msgid "Could not reorder the references: {0}. Try again."
@@ -1861,11 +1905,11 @@ msgstr "Could not restore {0} ({1}). It is still in the trash. Try again, or res
 msgid "Could not restore {name}: {0}. Try again, or add the file again."
 msgstr "Could not restore {name}: {0}. Try again, or add the file again."
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/useRestoreJobs.ts
 msgid "Could not restore the book ({reason}). Try again, or pick another snapshot."
 msgstr "Could not restore the book ({reason}). Try again, or pick another snapshot."
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/useRestoreJobs.ts
 msgid "Could not restore this page ({reason}). Your current text was not changed. Try again, or pick another snapshot."
 msgstr "Could not restore this page ({reason}). Your current text was not changed. Try again, or pick another snapshot."
 
@@ -2049,7 +2093,7 @@ msgstr "Delete Column"
 msgid "Delete Row"
 msgstr "Delete Row"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Delete snapshot"
 msgstr "Delete snapshot"
 
@@ -2057,7 +2101,7 @@ msgstr "Delete snapshot"
 msgid "Delete Table"
 msgstr "Delete Table"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Delete this snapshot?"
 msgstr "Delete this snapshot?"
 
@@ -2065,7 +2109,7 @@ msgstr "Delete this snapshot?"
 msgid "Delete voices"
 msgstr "Delete voices"
 
-#: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/snapshots/Comparison.tsx
 msgid "Deleted:"
 msgstr "Deleted:"
 
@@ -2329,7 +2373,7 @@ msgid "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_P
 msgstr "Estimated {estimatedPages} pages: KDP paperbacks need at least {KDP_MIN_PAGES}. This is an estimate."
 
 #. placeholder {0}: chosen?.name ?? ""
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Every chapter and the chapter list go back to “{0}”. The book as it is now is kept as an automatic snapshot first."
 msgstr "Every chapter and the chapter list go back to “{0}”. The book as it is now is kept as an automatic snapshot first."
 
@@ -2567,7 +2611,7 @@ msgstr "Footnote"
 msgid "Footnote {n}"
 msgstr "Footnote {n}"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "For example, Before the rewrite"
 msgstr "For example, Before the rewrite"
 
@@ -2868,7 +2912,7 @@ msgstr "Importing…"
 msgid "In “{where}”: {0}"
 msgstr "In “{where}”: {0}"
 
-#: src/app/settings/SettingsSections.tsx
+#: src/app/settings/BackupsSection.tsx
 msgid "In the .cadabra/backups folder inside your book folder."
 msgstr "In the .cadabra/backups folder inside your book folder."
 
@@ -2876,7 +2920,7 @@ msgstr "In the .cadabra/backups folder inside your book folder."
 msgid "In this chapter"
 msgstr "In this chapter"
 
-#: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/snapshots/Comparison.tsx
 msgid "In this version only"
 msgstr "In this version only"
 
@@ -2912,7 +2956,7 @@ msgstr "Insert"
 msgid "Insert table"
 msgstr "Insert table"
 
-#: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/snapshots/Comparison.tsx
 msgid "Inserted:"
 msgstr "Inserted:"
 
@@ -3477,6 +3521,10 @@ msgstr "Music"
 msgid "Name"
 msgstr "Name"
 
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
+msgid "Named"
+msgstr "Named"
+
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Narrow page"
 msgstr "Narrow page"
@@ -3500,6 +3548,10 @@ msgstr "New comment"
 #: src/app/codex/CodexDialog.tsx
 msgid "New entry"
 msgstr "New entry"
+
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
+msgid "New name"
+msgstr "New name"
 
 #: src/app/home/Home.tsx
 #: src/app/shell/native/menuModel.ts
@@ -3556,7 +3608,7 @@ msgstr "No ads, no account, and the app is never sold."
 msgid "No book matches “{0}”."
 msgstr "No book matches “{0}”."
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotList.tsx
 msgid "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
 msgstr "No book snapshots yet. A snapshot keeps every chapter, the chapter list and the list of images, so you can come back to the book as it is now."
 
@@ -3831,7 +3883,7 @@ msgstr "Numbered List"
 msgid "Off"
 msgstr "Off"
 
-#: src/app/settings/SettingsSections.tsx
+#: src/app/settings/BackupsSection.tsx
 msgid "Older snapshots are removed, but anything from the last 30 days stays."
 msgstr "Older snapshots are removed, but anything from the last 30 days stays."
 
@@ -3863,7 +3915,7 @@ msgstr "Only a chapter can be split."
 msgid "Only http and https addresses. Nothing is fetched from it."
 msgstr "Only http and https addresses. Nothing is fetched from it."
 
-#: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/snapshots/Comparison.tsx
 msgid "Only in the current text"
 msgstr "Only in the current text"
 
@@ -4119,6 +4171,19 @@ msgstr "Pick an edition to export."
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "Pick or create an empty folder. The imported book is stored there."
 msgstr "Pick or create an empty folder. The imported book is stored there."
+
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
+msgid "Pin"
+msgstr "Pin"
+
+#. placeholder {0}: entry.name
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
+msgid "Pin {0}"
+msgstr "Pin {0}"
+
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
+msgid "Pinned"
+msgstr "Pinned"
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "Piper · Amy (fast)"
@@ -4468,12 +4533,15 @@ msgstr "Removed references"
 msgid "Removed references ({removedCount})"
 msgstr "Removed references ({removedCount})"
 
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
 #: src/app/shell/entries/RowMenu.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Rename"
 msgstr "Rename"
 
+#. placeholder {0}: entry.name
 #. placeholder {0}: sourceTitleById(m, id)
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
 #: src/state/project/pages/structure.ts
 msgid "Rename {0}"
 msgstr "Rename {0}"
@@ -4616,11 +4684,11 @@ msgstr "Restore"
 msgid "Restore {0}"
 msgstr "Restore {0}"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Restore the whole book?"
 msgstr "Restore the whole book?"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Restore this page only"
 msgstr "Restore this page only"
 
@@ -4628,7 +4696,7 @@ msgstr "Restore this page only"
 msgid "Restore this version"
 msgstr "Restore this version"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Restore whole book"
 msgstr "Restore whole book"
 
@@ -4654,7 +4722,7 @@ msgstr "Restoring adds the file back as a new reference, titled from its file na
 msgid "Restoring keeps the current text as a new snapshot, so you can undo it."
 msgstr "Restoring keeps the current text as a new snapshot, so you can undo it."
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Restoring the whole book first keeps the book as it is now as an automatic snapshot. Pages the snapshot does not have go to the trash, and images are never removed."
 msgstr "Restoring the whole book first keeps the book as it is now as an automatic snapshot. Pages the snapshot does not have go to the trash, and images are never removed."
 
@@ -4706,6 +4774,7 @@ msgstr "Same as body"
 msgid "same as now"
 msgstr "same as now"
 
+#: src/app/dialogs/snapshots/SnapshotRow.tsx
 #: src/app/shell/header/AppHeader.tsx
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/ToolbarDialogs.tsx
@@ -5004,6 +5073,10 @@ msgstr "Shown in the list. Leave empty to use the address."
 msgid "SIL Open Font Licence 1.1"
 msgstr "SIL Open Font Licence 1.1"
 
+#: src/app/settings/BackupsSection.tsx
+msgid "Size limit for book snapshots (MB)"
+msgstr "Size limit for book snapshots (MB)"
+
 #: src/ui/SkipLink.tsx
 msgid "Skip to main content"
 msgstr "Skip to main content"
@@ -5037,7 +5110,7 @@ msgstr "Smaller text"
 msgid "Smart quotes and dashes"
 msgstr "Smart quotes and dashes"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Snapshot name"
 msgstr "Snapshot name"
 
@@ -5045,7 +5118,7 @@ msgstr "Snapshot name"
 msgid "Snapshots of the whole book. Take one before a big change; restore it to bring every chapter back."
 msgstr "Snapshots of the whole book. Take one before a big change; restore it to bring every chapter back."
 
-#: src/app/settings/SettingsSections.tsx
+#: src/app/settings/BackupsSection.tsx
 msgid "Snapshots to keep per chapter"
 msgstr "Snapshots to keep per chapter"
 
@@ -5312,7 +5385,7 @@ msgstr "Tags"
 msgid "Tags headings, lists, tables and images so screen readers can read the file, and marks page numbers and running headers as decoration. Can be combined with PDF/A. Images need a description (alt text) in the editor."
 msgstr "Tags headings, lists, tables and images so screen readers can read the file, and marks page numbers and running headers as decoration. Can be combined with PDF/A. Images need a description (alt text) in the editor."
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Take snapshot"
 msgstr "Take snapshot"
 
@@ -5618,7 +5691,7 @@ msgstr "The PDF gets the same bleed and crop marks. Set them here or in the expo
 msgid "The selection is too large to convert"
 msgstr "The selection is too large to convert"
 
-#: src/app/dialogs/BookSnapshotsPanel.tsx
+#: src/app/dialogs/snapshots/snapshotText.ts
 msgid "The snapshot has no name. Type one, for example “Before the rewrite”."
 msgstr "The snapshot has no name. Type one, for example “Before the rewrite”."
 
@@ -5758,6 +5831,10 @@ msgstr "This book has translations, and a split would no longer line up with the
 msgid "This chapter has no heading to split at. Add a heading where the new chapter should start, then try again."
 msgstr "This chapter has no heading to split at. Add a heading where the new chapter should start, then try again."
 
+#: src/app/dialogs/snapshots/BookCompare.tsx
+msgid "This chapter is not in the book now, so everything the snapshot has counts as “In this version only”."
+msgstr "This chapter is not in the book now, so everything the snapshot has counts as “In this version only”."
+
 #: src/lib/import/importErrorText.ts
 msgid "This document contains too many parts to import safely. Choose another file, or split it into parts."
 msgstr "This document contains too many parts to import safely. Choose another file, or split it into parts."
@@ -5844,7 +5921,15 @@ msgstr "This page"
 msgid "This page could not be opened: {why}. Restore an earlier version from History, or choose another page."
 msgstr "This page could not be opened: {why}. Restore an earlier version from History, or choose another page."
 
-#: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/snapshots/BookCompare.tsx
+msgid "This snapshot has no copy of “{title}”, so there is nothing to compare or restore."
+msgstr "This snapshot has no copy of “{title}”, so there is nothing to compare or restore."
+
+#: src/app/dialogs/snapshots/BookCompare.tsx
+msgid "This snapshot's copy of “{title}” could not be read as a chapter. Restoring the whole book may still work."
+msgstr "This snapshot's copy of “{title}” could not be read as a chapter. Restoring the whole book may still work."
+
+#: src/app/dialogs/snapshots/Comparison.tsx
 msgid "This version has the same words as the current text."
 msgstr "This version has the same words as the current text."
 
@@ -6204,11 +6289,15 @@ msgstr "What you pasted"
 msgid "When pasting HTML"
 msgstr "When pasting HTML"
 
-#: src/app/settings/SettingsSections.tsx
+#: src/app/settings/BackupsSection.tsx
 msgid "When snapshots are taken"
 msgstr "When snapshots are taken"
 
-#: src/app/settings/SettingsSections.tsx
+#: src/app/settings/BackupsSection.tsx
+msgid "When there are more, the oldest automatic ones move to .cadabra/trash first; named ones are removed last, and pinned ones stay."
+msgstr "When there are more, the oldest automatic ones move to .cadabra/trash first; named ones are removed last, and pinned ones stay."
+
+#: src/app/settings/BackupsSection.tsx
 msgid "Where they are stored"
 msgstr "Where they are stored"
 

@@ -63,6 +63,8 @@ export async function fakeTauri(page: Page) {
       name: string;
       automatic: boolean;
       pinned?: boolean;
+      /** Tests only: counts as this many more bytes in the list (a big book). */
+      padBytes?: number;
       manifest: string;
       pages: Record<string, string>;
       assets: string[];
@@ -88,13 +90,34 @@ export async function fakeTauri(page: Page) {
       pinned: f.pinned === true,
       pages: Object.keys(f.pages).sort(),
       assets: f.assets.length,
-      bytes: JSON.stringify(f).length,
+      bytes: JSON.stringify(f).length + (f.padBytes ?? 0),
     });
     const bookPages = () =>
       Object.keys(disk).filter(
         (k) =>
           /^(manuscript|front-matter|back-matter)\/.+\.json$/.test(k) && !k.includes(".conflict-"),
       );
+    /** Keeps to `maxCount` like the Rust layer: automatic ones go first, then named ones, oldest first; pinned and `keep` stay. */
+    const pruneBookSnaps = (maxCount: unknown, keep?: string) => {
+      const limit = typeof maxCount === "number" ? Math.max(5, Math.floor(maxCount)) : 50;
+      const all = bookSnaps();
+      let over = all.length - limit;
+      const oldestFirst = [...all].reverse().filter(([p, f]) => p !== keep && !f.pinned);
+      const order = [
+        ...oldestFirst.filter(([, f]) => f.automatic),
+        ...oldestFirst.filter(([, f]) => !f.automatic),
+      ];
+      let moved = 0;
+      for (const [p, f] of order) {
+        if (over <= 0) break;
+        disk[`.cadabra/trash/20260101-1200-snapshot__${f.name}`] = disk[p]!;
+        delete disk[p];
+        over--;
+        moved++;
+      }
+      if (moved) persist();
+      return { moved, pinned_moved: [] as string[] };
+    };
     const makeBookSnap = (name: string, automatic: boolean): [string, BookFile] => {
       const f: BookFile = {
         name,
@@ -494,13 +517,15 @@ export async function fakeTauri(page: Page) {
           case "create_book_snapshot": {
             const name = String(a.name).trim();
             if (!name || name.length > 100) throw { kind: "invalid_file_name" };
+            const made = makeBookSnap(name, false);
+            const entry = bookEntry(...made);
             return {
-              ...bookEntry(...makeBookSnap(name, false)),
-              pruned: { moved: 0, pinned_moved: [] },
+              ...entry,
+              pruned: pruneBookSnaps((a as { maxCount?: unknown }).maxCount, made[0]),
             };
           }
           case "prune_book_snapshots":
-            return { moved: 0, pinned_moved: [] };
+            return pruneBookSnaps((a as { maxCount?: unknown }).maxCount);
           case "rename_book_snapshot": {
             const name = String(a.name).trim();
             if (!name || name.length > 100) throw { kind: "invalid_file_name" };
