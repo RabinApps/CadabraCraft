@@ -230,3 +230,93 @@ test("the typed glyphs are what is saved", async ({ page }) => {
   expect(saved).toContain("“Hi” – it’s…");
   expect(saved).not.toContain("&");
 });
+
+const command = (page: Page, id: string) =>
+  page.evaluate(async (c) => {
+    const cmds = (await import("/src/state/app/commands.ts" as string)).getCommands();
+    const enabled = Boolean(cmds[c]?.enabled);
+    if (enabled) cmds[c].run();
+    return enabled;
+  }, id);
+const isEnabled = (page: Page, id: string) =>
+  page.evaluate(
+    async (c) =>
+      Boolean((await import("/src/state/app/commands.ts" as string)).getCommands()[c]?.enabled),
+    id,
+  );
+const stored = (page: Page) =>
+  page.evaluate(() => JSON.parse(localStorage.getItem("cadabracraft.settings") ?? "{}"));
+const note = (page: Page) =>
+  page.locator("[aria-live=polite]").filter({ hasText: /quotes and dashes|No straight/ });
+
+test.describe("Settings and the Format menu", () => {
+  test("the Settings switch is named, off by default, persists and takes effect while writing", async ({
+    page,
+  }) => {
+    await fakeTauri(page);
+    await newProject(page);
+    await page.getByRole("button", { name: "Settings" }).click();
+    const sw = page.getByRole("switch", { name: "Smart quotes and dashes" });
+    await expect(sw).not.toBeChecked();
+    await expect(
+      page.getByText(
+        "Turns straight quotes, -- and ... into typographic ones as you type. Off by default.",
+      ),
+    ).toBeVisible();
+    await sw.focus();
+    await page.keyboard.press("Space");
+    await expect(sw).toBeChecked();
+    expect((await stored(page)).smartTypography).toBe(true);
+    await page.reload();
+    await page.getByRole("button", { name: "Open folder" }).click();
+    await page.getByRole("button", { name: "Settings" }).click();
+    await expect(page.getByRole("switch", { name: "Smart quotes and dashes" })).toBeChecked();
+  });
+
+  test("turning the Settings switch on takes effect in the open editor", async ({ page }) => {
+    await writing(page, false);
+    await page.evaluate(async () => {
+      (await import("/src/state/view/editorPrefs.ts" as string)).useSettings
+        .getState()
+        .set({ smartTypography: true });
+    });
+    await page.keyboard.type('"on"');
+    await expect(last(page)).toHaveText("“on”");
+  });
+
+  test("Convert Quotes and Dashes is disabled without a selection, converts one, is one undo and is announced", async ({
+    page,
+  }) => {
+    await writing(page, false);
+    await page.keyboard.type("\"a\" -- 'b'... it's");
+    expect(await isEnabled(page, "editor.convertQuotes")).toBe(false);
+    await page.keyboard.press("ControlOrMeta+a");
+    await expect.poll(() => isEnabled(page, "editor.convertQuotes")).toBe(true);
+    await expect(note(page)).toHaveCount(0);
+    await command(page, "editor.convertQuotes");
+    await expect(last(page)).toHaveText("“a” – ‘b’… it’s");
+    await expect(note(page)).toHaveText("Converted quotes and dashes in the selection");
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect(last(page)).toHaveText("\"a\" -- 'b'... it's");
+    await page.keyboard.press("ControlOrMeta+a");
+    await expect.poll(() => isEnabled(page, "editor.convertQuotes")).toBe(true);
+    await command(page, "editor.convertQuotes");
+    await expect(last(page)).toHaveText("“a” – ‘b’… it’s");
+    // Nothing is left to convert the second time.
+    await page.keyboard.press("ControlOrMeta+a");
+    await expect.poll(() => isEnabled(page, "editor.convertQuotes")).toBe(true);
+    await command(page, "editor.convertQuotes");
+    await expect(note(page)).toHaveText("No straight quotes or dashes to convert in the selection");
+  });
+
+  test("the menu model lists it in the Format menu", async ({ page }) => {
+    await writing(page, false);
+    const model = await page.evaluate(() =>
+      JSON.stringify(
+        (window as unknown as { __cadabraMenu: { model: unknown } }).__cadabraMenu.model,
+      ),
+    );
+    expect(model).toContain("Convert Quotes and Dashes");
+    expect(model).toContain("editor.convertQuotes");
+  });
+});

@@ -1598,9 +1598,21 @@ msgstr "تحويل"
 msgid "Convert HTML in Selection to Styled Text"
 msgstr "تحويل HTML في التحديد إلى نص منسّق"
 
+#: src/editor/toolbar/useMenuOnlyItems.ts
+msgid "Convert quotes and dashes"
+msgstr "تحويل علامات الاقتباس والشرطات"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Convert Quotes and Dashes"
+msgstr "تحويل علامات الاقتباس والشرطات"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Convert to styled text"
 msgstr "تحويل إلى نص منسّق"
+
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "Converted quotes and dashes in the selection"
+msgstr "تم تحويل علامات الاقتباس والشرطات في التحديد"
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copied"
@@ -3544,6 +3556,10 @@ msgstr "لا يوجد اختصار يطابق “{0}”."
 msgid "No status"
 msgstr "بلا حالة"
 
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "No straight quotes or dashes to convert in the selection"
+msgstr "لا توجد علامات اقتباس مستقيمة أو شرطات للتحويل في التحديد"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr "لا نص بعد"
@@ -4872,6 +4888,10 @@ msgstr "ملفات صغيرة، نحو 14 ميغابايت للساعة. تعم�
 msgid "Smaller text"
 msgstr "نص أصغر"
 
+#: src/app/settings/SettingsSections.tsx
+msgid "Smart quotes and dashes"
+msgstr "علامات اقتباس وشرطات طباعية"
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
 msgstr "اسم اللقطة"
@@ -5698,6 +5718,10 @@ msgstr "إعادة المحاولة"
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
 msgstr "إعادة محاولة تنزيل {0}"
+
+#: src/app/settings/SettingsSections.tsx
+msgid "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
+msgstr "يحوّل علامات الاقتباس المستقيمة و-- و... إلى رموز طباعية أثناء الكتابة. متوقف افتراضيًا."
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"

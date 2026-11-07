@@ -1598,9 +1598,21 @@ msgstr "Converti"
 msgid "Convert HTML in Selection to Styled Text"
 msgstr "Converti l’HTML della selezione in testo formattato"
 
+#: src/editor/toolbar/useMenuOnlyItems.ts
+msgid "Convert quotes and dashes"
+msgstr "Converti virgolette e trattini"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Convert Quotes and Dashes"
+msgstr "Converti virgolette e trattini"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Convert to styled text"
 msgstr "Converti in testo formattato"
+
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "Converted quotes and dashes in the selection"
+msgstr "Virgolette e trattini della selezione convertiti"
 
 #: src/app/dialogs/ImportReportDialog.tsx
 msgid "Copied"
@@ -3544,6 +3556,10 @@ msgstr "Nessuna scorciatoia corrisponde a “{0}”."
 msgid "No status"
 msgstr "Nessuno stato"
 
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "No straight quotes or dashes to convert in the selection"
+msgstr "Nella selezione non ci sono virgolette dritte o trattini da convertire"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr "Ancora nessun testo"
@@ -4872,6 +4888,10 @@ msgstr "File piccoli, circa 14 MB all’ora. Si ascolta su telefoni e lettori mo
 msgid "Smaller text"
 msgstr "Testo più piccolo"
 
+#: src/app/settings/SettingsSections.tsx
+msgid "Smart quotes and dashes"
+msgstr "Virgolette e trattini tipografici"
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
 msgstr "Nome dell’istantanea"
@@ -5698,6 +5718,10 @@ msgstr "Riprova"
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
 msgstr "Riprova a scaricare {0}"
+
+#: src/app/settings/SettingsSections.tsx
+msgid "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
+msgstr "Trasforma le virgolette dritte, -- e ... in segni tipografici mentre scrivi. Disattivato per impostazione predefinita."
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"

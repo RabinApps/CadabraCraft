@@ -11,6 +11,8 @@ import { TableCommands } from "./TableCommands";
 import { ImageDialog, LangDialog, LinkDialog } from "./ToolbarDialogs";
 import { useImageDialog } from "../useImageDialog";
 import { useLangDialog } from "../useLangDialog";
+import { useConvertQuotes } from "./useConvertQuotes";
+import { LiveNote } from "./LiveNote";
 import { useToolbarState } from "./useToolbarState";
 import { useMenuOnlyItems } from "./useMenuOnlyItems";
 import { useAlignItems } from "./useAlignItems";
@@ -25,12 +27,13 @@ export function Toolbar({ editor }: { editor: Editor }) {
   const c = () => editor.chain().focus();
   const { image, setImage, addImage, editImage, applyImage } = useImageDialog(editor, c);
   const lang = useLangDialog(editor, c);
+  const { note, actions } = useConvertQuotes(editor, lang);
 
   const { linkOpen, setLinkOpen, href, setHref, linkError, setLinkError, setLink, applyLink } =
     useLinkDialog(editor, c, s.link);
   const groups = useToolbarGroups(s, c, { setLink, addImage });
 
-  const menuOnly = useMenuOnlyItems(editor, s, c, lang, editImage);
+  const menuOnly = useMenuOnlyItems(editor, s, c, actions, editImage);
   const { alignNow, alignItems } = useAlignItems(s, c);
 
   useRegisterToolbarCommands(groups.flat(), menuOnly, alignItems, alignNow);
@@ -111,6 +114,7 @@ export function Toolbar({ editor }: { editor: Editor }) {
           <MoreFormatting sections={moreSections} tabStop={stopId === MORE} />
         </div>
       </div>
+      <LiveNote text={note} />
       <ImageDialog
         image={image}
         setImage={(next) => {
