@@ -21,17 +21,25 @@ const wordChar = /[\p{L}\p{N}\p{M}]/u;
 // eslint-disable-next-line no-control-regex -- the range is the ASCII check on purpose
 const ascii = /^[\x00-\x7f]*$/;
 
+const straightQuote: Record<string, string> = {
+  "‘": "'",
+  "’": "'",
+  "“": '"',
+  "”": '"',
+};
+
 /**
  * Simple, locale-independent case folding that never changes the string length, so offsets in the folded text are
  * offsets in the original. Works per code point (no final-sigma or Turkish-dotted-I context): a code point whose
- * lowercase is a different length stays as it is. Accents and curly quotes are untouched (no normalization).
+ * lowercase is a different length stays as it is. Accents are untouched (no normalization). Curly quotes fold to the
+ * straight ones (one code unit each), so a search typed with ' or " finds smart quotes, and the other way round.
  */
 export function fold(text: string): string {
   if (ascii.test(text)) return text.toLowerCase();
   let out = "";
   for (const ch of text) {
     const lower = ch.toLowerCase();
-    out += lower.length === ch.length ? lower : ch;
+    out += straightQuote[ch] ?? (lower.length === ch.length ? lower : ch);
   }
   return out;
 }

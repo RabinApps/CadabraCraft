@@ -56,3 +56,13 @@ describe("page zoom preference", () => {
     expect(saved).not.toHaveProperty("writingWidth");
   });
 });
+
+describe("smart typography preference", () => {
+  it("is off by default, also for settings saved before it existed, and is app-wide", async () => {
+    expect((await load(undefined)).useSettings.getState().smartTypography).toBe(false);
+    expect((await load(base)).useSettings.getState().smartTypography).toBe(false);
+    const { useSettings, data } = await load(base);
+    useSettings.getState().set({ smartTypography: true });
+    expect(JSON.parse(data.get(KEY)!)).toMatchObject({ smartTypography: true });
+  });
+});

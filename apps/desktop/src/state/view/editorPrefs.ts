@@ -54,10 +54,14 @@ export const PAGE_ZOOM_CHOICES: readonly PageZoom[] = ["fit", 0.75, 1, 1.25];
 export const cleanPageZoom = (v: unknown): PageZoom =>
   PAGE_ZOOM_CHOICES.includes(v as PageZoom) ? (v as PageZoom) : "fit";
 
+/** A stored smart typography switch; off unless it is exactly true. */
+export const cleanSmartTypography = (v: unknown): boolean => v === true;
+
 interface Prefs {
   /** Voice id preselected in the audiobook export; "" picks the first installed. */ audioVoice: string;
   /** Formats preselected in the audiobook export. */ audioFormats: AudioFormat[];
   typewriterScroll: boolean;
+  /** Quotes, dashes and the ellipsis become their typographic glyphs as the author types (app-wide, off by default). */ smartTypography: boolean;
   /** Words to write per session; 0 turns the goal off. */ sessionGoal: number;
   /** What pasting text that contains HTML tags does. */ rawHtmlPaste: RawHtmlPaste;
   /** Snapshots kept per page. */ snapshotKeep: number;
@@ -66,6 +70,7 @@ interface Prefs {
 }
 const defaults: Prefs = {
   typewriterScroll: false,
+  smartTypography: false,
   sessionGoal: 0,
   rawHtmlPaste: "ask",
   snapshotKeep: SNAPSHOT_KEEP_DEFAULT,
@@ -85,6 +90,7 @@ function parsePrefs(v: unknown): Prefs | null {
   if (o && typeof o.typewriterScroll === "boolean") {
     return {
       typewriterScroll: o.typewriterScroll,
+      smartTypography: cleanSmartTypography(o.smartTypography),
       sessionGoal: cleanGoal(o.sessionGoal),
       rawHtmlPaste: cleanRawHtmlPaste(o.rawHtmlPaste),
       snapshotKeep: cleanSnapshotKeep(o.snapshotKeep),
@@ -104,6 +110,7 @@ export const useSettings = createPersistedStore<Prefs>({
   parse: parsePrefs,
   clean: (p) => ({
     typewriterScroll: p.typewriterScroll,
+    smartTypography: cleanSmartTypography(p.smartTypography),
     sessionGoal: cleanGoal(p.sessionGoal),
     rawHtmlPaste: cleanRawHtmlPaste(p.rawHtmlPaste),
     snapshotKeep: cleanSnapshotKeep(p.snapshotKeep),
