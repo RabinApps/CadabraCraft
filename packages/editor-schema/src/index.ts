@@ -8,3 +8,4 @@ export * from "./alignment";
 export { EDITOR_KEY_COMMANDS, shortcutRemap } from "./keys";
 export * from "./extensions";
 export * from "./validate";
+export * from "./typography";

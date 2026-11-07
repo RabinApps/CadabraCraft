@@ -1626,9 +1626,21 @@ msgstr "Umwandeln"
 msgid "Convert HTML in Selection to Styled Text"
 msgstr "HTML in der Auswahl in formatierten Text umwandeln"
 
+#: src/editor/toolbar/useMenuOnlyItems.ts
+msgid "Convert quotes and dashes"
+msgstr "Anführungszeichen und Striche umwandeln"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Convert Quotes and Dashes"
+msgstr "Anführungszeichen und Striche umwandeln"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Convert to styled text"
 msgstr "In formatierten Text umwandeln"
+
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "Converted quotes and dashes in the selection"
+msgstr "Anführungszeichen und Striche der Auswahl umgewandelt"
 
 #: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "Copied"
@@ -3594,6 +3606,10 @@ msgstr "Kein Tastenkürzel passt zu „{0}“."
 msgid "No status"
 msgstr "Kein Status"
 
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "No straight quotes or dashes to convert in the selection"
+msgstr "In der Auswahl gibt es keine geraden Anführungszeichen oder Striche zum Umwandeln"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr "Noch kein Text"
@@ -4927,6 +4943,10 @@ msgstr "Kleine Dateien, etwa 14 MB pro Stunde. Läuft auf Smartphones und modern
 msgid "Smaller text"
 msgstr "Kleinerer Text"
 
+#: src/app/settings/SettingsSections.tsx
+msgid "Smart quotes and dashes"
+msgstr "Typografische Anführungszeichen und Striche"
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
 msgstr "Name des Schnappschusses"
@@ -5824,6 +5844,10 @@ msgstr "Erneut versuchen"
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
 msgstr "Download von {0} erneut versuchen"
+
+#: src/app/settings/SettingsSections.tsx
+msgid "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
+msgstr "Wandelt gerade Anführungszeichen, -- und ... beim Tippen in typografische Zeichen um. Standardmäßig aus."
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"

@@ -46,6 +46,8 @@ test("every preference control saves and the section buttons scroll", async ({ p
     await sections.getByRole("button", { name }).click();
 
   await page.getByRole("switch", { name: "Typewriter scrolling" }).click();
+  await page.getByRole("switch", { name: "Smart quotes and dashes" }).click();
+  await expect(page.getByRole("switch", { name: "Smart quotes and dashes" })).toBeChecked();
   await page.getByLabel("Session word goal").fill("500");
   await page.getByLabel("When pasting HTML").selectOption("convert");
   await page.getByRole("switch", { name: "Check for updates on launch" }).click();

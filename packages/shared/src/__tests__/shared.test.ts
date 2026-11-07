@@ -93,6 +93,14 @@ describe("errMsg", () => {
 });
 
 describe("countWords", () => {
+  it("keeps words with a curly apostrophe or dash whole", () => {
+    const doc = (t: string) => ({
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: t }] }],
+    });
+    expect(countWords(doc("don’t ’tis rock’n’roll “Hi,” she said—twice"))).toBe(6);
+    expect(countWords(doc("“Hello,” … ‘yes’ – no"))).toBe(5);
+  });
   it("ignores non-object input and malformed children", () => {
     expect(countWords(null)).toBe(0);
     expect(countWords("x")).toBe(0);

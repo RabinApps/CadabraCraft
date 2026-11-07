@@ -55,6 +55,22 @@ describe("useSettings with a damaged or unavailable store", () => {
     expect(() => bad.useSettings.getState().set({ rawHtmlPaste: "text" })).not.toThrow();
     expect(bad.useSettings.getState().rawHtmlPaste).toBe("text");
   });
+  it("keeps smart typography off unless it is exactly true, and persists a change", async () => {
+    expect((await load(JSON.stringify(good))).useSettings.getState().smartTypography).toBe(false);
+    for (const bad of ["true", 1, null, [], {}, "yes"]) {
+      const { useSettings } = await load(JSON.stringify({ ...good, smartTypography: bad }));
+      expect(useSettings.getState()).toMatchObject({
+        typewriterScroll: true,
+        smartTypography: false,
+      });
+    }
+    const on = await load(JSON.stringify({ ...good, smartTypography: true }));
+    expect(on.useSettings.getState().smartTypography).toBe(true);
+    on.useSettings.getState().set({ sessionGoal: 7 });
+    expect(JSON.parse(on.data.get(KEY)!).smartTypography).toBe(true);
+    on.useSettings.getState().set({ smartTypography: "x" as unknown as boolean });
+    expect(JSON.parse(on.data.get(KEY)!).smartTypography).toBe(false);
+  });
   it("cleans stored shortcut changes and keeps them across a save", async () => {
     const { useSettings, data } = await load(
       JSON.stringify({

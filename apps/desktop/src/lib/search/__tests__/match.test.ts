@@ -22,10 +22,17 @@ describe("findInText", () => {
     ]);
   });
 
-  it("treats accents and curly quotes literally", () => {
+  it("treats accents literally", () => {
     expect(find("café cafe", "cafe")).toEqual(["cafe"]);
-    expect(find("it’s it's", "it's")).toEqual(["it's"]);
     expect(find("ÉCOLE école", "école")).toEqual(["ÉCOLE", "école"]);
+  });
+
+  it("treats straight and curly quotes as equal, with the offsets unchanged", () => {
+    expect(find("it’s it's", "it's")).toEqual(["it’s", "it's"]);
+    expect(find("it’s it's", "it’s")).toEqual(["it’s", "it's"]);
+    expect(find('‘hi’ “hi” "hi"', '"hi"')).toEqual(["“hi”", '"hi"']);
+    expect(find("‘hi’ “hi”", "'hi'")).toEqual(["‘hi’"]);
+    expect(find("‘x’", "’x‘", { matchCase: true })).toEqual([]);
   });
 
   it("never interprets the query as a regex", () => {

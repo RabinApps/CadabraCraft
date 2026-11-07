@@ -1,7 +1,12 @@
 import { useRef } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
-import { chapterJson, extensions, shortcutRemap } from "@cadabracraft/editor-schema";
+import {
+  chapterJson,
+  extensions,
+  shortcutRemap,
+  SmartTypography,
+} from "@cadabracraft/editor-schema";
 import { editorRemap } from "../app/settings/shortcutBindings";
 import type { ChapterDoc } from "@cadabracraft/shared";
 import { useSettings } from "../state/view/editorPrefs";
@@ -52,6 +57,9 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
     usePasteFlow();
   /** When a key last went down in the editor (typewriter scrolling follows the caret only for keys). */
   const lastKeyAt = useRef(0);
+  /** The edition language, read by the typing rules on every key so a change needs no new editor. */
+  const languageRef = useRef(language);
+  languageRef.current = language;
   const editor = useEditor({
     editable: !readOnly,
     // Keys the author moved in Settings > Shortcuts are read when the editor is made (the settings page replaces the editor).
@@ -60,6 +68,11 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
       Search,
       Pagination,
       TabKey,
+      // Smart quotes, dashes and ellipsis: always added, switched by the app setting and the language at each key (architecture.md, "Smart typography").
+      SmartTypography.configure({
+        enabled: () => useSettings.getState().smartTypography,
+        language: () => languageRef.current,
+      }),
       FootnoteA11y((n) => t`Footnote ${n}`),
       shortcutRemap(editorRemap(useSettings.getState().shortcutOverrides)),
     ],
