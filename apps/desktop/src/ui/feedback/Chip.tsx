@@ -7,7 +7,7 @@ interface ChipProps extends Omit<ComponentPropsWithRef<"button">, "type"> {
 }
 
 /** A small on/off option button, such as the Find bar's "Match case". */
-export function Chip({ pressed, className, ...rest }: ChipProps) {
+export function Chip({ pressed, className, children, ...rest }: ChipProps) {
   return (
     <button
       type="button"
@@ -20,6 +20,8 @@ export function Chip({ pressed, className, ...rest }: ChipProps) {
         className,
       )}
       {...rest}
-    />
+    >
+      {children}
+    </button>
   );
 }

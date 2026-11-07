@@ -6,3 +6,5 @@ allowBuilds:
   es5-ext: false
   esbuild: true
   unrs-resolver: false
+minimumReleaseAgeExclude:
+  - '@eleven-hits/a11ylens@1.0.0'
