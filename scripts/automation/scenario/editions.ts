@@ -93,7 +93,11 @@ async function editionsPart2(ctx: Context) {
       await app.sleep(400);
       await pick("English");
       await app.sleep(1200);
-      assert(!(await editorText()).includes("Bonjour"), "the English page shows French text");
+      // The English chapter has "Bonjour tout le monde." (marked French by an earlier step), so look for the French edition's own text.
+      assert(
+        !(await editorText()).includes("Bonjour le monde"),
+        "the English page shows French text",
+      );
       await openSwitcher();
       await app.sleep(400);
       await pick("Français");
@@ -127,11 +131,13 @@ async function editionsPart2(ctx: Context) {
       const m = manifest().chapters[0];
       const read = (lang: string) => readFileSync(join(book, m.files[lang]), "utf8");
       const count = (lang: string, needle: string) => read(lang).split(needle).length - 1;
+      const enBefore = count("en", "Bonjour");
       // English (the open edition) gets the word the French page already has.
       await app.js(
         `(() => { const ed = document.querySelector('.ProseMirror'); ed.focus(); const s = getSelection(); s.selectAllChildren(ed); s.collapseToEnd(); document.execCommand('insertText', false, ' Bonjour partout.'); })()`,
       );
-      for (let i = 0; i < 20 && count("en", "Bonjour") === 0; i++) await app.sleep(500);
+      // The English page may already hold "Bonjour" (marked French by an earlier step): wait for the typed one to be saved.
+      for (let i = 0; i < 20 && count("en", "Bonjour") <= enBefore; i++) await app.sleep(500);
       const en = count("en", "Bonjour");
       const fr = count("fr", "Bonjour");
       assert(en >= 1 && fr >= 1, `expected Bonjour in both editions (en ${en}, fr ${fr})`);
@@ -157,7 +163,7 @@ async function editionsPart2(ctx: Context) {
       );
       assert(
         count("en", "Salut") === en && count("fr", "Salut") === fr,
-        "wrong replacement counts",
+        `wrong replacement counts: en ${count("en", "Salut")} of ${en}, fr ${count("fr", "Salut")} of ${fr}`,
       );
       await app.js(
         `document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`,

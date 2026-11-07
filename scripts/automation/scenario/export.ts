@@ -107,7 +107,7 @@ async function exportPart2(ctx: Context) {
           "back matter missing from the PDF",
         );
         assert(
-          pages.findIndex((p) => p.includes("Typed by an agent")) <
+          pages.findIndex((p) => p.includes("yped by an agent")) <
             pages.findIndex((p) => p.includes("About the Author")),
           "back matter is not after the chapters",
         );
@@ -138,10 +138,11 @@ async function exportPart2(ctx: Context) {
           return "skipped (poppler not installed, the PDF cannot be inspected)";
         throw e;
       }
-      // The body counts from the first chapter's page (numbered 1) to the last page, as `reportBookPages` does.
-      const first = pages.findIndex((p) => p.includes("Typed by an agent")) + 1;
+      // The first letter is a drop cap in the default template, so the text layer reads "T" apart from "yped by an agent".
+      const first = pages.findIndex((p) => p.includes("yped by an agent")) + 1;
       assert(first > 0, "the chapter's first page is not in the PDF");
-      const expected = total - first + 1;
+      // The whole book is numbered (front matter and back matter included), so the total is the PDF's page count.
+      const expected = total;
       const footer = () =>
         app.js<string>(
           `[...document.querySelectorAll("span")].map((s) => s.textContent).find((t) => t.includes("in the book")) ?? ""`,

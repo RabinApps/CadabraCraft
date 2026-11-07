@@ -198,7 +198,7 @@ async function pdfAndDetailsPart3(ctx: Context) {
       await app.click("All chapters");
       await app.sleep(900);
       const rows = await app.js<string>(
-        `[...document.querySelectorAll('[aria-label="Find and replace"] button')].map((b) => b.getAttribute("aria-label") ?? "").filter((l) => /match/.test(l)).join("|")`,
+        `[...document.querySelectorAll('[aria-label="Results by page"] button')].map((b) => (b.textContent ?? "").trim()).join("|")`,
       );
       assert(
         /Front matter: .*1 match/.test(rows),
