@@ -1596,8 +1596,20 @@ msgstr ""
 msgid "Convert HTML in Selection to Styled Text"
 msgstr ""
 
+#: src/editor/toolbar/useMenuOnlyItems.ts
+msgid "Convert quotes and dashes"
+msgstr ""
+
+#: src/app/shell/native/menuModel.ts
+msgid "Convert Quotes and Dashes"
+msgstr ""
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Convert to styled text"
+msgstr ""
+
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "Converted quotes and dashes in the selection"
 msgstr ""
 
 #: src/app/dialogs/ImportReportDialog.tsx
@@ -3542,6 +3554,10 @@ msgstr ""
 msgid "No status"
 msgstr ""
 
+#: src/editor/toolbar/useConvertQuotes.ts
+msgid "No straight quotes or dashes to convert in the selection"
+msgstr ""
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr ""
@@ -4870,6 +4886,10 @@ msgstr ""
 msgid "Smaller text"
 msgstr ""
 
+#: src/app/settings/SettingsSections.tsx
+msgid "Smart quotes and dashes"
+msgstr ""
+
 #: src/app/dialogs/BookSnapshotsPanel.tsx
 msgid "Snapshot name"
 msgstr ""
@@ -5693,6 +5713,10 @@ msgstr ""
 #. placeholder {0}: f.family
 #: src/app/settings/FontsCatalogDialog.tsx
 msgid "Try again to download {0}"
+msgstr ""
+
+#: src/app/settings/SettingsSections.tsx
+msgid "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
 msgstr ""
 
 #: src/app/quicknav/CommandPalette.tsx

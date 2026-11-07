@@ -28,6 +28,7 @@ export function useToolbarState(editor: Editor) {
       definitionList: e.isActive("definitionList"),
       image: e.isActive("image"),
       align: textAlignAt(e),
+      hasSelection: !e.state.selection.empty,
       canUndo: e.can().undo(),
       canRedo: e.can().redo(),
     }),

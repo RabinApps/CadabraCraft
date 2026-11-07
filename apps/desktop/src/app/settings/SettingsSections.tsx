@@ -102,7 +102,7 @@ export function GeneralSection({ title }: { title: string }) {
 /** Settings > Editor: typewriter scrolling, session goal and HTML paste. */
 export function EditorSection({ title }: { title: string }) {
   const { t } = useLingui();
-  const { typewriterScroll, sessionGoal, rawHtmlPaste, set } = useSettings();
+  const { typewriterScroll, smartTypography, sessionGoal, rawHtmlPaste, set } = useSettings();
   return (
     <Section id="editor" title={title}>
       <Row
@@ -113,6 +113,17 @@ export function EditorSection({ title }: { title: string }) {
             label={t`Typewriter scrolling`}
             checked={typewriterScroll}
             onChange={(v) => set({ typewriterScroll: v })}
+          />
+        }
+      />
+      <Row
+        title={t`Smart quotes and dashes`}
+        hint={t`Turns straight quotes, -- and ... into typographic ones as you type. Off by default.`}
+        control={
+          <Switch
+            label={t`Smart quotes and dashes`}
+            checked={smartTypography}
+            onChange={(v) => set({ smartTypography: v })}
           />
         }
       />

@@ -1,5 +1,6 @@
 import type { Editor } from "@tiptap/core";
 import type { Mark } from "@tiptap/pm/model";
+import { closeHistory } from "@tiptap/pm/history";
 import { charBefore, textAfter } from "./context";
 import { convertText } from "./convertText";
 import { quoteStyle } from "./quoteStyle";
@@ -41,7 +42,8 @@ export function convertSelection(editor: Editor, language?: string): boolean {
     edits.push({ from, to, text, marks: node.marks });
     return true;
   });
-  const tr = editor.state.tr;
+  // Typing just before would otherwise share the undo step: one undo must give back only the conversion.
+  const tr = closeHistory(editor.state.tr);
   let changed = false;
   for (const e of edits.reverse()) {
     if (doc.textBetween(e.from, e.to) === e.text) continue;
