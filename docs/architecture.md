@@ -2235,3 +2235,15 @@ An earlier run on an older checkout gave 105 to 115 ms a key and 170 to 190 ms a
 - Not testable in Playwright: the operating system's drag. The tests send the events Tauri would send.
 
 **Saved notice.** `saveCurrent` shows "Saved" only when no other notice is showing and clears it two seconds after the latest save, only if the notice is still exactly that text (`SAVED_NOTICE_MS`, one timer restarted by each save). A conflict-copy notice (chapter save, `writePage`, `saveManifest`) is set as before, is never replaced by "Saved" and stays until dismissed. Rejected: a general notice timeout (failures must stay).
+
+## A11yLens as an extra accessibility gate (2026-11-07)
+
+**Decision:** `@eleven-hits/a11ylens` 1.0.0 (MIT, pinned exactly) is a root devDependency. It is a Node CLI with no programmatic API, so we run it as a command and read its JSON. Two gates use it. `scripts/a11ylens/app-gate.test.mjs` scans the source of `apps/desktop/src` and `apps/website` (repo config in `.a11ylensrc.json`: no errors, score at least 95). `e2e/a11y/a11y-lens.spec.ts` runs its rendered mode (axe plus accessibility tree) against the dev server's pre-backend shell. The CLI's own behaviour (exit codes, formats, config, baseline, rule fixtures) is covered by `scripts/a11ylens/*.test.mjs`, run by `pnpm test:scripts`, so a version bump that changes it fails loudly. It is dev-only and local: it makes no network calls and ships nothing in the app. It adds checks the other engines lack (React source rules such as icon-only buttons, a reading-order and keyboard-walk pass), and its score is heuristic, not a WCAG conformance claim. The rendered mode only sees the shell because the Tauri backend is faked inside Playwright pages; app screens stay covered by the axe, IBM and CodeSniffer sweeps.
+
+**Supply chain:** the package is new, so pnpm added it to `minimumReleaseAgeExclude` in `pnpm-workspace.yaml` for this one version. Remove the entry once the version is old enough, and review the package's source and its three dependencies (`@babel/parser`, `axe-core`, `parse5`) before bumping.
+
+| Rejected                           | Why                                                                                                                  |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Rely on axe, IBM and HTMLCS only   | None of them reads component source, so an icon-only button in a `.tsx` file is found only when a screen renders it. |
+| Pa11y or Lighthouse CI as the gate | Both need a rendered page for everything; Lighthouse adds a large dependency for a subset of axe's rules.            |
+| Treat its score as conformance     | The tool says it is not one; the gate keeps a floor, and the manual screen reader tests stay.                        |
