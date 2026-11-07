@@ -62,7 +62,7 @@ export default tseslint.config(
   {
     files: [
       // Scroll regions are focusable so keyboard users can scroll them.
-      "apps/desktop/src/app/dialogs/ImportReportDialog.tsx",
+      "apps/desktop/src/app/dialogs/import/ImportReportDialog.tsx",
       "apps/desktop/src/app/dialogs/LicensesDialog.tsx",
     ],
     rules: { "jsx-a11y/no-noninteractive-tabindex": "off" },

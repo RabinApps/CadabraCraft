@@ -3,11 +3,11 @@ import * as D from "@radix-ui/react-dialog";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { Copy } from "lucide-react";
-import { Badge } from "../../ui/feedback/Badge";
-import { Button } from "../../ui/Button";
-import { overlayClass, panelClass } from "../../ui/Dialog";
-import { formatReport, groupWarnings } from "../../lib/import/importBook";
-import { useProject } from "../../state/project/index";
+import { Badge } from "../../../ui/feedback/Badge";
+import { Button } from "../../../ui/Button";
+import { overlayClass, panelClass } from "../../../ui/Dialog";
+import { formatReport, groupWarnings } from "../../../lib/import/importBook";
+import { useProject } from "../../../state/project/index";
 
 /** Shown after an import: chapter and image counts, and warnings grouped by code. */
 export function ImportReportDialog() {

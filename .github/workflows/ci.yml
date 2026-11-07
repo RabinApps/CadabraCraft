@@ -1,7 +1,15 @@
 name: ci
-on: [push, pull_request, workflow_call]
+on:
+  push:
+    branches: [main] # a PR branch is tested by its pull_request run; a push run as well would double the load and collide on e2e port 1420
+  pull_request:
+  workflow_call:
 permissions:
   contents: read
+# A new push to a PR cancels that PR's older run. Runs on main and runs called from release.yml are never cancelled.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   js:
     strategy:
@@ -37,6 +45,7 @@ jobs:
           done
           exit 1
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with: { dest: "~/setup-pnpm-${{ runner.name }}" } # one folder per runner: jobs sharing ~/setup-pnpm overwrite each other
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 26, cache: pnpm }
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
@@ -107,15 +116,16 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Linux deps (pnpm binary, LibreOffice)
+      - name: Linux deps (pnpm binary, LibreOffice, unzip for veraPDF)
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
           for i in 1 2 3 4 5; do
-            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends libreoffice-writer && exit 0
+            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 unzip && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends libreoffice-writer && exit 0
             sleep $((i * 5))
           done
           exit 1
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with: { dest: "~/setup-pnpm-${{ runner.name }}" } # one folder per runner: jobs sharing ~/setup-pnpm overwrite each other
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 26, cache: pnpm }
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
@@ -168,8 +178,14 @@ jobs:
           done
           exit 1
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with: { dest: "~/setup-pnpm-${{ runner.name }}" } # one folder per runner: jobs sharing ~/setup-pnpm overwrite each other
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 26, cache: pnpm }
+      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs.
+      - run: |
+          echo "RUSTUP_HOME=$HOME/.rustup-$RUNNER_NAME" >> "$GITHUB_ENV"
+          echo "CARGO_HOME=$HOME/.cargo-$RUNNER_NAME" >> "$GITHUB_ENV"
+        shell: bash
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
       - run: pnpm install --frozen-lockfile
       - run: cargo install --locked cargo-deny@0.20.2
@@ -196,8 +212,14 @@ jobs:
           done
           exit 1
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with: { dest: "~/setup-pnpm-${{ runner.name }}" } # one folder per runner: jobs sharing ~/setup-pnpm overwrite each other
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 26, cache: pnpm }
+      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs.
+      - run: |
+          echo "RUSTUP_HOME=$HOME/.rustup-$RUNNER_NAME" >> "$GITHUB_ENV"
+          echo "CARGO_HOME=$HOME/.cargo-$RUNNER_NAME" >> "$GITHUB_ENV"
+        shell: bash
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/fetch-typst.sh
@@ -231,6 +253,11 @@ jobs:
             sleep $((i * 5))
           done
           exit 1
+      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs.
+      - run: |
+          echo "RUSTUP_HOME=$HOME/.rustup-$RUNNER_NAME" >> "$GITHUB_ENV"
+          echo "CARGO_HOME=$HOME/.cargo-$RUNNER_NAME" >> "$GITHUB_ENV"
+        shell: bash
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         if: runner.os == 'Linux'

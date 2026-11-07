@@ -9,6 +9,7 @@ import { useProject } from "../../state/project/index";
 import { attempt } from "../../state/attempt";
 import type { HistoryPage } from "../dialogs/HistoryDialog";
 import type { IconPage } from "../dialogs/IconDialog";
+import type { SplitPage } from "../dialogs/SplitChapterDialog";
 import { EntryRow } from "./entries/EntryRow";
 
 export type Editing = { id: string } | null;
@@ -25,6 +26,7 @@ export interface ListProps {
   setDeleting: (d: { id: string; title: string }) => void;
   setHistory: (p: HistoryPage) => void;
   setIcon: (p: IconPage) => void;
+  setSplit: (p: SplitPage) => void;
   onNavigate?: () => void;
   /** What sits indented under a row (a chapter's scenes); it shows for the rows in `openRows`. */
   underRow?: (id: string) => ReactNode;
@@ -156,6 +158,7 @@ export function EntryList({
   setDeleting,
   setHistory,
   setIcon,
+  setSplit,
   onNavigate,
   underRow,
   openRows,
@@ -178,6 +181,7 @@ export function EntryList({
     setDeleting,
     setHistory,
     setIcon,
+    setSplit,
     onNavigate,
     underRow,
     onToggleRow,

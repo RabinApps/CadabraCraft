@@ -130,9 +130,10 @@ export interface HistoryEntry {
   /** A text edit across pages (Replace all in the whole book): the pages' file text before and after. `before` and `after` trees are equal. */
   docs?: { file: string; before: string; after: string }[];
   /**
-   * An import into the open book: the new chapters' source-language files (the trees differ by those chapters). Undo saves the
-   * `before` tree and then moves each file to the trash (`trashPath`); redo brings them back and saves the `after` tree.
-   * Pictures stay in assets/.
+   * An import into the open book, or a split of a chapter: the new chapters' source-language files (the trees differ by those
+   * chapters). Undo saves the `before` tree and then moves each file to the trash (`trashPath`); redo brings them back and
+   * saves the `after` tree. Pictures stay in assets/. A split also carries `docs` (the shortened chapter and its comments):
+   * undo writes their `before` text first, redo writes the `after` text last, so the text is never in neither place.
    */
   imported?: { path: string; trashPath?: string }[];
 }
@@ -410,6 +411,15 @@ export interface PageActions {
   /** Lets a front or back matter page start on the next page, left-hand page or not (true), or puts it back under the book's rules (null). Undoable. */
   setStartOnNext: (id: string, startOnNext: boolean | null) => Promise<void>;
   remove: (id: string) => Promise<void>;
+  /**
+   * Cuts chapter `id` before the top-level heading at `block` of its content (a place `splitPoints` lists) and adds the
+   * rest as a new chapter, titled `title` (blank: the heading's text), right after it, in the same part. Saves unsaved
+   * typing first, keeps every block, image reference, footnote and comment (the threads move with their text), writes
+   * the new files before the list and the shortened chapter last, and records ONE book undo step. Resolves to the new
+   * chapter's id and opens it. Throws, changing nothing, for a book with translations, a page that is not a chapter and a
+   * place that is not a heading.
+   */
+  splitChapter: (id: string, block: number, title: string) => Promise<string>;
   /** Every page in reading order (of `language`, default the open edition) with its chapter document, for previews and checks. Reads the files from disk; unsaved typing is flushed first. */
   readPages: (language?: string) => Promise<BookPage[]>;
   /** Words in all chapters (front and back matter excluded). Pages whose file is unchanged since they were last counted are not read again; the open page is counted from memory. */

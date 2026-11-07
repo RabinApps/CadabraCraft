@@ -58,6 +58,30 @@ const withSnapshot = async (page: Page) => {
 /** Dialogs, panels and shell states added for the second accessibility sweep. */
 export const moreScreens: Screen[] = [
   {
+    name: "Split chapter dialog",
+    open: async (p) => {
+      await newProject(p);
+      await p.evaluate(() => {
+        window.__disk["manuscript/001-chapter-one.json"] = JSON.stringify({
+          type: "doc",
+          content: [
+            {
+              type: "heading",
+              attrs: { level: 1 },
+              content: [{ type: "text", text: "Chapter One" }],
+            },
+            { type: "paragraph", content: [{ type: "text", text: "Intro." }] },
+            { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Next" }] },
+            { type: "paragraph", content: [{ type: "text", text: "More." }] },
+          ],
+        });
+      });
+      await p.getByRole("button", { name: "Actions for Chapter One" }).click();
+      await p.getByRole("menuitem", { name: "Split at heading…" }).click();
+      await shown(dialogOf(p, "Split “Chapter One”").getByRole("radio", { name: "Next" }));
+    },
+  },
+  {
     name: "Read mode, find bar with results",
     open: async (p) => {
       await newProject(p);

@@ -8,6 +8,7 @@ import {
   History,
   Layers,
   Pencil,
+  Scissors,
   Shapes,
   Trash2,
 } from "lucide-react";
@@ -18,6 +19,7 @@ import { useProject } from "../../../state/project/index";
 import { attempt } from "../../../state/attempt";
 import type { HistoryPage } from "../../dialogs/HistoryDialog";
 import type { IconPage } from "../../dialogs/IconDialog";
+import type { SplitPage } from "../../dialogs/SplitChapterDialog";
 import { ChoiceGroup } from "./ChoiceGroup";
 
 interface RowMenuProps {
@@ -34,6 +36,7 @@ interface RowMenuProps {
   setDeleting: (d: { id: string; title: string }) => void;
   setHistory: (p: HistoryPage) => void;
   setIcon: (p: IconPage) => void;
+  setSplit: (p: SplitPage) => void;
 }
 
 /** Runs the action waiting for the menu to close (Rename, History, Trash), and gives focus back to the menu button first. */
@@ -166,7 +169,7 @@ function MoveItems({
   );
 }
 
-/** The "..." menu of one row: rename, icon, part, move, first letter, vertical position, page start, history and trash. */
+/** The "..." menu of one row: rename, icon, part, split at a heading, move, first letter, vertical position, page start, history and trash. */
 export function RowMenu({
   row: c,
   index: i,
@@ -180,6 +183,7 @@ export function RowMenu({
   setDeleting,
   setHistory,
   setIcon,
+  setSplit,
 }: RowMenuProps) {
   const { t } = useLingui();
   const actions = useProject((s) => s.actions);
@@ -226,6 +230,15 @@ export function RowMenu({
             >
               <Layers size={14} aria-hidden />
               {t`Start part here`}
+            </M.Item>
+          )}
+          {chapters && c.kind === undefined && (
+            <M.Item
+              className={menuItemClass()}
+              onSelect={moveFocus(() => setSplit({ id: c.id, title: c.title, file: c.file }))}
+            >
+              <Scissors size={14} aria-hidden />
+              {t`Split at heading…`}
             </M.Item>
           )}
           <MoveItems row={c} index={i} last={last} partIndexes={partIndexes} step={step} />

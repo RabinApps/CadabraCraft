@@ -1,5 +1,5 @@
 import { Suspense, lazy, useState, type ComponentProps } from "react";
-import { useProject } from "../../state/project/index";
+import { useProject } from "../../../state/project/index";
 
 // The import dialogs pull in the .docx, Markdown and outline parsers (several hundred KB), so they load the first time
 // one is opened instead of with the app.

@@ -175,7 +175,7 @@ test.describe("2.5.2 pointer cancellation", () => {
     // Reorder grips (TocRow, ReferenceRow, ImportChapterList, EntryList, SceneCard) only pick the row up: the move is committed on release, with Escape to cancel.
     expect(found.map((l) => l.split(":")[0]).sort()).toEqual([
       "src/app/board/SceneCard.tsx",
-      "src/app/dialogs/ImportChapterList.tsx",
+      "src/app/dialogs/import/ImportChapterList.tsx",
       "src/app/references/ReferenceRow.tsx",
       "src/app/shell/entries/EntryRow.tsx",
       "src/app/shell/sidebar/SidebarResizeHandle.tsx",

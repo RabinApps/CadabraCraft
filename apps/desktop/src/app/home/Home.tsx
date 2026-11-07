@@ -18,7 +18,7 @@ import { Select } from "../../ui/forms/Select";
 import { trimLabel } from "../../lib/export/trimLabels";
 import { useStartDialogs } from "../../state/app/commands";
 import type { ImportChoices } from "../../lib/import/importBook";
-import { ImportDialog } from "../dialogs/LazyImportDialogs";
+import { ImportDialog } from "../dialogs/import/LazyImportDialogs";
 import { newest, useRecents, type Recent } from "../../state/app/recents";
 import { useLibraryOpen } from "../../state/app/library";
 import { Library } from "../library/Library";
