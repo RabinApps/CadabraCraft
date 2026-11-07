@@ -60,6 +60,14 @@ async function startApp(args: string[], repo: string) {
     }
   }
   const app: App = launched ?? (await connect());
+  // The bridge listens before a cold dev server has served the page: wait for the first screen so the first step does not race it.
+  for (let i = 0; i < 60; i++) {
+    const buttons = await app
+      .js<number>(`document.querySelectorAll("button").length`)
+      .catch(() => 0);
+    if (buttons > 0) break;
+    await new Promise((r) => setTimeout(r, 1000));
+  }
   return { app, child };
 }
 

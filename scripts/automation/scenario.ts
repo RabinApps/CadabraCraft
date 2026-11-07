@@ -13,6 +13,11 @@ import { pdfAndDetailsSteps } from "./scenario/pdf-and-details.ts";
 import { publishingDetailsSteps } from "./scenario/publishing-details.ts";
 import { findAndHistorySteps } from "./scenario/find-and-history.ts";
 import { editionsSteps } from "./scenario/editions.ts";
+import { featureBookSteps } from "./scenario/feature-book.ts";
+import { importUndoSteps } from "./scenario/import-undo.ts";
+import { snapshotSteps } from "./scenario/snapshots.ts";
+import { filterSteps } from "./scenario/filters.ts";
+import { typographySteps } from "./scenario/typography.ts";
 import { importAndCloseSteps } from "./scenario/import-and-close.ts";
 import { referencesSteps } from "./scenario/references.ts";
 import { chapterIconsSteps } from "./scenario/chapter-icons.ts";
@@ -33,6 +38,12 @@ try {
   await findAndHistorySteps(ctx);
   await chapterIconsSteps(ctx);
   await editionsSteps(ctx);
+  // A second book for the newer features; the first one has a French edition by now, which turns splitting off.
+  await featureBookSteps(ctx);
+  await importUndoSteps(ctx);
+  await snapshotSteps(ctx);
+  await filterSteps(ctx);
+  await typographySteps(ctx);
   await importAndCloseSteps(ctx);
 } catch {
   process.exitCode = 1;

@@ -12,7 +12,7 @@ pnpm automation:scenario                      # launches the app, runs the whole
 node scripts/automation/scenario.ts --launch --out /tmp/run1   # keep the artifacts somewhere you choose
 ```
 
-The scenario creates a project, types, applies formatting, inserts an image, exports EPUB (then runs EPUBCheck), exports a 6x9 PDF (then checks page size), checks History (compare and restore an earlier version, with files seeded in `.cadabra/backups`) and the recovery offer on open, adds a French edition (typing lands in `manuscript/fr/`, an outside edit of that file reloads the page), and imports Markdown into a new project, asserting at each step. It writes `results.json` and screenshots to the output folder.
+The scenario creates a project, types, applies formatting, inserts an image, exports EPUB (then runs EPUBCheck), exports a 6x9 PDF (then checks page size), checks History (compare and restore an earlier version, with files seeded in `.cadabra/backups`) and the recovery offer on open, adds a French edition (typing lands in `manuscript/fr/`, an outside edit of that file reloads the page), and then, in a second book, snapshots the whole book (name, pin, rename, the keep limit moving the oldest automatic ones to `.cadabra/trash`, the compare view), imports into the open book and splits a chapter (each with book Undo and Redo), filters the scene board, types with smart typography on, converts quotes and dashes, and checks the Saved and conflict notices. It ends by importing Markdown into a new project, asserting at each step. It writes `results.json` and screenshots to the output folder.
 
 Two measurement scripts stay out of the scenario: `pnpm automation:measure-references` (video seeking, a ~500 MB import) and `pnpm automation:measure-large-chapter` (open, typing, autosave and memory with a 20k-word chapter; numbers in architecture.md, "Performance budgets").
 
@@ -29,6 +29,8 @@ node scripts/automation/cli.ts invoke read_project_file '{"root":"/path","path":
 ```
 
 `scripts/automation/client.ts` exports the same operations for scripts (`connect()` then `click`, `fill`, `snapshot`, `screenshot`, `queueDialogs`, `invoke`, `js`).
+
+Not covered by the native scenario: dropping a picture on the editor. The drop is an operating-system drag that Tauri turns into a window event, and Rust's `record_drop` is not a command, so neither half can be driven from the bridge (Playwright's `editor-file-drop.spec.ts` covers the editor's handling with a fake backend). Typing is covered with `execCommand("insertText")`, one piece at a time, which reaches the typing rules; real key events cannot be sent.
 
 ## Using the plugin's own MCP server
 
