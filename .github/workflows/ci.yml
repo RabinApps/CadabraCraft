@@ -173,6 +173,11 @@ jobs:
         with: { dest: "~/setup-pnpm-${{ runner.name }}" } # one folder per runner: jobs sharing ~/setup-pnpm overwrite each other
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 26, cache: pnpm }
+      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs.
+      - run: |
+          echo "RUSTUP_HOME=$HOME/.rustup-$RUNNER_NAME" >> "$GITHUB_ENV"
+          echo "CARGO_HOME=$HOME/.cargo-$RUNNER_NAME" >> "$GITHUB_ENV"
+        shell: bash
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
       - run: pnpm install --frozen-lockfile
       - run: cargo install --locked cargo-deny@0.20.2
@@ -202,6 +207,11 @@ jobs:
         with: { dest: "~/setup-pnpm-${{ runner.name }}" } # one folder per runner: jobs sharing ~/setup-pnpm overwrite each other
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 26, cache: pnpm }
+      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs.
+      - run: |
+          echo "RUSTUP_HOME=$HOME/.rustup-$RUNNER_NAME" >> "$GITHUB_ENV"
+          echo "CARGO_HOME=$HOME/.cargo-$RUNNER_NAME" >> "$GITHUB_ENV"
+        shell: bash
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/fetch-typst.sh
@@ -235,6 +245,11 @@ jobs:
             sleep $((i * 5))
           done
           exit 1
+      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs.
+      - run: |
+          echo "RUSTUP_HOME=$HOME/.rustup-$RUNNER_NAME" >> "$GITHUB_ENV"
+          echo "CARGO_HOME=$HOME/.cargo-$RUNNER_NAME" >> "$GITHUB_ENV"
+        shell: bash
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         if: runner.os == 'Linux'
