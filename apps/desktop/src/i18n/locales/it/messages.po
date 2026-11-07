@@ -228,7 +228,7 @@ msgstr "{0} esce dalla cartella del progetto tramite un collegamento simbolico. 
 
 #. placeholder {0}: written.chapters
 #. placeholder {1}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
 msgstr "{0} nuovi file di capitolo e {1} immagini sono stati salvati nella cartella del libro, ma l’elenco dei capitoli non è stato modificato."
 
@@ -853,7 +853,7 @@ msgstr "Già usato da “{owner}”. Premi un altro tasto."
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 msgstr "Già scritto in {0}: {1} file di capitoli e {2} immagini; l’elenco dei capitoli del libro non è stato salvato."
 
@@ -2663,13 +2663,13 @@ msgid "Image"
 msgstr "Immagine"
 
 #. placeholder {0}: a.sourcePath
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be imported: {why}. Add the picture to the page yourself after the import."
 msgstr "Impossibile importare l'immagine {0}: {why}. Aggiungi tu l'immagine alla pagina dopo l'importazione."
 
 #. placeholder {0}: img.name
 #. placeholder {1}: whyText(e)
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be stored: {1}. Add the picture to the page yourself after the import."
 msgstr "Impossibile salvare l'immagine {0}: {1}. Aggiungi tu l'immagine alla pagina dopo l'importazione."
 
@@ -2706,6 +2706,11 @@ msgstr "Immagini"
 #: src/app/dialogs/ImportSteps.tsx
 msgid "Import"
 msgstr "Importa"
+
+#. placeholder {0}: report.fileName
+#: src/state/project/book/open.ts
+msgid "Import {0}"
+msgstr "Importa {0}"
 
 #: src/app/settings/FontsSection.tsx
 msgid "Import a font file"
@@ -4179,9 +4184,9 @@ msgstr "Progetti recenti"
 msgid "Recover newer text for “{0}”?"
 msgstr "Recuperare il testo più recente di “{0}”?"
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Redid: {label}"
-msgstr ""
+msgstr "Ripetuto: {label}"
 
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useToolbarItems.ts
@@ -5372,6 +5377,7 @@ msgid "The page changed while searching, so nothing was replaced. Try again."
 msgstr "La pagina è cambiata durante la ricerca, quindi non è stato sostituito nulla. Riprova."
 
 #: src/state/project/travel/entries.ts
+#: src/state/project/travel/imports.ts
 msgid "the page is no longer in the trash"
 msgstr "la pagina non è più nel cestino"
 
@@ -5741,9 +5747,9 @@ msgstr "Typst ha impiegato più di {0} secondi ed è stato fermato. Riprova, opp
 msgid "Underline"
 msgstr "Sottolineato"
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Undid: {label}"
-msgstr ""
+msgstr "Annullato: {label}"
 
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useToolbarItems.ts

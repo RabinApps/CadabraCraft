@@ -21,9 +21,9 @@ import {
   outlineFormatFor,
   parseImport,
   parseOutlineSource,
-  runImport,
   sceneCountOf,
 } from "../import/importBook";
+import { runImport } from "../import/importWrite";
 
 const a = () => useProject.getState().actions;
 const s = () => useProject.getState();

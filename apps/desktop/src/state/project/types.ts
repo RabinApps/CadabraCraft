@@ -129,6 +129,12 @@ export interface HistoryEntry {
   reference?: { item: Reference; index: number; trashPath?: string };
   /** A text edit across pages (Replace all in the whole book): the pages' file text before and after. `before` and `after` trees are equal. */
   docs?: { file: string; before: string; after: string }[];
+  /**
+   * An import into the open book: the new chapters' source-language files (the trees differ by those chapters). Undo saves the
+   * `before` tree and then moves each file to the trash (`trashPath`); redo brings them back and saves the `after` tree.
+   * Pictures stay in assets/.
+   */
+  imported?: { path: string; trashPath?: string }[];
 }
 
 export interface History {

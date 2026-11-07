@@ -198,6 +198,42 @@ test("importing into the open book appends the chapters and never touches the ex
     () => window.__calls!.filter((c) => c.cmd === "create_project").length,
   );
   expect(created).toBe(1); // only the book's own creation
+
+  // The whole import is one undo step (Edit > Undo): all three chapters go, the first chapter stays untouched.
+  const run = (id: string) =>
+    page.evaluate(
+      (cmd) =>
+        (window as never as { __cadabraMenu: { run: (id: string) => boolean } }).__cadabraMenu.run(
+          cmd,
+        ),
+      id,
+    );
+  expect(await run("edit.bookUndo")).toBe(true);
+  await expect(chapterNames(page)).toHaveText(["Chapter One"]);
+  await expect(page.locator(".ProseMirror")).toBeVisible();
+  const undone = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
+  expect(undone.chapters).toHaveLength(1);
+  expect(await page.evaluate(() => window.__disk["manuscript/001-chapter-one.json"])).toBe(before);
+  expect(
+    await page.evaluate(() =>
+      Object.keys(window.__disk).filter((k) => k.startsWith("manuscript/")),
+    ),
+  ).toEqual(["manuscript/001-chapter-one.json"]);
+  // Redo brings the three chapters back, in the order they were imported in, with their text.
+  expect(await run("edit.bookRedo")).toBe(true);
+  await expect(chapterNames(page)).toHaveText(["Chapter One", "Prologue", "Three", "Two"]);
+  const redone = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
+  expect(redone.chapters.map((c: { titles: { en: string } }) => c.titles.en)).toEqual([
+    "Chapter One",
+    "Prologue",
+    "Three",
+    "Two",
+  ]);
+  expect(
+    await page.evaluate(() =>
+      Object.keys(window.__disk).filter((k) => k.startsWith("manuscript/")),
+    ),
+  ).toHaveLength(4);
 });
 
 test("Cancel in the open-book import changes nothing, and the dialog opens again empty", async ({

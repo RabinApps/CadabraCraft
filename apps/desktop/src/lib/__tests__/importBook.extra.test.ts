@@ -40,10 +40,9 @@ import {
   groupWarnings,
   parseText,
   remapImages,
-  runImport,
   titleFromFile,
-  writeImport,
 } from "../import/importBook";
+import { runImport, writeImport } from "../import/importWrite";
 
 beforeEach(() => {
   disk.clear();

@@ -21,7 +21,7 @@ export const createOpenActions = (
   | "importIntoBook"
   | "dismissImportReport"
 > => {
-  const { set, get, need, saveManifest, flush, load, resetWordCache } = ctx;
+  const { set, get, need, saveManifest, record, flush, load, resetWordCache } = ctx;
   /** An import is running: a second one is refused instead of racing it. */
   let importing = false;
   const { join } = createOpener(ctx);
@@ -76,7 +76,7 @@ export const createOpenActions = (
       importing = true;
       try {
         await flush();
-        const { runImport } = await import("../../../lib/import/importBook");
+        const { runImport } = await import("../../../lib/import/importWrite");
         const report = await runImport({ sourcePath, root, title, author, ...opts });
         await join(root, false);
         set({ importReport: report });
@@ -90,17 +90,24 @@ export const createOpenActions = (
       try {
         await flush();
         const { root, manifest } = need();
-        const { runImportInto } = await import("../../../lib/import/importBook");
-        const { report, firstId } = await runImportInto({
+        const { runImportInto } = await import("../../../lib/import/importWrite");
+        const { report, firstId, created } = await runImportInto({
           sourcePath,
           root,
           manifest,
           saveManifest,
           ...opts,
         });
-        // The new chapters are appended after the existing ones: earlier tree edits no longer describe the book, so
-        // undo does not offer them (chapter text and files are untouched).
-        set({ history: NO_HISTORY, importReport: report });
+        // One undo step for the whole import; earlier steps stay valid because undo goes newest first.
+        record(
+          {
+            label: t`Import ${report.fileName}`,
+            imported: created.map((c) => ({ path: c.file })),
+          },
+          manifest,
+          get().manifest!,
+        );
+        set({ importReport: report });
         if (firstId) await load(firstId);
       } finally {
         importing = false;

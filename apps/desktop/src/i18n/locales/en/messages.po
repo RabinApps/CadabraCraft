@@ -228,7 +228,7 @@ msgstr "{0} leaves the project folder through a symbolic link. Move the real fil
 
 #. placeholder {0}: written.chapters
 #. placeholder {1}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
 msgstr "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
 
@@ -853,7 +853,7 @@ msgstr "Already used by “{owner}”. Press another key."
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 msgstr "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 
@@ -2663,13 +2663,13 @@ msgid "Image"
 msgstr "Image"
 
 #. placeholder {0}: a.sourcePath
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be imported: {why}. Add the picture to the page yourself after the import."
 msgstr "Image {0} could not be imported: {why}. Add the picture to the page yourself after the import."
 
 #. placeholder {0}: img.name
 #. placeholder {1}: whyText(e)
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be stored: {1}. Add the picture to the page yourself after the import."
 msgstr "Image {0} could not be stored: {1}. Add the picture to the page yourself after the import."
 
@@ -2706,6 +2706,11 @@ msgstr "Images"
 #: src/app/dialogs/ImportSteps.tsx
 msgid "Import"
 msgstr "Import"
+
+#. placeholder {0}: report.fileName
+#: src/state/project/book/open.ts
+msgid "Import {0}"
+msgstr "Import {0}"
 
 #: src/app/settings/FontsSection.tsx
 msgid "Import a font file"
@@ -4179,7 +4184,7 @@ msgstr "Recent projects"
 msgid "Recover newer text for “{0}”?"
 msgstr "Recover newer text for “{0}”?"
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Redid: {label}"
 msgstr "Redid: {label}"
 
@@ -5372,6 +5377,7 @@ msgid "The page changed while searching, so nothing was replaced. Try again."
 msgstr "The page changed while searching, so nothing was replaced. Try again."
 
 #: src/state/project/travel/entries.ts
+#: src/state/project/travel/imports.ts
 msgid "the page is no longer in the trash"
 msgstr "the page is no longer in the trash"
 
@@ -5741,7 +5747,7 @@ msgstr "Typst took longer than {0} seconds and was stopped. Try again, or export
 msgid "Underline"
 msgstr "Underline"
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Undid: {label}"
 msgstr "Undid: {label}"
 

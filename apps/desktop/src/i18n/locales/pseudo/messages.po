@@ -226,7 +226,7 @@ msgstr ""
 
 #. placeholder {0}: written.chapters
 #. placeholder {1}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
 msgstr ""
 
@@ -851,7 +851,7 @@ msgstr ""
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 msgstr ""
 
@@ -2661,13 +2661,13 @@ msgid "Image"
 msgstr ""
 
 #. placeholder {0}: a.sourcePath
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be imported: {why}. Add the picture to the page yourself after the import."
 msgstr ""
 
 #. placeholder {0}: img.name
 #. placeholder {1}: whyText(e)
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be stored: {1}. Add the picture to the page yourself after the import."
 msgstr ""
 
@@ -2703,6 +2703,11 @@ msgstr ""
 
 #: src/app/dialogs/ImportSteps.tsx
 msgid "Import"
+msgstr ""
+
+#. placeholder {0}: report.fileName
+#: src/state/project/book/open.ts
+msgid "Import {0}"
 msgstr ""
 
 #: src/app/settings/FontsSection.tsx
@@ -4177,7 +4182,7 @@ msgstr ""
 msgid "Recover newer text for “{0}”?"
 msgstr ""
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Redid: {label}"
 msgstr ""
 
@@ -5370,6 +5375,7 @@ msgid "The page changed while searching, so nothing was replaced. Try again."
 msgstr ""
 
 #: src/state/project/travel/entries.ts
+#: src/state/project/travel/imports.ts
 msgid "the page is no longer in the trash"
 msgstr ""
 
@@ -5735,7 +5741,7 @@ msgstr ""
 msgid "Underline"
 msgstr ""
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Undid: {label}"
 msgstr ""
 

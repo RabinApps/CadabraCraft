@@ -61,6 +61,9 @@ export function retargetEntry(
     before: retargetFile(e.before, language, from, to),
     after: retargetFile(e.after, language, from, to),
     ...(e.file?.path === from ? { file: { ...e.file, path: to } } : {}),
+    ...(e.imported?.some((i) => i.path === from)
+      ? { imported: e.imported.map((i) => (i.path === from ? { ...i, path: to } : i)) }
+      : {}),
     ...(e.others?.some((o) => o.language === language && o.path === from)
       ? {
           others: e.others.map((o) =>

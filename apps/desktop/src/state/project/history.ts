@@ -3,7 +3,8 @@ import { whyText } from "../../lib/projectError";
 import { alertOf, PartialWrite } from "./util";
 import type { HistoryActions } from "./types";
 import type { Ctx } from "./context";
-import { createTravelEntries, type Direction } from "./travel/entries";
+import { createTravelEntries } from "./travel/entries";
+import type { Direction } from "./travel/shared";
 
 /** The alert for a failed undo or redo, naming the pages that could not be put back. */
 const failure = (from: Direction, e: unknown) => {
@@ -23,7 +24,7 @@ const failure = (from: Direction, e: unknown) => {
 /** Undo and redo of chapter-tree edits (and book-wide replaces). */
 export const createHistoryActions = (ctx: Ctx): HistoryActions => {
   const { set, get, flush } = ctx;
-  const { travelReference, travelDocs, travelTree } = createTravelEntries(ctx);
+  const { travelReference, travelDocs, travelTree, travelImport } = createTravelEntries(ctx);
   let historyBusy = false;
   /** Undoes (`from` = "undo") or redoes (`from` = "redo") the latest entry of that stack. */
   const travel = async (from: Direction): Promise<boolean> => {
@@ -35,6 +36,7 @@ export const createHistoryActions = (ctx: Ctx): HistoryActions => {
       if (!entry) return false;
       if (entry.reference) await travelReference({ ...entry, reference: entry.reference }, from);
       else if (entry.docs) await travelDocs({ ...entry, docs: entry.docs }, from);
+      else if (entry.imported) await travelImport({ ...entry, imported: entry.imported }, from);
       else await travelTree(entry, from);
       return true;
     } catch (e) {

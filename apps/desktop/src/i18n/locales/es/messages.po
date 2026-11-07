@@ -228,7 +228,7 @@ msgstr "{0} sale de la carpeta del proyecto mediante un enlace simbólico. Mueve
 
 #. placeholder {0}: written.chapters
 #. placeholder {1}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "{0} new chapter files and {1} images were stored in the book folder, but the chapter list was not changed."
 msgstr "Se guardaron {0} archivos de capítulo nuevos y {1} imágenes en la carpeta del libro, pero la lista de capítulos no cambió."
 
@@ -853,7 +853,7 @@ msgstr "Ya lo usa “{owner}”. Pulsa otra tecla."
 #. placeholder {0}: opts.root
 #. placeholder {1}: written.chapters
 #. placeholder {2}: written.images
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Already written to {0}: {1} chapter files and {2} images; the book's chapter list was not saved."
 msgstr "Ya se escribió en {0}: {1} archivos de capítulo y {2} imágenes; no se guardó la lista de capítulos del libro."
 
@@ -2663,13 +2663,13 @@ msgid "Image"
 msgstr "Imagen"
 
 #. placeholder {0}: a.sourcePath
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be imported: {why}. Add the picture to the page yourself after the import."
 msgstr "No se pudo importar la imagen {0}: {why}. Añade la imagen a la página tú mismo después de importar."
 
 #. placeholder {0}: img.name
 #. placeholder {1}: whyText(e)
-#: src/lib/import/importBook.ts
+#: src/lib/import/importWrite.ts
 msgid "Image {0} could not be stored: {1}. Add the picture to the page yourself after the import."
 msgstr "No se pudo guardar la imagen {0}: {1}. Añade la imagen a la página tú mismo después de importar."
 
@@ -2706,6 +2706,11 @@ msgstr "Imágenes"
 #: src/app/dialogs/ImportSteps.tsx
 msgid "Import"
 msgstr "Importar"
+
+#. placeholder {0}: report.fileName
+#: src/state/project/book/open.ts
+msgid "Import {0}"
+msgstr "Importar {0}"
 
 #: src/app/settings/FontsSection.tsx
 msgid "Import a font file"
@@ -4179,9 +4184,9 @@ msgstr "Proyectos recientes"
 msgid "Recover newer text for “{0}”?"
 msgstr "¿Recuperar el texto más reciente de “{0}”?"
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Redid: {label}"
-msgstr ""
+msgstr "Rehecho: {label}"
 
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useToolbarItems.ts
@@ -5372,6 +5377,7 @@ msgid "The page changed while searching, so nothing was replaced. Try again."
 msgstr "La página cambió durante la búsqueda, así que no se reemplazó nada. Inténtalo de nuevo."
 
 #: src/state/project/travel/entries.ts
+#: src/state/project/travel/imports.ts
 msgid "the page is no longer in the trash"
 msgstr "la página ya no está en la papelera"
 
@@ -5741,9 +5747,9 @@ msgstr "Typst tardó más de {0} segundos y se detuvo. Inténtalo de nuevo o exp
 msgid "Underline"
 msgstr "Subrayado"
 
-#: src/state/project/travel/entries.ts
+#: src/state/project/travel/shared.ts
 msgid "Undid: {label}"
-msgstr ""
+msgstr "Deshecho: {label}"
 
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useToolbarItems.ts
