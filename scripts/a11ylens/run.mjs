@@ -1,6 +1,6 @@
 // Shared by the A11yLens test files: runs the installed CLI and builds throwaway fixture projects.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, realpathSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,7 +32,8 @@ export function scanJson(args, cwd = ROOT) {
 
 /** Creates a temp project from { "relative/path": "contents" } and returns its directory. */
 export function fixture(files) {
-  const dir = mkdtempSync(join(tmpdir(), "a11ylens-"));
+  // realpath: on macOS tmpdir() is a symlink (/var -> /private/var), and the CLI reports the resolved path.
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), "a11ylens-")));
   for (const [rel, body] of Object.entries(files)) {
     const p = join(dir, rel);
     mkdirSync(dirname(p), { recursive: true });
