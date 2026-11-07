@@ -116,11 +116,11 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Linux deps (pnpm binary, LibreOffice)
+      - name: Linux deps (pnpm binary, LibreOffice, unzip for veraPDF)
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
           for i in 1 2 3 4 5; do
-            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends libreoffice-writer && exit 0
+            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 unzip && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends libreoffice-writer && exit 0
             sleep $((i * 5))
           done
           exit 1
