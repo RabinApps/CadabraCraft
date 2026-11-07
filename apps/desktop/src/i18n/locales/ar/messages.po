@@ -421,13 +421,13 @@ msgstr "{minutes, plural, one {دقيقة واحدة} two {دقيقتان} few {
 msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 msgstr "{missing, plural, one {في “{name}” صورة واحدة بلا نص بديل} two {في “{name}” صورتان بلا نص بديل} few {في “{name}” # صور بلا نص بديل} many {في “{name}” # صورة بلا نص بديل} other {في “{name}” # صورة بلا نص بديل}}"
 
-#: src/editor/find/FindResults.tsx
-msgid "{n, plural, one {# match} other {# matches}}"
-msgstr "{n, plural, one {تطابق واحد} two {تطابقان} few {# تطابقات} many {# تطابقًا} other {# تطابق}}"
-
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr "{n, plural, one {حُذفت صفحة واحدة غير مترجمة} two {حُذفت صفحتان غير مترجمتين} few {حُذفت # صفحات غير مترجمة} many {حُذفت # صفحة غير مترجمة} other {حُذفت # صفحة غير مترجمة}}"
+
+#: src/editor/find/FindResults.tsx
+msgid "{n, plural, one {match} other {matches}}"
+msgstr "{n, plural, zero {تطابقات} one {تطابق} two {تطابقان} few {تطابقات} many {تطابقًا} other {تطابقات}}"
 
 #: src/app/board/StructureDialog.tsx
 msgid "{n} scenes"
@@ -1451,6 +1451,7 @@ msgstr "مسح تاريخ القصة لمشهد {title}"
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Close"
 msgstr "إغلاق"
 
@@ -2358,6 +2359,7 @@ msgid "Final"
 msgstr "نهائية"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Find"
 msgstr "بحث"
 
@@ -2368,6 +2370,10 @@ msgstr "بحث واستبدال"
 #: src/app/shell/native/menuModel.ts
 msgid "Find and Replace…"
 msgstr "بحث واستبدال…"
+
+#: src/editor/reading/ReadFindBar.tsx
+msgid "Find in the book"
+msgstr "بحث في الكتاب"
 
 #: src/app/references/PdfSearch.tsx
 msgid "Find in this PDF"
@@ -2823,6 +2829,7 @@ msgid "Interface language"
 msgstr "لغة الواجهة"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Invalid pattern"
 msgstr "نمط غير صالح"
 
@@ -3175,6 +3182,7 @@ msgid "Match {0} of {total}, page {1} ({onPage} on this page)"
 msgstr "التطابق {0} من {total}، الصفحة {1} ({onPage} في هذه الصفحة)"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Match case"
 msgstr "مطابقة حالة الأحرف"
 
@@ -3390,6 +3398,7 @@ msgstr "الفصل التالي: {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Next match"
 msgstr "التطابق التالي"
 
@@ -4040,6 +4049,7 @@ msgstr "الفصل السابق: {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Previous match"
 msgstr "التطابق السابق"
 
@@ -4218,6 +4228,7 @@ msgid "References you remove from the book show up here, so you can bring them b
 msgstr "تظهر هنا المراجع التي تزيلها من الكتاب، لتتمكن من استعادتها."
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Regex"
 msgstr "Regex"
 
@@ -5955,6 +5966,7 @@ msgid "Whole book"
 msgstr "الكتاب كاملًا"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Whole word"
 msgstr "الكلمة كاملة"
 

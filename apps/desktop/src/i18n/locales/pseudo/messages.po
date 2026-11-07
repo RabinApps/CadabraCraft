@@ -419,12 +419,12 @@ msgstr ""
 msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 msgstr ""
 
-#: src/editor/find/FindResults.tsx
-msgid "{n, plural, one {# match} other {# matches}}"
-msgstr ""
-
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
+msgstr ""
+
+#: src/editor/find/FindResults.tsx
+msgid "{n, plural, one {match} other {matches}}"
 msgstr ""
 
 #: src/app/board/StructureDialog.tsx
@@ -1449,6 +1449,7 @@ msgstr ""
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Close"
 msgstr ""
 
@@ -2356,6 +2357,7 @@ msgid "Final"
 msgstr ""
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Find"
 msgstr ""
 
@@ -2365,6 +2367,10 @@ msgstr ""
 
 #: src/app/shell/native/menuModel.ts
 msgid "Find and Replace…"
+msgstr ""
+
+#: src/editor/reading/ReadFindBar.tsx
+msgid "Find in the book"
 msgstr ""
 
 #: src/app/references/PdfSearch.tsx
@@ -2821,6 +2827,7 @@ msgid "Interface language"
 msgstr ""
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Invalid pattern"
 msgstr ""
 
@@ -3173,6 +3180,7 @@ msgid "Match {0} of {total}, page {1} ({onPage} on this page)"
 msgstr ""
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Match case"
 msgstr ""
 
@@ -3388,6 +3396,7 @@ msgstr ""
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Next match"
 msgstr ""
 
@@ -4038,6 +4047,7 @@ msgstr ""
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Previous match"
 msgstr ""
 
@@ -4216,6 +4226,7 @@ msgid "References you remove from the book show up here, so you can bring them b
 msgstr ""
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Regex"
 msgstr ""
 
@@ -5949,6 +5960,7 @@ msgid "Whole book"
 msgstr ""
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Whole word"
 msgstr ""
 

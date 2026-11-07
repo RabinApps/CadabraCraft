@@ -57,6 +57,16 @@ const withSnapshot = async (page: Page) => {
 /** Dialogs, panels and shell states added for the second accessibility sweep. */
 export const moreScreens: Screen[] = [
   {
+    name: "Read mode, find bar with results",
+    open: async (p) => {
+      await newProject(p);
+      await p.getByRole("radio", { name: "Read" }).click();
+      await p.keyboard.press("ControlOrMeta+f");
+      await p.keyboard.type("chapter");
+      await shown(p.getByRole("search", { name: "Find in the book" }).getByText(/1 of/));
+    },
+  },
+  {
     name: "Read mode, Contents page",
     open: async (p) => {
       await contentsPage(p);

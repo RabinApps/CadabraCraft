@@ -13,7 +13,8 @@ export function FindResults({ rows, onOpen }: { rows: ResultRow[]; onOpen: (id: 
       : r.section === "back"
         ? t`Back matter: ${r.title}`
         : r.title;
-  const rowCount = (n: number) => plural(n, { one: "# match", other: "# matches" });
+  // The visible number is part of the button's name (WCAG 2.5.3), so the name reads "Chapter One 2 matches".
+  const matchWord = (n: number) => plural(n, { one: "match", other: "matches" });
   return (
     <ul
       aria-label={t`Results by page`}
@@ -23,7 +24,6 @@ export function FindResults({ rows, onOpen }: { rows: ResultRow[]; onOpen: (id: 
         <li key={r.id} className="min-w-0">
           <button
             type="button"
-            aria-label={`${rowTitle(r)}, ${rowCount(r.count)}`}
             aria-current={r.current ? "true" : undefined}
             onClick={() => onOpen(r.id)}
             className={cx(
@@ -38,6 +38,7 @@ export function FindResults({ rows, onOpen }: { rows: ResultRow[]; onOpen: (id: 
               className={cx("shrink-0 tabular-nums", r.current ? "text-accent" : "text-ink-muted")}
             >
               {r.count}
+              <span className="sr-only"> {matchWord(r.count)}</span>
             </span>
           </button>
         </li>

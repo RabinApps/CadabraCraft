@@ -264,21 +264,21 @@ test.describe("find and replace", () => {
     const rows = list.getByRole("button");
     await expect(rows).toHaveCount(3);
     await expect(
-      list.getByRole("button", { name: "Front matter: Dedication, 1 match", exact: true }),
+      list.getByRole("button", { name: "Front matter: Dedication 1 match", exact: true }),
     ).toBeVisible();
     await expect(
-      list.getByRole("button", { name: "Chapter One, 2 matches", exact: true }),
+      list.getByRole("button", { name: "Chapter One 2 matches", exact: true }),
     ).toHaveAttribute("aria-current", "true");
     await expect(
-      list.getByRole("button", { name: "Chapter 2, 1 match", exact: true }),
+      list.getByRole("button", { name: "Chapter 2 1 match", exact: true }),
     ).toBeVisible();
     await expect(list.getByRole("button", { name: "Chapter 3" })).toHaveCount(0);
 
-    await list.getByRole("button", { name: "Chapter 2, 1 match" }).click();
+    await list.getByRole("button", { name: "Chapter 2 1 match" }).click();
     await expect(page.locator(".ProseMirror")).toContainText("owl two");
     await expect(page.locator(".search-match-current")).toHaveText("owl");
     await expect(bar(page).getByText("4 of 4")).toBeVisible();
-    await expect(list.getByRole("button", { name: "Chapter 2, 1 match" })).toHaveAttribute(
+    await expect(list.getByRole("button", { name: "Chapter 2 1 match" })).toHaveAttribute(
       "aria-current",
       "true",
     );
@@ -299,7 +299,7 @@ test.describe("find and replace", () => {
     await page.keyboard.type("owl");
     await bar(page).getByRole("button", { name: "All chapters" }).click();
     const list = bar(page).getByRole("list", { name: "Results by page" });
-    await list.getByRole("button", { name: "Chapter One, 2 matches" }).click();
+    await list.getByRole("button", { name: "Chapter One 2 matches" }).click();
     await expect(page.locator(".search-match-current")).toHaveText("owl");
     await bar(page).getByRole("button", { name: "All chapters" }).click(); // back to this page only
     await bar(page).getByLabel("Replace with").fill("hawk");

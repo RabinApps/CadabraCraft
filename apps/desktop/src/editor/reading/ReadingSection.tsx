@@ -15,6 +15,7 @@ import { FootnoteA11y } from "../footnoteA11y";
 import { ReadingContents } from "./ReadingContents";
 import { useProject } from "../../state/project/index";
 import { Pagination } from "../pagination/plugin";
+import { Search, goToMatch, searchCommands, type SearchSettings } from "../search/plugin";
 import type { PageLayoutResult } from "../pagination/core";
 import { PageStack, type PageLook } from "../pageview/PageFrame";
 import { pageIsBare, pageIsCentred } from "../centring";
@@ -22,6 +23,7 @@ import { dirFor } from "../../i18n/locales";
 import type { BookPage } from "../../state/project/types";
 import { sizes, widths, type Width } from "../../state/view/reading";
 import { reportChapterMarks } from "../../lib/page/pageReport";
+import type { BookSearchOptions } from "../../lib/search/bookSearch";
 import { cx } from "../../ui/cx";
 
 export interface SectionProps {
@@ -56,11 +58,17 @@ export interface SectionProps {
   reportAt: number;
   /** An entry of the Contents page was chosen: scroll to that page, and to one of its headings when given. */
   onOpen: (id: string, heading?: number) => void;
+  /** The find bar's search, highlighted in this chapter's editor; null while Find is closed. */
+  search: BookSearchOptions | null;
+  /** Which of this chapter's matches is the current one of the find bar, or -1 when it is in another chapter. */
+  matchIndex: number;
+  /** Called once this chapter's editor has marked its current match, and when that chapter changes height, so the reader can scroll to it. */
+  onMatch: (id: string) => void;
 }
 
 /** One chapter of the book: a section that is a placeholder until it is near the viewport, then a read-only editor. */
 export const ReadingSection = memo(function ReadingSection(p: SectionProps) {
-  const { page, near, observer, onResize, heights } = p;
+  const { page, near, observer, onResize, onMatch, heights } = p;
   // A Contents page is drawn from the generated list, not from its text: the same page as in the editor's preview.
   const contents = useProject((s) =>
     page.kind === "contents" ? s.manifest?.frontMatter.find((e) => e.id === page.id) : undefined,
@@ -68,6 +76,8 @@ export const ReadingSection = memo(function ReadingSection(p: SectionProps) {
   const ref = useRef<HTMLElement>(null);
   const nearRef = useRef(near);
   nearRef.current = near;
+  const matchRef = useRef(p.matchIndex);
+  matchRef.current = p.matchIndex;
   const settledRef = useRef(p.settled);
   settledRef.current = p.settled;
   useEffect(() => {
@@ -84,10 +94,12 @@ export const ReadingSection = memo(function ReadingSection(p: SectionProps) {
       if (nearRef.current && settledRef.current)
         heights.current.set(page.id, el.getBoundingClientRect().height);
       onResize();
+      // The chapter that holds the current find match changed height (its pages were laid out): the match has moved.
+      if (matchRef.current >= 0) onMatch(page.id);
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [page.id, onResize, heights]);
+  }, [page.id, onResize, onMatch, heights]);
   // A chapter that is already as tall as it will be has no size change to report when it settles.
   useEffect(() => {
     if (near && p.settled)
@@ -138,11 +150,16 @@ function ReadingChapter({
   onPages,
   report,
   reportAt,
+  search,
+  matchIndex,
+  onMatch,
 }: SectionProps) {
   const { t } = useLingui();
   const noteLabels = FootnoteA11y((n) => t`Footnote ${n}`);
   const editor = useEditor({
-    extensions: paged ? [...extensions, Pagination, noteLabels] : [...extensions, noteLabels],
+    extensions: paged
+      ? [...extensions, Search, Pagination, noteLabels]
+      : [...extensions, Search, noteLabels],
     editable: false,
     content: page.doc,
     editorProps: {
@@ -155,6 +172,18 @@ function ReadingChapter({
       },
     },
   });
+  // Find in Read mode: highlight the matches of the find bar, and mark the current one when it is in this chapter.
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    const s: SearchSettings = search
+      ? { ...search, replacement: "" }
+      : { query: "", replacement: "", matchCase: false, wholeWord: false };
+    searchCommands(editor).setSearch(s);
+  }, [editor, search]);
+  useEffect(() => {
+    if (!editor || editor.isDestroyed || !search || matchIndex < 0) return;
+    if (goToMatch(editor, matchIndex)) onMatch(page.id);
+  }, [editor, search, matchIndex, onMatch, page.id]);
   // The pages of this section (a blank verso before it not counted): later sections start after them.
   const onLayout = useCallback(
     (l: PageLayoutResult) => onPages(page.id, l.pages.filter((p) => p.kind !== "blank").length),

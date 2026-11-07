@@ -421,13 +421,13 @@ msgstr "{minutes, plural, one {# minute} other {# minutes}}"
 msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 msgstr "{missing, plural, one {« {name} » a # image sans texte alternatif} other {« {name} » a # images sans texte alternatif}}"
 
-#: src/editor/find/FindResults.tsx
-msgid "{n, plural, one {# match} other {# matches}}"
-msgstr "{n, plural, one {# occurrence} other {# occurrences}}"
-
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr "{n, plural, one {# page non traduite exclue} other {# pages non traduites exclues}}"
+
+#: src/editor/find/FindResults.tsx
+msgid "{n, plural, one {match} other {matches}}"
+msgstr "{n, plural, one {occurrence} other {occurrences}}"
 
 #: src/app/board/StructureDialog.tsx
 msgid "{n} scenes"
@@ -1451,6 +1451,7 @@ msgstr "Effacer la date dans l'histoire de {title}"
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Close"
 msgstr "Fermer"
 
@@ -2358,6 +2359,7 @@ msgid "Final"
 msgstr "Final"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Find"
 msgstr "Rechercher"
 
@@ -2368,6 +2370,10 @@ msgstr "Rechercher et remplacer"
 #: src/app/shell/native/menuModel.ts
 msgid "Find and Replace…"
 msgstr "Rechercher et remplacer…"
+
+#: src/editor/reading/ReadFindBar.tsx
+msgid "Find in the book"
+msgstr "Rechercher dans le livre"
 
 #: src/app/references/PdfSearch.tsx
 msgid "Find in this PDF"
@@ -2823,6 +2829,7 @@ msgid "Interface language"
 msgstr "Langue de l’interface"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Invalid pattern"
 msgstr "Motif non valide"
 
@@ -3175,6 +3182,7 @@ msgid "Match {0} of {total}, page {1} ({onPage} on this page)"
 msgstr "Occurrence {0} sur {total}, page {1} ({onPage} sur cette page)"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Match case"
 msgstr "Respecter la casse"
 
@@ -3390,6 +3398,7 @@ msgstr "Chapitre suivant : {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Next match"
 msgstr "Occurrence suivante"
 
@@ -4040,6 +4049,7 @@ msgstr "Chapitre précédent : {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Previous match"
 msgstr "Occurrence précédente"
 
@@ -4218,6 +4228,7 @@ msgid "References you remove from the book show up here, so you can bring them b
 msgstr "Les références que vous retirez du livre apparaissent ici, pour que vous puissiez les récupérer."
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Regex"
 msgstr "Regex"
 
@@ -5955,6 +5966,7 @@ msgid "Whole book"
 msgstr "Livre entier"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Whole word"
 msgstr "Mot entier"
 

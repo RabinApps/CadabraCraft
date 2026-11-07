@@ -1245,7 +1245,31 @@ What Typst 0.15 does with a mark, measured with the real binary and checked by `
 - **Mounting every chapter.** A 100-chapter book would hold 100 editors and paginate them all at open.
 - **Browser scroll anchoring for the height changes.** Chromium has it, WebKit does not, and the app runs in WebKit on macOS.
 
-**Limits:** Read has no find (Write mode's find bar is not mounted); the chained numbers are estimates until the chapters above have been on screen or Typst has measured the book, so a long jump into a book can show numbers that change by a page or two as the chapters above lay out; breaks inside a chapter are Typst's, as in Page view (see "Exact page breaks, part two").
+**Limits:** the chained numbers are estimates until the chapters above have been on screen or Typst has measured the book, so a long jump into a book can show numbers that change by a page or two as the chapters above lay out; breaks inside a chapter are Typst's, as in Page view (see "Exact page breaks, part two").
+
+## Find and a remembered position in Read mode (2026-11-06)
+
+**Decision:** Read mode has a find bar, and remembers where each book was last read across sessions.
+
+**Find** (`editor/reading/ReadFindBar.tsx`, `useReadFind.ts`, `lib/search/readFind.ts`, `state/view/readFind.ts`):
+
+- Cmd/Ctrl+F in Read mode opens a bar on the same `useFind` store as Write mode (query, Match case, Whole word, Regex), docked like the Write bar. There is no replace row and no "All chapters" chip: Read mode is read-only and always searches the whole book.
+- **Counts come from the pages' JSON, not from editors.** `ReadingBook` already holds every page, so `readMatches` runs `searchBook` over them (the same matcher as the Write bar's book scope, so the numbers agree with what an editor highlights) after a 120 ms pause in typing. A match is addressed by its number in the book (`index`, 0-based, reading order); `locate` turns it into a chapter and the match number inside it. "3 of 12" and the per-chapter list (`FindResults`, shared with Write) are therefore right for chapters that have no editor.
+- **Highlighting is the Write search plugin.** Each read-only chapter editor loads `Search` and gets the applied search as a prop; the chapter that holds the current match marks it with the new `goToMatch` (current only: no selection, no scroll). Editors that mount later (scrolling, a jump) pick the search up when they are created.
+- **Jumping reuses the reader's jump.** `useChapterJumps` gained `goTo(id, goal)` and `align` takes a goal, which can now also be a place in the chapter (a fraction) or the current match, beside the existing heading. A jump to a chapter far away scrolls to its placeholder, which brings it near the viewport, mounts its editor, which marks its match and reports it; each report and each layout of the chapter repeats the scroll, now to the element of the current match (40% down the viewport), until the reader scrolls on their own or 2.5 s pass. The open chapter follows (`selectChapter`), so the chapter list and the footer agree. A new search starts at the first match on or after the chapter at the reading line, wrapping.
+- The query is not saved across sessions, as in Write mode.
+
+**Remembered position** (`state/view/readingMemory.ts`): the chapter at the reading line and how far down it the line is (0 to 1; a fraction survives zoom, width and font changes, a page number does not) are kept in `localStorage` (`cadabracraft.readingPositions`), keyed by the book's folder like the recent books list (an app preference, never in the project files, which hold no path). Writes wait 400 ms for the scrolling to pause and are flushed when Read mode closes; at most 50 books are kept (oldest read dropped); a damaged value is ignored. Read mode resumes there the first time a book is read in a session, only if the open chapter is still the one the book opened with (a chapter chosen in Write mode or the chapter list wins, as before) and the chapter still exists. While a jump is under way the position is not saved (the scroll is not the reader's yet).
+
+**Rejected:**
+
+- **A search plugin on one merged read-only editor, or asking each mounted editor for its matches.** Chapters without an editor would not be counted and a jump to them would have nothing to ask.
+- **Mounting every chapter to search it.** The reason chapters are virtualised.
+- **Saving the printed page number as the position.** It changes with the template, trim size and font, and is only an estimate until the chapters above are laid out.
+- **Storing the position in the manifest.** It is per reader and per computer, and would change the synced project every time someone scrolls.
+- **A Tauri store for the position.** The other preferences are in `localStorage` and a new plugin is not worth one small value (see "Preferences stay in `localStorage`").
+
+**Limits:** a match inside a chapter whose page breaks Typst has not reported yet may move a little as the chapters above settle (the jump corrects itself for 2.5 s); the bar has no pen frame yet (see roadmap).
 
 ## Node 26 LTS (2026-10-28)
 

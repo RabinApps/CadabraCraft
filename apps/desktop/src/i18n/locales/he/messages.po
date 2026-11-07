@@ -421,13 +421,13 @@ msgstr "{minutes, plural, one {דקה #} other {# דקות}}"
 msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 msgstr "{missing, plural, one {ב־“{name}” יש תמונה # ללא טקסט חלופי} other {ב־“{name}” יש # תמונות ללא טקסט חלופי}}"
 
-#: src/editor/find/FindResults.tsx
-msgid "{n, plural, one {# match} other {# matches}}"
-msgstr "{n, plural, one {התאמה #} other {# התאמות}}"
-
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr "{n, plural, one {עמוד # שלא תורגם הושמט} other {# עמודים שלא תורגמו הושמטו}}"
+
+#: src/editor/find/FindResults.tsx
+msgid "{n, plural, one {match} other {matches}}"
+msgstr "{n, plural, one {התאמה} two {התאמות} many {התאמות} other {התאמות}}"
 
 #: src/app/board/StructureDialog.tsx
 msgid "{n} scenes"
@@ -1451,6 +1451,7 @@ msgstr "נקה את תאריך הסיפור של {title}"
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Close"
 msgstr "סגירה"
 
@@ -2358,6 +2359,7 @@ msgid "Final"
 msgstr "סופית"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Find"
 msgstr "חיפוש"
 
@@ -2368,6 +2370,10 @@ msgstr "חיפוש והחלפה"
 #: src/app/shell/native/menuModel.ts
 msgid "Find and Replace…"
 msgstr "חיפוש והחלפה…"
+
+#: src/editor/reading/ReadFindBar.tsx
+msgid "Find in the book"
+msgstr "חיפוש בספר"
 
 #: src/app/references/PdfSearch.tsx
 msgid "Find in this PDF"
@@ -2823,6 +2829,7 @@ msgid "Interface language"
 msgstr "שפת הממשק"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Invalid pattern"
 msgstr "תבנית לא תקינה"
 
@@ -3175,6 +3182,7 @@ msgid "Match {0} of {total}, page {1} ({onPage} on this page)"
 msgstr "התאמה {0} מתוך {total}, עמוד {1} ({onPage} בעמוד זה)"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Match case"
 msgstr "התאמת רישיות"
 
@@ -3390,6 +3398,7 @@ msgstr "הפרק הבא: {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Next match"
 msgstr "ההתאמה הבאה"
 
@@ -4040,6 +4049,7 @@ msgstr "הפרק הקודם: {0}"
 
 #: src/app/references/PdfSearch.tsx
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Previous match"
 msgstr "ההתאמה הקודמת"
 
@@ -4218,6 +4228,7 @@ msgid "References you remove from the book show up here, so you can bring them b
 msgstr "הפניות שתסיר מהספר מופיעות כאן, כדי שתוכל להחזיר אותן."
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Regex"
 msgstr "Regex"
 
@@ -5955,6 +5966,7 @@ msgid "Whole book"
 msgstr "הספר כולו"
 
 #: src/editor/find/FindBar.tsx
+#: src/editor/reading/ReadFindBar.tsx
 msgid "Whole word"
 msgstr "מילה שלמה"
 
