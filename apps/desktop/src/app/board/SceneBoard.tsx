@@ -10,10 +10,13 @@ import { useProject } from "../../state/project/index";
 import { useCodex } from "../../state/codex";
 import { useSceneView } from "../../state/view/sceneView";
 import { attempt } from "../../state/attempt";
+import { SceneFilterBar } from "../scenes/SceneFilterBar";
 import { BoardColumn } from "./BoardColumn";
 import { useSceneMoves } from "./useSceneMoves";
 import { StructureDialog } from "./StructureDialog";
-import { useBoardData, type BoardChapter } from "./useBoardData";
+import { useBoardFilter } from "./useBoardFilter";
+import { NoMatch } from "../scenes/NoMatch";
+import { useFlushed, useSaid, useBoardData, type BoardChapter } from "./useBoardData";
 
 function BoardHeader({
   chapters,
@@ -74,18 +77,7 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
   const actions = useProject((s) => s.actions);
   const root = useProject((s) => s.root);
   const entries = useCodex((s) => s.entries);
-  // The chapter files are read once typing in the open chapter has been written.
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    let live = true;
-    void actions
-      .flush()
-      .catch(() => {})
-      .then(() => live && setReady(true));
-    return () => {
-      live = false;
-    };
-  }, [actions]);
+  const ready = useFlushed();
   useEffect(() => {
     if (root) void useCodex.getState().load(root);
   }, [root]);
@@ -93,15 +85,20 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
     () => entries.filter((e) => e.kind === "character").map((e) => e.name),
     [entries],
   );
-  const { chapters, duplicates } = useBoardData(ready);
-  const [said, setSaid] = useState("");
+  const { chapters: all, duplicates } = useBoardData(ready);
+  // The filter is a view: the moves below index the whole chapters, and are switched off while a filter is on.
+  const {
+    shown: filtered,
+    rows,
+    shownCount: shownRows,
+    filtering,
+    colourBy,
+    clear,
+  } = useBoardFilter(all, duplicates);
+  const chapters = all;
+  const [said, setSaid] = useSaid();
   const [structureOpen, setStructureOpen] = useState(false);
   const gripHelp = useId();
-  useEffect(() => {
-    if (!said) return;
-    const timer = setTimeout(() => setSaid(""), 4000);
-    return () => clearTimeout(timer);
-  }, [said]);
   // A phone shows one chapter at a time.
   const [picked, setPicked] = useState<string | null>(null);
   const shown = chapters.find((c) => c.id === picked) ?? chapters[0];
@@ -147,15 +144,20 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
             {t`A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move.`}
           </Notice>
         )}
+        <SceneFilterBar rows={rows} shown={shownRows} moveCaption />
         {chapters.length === 0 ? (
           <p className="p-6 text-sm text-ink-muted">{t`This book has no chapters yet.`}</p>
+        ) : filtering && shownRows === 0 && all.every((c) => c.loaded) ? (
+          <div className="p-6">
+            <NoMatch onClear={clear} />
+          </div>
         ) : (
           <div
             role="region"
             aria-label={t`Chapters and their scenes`}
             className="flex min-h-0 flex-1 gap-4 overflow-x-auto overflow-y-hidden p-4"
           >
-            {chapters.map((c, at) => (
+            {filtered.map((c, at) => (
               <BoardColumn
                 key={c.id}
                 chapter={c}
@@ -164,7 +166,9 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
                 drag={drag}
                 gripHelpId={gripHelp}
                 povNames={povNames}
-                moves={(i) => movesOf(c, i, at)}
+                colourBy={colourBy}
+                filtering={filtering}
+                moves={filtering ? null : (i) => movesOf(c, i, at)}
                 onGrab={(sceneId, i) => grab(sceneId, { chapter: c.id, index: i })}
                 onPatch={(sceneId, p) => patch(c.id, sceneId, p)}
                 onOpen={(sceneId) => openScene(c.id, sceneId)}

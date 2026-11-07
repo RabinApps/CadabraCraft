@@ -2,6 +2,7 @@ import { expect, type Page } from "@playwright/test";
 import { fakeImportSources } from "./fakeImport";
 import { answer, covBackend, failOn } from "./cov";
 import { addReference, newProject } from "./helpers";
+import { filterBook, openBoard, openTimeline, pick, search } from "./sceneFilterBook";
 import {
   toolbar,
   dialogOf,
@@ -157,6 +158,53 @@ export const moreScreens: Screen[] = [
       await timeline(p);
       await p.getByRole("radio", { name: "Story date" }).click();
       await shown(p.getByText("Scenes are ordered by story date."));
+    },
+  },
+  {
+    name: "Scene board, filtered and coloured by label",
+    open: async (p) => {
+      await filterBook(p);
+      await openBoard(p);
+      await pick(p, "POV", ["Mara"]);
+      await p.getByRole("radio", { name: "Label" }).click();
+      await shown(p.getByText("Moving scenes is off while a filter is on"));
+    },
+  },
+  {
+    name: "Scene board, filter menu open",
+    open: async (p) => {
+      await filterBook(p);
+      await openBoard(p);
+      await p.getByRole("button", { name: /^POV/ }).click();
+      await shown(p.getByRole("menuitemcheckbox", { name: "Mara 2" }));
+    },
+  },
+  {
+    name: "Scene board, no scene matches",
+    open: async (p) => {
+      await filterBook(p);
+      await openBoard(p);
+      await search(p).fill("zzzzq");
+      await shown(p.getByText("No scenes match these filters."));
+    },
+  },
+  {
+    name: "Timeline, filtered and coloured by status",
+    open: async (p) => {
+      await filterBook(p);
+      await openTimeline(p);
+      await pick(p, "Label", ["Past"]);
+      await p.getByRole("radio", { name: "Status" }).click();
+      await shown(p.getByRole("button", { name: /^Label: Past/ }));
+    },
+  },
+  {
+    name: "Timeline, no scene matches",
+    open: async (p) => {
+      await filterBook(p);
+      await openTimeline(p);
+      await search(p).fill("zzzzq");
+      await shown(p.getByText("No scenes match these filters."));
     },
   },
   {

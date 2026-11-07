@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { chaptersOf, entryFile, entryRowsIn } from "@cadabracraft/format";
 import {
   buildBoard,
@@ -40,4 +40,32 @@ export function useBoardData(enabled = true): BoardData {
   const version = entries.map((e) => hashes[entryFile(e, language) ?? ""] ?? "").join("|");
   const read = useChapterReads(ids, derive, version);
   return useMemo(() => buildBoard(entries, titles, read), [entries, read, titles]);
+}
+
+/** False until typing in the open chapter has been written to its file (the board reads the files). */
+export function useFlushed(): boolean {
+  const actions = useProject((s) => s.actions);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let live = true;
+    void actions
+      .flush()
+      .catch(() => {})
+      .then(() => live && setReady(true));
+    return () => {
+      live = false;
+    };
+  }, [actions]);
+  return ready;
+}
+
+/** A message for the polite live region that clears itself after a few seconds. */
+export function useSaid(): [string, (message: string) => void] {
+  const [said, setSaid] = useState("");
+  useEffect(() => {
+    if (!said) return;
+    const timer = setTimeout(() => setSaid(""), 4000);
+    return () => clearTimeout(timer);
+  }, [said]);
+  return [said, setSaid];
 }

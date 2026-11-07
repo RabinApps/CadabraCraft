@@ -1,5 +1,6 @@
 import { Fragment, type MutableRefObject } from "react";
 import { useLingui } from "@lingui/react/macro";
+import type { ColourBy } from "../../lib/scenes/sceneFilter";
 import { Button } from "../../ui/Button";
 import { cx } from "../../ui/cx";
 import { DropLine } from "../../ui/DropLine";
@@ -23,7 +24,12 @@ interface ColumnProps {
   drag: ReturnType<typeof useDragReorder<Landing>>["drag"];
   gripHelpId: string;
   povNames: string[];
-  moves: (index: number) => SceneCardProps["moves"];
+  /** What the colour bar follows. */
+  colourBy: ColourBy;
+  /** True while a filter is on: the column says "no matching scenes", drops the Unsorted card and the cards cannot be moved. */
+  filtering: boolean;
+  /** Null while a filter is on. */
+  moves: ((index: number) => SceneCardProps["moves"]) | null;
   onGrab: (sceneId: string, index: number) => SceneCardProps["onGrab"];
   onPatch: (sceneId: string, patch: Parameters<SceneCardProps["onPatch"]>[0]) => void;
   onOpen: (sceneId: string) => void;
@@ -41,6 +47,8 @@ export function BoardColumn({
   drag,
   gripHelpId,
   povNames,
+  colourBy,
+  filtering,
   moves,
   onGrab,
   onPatch,
@@ -76,7 +84,9 @@ export function BoardColumn({
             className="m-0 flex list-none flex-col gap-3 p-0"
           >
             {c.rows.length === 0 && (
-              <li className="px-1 text-sm text-ink-muted">{t`No scenes yet.`}</li>
+              <li className="px-1 text-sm text-ink-muted">
+                {filtering ? t`No matching scenes.` : t`No scenes yet.`}
+              </li>
             )}
             {c.rows.map((s, i) => (
               <Fragment key={s.id}>
@@ -88,7 +98,8 @@ export function BoardColumn({
                 <SceneCard
                   scene={s}
                   chapterTitle={c.title}
-                  moves={moves(i)}
+                  moves={moves ? moves(i) : null}
+                  colourBy={colourBy}
                   povNames={povNames}
                   dragging={drag?.id === s.id}
                   onGrab={onGrab(s.id, i)}
@@ -103,7 +114,7 @@ export function BoardColumn({
                 <DropLine />
               </li>
             )}
-            {c.unsortedWords > 0 && (
+            {c.unsortedWords > 0 && !filtering && (
               <li
                 data-unsorted
                 className="flex flex-col gap-2 rounded-lg border border-dashed border-border-strong p-3"

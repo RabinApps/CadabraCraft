@@ -1,7 +1,6 @@
 import { useId, useState, type KeyboardEvent, type PointerEvent } from "react";
-import * as M from "@radix-ui/react-dropdown-menu";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowDown, ArrowUp, Ellipsis, GripVertical, PenLine } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import { MAX_SCENE_POV, MAX_SCENE_SYNOPSIS, SCENE_STATUSES } from "@cadabracraft/editor-schema";
 import {
   sceneProgress,
@@ -9,10 +8,11 @@ import {
   type SceneRow,
   type SceneStatus,
 } from "../../lib/scenes/scenes";
-import { IconButton } from "../../ui/Button";
 import { cx } from "../../ui/cx";
-import { menuContentClass, menuItemClass, menuLabelClass } from "../../ui/Menu";
+import type { ColourBy } from "../../lib/scenes/sceneFilter";
 import { sceneStatusWord } from "../scenes/labels";
+import { ColourBar, LabelChip } from "../scenes/SceneColour";
+import { CardMenu } from "./CardMenu";
 
 /** Where a card can go from here: the arrow keys and the menu offer exactly these. */
 export interface CardMoves {
@@ -30,7 +30,10 @@ export interface CardMoves {
 interface Props {
   scene: SceneRow;
   chapterTitle: string;
-  moves: CardMoves;
+  /** Null while a filter is on: the card has no grip and its menu has no move items. */
+  moves: CardMoves | null;
+  /** What the colour bar follows. */
+  colourBy: ColourBy;
   /** Names to suggest for the point of view (the codex's characters). */
   povNames: string[];
   dragging: boolean;
@@ -43,71 +46,6 @@ interface Props {
 }
 
 const statuses: SceneStatus[] = ["", ...SCENE_STATUSES];
-
-function CardMenu({
-  title,
-  moves,
-  onOpen,
-}: {
-  title: string;
-  moves: CardMoves;
-  onOpen: () => void;
-}) {
-  const { t } = useLingui();
-  return (
-    <M.Root>
-      <M.Trigger asChild>
-        <IconButton
-          icon={Ellipsis}
-          label={t`Actions for ${title}`}
-          className="shrink-0 md:size-7"
-        />
-      </M.Trigger>
-      <M.Portal>
-        <M.Content align="end" className={menuContentClass("min-w-48")}>
-          <M.Item
-            className={menuItemClass()}
-            disabled={moves.index === 0}
-            onSelect={() => moves.step(-1)}
-          >
-            <ArrowUp size={14} aria-hidden />
-            {t`Move earlier`}
-          </M.Item>
-          <M.Item
-            className={menuItemClass()}
-            disabled={moves.index === moves.count - 1}
-            onSelect={() => moves.step(1)}
-          >
-            <ArrowDown size={14} aria-hidden />
-            {t`Move later`}
-          </M.Item>
-          {moves.chapters.length > 0 && (
-            <>
-              <M.Separator className="my-1 h-px bg-border" />
-              <M.Label className={menuLabelClass} aria-hidden>
-                {t`Move to chapter`}
-              </M.Label>
-              {moves.chapters.map((c) => (
-                <M.Item
-                  key={c.id}
-                  className={menuItemClass()}
-                  onSelect={() => moves.toChapter(c.id)}
-                >
-                  {c.title}
-                </M.Item>
-              ))}
-            </>
-          )}
-          <M.Separator className="my-1 h-px bg-border" />
-          <M.Item className={menuItemClass()} onSelect={onOpen}>
-            <PenLine size={14} aria-hidden />
-            {t`Open scene`}
-          </M.Item>
-        </M.Content>
-      </M.Portal>
-    </M.Root>
-  );
-}
 
 type Patch = Props["onPatch"];
 
@@ -226,6 +164,7 @@ export function SceneCard({
   scene,
   chapterTitle,
   moves,
+  colourBy,
   povNames,
   dragging,
   onGrab,
@@ -240,10 +179,10 @@ export function SceneCard({
     // The columns run the other way in a right-to-left interface, so the arrows do too.
     const flip = getComputedStyle(e.currentTarget).direction === "rtl" ? -1 : 1;
     const keys: Record<string, () => void> = {
-      ArrowUp: () => moves.step(-1),
-      ArrowDown: () => moves.step(1),
-      ArrowLeft: () => moves.beside(-flip as -1 | 1),
-      ArrowRight: () => moves.beside(flip),
+      ArrowUp: () => moves?.step(-1),
+      ArrowDown: () => moves?.step(1),
+      ArrowLeft: () => moves?.beside(-flip as -1 | 1),
+      ArrowRight: () => moves?.beside(flip),
     };
     const run = keys[e.key];
     if (!run) return;
@@ -259,23 +198,38 @@ export function SceneCard({
         dragging && "opacity-40",
       )}
     >
+      <ColourBar scene={scene} by={colourBy} />
       <div className="flex items-start gap-1">
-        <button
-          type="button"
-          data-grip
-          data-grip-for={scene.id}
-          aria-label={t`Reorder ${title}`}
-          aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
-          aria-describedby={gripHelpId}
-          onPointerDown={onGrab}
-          onKeyDown={gripKeys}
-          className="-ms-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
+        {moves && (
+          <button
+            type="button"
+            data-grip
+            data-grip-for={scene.id}
+            aria-label={t`Reorder ${title}`}
+            aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
+            aria-describedby={gripHelpId}
+            onPointerDown={onGrab}
+            onKeyDown={gripKeys}
+            className="-ms-1 flex size-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-ink-muted max-md:size-11 focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            <GripVertical size={16} aria-hidden />
+          </button>
+        )}
+        <h3
+          className={cx(
+            "min-w-0 flex-1 pt-0.5 text-sm font-semibold break-words",
+            !moves && "ps-1",
+          )}
         >
-          <GripVertical size={16} aria-hidden />
-        </button>
-        <h3 className="min-w-0 flex-1 pt-0.5 text-sm font-semibold break-words">{title}</h3>
+          {title}
+        </h3>
         <CardMenu title={title} moves={moves} onOpen={onOpen} />
       </div>
+      {scene.label && (
+        <div>
+          <LabelChip label={scene.label} />
+        </div>
+      )}
       <Synopsis scene={scene} title={title} onPatch={onPatch} />
       <PovAndStatus scene={scene} title={title} povNames={povNames} onPatch={onPatch} />
       <div className="flex flex-col gap-1">

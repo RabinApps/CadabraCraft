@@ -1,6 +1,16 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { manifestOf, newProject, seedChapters } from "./support/helpers";
+import {
+  count,
+  facetButton,
+  filterBar,
+  filterBook,
+  openBoard as openFilterBoard,
+  openTimeline,
+  pick,
+  search,
+} from "./support/sceneFilterBook";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -339,5 +349,207 @@ test.describe("scene board on a tablet", () => {
     ]);
     expect(two!.x).toBeGreaterThan(one!.x);
     expect(Math.abs(two!.y - one!.y)).toBeLessThan(2);
+  });
+});
+
+test.describe("scene board filters", () => {
+  const titles = (page: Page) => page.locator("[data-scene-card] h3").allTextContents();
+  const colourBy = (page: Page) => page.getByRole("radiogroup", { name: "Colour by" });
+
+  test("filters by POV (spellings merged), counts the scenes, and leaves the chapter files alone", async ({
+    page,
+  }) => {
+    await filterBook(page);
+    await openFilterBoard(page);
+    await expect(count(page)).toHaveText("4 scenes");
+    const before = await files(page);
+    await facetButton(page, "POV").click();
+    // "Mara" and "mara" are one value with two scenes; scenes without a POV are the "none" value.
+    await expect(page.getByRole("menuitemcheckbox", { name: "Mara 2" })).toBeVisible();
+    await expect(page.getByRole("menuitemcheckbox", { name: "Ada 1" })).toBeVisible();
+    await expect(page.getByRole("menuitemcheckbox", { name: "No POV 1" })).toBeVisible();
+    await page.getByRole("menuitemcheckbox", { name: "Mara 2" }).click();
+    // The menu stays open to tick more values.
+    await expect(page.getByRole("menuitemcheckbox", { name: "Mara 2" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    await page.keyboard.press("Escape");
+    expect(await titles(page)).toEqual(["Arrival", "Chase"]);
+    await expect(count(page)).toHaveText("2 of 4 scenes");
+    await expect(page.getByRole("button", { name: /^POV 1 selected/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^POV: Mara/ })).toBeVisible();
+    // OR within a facet.
+    await pick(page, "POV", ["Ada"]);
+    expect(await titles(page)).toEqual(["Arrival", "Bargain", "Chase"]);
+    expect(await files(page)).toEqual(before);
+  });
+
+  test("combines facets with AND and the none value, and removes a value from its chip", async ({
+    page,
+  }) => {
+    await filterBook(page);
+    await openFilterBoard(page);
+    await pick(page, "POV", ["Mara"]);
+    await pick(page, "Status", ["Draft"]);
+    expect(await titles(page)).toEqual(["Arrival"]);
+    await page.getByRole("button", { name: /^Status: Draft/ }).click();
+    expect(await titles(page)).toEqual(["Arrival", "Chase"]);
+    await pick(page, "Label", ["No label"]);
+    expect(await titles(page)).toEqual([]);
+    await page.getByRole("button", { name: /^POV: Mara/ }).click();
+    expect(await titles(page)).toEqual(["Dawn"]);
+    await expect(count(page)).toHaveText("1 of 4 scenes");
+  });
+
+  test("the facet menu works from the keyboard and has a Clear footer", async ({ page }) => {
+    await filterBook(page);
+    await openFilterBoard(page);
+    await facetButton(page, "Status").focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("menuitemcheckbox", { name: "Draft 1" })).toBeFocused();
+    await page.keyboard.press("Space");
+    await expect(page.getByRole("menuitemcheckbox", { name: "Draft 1" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    await expect(page.getByRole("menu")).toBeVisible();
+    await page.getByRole("menuitem", { name: "Clear status" }).click();
+    await expect(count(page)).toHaveText("4 scenes");
+  });
+
+  test("searches the title and synopsis, and Clear brings everything back", async ({ page }) => {
+    await filterBook(page);
+    await openFilterBoard(page);
+    await search(page).fill("quay");
+    expect(await titles(page)).toEqual(["Arrival"]);
+    await search(page).fill("dwn");
+    expect(await titles(page)).toEqual(["Dawn"]);
+    await page.getByRole("button", { name: "Clear all filters" }).click();
+    await expect(search(page)).toHaveValue("");
+    expect(await titles(page)).toHaveLength(4);
+    await expect(page.getByRole("button", { name: "Clear all filters" })).toHaveCount(0);
+  });
+
+  test("says when nothing matches, and Clear filters restores the board", async ({ page }) => {
+    await filterBook(page);
+    await openFilterBoard(page);
+    await search(page).fill("zzzzq");
+    await expect(page.getByText("No scenes match these filters.")).toBeVisible();
+    await expect(count(page)).toHaveText("0 of 4 scenes");
+    await expect(page.getByRole("region", { name: "Chapters and their scenes" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Clear filters", exact: true }).click();
+    expect(await titles(page)).toHaveLength(4);
+  });
+
+  test("turns moving off while a filter is on, then back on", async ({ page }) => {
+    await filterBook(page);
+    await openFilterBoard(page);
+    await expect(grip(page, "Arrival")).toBeVisible();
+    await expect(page.getByText("Moving scenes is off while a filter is on")).toHaveCount(0);
+    await pick(page, "POV", ["Mara"]);
+    await expect(page.getByText("Moving scenes is off while a filter is on")).toBeVisible();
+    await expect(page.locator("[data-grip]")).toHaveCount(0);
+    await page.getByRole("button", { name: "Actions for Arrival" }).click();
+    await expect(page.getByRole("menuitem", { name: "Open scene" })).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "Move later" })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    // The Unsorted card is not a scene: it waits until the filter is off.
+    await expect(page.locator("[data-unsorted]")).toHaveCount(0);
+    await page.getByRole("button", { name: "Clear all filters" }).click();
+    await expect(page.locator("[data-grip]")).toHaveCount(4);
+    await expect(page.locator("[data-unsorted]")).toHaveCount(1);
+  });
+
+  test("prints the label on a chip and colours by label or status on request", async ({ page }) => {
+    await filterBook(page);
+    await openFilterBoard(page);
+    await expect(page.locator("[data-colour-bar]")).toHaveCount(0);
+    await expect(page.locator("[data-label-chip]")).toHaveText(["Past", "Past", "Dream"]);
+    await colourBy(page).getByRole("radio", { name: "Label" }).click();
+    await expect(page.locator('[data-colour-bar="label"]')).toHaveCount(3);
+    // The same label always has the same colour.
+    const classes = await page
+      .locator('[data-colour-bar="label"]')
+      .evaluateAll((els) => els.map((e) => e.className));
+    expect(classes[0]).toBe(classes[1]);
+    await colourBy(page).getByRole("radio", { name: "Status" }).click();
+    await expect(page.locator('[data-colour-bar="status"]')).toHaveCount(3);
+    await colourBy(page).getByRole("radio", { name: "None" }).click();
+    await expect(page.locator("[data-colour-bar]")).toHaveCount(0);
+  });
+
+  test("keeps the filter for the book when the board is closed and opened again", async ({
+    page,
+  }) => {
+    await filterBook(page);
+    await openFilterBoard(page);
+    await pick(page, "Label", ["Past"]);
+    await colourBy(page).getByRole("radio", { name: "Label" }).click();
+    await back(page);
+    await openFilterBoard(page);
+    expect(await titles(page)).toEqual(["Arrival", "Bargain"]);
+    await expect(page.locator('[data-colour-bar="label"]')).toHaveCount(2);
+    const saved = await page.evaluate(() => localStorage.getItem("cadabracraft.sceneFilters"));
+    expect(JSON.parse(saved!)["/proj"].filter.label).toEqual(["past"]);
+    // The timeline shows the same filter.
+    await back(page);
+    await openTimeline(page);
+    await expect(filterBar(page)).toBeVisible();
+    await expect(count(page)).toHaveText("2 of 4 scenes");
+  });
+});
+
+test.describe("scene board filters on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("folds the controls under a Filters button", async ({ page }) => {
+    await filterBook(page);
+    await openFilterBoard(page);
+    const toggle = page.getByRole("button", { name: "Filters", exact: true });
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(search(page)).toBeHidden();
+    await expect(count(page)).toBeVisible();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await search(page).fill("arr");
+    await expect(page.getByRole("button", { name: /^Filters 1 selected/ })).toBeVisible();
+    await expect(count(page)).toHaveText("1 of 4 scenes");
+    await pick(page, "POV", ["Mara"]);
+    await expect(page.getByRole("button", { name: /^POV: Mara/ })).toBeVisible();
+    await expect(page.getByText("Moving scenes is off while a filter is on")).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
+    expect(overflow).toBe(false);
+    await page.getByRole("button", { name: /^Filters/ }).click();
+    await expect(search(page)).toBeHidden();
+    await expect(page.getByRole("button", { name: "Clear all filters" })).toBeVisible();
+  });
+});
+
+test.describe("scene board filters, right to left", () => {
+  test("mirrors the bar and does not overflow", async ({ page }) => {
+    await filterBook(page);
+    await page.evaluate(() => {
+      document.documentElement.dir = "rtl";
+      document.documentElement.lang = "he";
+    });
+    await openFilterBoard(page);
+    await pick(page, "POV", ["Mara"]);
+    await page
+      .getByRole("radiogroup", { name: "Colour by" })
+      .getByRole("radio", { name: "Label" })
+      .click();
+    const [card, stripe] = await Promise.all([
+      page.locator("[data-scene-card]").first().boundingBox(),
+      page.locator('[data-colour-bar="label"]').first().boundingBox(),
+    ]);
+    // The colour bar sits on the start edge, which is the right in a right-to-left layout.
+    expect(stripe!.x + stripe!.width).toBeGreaterThan(card!.x + card!.width - 8);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth + 1,
+    );
+    expect(overflow).toBe(false);
   });
 });

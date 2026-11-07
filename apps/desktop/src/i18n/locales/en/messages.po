@@ -7,6 +7,10 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid ", remove this filter"
+msgstr ", remove this filter"
+
 #: src/app/settings/FontsSection.tsx
 msgid ".ttf and .otf files. A copy is kept in the app, never in your book."
 msgstr ".ttf and .otf files. A copy is kept in the app, never in your book."
@@ -263,6 +267,11 @@ msgstr "{0} of {1} MB"
 msgid "{0} of {1} words"
 msgstr "{0} of {1} words"
 
+#. placeholder {0}: rows.length
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "{0} scenes"
+msgstr "{0} scenes"
+
 #. placeholder {0}: c.rows.length
 #. placeholder {1}: boardWords(c).toLocaleString()
 #: src/app/board/BoardColumn.tsx
@@ -452,6 +461,11 @@ msgstr "{pdfPages, plural, one {# page in the PDF} other {# pages in the PDF}}"
 #: src/app/shell/header/StatusBar.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} of {sessionGoal} words this session"
+
+#. placeholder {0}: rows.length
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "{shown} of {0} scenes"
+msgstr "{shown} of {0} scenes"
 
 #: src/editor/pageview/PageFrame.tsx
 msgid "{size} · approximate"
@@ -659,7 +673,7 @@ msgstr "Acknowledgments"
 msgid "Actions for {0}"
 msgstr "Actions for {0}"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Actions for {title}"
 msgstr "Actions for {title}"
 
@@ -1452,9 +1466,22 @@ msgstr "Choose…"
 msgid "Clarifications"
 msgstr "Clarifications"
 
+#: src/app/scenes/SceneFilterBar.tsx
 #: src/app/timeline/TimelineRow.tsx
 msgid "Clear"
 msgstr "Clear"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear all filters"
+msgstr "Clear all filters"
+
+#: src/app/scenes/NoMatch.tsx
+msgid "Clear filters"
+msgstr "Clear filters"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear label"
+msgstr "Clear label"
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
 #: src/editor/toolbar/useMenuOnlyItems.ts
@@ -1469,9 +1496,17 @@ msgstr "Clear Language"
 msgid "Clear Menu"
 msgstr "Clear Menu"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear POV"
+msgstr "Clear POV"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Clear search and filters to reorder"
 msgstr "Clear search and filters to reorder"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear status"
+msgstr "Clear status"
 
 #: src/app/timeline/TimelineRow.tsx
 msgid "Clear the story date of {title}"
@@ -1556,6 +1591,10 @@ msgstr "Collapse {heading}"
 #: src/app/shell/useKindLabels.ts
 msgid "Colophon"
 msgstr "Colophon"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Colour by"
+msgstr "Colour by"
 
 #: src/editor/toolbar/TableCommands.tsx
 msgid "Columns"
@@ -2412,6 +2451,14 @@ msgstr "Filter by type"
 msgid "Filter comments"
 msgstr "Filter comments"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Filter scenes"
+msgstr "Filter scenes"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Filters"
+msgstr "Filters"
+
 #: src/app/scenes/labels.ts
 msgid "Final"
 msgstr "Final"
@@ -3003,6 +3050,7 @@ msgstr "Kokoro sounds the most natural but is slower: roughly 20 minutes of work
 msgid "Kokoro: Heart"
 msgstr "Kokoro: Heart"
 
+#: src/app/scenes/SceneFilterBar.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Label"
 msgstr "Label"
@@ -3355,11 +3403,11 @@ msgstr "Move contents entry"
 msgid "Move down"
 msgstr "Move down"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Move earlier"
 msgstr "Move earlier"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Move later"
 msgstr "Move later"
 
@@ -3371,7 +3419,7 @@ msgstr "Move part down"
 msgid "Move part up"
 msgstr "Move part up"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Move to chapter"
 msgstr "Move to chapter"
 
@@ -3416,6 +3464,10 @@ msgstr "Moved {title} up to part {partNo} of {0}"
 #: src/app/shell/EntryList.tsx
 msgid "Moved {title} up to position {place} of {0}"
 msgstr "Moved {title} up to position {place} of {0}"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Moving scenes is off while a filter is on"
+msgstr "Moving scenes is off while a filter is on"
 
 #: src/lib/useIconChoices.ts
 msgid "Music"
@@ -3561,9 +3613,17 @@ msgstr "No HTML found in the selection"
 msgid "No key"
 msgstr "No key"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "No label"
+msgstr "No label"
+
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
 msgstr "No matches"
+
+#: src/app/board/BoardColumn.tsx
+msgid "No matching scenes."
+msgstr "No matching scenes."
 
 #: src/app/scenes/SceneRail.tsx
 msgid "No one from the codex yet."
@@ -3572,6 +3632,10 @@ msgstr "No one from the codex yet."
 #: src/app/comments/CommentsPanel.tsx
 msgid "No open comments on this page."
 msgstr "No open comments on this page."
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "No POV"
+msgstr "No POV"
 
 #: src/app/references/Previews.tsx
 msgid "No preview for this file type"
@@ -3600,6 +3664,10 @@ msgstr "No results"
 #: src/app/codex/CodexDialog.tsx
 msgid "No scene names it yet."
 msgstr "No scene names it yet."
+
+#: src/app/scenes/NoMatch.tsx
+msgid "No scenes match these filters."
+msgstr "No scenes match these filters."
 
 #: src/app/board/BoardColumn.tsx
 msgid "No scenes yet."
@@ -3630,6 +3698,7 @@ msgstr "No voice on this computer reads {0} yet. The voices CadabraCraft can dow
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
+#: src/app/scenes/SceneFilterBar.tsx
 msgid "None"
 msgstr "None"
 
@@ -3844,7 +3913,7 @@ msgstr "Open page {page} in the editor"
 msgid "Open Recent"
 msgstr "Open Recent"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Open scene"
 msgstr "Open scene"
@@ -4092,6 +4161,10 @@ msgstr "Point of view of {title}"
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Points to"
 msgstr "Points to"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "POV"
+msgstr "POV"
 
 #. placeholder {0}: scene.pov
 #: src/app/timeline/TimelineRow.tsx
@@ -4765,6 +4838,10 @@ msgstr "Search in PDF"
 msgid "Search references"
 msgstr "Search references"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Search scenes"
+msgstr "Search scenes"
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search shortcuts"
 msgstr "Search shortcuts"
@@ -4800,6 +4877,11 @@ msgstr "Select the text first."
 #: src/editor/toolbar/useToolbarItems.ts
 msgid "Select the text you want to link first."
 msgstr "Select the text you want to link first."
+
+#: src/app/scenes/FacetMenu.tsx
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "selected"
+msgstr "selected"
 
 #: src/app/export/parts/AudioFieldParts.tsx
 msgid "Selected chapters"
@@ -5099,6 +5181,7 @@ msgid "Start the new edition"
 msgstr "Start the new edition"
 
 #: src/app/board/SceneCard.tsx
+#: src/app/scenes/SceneFilterBar.tsx
 msgid "Status"
 msgstr "Status"
 
