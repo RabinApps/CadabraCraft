@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowLeft, CalendarRange } from "lucide-react";
-import { IconButton } from "../../ui/Button";
+import { ArrowLeft, CalendarRange, SearchX } from "lucide-react";
+import { Button, IconButton } from "../../ui/Button";
 import { Notice } from "../../ui/feedback/Notice";
 import { Segmented } from "../../ui/forms/Segmented";
 import { noticeIsAlert } from "../../state/project/util";
@@ -9,7 +9,10 @@ import { useProject } from "../../state/project/index";
 import { useSceneView } from "../../state/view/sceneView";
 import { attempt } from "../../state/attempt";
 import { buildTimeline, formatStoryDay, type TimelineOrder } from "../../lib/scenes/timelineData";
+import { useSceneFilter } from "../../state/view/sceneFilter";
+import { boardRows, filterTimeline } from "../../lib/scenes/sceneFilter";
 import { useBoardData } from "../board/useBoardData";
+import { SceneFilterBar } from "../scenes/SceneFilterBar";
 import { TimelineRow } from "./TimelineRow";
 
 function TimelineHeader({
@@ -72,7 +75,11 @@ export function Timeline({ onBack }: { onBack: () => void }) {
   }, [actions]);
   const board = useBoardData(ready);
   const [order, setOrder] = useState<TimelineOrder>("book");
-  const items = useMemo(() => buildTimeline(board, order), [board, order]);
+  const { filter, colourBy, clear } = useSceneFilter();
+  const everyItem = useMemo(() => buildTimeline(board, order), [board, order]);
+  // Filtered after the axis is built, so a scene without a date still follows the scene before it in the book.
+  const items = useMemo(() => filterTimeline(everyItem, filter), [everyItem, filter]);
+  const rows = useMemo(() => boardRows(board), [board]);
   const reading = !ready || board.chapters.some((c) => !c.loaded);
   const [said, setSaid] = useState("");
   useEffect(() => {
@@ -123,6 +130,7 @@ export function Timeline({ onBack }: { onBack: () => void }) {
   return (
     <div className="flex h-dvh flex-col bg-bg text-ink">
       <TimelineHeader order={order} onOrder={setOrder} onBack={onBack} />
+      <SceneFilterBar rows={rows} shown={items.length} />
       <main id="main" tabIndex={-1} className="min-h-0 flex-1 overflow-y-auto outline-none">
         <div className="mx-auto flex max-w-4xl flex-col gap-4 p-4 md:p-6">
           {board.duplicates.length > 0 && (
@@ -140,8 +148,14 @@ export function Timeline({ onBack }: { onBack: () => void }) {
           )}
           {reading ? (
             <p role="status" className="text-sm text-ink-muted">{t`Reading…`}</p>
-          ) : items.length === 0 ? (
+          ) : everyItem.length === 0 ? (
             <p className="text-sm text-ink-muted">{t`This book has no scenes yet.`}</p>
+          ) : items.length === 0 ? (
+            <div className="flex flex-col items-start gap-3 text-sm text-ink-muted">
+              <SearchX size={24} aria-hidden />
+              <p>{t`No scenes match these filters.`}</p>
+              <Button onClick={clear}>{t`Clear filters`}</Button>
+            </div>
           ) : (
             <ol aria-label={t`Scenes on the timeline`} className="m-0 flex list-none flex-col p-0">
               {items.map((item, i) => (
@@ -149,6 +163,7 @@ export function Timeline({ onBack }: { onBack: () => void }) {
                   key={item.scene.id}
                   item={item}
                   last={i === items.length - 1}
+                  colourBy={colourBy}
                   onDate={(date, field) =>
                     setDate(
                       item.chapterId,

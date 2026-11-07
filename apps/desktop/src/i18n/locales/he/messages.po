@@ -7,6 +7,10 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: he\n"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid ", remove this filter"
+msgstr ", הסרת המסנן הזה"
+
 #: src/app/settings/FontsSection.tsx
 msgid ".ttf and .otf files. A copy is kept in the app, never in your book."
 msgstr "קובצי ‎.ttf ו־‎.otf. עותק נשמר באפליקציה, אף פעם לא בספר שלך."
@@ -263,6 +267,11 @@ msgstr "{0} מתוך {1} MB"
 msgid "{0} of {1} words"
 msgstr "{0} מתוך {1} מילים"
 
+#. placeholder {0}: rows.length
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "{0} scenes"
+msgstr "{0} סצנות"
+
 #. placeholder {0}: c.rows.length
 #. placeholder {1}: boardWords(c).toLocaleString()
 #: src/app/board/BoardColumn.tsx
@@ -452,6 +461,11 @@ msgstr "{pdfPages, plural, one {עמוד # ב־PDF} other {# עמודים ב־PD
 #: src/app/shell/header/StatusBar.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} מתוך {sessionGoal} מילים בסשן הזה"
+
+#. placeholder {0}: rows.length
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "{shown} of {0} scenes"
+msgstr "{shown} מתוך {0} סצנות"
 
 #: src/editor/pageview/PageFrame.tsx
 msgid "{size} · approximate"
@@ -647,7 +661,7 @@ msgstr "הכרת תודה"
 msgid "Actions for {0}"
 msgstr "פעולות עבור {0}"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Actions for {title}"
 msgstr "פעולות עבור {title}"
 
@@ -1421,9 +1435,23 @@ msgstr "בחירה…"
 msgid "Clarifications"
 msgstr "הבהרות"
 
+#: src/app/scenes/SceneFilterBar.tsx
 #: src/app/timeline/TimelineRow.tsx
 msgid "Clear"
 msgstr "נקה"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear all filters"
+msgstr "נקה את כל המסננים"
+
+#: src/app/board/SceneBoard.tsx
+#: src/app/timeline/Timeline.tsx
+msgid "Clear filters"
+msgstr "נקה מסננים"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear label"
+msgstr "נקה תווית"
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
 #: src/editor/toolbar/useMenuOnlyItems.ts
@@ -1438,9 +1466,17 @@ msgstr "ניקוי השפה"
 msgid "Clear Menu"
 msgstr "ניקוי התפריט"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear POV"
+msgstr "נקה נקודת מבט"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Clear search and filters to reorder"
 msgstr "נקה את החיפוש והמסננים כדי לסדר מחדש"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear status"
+msgstr "נקה מצב"
 
 #: src/app/timeline/TimelineRow.tsx
 msgid "Clear the story date of {title}"
@@ -1524,6 +1560,10 @@ msgstr "כווץ {heading}"
 #: src/app/shell/useKindLabels.ts
 msgid "Colophon"
 msgstr "קולופון"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Colour by"
+msgstr "צבע לפי"
 
 #: src/editor/toolbar/TableCommands.tsx
 msgid "Columns"
@@ -2354,6 +2394,14 @@ msgstr "סינון לפי סוג"
 msgid "Filter comments"
 msgstr "סינון הערות"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Filter scenes"
+msgstr "סינון סצנות"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Filters"
+msgstr "מסננים"
+
 #: src/app/scenes/labels.ts
 msgid "Final"
 msgstr "סופית"
@@ -2941,6 +2989,7 @@ msgstr "Kokoro נשמע טבעי יותר אך איטי יותר: כ־20 דקו�
 msgid "Kokoro: Heart"
 msgstr "Kokoro: Heart"
 
+#: src/app/scenes/SceneFilterBar.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Label"
 msgstr "תווית"
@@ -3285,11 +3334,11 @@ msgstr "העברת פריט בתוכן העניינים"
 msgid "Move down"
 msgstr "הזזה למטה"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Move earlier"
 msgstr "העברה מוקדם יותר"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Move later"
 msgstr "העברה מאוחר יותר"
 
@@ -3301,7 +3350,7 @@ msgstr "הזזת חלק למטה"
 msgid "Move part up"
 msgstr "הזזת חלק למעלה"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Move to chapter"
 msgstr "העברה לפרק"
 
@@ -3346,6 +3395,10 @@ msgstr "{title} הוזז למעלה לחלק {partNo} מתוך {0}"
 #: src/app/shell/EntryList.tsx
 msgid "Moved {title} up to position {place} of {0}"
 msgstr "{title} הוזז למעלה למקום {place} מתוך {0}"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Moving scenes is off while a filter is on"
+msgstr "העברת סצנות כבויה כל עוד מסנן פעיל"
 
 #: src/lib/useIconChoices.ts
 msgid "Music"
@@ -3491,9 +3544,17 @@ msgstr "לא נמצא HTML בבחירה"
 msgid "No key"
 msgstr "ללא מקש"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "No label"
+msgstr "ללא תווית"
+
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
 msgstr "אין התאמות"
+
+#: src/app/board/BoardColumn.tsx
+msgid "No matching scenes."
+msgstr "אין סצנות מתאימות."
 
 #: src/app/scenes/SceneRail.tsx
 msgid "No one from the codex yet."
@@ -3502,6 +3563,10 @@ msgstr "עדיין אין אף אחד מהקודקס."
 #: src/app/comments/CommentsPanel.tsx
 msgid "No open comments on this page."
 msgstr "אין הערות פתוחות בדף זה."
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "No POV"
+msgstr "ללא נקודת מבט"
 
 #: src/app/references/Previews.tsx
 msgid "No preview for this file type"
@@ -3531,6 +3596,11 @@ msgstr "אין תוצאות"
 msgid "No scene names it yet."
 msgstr "עדיין אין סצנה שמזכירה אותו."
 
+#: src/app/board/SceneBoard.tsx
+#: src/app/timeline/Timeline.tsx
+msgid "No scenes match these filters."
+msgstr "אין סצנות שמתאימות למסננים האלה."
+
 #: src/app/board/BoardColumn.tsx
 msgid "No scenes yet."
 msgstr "עדיין אין סצנות."
@@ -3556,6 +3626,7 @@ msgstr "אין עדיין קול במחשב זה שמקריא {0}. הקולות 
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
+#: src/app/scenes/SceneFilterBar.tsx
 msgid "None"
 msgstr "ללא"
 
@@ -3766,7 +3837,7 @@ msgstr "פתח את עמוד {page} בעורך"
 msgid "Open Recent"
 msgstr "פתיחת אחרונים"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Open scene"
 msgstr "פתיחת הסצנה"
@@ -4014,6 +4085,10 @@ msgstr "נקודת המבט של {title}"
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Points to"
 msgstr "מצביע אל"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "POV"
+msgstr "נקודת מבט"
 
 #. placeholder {0}: scene.pov
 #: src/app/timeline/TimelineRow.tsx
@@ -4686,6 +4761,10 @@ msgstr "חיפוש ב־PDF"
 msgid "Search references"
 msgstr "חיפוש הפניות"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Search scenes"
+msgstr "חיפוש סצנות"
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search shortcuts"
 msgstr "חיפוש קיצורים"
@@ -4721,6 +4800,11 @@ msgstr "בחר טקסט תחילה."
 #: src/editor/toolbar/useToolbarItems.ts
 msgid "Select the text you want to link first."
 msgstr "בחר קודם את הטקסט שברצונך לקשר."
+
+#: src/app/scenes/FacetMenu.tsx
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "selected"
+msgstr "נבחרו"
 
 #: src/app/export/parts/AudioFieldParts.tsx
 msgid "Selected chapters"
@@ -4982,6 +5066,7 @@ msgid "Start the new edition"
 msgstr "התחלת המהדורה החדשה"
 
 #: src/app/board/SceneCard.tsx
+#: src/app/scenes/SceneFilterBar.tsx
 msgid "Status"
 msgstr "מצב"
 

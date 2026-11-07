@@ -1,5 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { isStoryDate } from "@cadabracraft/editor-schema";
+import type { ColourBy } from "../../lib/scenes/sceneFilter";
 import { sceneWordsLabel } from "../../lib/scenes/scenes";
 import {
   formatStoryDay,
@@ -11,10 +12,13 @@ import {
 } from "../../lib/scenes/timelineData";
 import { cx } from "../../ui/cx";
 import { sceneStatusTone, sceneStatusWord } from "../scenes/labels";
+import { ColourBar, LabelChip } from "../scenes/SceneColour";
 
 interface Props {
   item: TimelineItem;
   last: boolean;
+  /** What the colour bar follows. */
+  colourBy: ColourBy;
   /** Saves the scene's whole story date (`field` names the input that changed, to put the focus back on it). */
   onDate: (date: string, field: "day" | "time") => void;
   onOpen: () => void;
@@ -118,7 +122,7 @@ function DateFields({
 }
 
 /** One scene on the axis: its date and time at the side, a marker on the line, and a card with the scene's notes and its date fields. */
-export function TimelineRow({ item, last, onDate, onOpen }: Props) {
+export function TimelineRow({ item, last, colourBy, onDate, onOpen }: Props) {
   const { t } = useLingui();
   const { scene, dated } = item;
   const title = scene.title || t`Untitled scene`;
@@ -144,8 +148,9 @@ export function TimelineRow({ item, last, onDate, onOpen }: Props) {
       <div className={cx("flex min-w-0 flex-col pt-2 [grid-area:card] md:pt-0", !last && "pb-4")}>
         <div
           data-scene-card
-          className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-3"
+          className="relative flex flex-col gap-2 rounded-lg border border-border bg-surface p-3"
         >
+          <ColourBar scene={scene} by={colourBy} />
           <div className="flex items-start gap-2">
             <h3 className="min-w-0 flex-1 text-sm font-semibold break-words">{title}</h3>
             <button
@@ -170,6 +175,7 @@ export function TimelineRow({ item, last, onDate, onOpen }: Props) {
                   {t`POV ${scene.pov}`}
                 </span>
               )}
+              <LabelChip label={scene.label} />
               {scene.status ? (
                 <span
                   className={cx(

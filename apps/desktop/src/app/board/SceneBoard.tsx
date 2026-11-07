@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowLeft, Layers } from "lucide-react";
+import { ArrowLeft, Layers, SearchX } from "lucide-react";
 import { IconButton } from "../../ui/Button";
 import { Button } from "../../ui/Button";
 import { Notice } from "../../ui/feedback/Notice";
@@ -9,7 +9,10 @@ import { noticeIsAlert } from "../../state/project/util";
 import { useProject } from "../../state/project/index";
 import { useCodex } from "../../state/codex";
 import { useSceneView } from "../../state/view/sceneView";
+import { useSceneFilter } from "../../state/view/sceneFilter";
+import { boardRows, filterBoard, isFiltering } from "../../lib/scenes/sceneFilter";
 import { attempt } from "../../state/attempt";
+import { SceneFilterBar } from "../scenes/SceneFilterBar";
 import { BoardColumn } from "./BoardColumn";
 import { useSceneMoves } from "./useSceneMoves";
 import { StructureDialog } from "./StructureDialog";
@@ -93,7 +96,17 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
     () => entries.filter((e) => e.kind === "character").map((e) => e.name),
     [entries],
   );
-  const { chapters, duplicates } = useBoardData(ready);
+  const { chapters: all, duplicates } = useBoardData(ready);
+  const { filter, colourBy, clear } = useSceneFilter();
+  const filtering = isFiltering(filter);
+  // The filter is a view: the moves below index the whole chapters, and are switched off while a filter is on.
+  const board = useMemo(
+    () => filterBoard({ chapters: all, duplicates }, filter),
+    [all, duplicates, filter],
+  );
+  const chapters = all;
+  const rows = useMemo(() => boardRows({ chapters: all, duplicates }), [all, duplicates]);
+  const shownRows = boardRows(board).length;
   const [said, setSaid] = useState("");
   const [structureOpen, setStructureOpen] = useState(false);
   const gripHelp = useId();
@@ -147,15 +160,22 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
             {t`A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move.`}
           </Notice>
         )}
+        <SceneFilterBar rows={rows} shown={shownRows} moveCaption />
         {chapters.length === 0 ? (
           <p className="p-6 text-sm text-ink-muted">{t`This book has no chapters yet.`}</p>
+        ) : filtering && shownRows === 0 && all.every((c) => c.loaded) ? (
+          <div className="flex flex-col items-start gap-3 p-6 text-sm text-ink-muted">
+            <SearchX size={24} aria-hidden />
+            <p>{t`No scenes match these filters.`}</p>
+            <Button onClick={clear}>{t`Clear filters`}</Button>
+          </div>
         ) : (
           <div
             role="region"
             aria-label={t`Chapters and their scenes`}
             className="flex min-h-0 flex-1 gap-4 overflow-x-auto overflow-y-hidden p-4"
           >
-            {chapters.map((c, at) => (
+            {board.chapters.map((c, at) => (
               <BoardColumn
                 key={c.id}
                 chapter={c}
@@ -164,7 +184,9 @@ export function SceneBoard({ onBack }: { onBack: () => void }) {
                 drag={drag}
                 gripHelpId={gripHelp}
                 povNames={povNames}
-                moves={(i) => movesOf(c, i, at)}
+                colourBy={colourBy}
+                filtering={filtering}
+                moves={filtering ? null : (i) => movesOf(c, i, at)}
                 onGrab={(sceneId, i) => grab(sceneId, { chapter: c.id, index: i })}
                 onPatch={(sceneId, p) => patch(c.id, sceneId, p)}
                 onOpen={(sceneId) => openScene(c.id, sceneId)}

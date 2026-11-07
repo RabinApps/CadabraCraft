@@ -7,6 +7,10 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: ar\n"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid ", remove this filter"
+msgstr "، إزالة هذا المرشح"
+
 #: src/app/settings/FontsSection.tsx
 msgid ".ttf and .otf files. A copy is kept in the app, never in your book."
 msgstr "ملفات ‎.ttf و‎.otf. تُحفظ نسخة في التطبيق، وليس في كتابك أبدًا."
@@ -263,6 +267,11 @@ msgstr "{0} من {1} ميغابايت"
 msgid "{0} of {1} words"
 msgstr "{0} من {1} كلمة"
 
+#. placeholder {0}: rows.length
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "{0} scenes"
+msgstr "{0} مشاهد"
+
 #. placeholder {0}: c.rows.length
 #. placeholder {1}: boardWords(c).toLocaleString()
 #: src/app/board/BoardColumn.tsx
@@ -452,6 +461,11 @@ msgstr "{pdfPages, plural, one {صفحة واحدة في ملف PDF} two {صفح
 #: src/app/shell/header/StatusBar.tsx
 msgid "{sessionWritten} of {sessionGoal} words this session"
 msgstr "{sessionWritten} من {sessionGoal} كلمة في هذه الجلسة"
+
+#. placeholder {0}: rows.length
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "{shown} of {0} scenes"
+msgstr "{shown} من أصل {0} مشاهد"
 
 #: src/editor/pageview/PageFrame.tsx
 msgid "{size} · approximate"
@@ -647,7 +661,7 @@ msgstr "شكر وتقدير"
 msgid "Actions for {0}"
 msgstr "إجراءات لـ {0}"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Actions for {title}"
 msgstr "إجراءات لـ {title}"
 
@@ -1421,9 +1435,23 @@ msgstr "اختيار…"
 msgid "Clarifications"
 msgstr "توضيحات"
 
+#: src/app/scenes/SceneFilterBar.tsx
 #: src/app/timeline/TimelineRow.tsx
 msgid "Clear"
 msgstr "مسح"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear all filters"
+msgstr "مسح كل المرشحات"
+
+#: src/app/board/SceneBoard.tsx
+#: src/app/timeline/Timeline.tsx
+msgid "Clear filters"
+msgstr "مسح المرشحات"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear label"
+msgstr "مسح التسمية"
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
 #: src/editor/toolbar/useMenuOnlyItems.ts
@@ -1438,9 +1466,17 @@ msgstr "مسح اللغة"
 msgid "Clear Menu"
 msgstr "مسح القائمة"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear POV"
+msgstr "مسح وجهة النظر"
+
 #: src/app/references/ReferencesPanel.tsx
 msgid "Clear search and filters to reorder"
 msgstr "امسح البحث والمرشحات لإعادة الترتيب"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Clear status"
+msgstr "مسح الحالة"
 
 #: src/app/timeline/TimelineRow.tsx
 msgid "Clear the story date of {title}"
@@ -1524,6 +1560,10 @@ msgstr "طيّ {heading}"
 #: src/app/shell/useKindLabels.ts
 msgid "Colophon"
 msgstr "بيانات الطباعة"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Colour by"
+msgstr "التلوين حسب"
 
 #: src/editor/toolbar/TableCommands.tsx
 msgid "Columns"
@@ -2354,6 +2394,14 @@ msgstr "التصفية حسب النوع"
 msgid "Filter comments"
 msgstr "تصفية التعليقات"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Filter scenes"
+msgstr "تصفية المشاهد"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Filters"
+msgstr "المرشحات"
+
 #: src/app/scenes/labels.ts
 msgid "Final"
 msgstr "نهائية"
@@ -2941,6 +2989,7 @@ msgstr "يبدو Kokoro أكثر طبيعية لكنه أبطأ: نحو 20 دق�
 msgid "Kokoro: Heart"
 msgstr "Kokoro: Heart"
 
+#: src/app/scenes/SceneFilterBar.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Label"
 msgstr "التسمية"
@@ -3285,11 +3334,11 @@ msgstr "نقل إدخال المحتويات"
 msgid "Move down"
 msgstr "نقل لأسفل"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Move earlier"
 msgstr "نقل إلى الأمام"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Move later"
 msgstr "نقل إلى الخلف"
 
@@ -3301,7 +3350,7 @@ msgstr "نقل الجزء لأسفل"
 msgid "Move part up"
 msgstr "نقل الجزء لأعلى"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 msgid "Move to chapter"
 msgstr "نقل إلى الفصل"
 
@@ -3346,6 +3395,10 @@ msgstr "تم نقل {title} لأعلى إلى الجزء {partNo} من {0}"
 #: src/app/shell/EntryList.tsx
 msgid "Moved {title} up to position {place} of {0}"
 msgstr "تم نقل {title} لأعلى إلى الموضع {place} من {0}"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Moving scenes is off while a filter is on"
+msgstr "نقل المشاهد معطّل ما دام هناك مرشح مفعّل"
 
 #: src/lib/useIconChoices.ts
 msgid "Music"
@@ -3491,9 +3544,17 @@ msgstr "لم يُعثر على HTML في التحديد"
 msgid "No key"
 msgstr "بلا مفتاح"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "No label"
+msgstr "بلا تسمية"
+
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
 msgstr "لا توجد تطابقات"
+
+#: src/app/board/BoardColumn.tsx
+msgid "No matching scenes."
+msgstr "لا توجد مشاهد مطابقة."
 
 #: src/app/scenes/SceneRail.tsx
 msgid "No one from the codex yet."
@@ -3502,6 +3563,10 @@ msgstr "لا أحد من الموسوعة بعد."
 #: src/app/comments/CommentsPanel.tsx
 msgid "No open comments on this page."
 msgstr "لا توجد تعليقات مفتوحة في هذه الصفحة."
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "No POV"
+msgstr "بلا وجهة نظر"
 
 #: src/app/references/Previews.tsx
 msgid "No preview for this file type"
@@ -3531,6 +3596,11 @@ msgstr "لا نتائج"
 msgid "No scene names it yet."
 msgstr "لا يذكره أي مشهد بعد."
 
+#: src/app/board/SceneBoard.tsx
+#: src/app/timeline/Timeline.tsx
+msgid "No scenes match these filters."
+msgstr "لا توجد مشاهد تطابق هذه المرشحات."
+
 #: src/app/board/BoardColumn.tsx
 msgid "No scenes yet."
 msgstr "لا توجد مشاهد بعد."
@@ -3556,6 +3626,7 @@ msgstr "لا يوجد صوت على هذا الحاسوب يقرأ {0} حتى ا
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
+#: src/app/scenes/SceneFilterBar.tsx
 msgid "None"
 msgstr "بلا"
 
@@ -3766,7 +3837,7 @@ msgstr "افتح الصفحة {page} في المحرر"
 msgid "Open Recent"
 msgstr "فتح حديث"
 
-#: src/app/board/SceneCard.tsx
+#: src/app/board/CardMenu.tsx
 #: src/app/scenes/SceneRail.tsx
 msgid "Open scene"
 msgstr "فتح المشهد"
@@ -4014,6 +4085,10 @@ msgstr "وجهة نظر {title}"
 #: src/app/toc/AddEntryDialog.tsx
 msgid "Points to"
 msgstr "يشير إلى"
+
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "POV"
+msgstr "وجهة النظر"
 
 #. placeholder {0}: scene.pov
 #: src/app/timeline/TimelineRow.tsx
@@ -4686,6 +4761,10 @@ msgstr "البحث في PDF"
 msgid "Search references"
 msgstr "البحث في المراجع"
 
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "Search scenes"
+msgstr "البحث في المشاهد"
+
 #: src/app/settings/ShortcutsSection.tsx
 msgid "Search shortcuts"
 msgstr "البحث في الاختصارات"
@@ -4721,6 +4800,11 @@ msgstr "حدّد النص أولًا."
 #: src/editor/toolbar/useToolbarItems.ts
 msgid "Select the text you want to link first."
 msgstr "حدّد النص الذي تريد ربطه أولًا."
+
+#: src/app/scenes/FacetMenu.tsx
+#: src/app/scenes/SceneFilterBar.tsx
+msgid "selected"
+msgstr "محدد"
 
 #: src/app/export/parts/AudioFieldParts.tsx
 msgid "Selected chapters"
@@ -4982,6 +5066,7 @@ msgid "Start the new edition"
 msgstr "بدء الطبعة الجديدة"
 
 #: src/app/board/SceneCard.tsx
+#: src/app/scenes/SceneFilterBar.tsx
 msgid "Status"
 msgstr "الحالة"
 

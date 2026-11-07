@@ -1,6 +1,13 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
 import { manifestOf, newProject, seedChapters } from "./support/helpers";
+import {
+  count,
+  filterBook,
+  openTimeline as openFilterTimeline,
+  pick,
+  search,
+} from "./support/sceneFilterBook";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -198,5 +205,99 @@ test.describe("timeline on a tablet", () => {
       page.locator('[data-scene-id="a"] [data-scene-card]').boundingBox(),
     ]);
     expect(card!.x).toBeGreaterThan(date!.x + date!.width);
+  });
+});
+
+test.describe("timeline filters", () => {
+  const rows = (page: Page) => page.locator("[data-timeline-item] h3").allTextContents();
+  const colourBy = (page: Page) => page.getByRole("radiogroup", { name: "Colour by" });
+
+  test("filters after the axis is built: an undated scene still follows the scene before it", async ({
+    page,
+  }) => {
+    await filterBook(page);
+    await openTimeline(page);
+    await orderBy(page, "Story date");
+    await expect.poll(() => rows(page)).toEqual(["Chase", "Arrival", "Bargain", "Dawn"]);
+    await expect(count(page)).toHaveText("4 scenes");
+    await pick(page, "POV", ["Ada"]);
+    await expect.poll(() => rows(page)).toEqual(["Bargain"]);
+    await expect(count(page)).toHaveText("1 of 4 scenes");
+    // Arrival is hidden, yet Bargain keeps its place behind it.
+    await expect(page.locator('[data-scene-id="b"]')).toContainText("Follows Arrival");
+    // No "moving" caption on the timeline: it moves nothing.
+    await expect(page.getByText("Moving scenes is off while a filter is on")).toHaveCount(0);
+    await page.getByRole("button", { name: "Clear all filters" }).click();
+    await expect.poll(() => rows(page)).toEqual(["Chase", "Arrival", "Bargain", "Dawn"]);
+  });
+
+  test("filters by status and label and searches, with OR within a facet", async ({ page }) => {
+    await filterBook(page);
+    await openTimeline(page);
+    await pick(page, "Status", ["Draft", "Final"]);
+    await expect.poll(() => rows(page)).toEqual(["Arrival", "Dawn"]);
+    await pick(page, "Label", ["No label"]);
+    await expect.poll(() => rows(page)).toEqual(["Dawn"]);
+    await search(page).fill("zzzzq");
+    await expect(page.getByText("No scenes match these filters.")).toBeVisible();
+    await expect(page.getByRole("list", { name: "Scenes on the timeline" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Clear filters", exact: true }).click();
+    await expect.poll(() => rows(page)).toEqual(["Arrival", "Bargain", "Chase", "Dawn"]);
+  });
+
+  test("shows the label chip and colours by label or status", async ({ page }) => {
+    await filterBook(page);
+    await openTimeline(page);
+    await expect(page.locator("[data-label-chip]")).toHaveText(["Past", "Past", "Dream"]);
+    await expect(page.locator("[data-colour-bar]")).toHaveCount(0);
+    await colourBy(page).getByRole("radio", { name: "Label" }).click();
+    await expect(page.locator('[data-colour-bar="label"]')).toHaveCount(3);
+    await colourBy(page).getByRole("radio", { name: "Status" }).click();
+    await expect(page.locator('[data-colour-bar="status"]')).toHaveCount(3);
+  });
+
+  test("still edits a date on a filtered row", async ({ page }) => {
+    await filterBook(page);
+    await openTimeline(page);
+    await pick(page, "POV", ["Ada"]);
+    const day = page.getByLabel("Story date of Bargain", { exact: true });
+    await day.fill("1893-09-01");
+    await day.blur();
+    await expect.poll(() => rows(page)).toEqual(["Bargain"]);
+    await expect(page.locator('[data-scene-id="b"]')).toContainText("Sep 1, 1893");
+  });
+});
+
+test.describe("timeline filters on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("folds the controls under a Filters button", async ({ page }) => {
+    await filterBook(page);
+    await openFilterTimeline(page);
+    await expect(search(page)).toBeHidden();
+    await page.getByRole("button", { name: "Filters", exact: true }).click();
+    await pick(page, "Status", ["Draft"]);
+    await expect(count(page)).toHaveText("1 of 4 scenes");
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
+    expect(overflow).toBe(false);
+  });
+});
+
+test.describe("timeline filters, right to left", () => {
+  test("mirrors and does not overflow", async ({ page }) => {
+    await filterBook(page);
+    await page.evaluate(() => {
+      document.documentElement.dir = "rtl";
+      document.documentElement.lang = "he";
+    });
+    await openFilterTimeline(page);
+    await pick(page, "Label", ["Past"]);
+    await expect(count(page)).toHaveText("2 of 4 scenes");
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth + 1,
+    );
+    expect(overflow).toBe(false);
   });
 });
