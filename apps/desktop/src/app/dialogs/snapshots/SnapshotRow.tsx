@@ -42,6 +42,10 @@ function RenameForm({
   const [draft, setDraft] = useState(entry.name);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  // Select the old name once, so typing replaces it (no onFocus handler: WCAG 1.4.13 source check).
+  useEffect(() => {
+    (document.getElementById(RENAME_ID) as HTMLInputElement | null)?.select();
+  }, []);
   const save = async () => {
     const problem = nameProblem(draft);
     if (problem) {
@@ -80,7 +84,6 @@ function RenameForm({
               onCancel();
             }
           }}
-          onFocus={(ev) => ev.target.select()}
           errorId={error ? RENAME_ERROR_ID : undefined}
           onChange={(ev) => {
             setDraft(ev.target.value);

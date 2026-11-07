@@ -105,7 +105,7 @@ function SplitForm({
           {points.map((p) => (
             <label
               key={p.block}
-              className="flex min-h-9 cursor-pointer items-center gap-2.5 rounded-sm px-2 text-sm hover:bg-accent-soft max-md:min-h-11"
+              className="flex min-h-9 cursor-pointer items-center gap-2.5 rounded-sm px-2 text-sm hover:bg-accent-soft max-md:min-h-[44px]"
               style={{ paddingInlineStart: `${0.5 + (p.level - 1) * 0.875}rem` }}
             >
               <input

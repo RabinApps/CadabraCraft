@@ -76,7 +76,7 @@ const SCREENS: Record<string, Open> = {
     await dialog.getByRole("button", { name: "Choose…" }).click();
     await dialog.getByRole("button", { name: "Next" }).click();
     await dialog.getByRole("button", { name: "Merge chapter 2 into the previous one" }).click();
-    await expect(dialog.getByRole("button", { name: /^Split chapter 1/ })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: /^Split chapter 1 back/ })).toBeVisible();
   },
   "import into this book": async (page) => {
     await fakeImportSources(page, "md3", false);

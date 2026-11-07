@@ -144,7 +144,8 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
         }}
       />
       {/* The page area: files dragged over it show the drop highlight (a picture dropped here is added to the page). */}
-      <div className="relative flex min-h-0 flex-1 flex-col">
+      {/* order-first: on a phone the toolbar is docked below the page (see PageFrame). */}
+      <div className="relative flex min-h-0 flex-1 flex-col max-md:order-first">
         {pageView.on ? (
           <PageFrame editor={editor}>
             <EditorContent editor={editor} />

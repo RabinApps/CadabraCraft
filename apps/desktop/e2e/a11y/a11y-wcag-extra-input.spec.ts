@@ -144,7 +144,7 @@ test.describe("3.3.7 redundant entry", () => {
             "input:not([type=hidden]):not([type=checkbox]):not([type=radio])",
           ),
         ].map((el) =>
-          (el.labels?.[0]?.textContent ?? el.getAttribute("aria-label") ?? "").trim().toLowerCase(),
+          (el.getAttribute("aria-label") ?? el.labels?.[0]?.textContent ?? "").trim().toLowerCase(),
         ),
       );
       expect(

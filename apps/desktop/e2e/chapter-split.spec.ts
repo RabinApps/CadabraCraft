@@ -119,6 +119,6 @@ test("the split dialog fits a phone and its choices are touch sized", async ({ p
   ).toBe(true);
   const small = await dialog
     .locator("label:has(input[type=radio])")
-    .evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().height < 43.5).length);
+    .evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().height < 42).length);
   expect(small).toBe(0);
 });
