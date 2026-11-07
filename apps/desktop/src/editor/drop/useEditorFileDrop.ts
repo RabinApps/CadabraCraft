@@ -23,7 +23,10 @@ export const DROP_WARNING_MS = 8000;
  * files, and files of a type that cannot be added, leave a `warning`. Does nothing while `enabled` is false (a blank
  * page, Read mode), and never acts on files over the References panel, which owns those (`overEditor`).
  */
-export function useEditorFileDrop(enabled: boolean, startImage: (path: string) => Promise<boolean>) {
+export function useEditorFileDrop(
+  enabled: boolean,
+  startImage: (path: string) => Promise<boolean>,
+) {
   const [over, setOver] = useState(false);
   const [warning, setWarning] = useState("");
   const start = useRef(startImage);

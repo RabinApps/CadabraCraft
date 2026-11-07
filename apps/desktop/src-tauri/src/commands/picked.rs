@@ -251,11 +251,11 @@ mod tests {
         assert!(picked.require(PickKind::Reference, &first).is_ok(), "it is still a reference candidate");
         let folder = dir.path().join("pics.png");
         std::fs::create_dir(&folder).unwrap();
-        record_drop(&picked, &[folder.clone()]);
+        record_drop(&picked, std::slice::from_ref(&folder));
         assert!(picked.require(PickKind::Image, &folder).is_err(), "a folder named like an image is not one");
         let noext = dir.path().join("noext");
         std::fs::write(&noext, "x").unwrap();
-        record_drop(&picked, &[noext.clone()]);
+        record_drop(&picked, std::slice::from_ref(&noext));
         assert!(picked.require(PickKind::Image, &noext).is_err());
     }
 

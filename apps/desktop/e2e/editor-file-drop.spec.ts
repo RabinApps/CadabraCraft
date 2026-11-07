@@ -82,7 +82,9 @@ test.describe("dropping a picture on the editor", () => {
     expect(await page.evaluate(() => window.__imports)).toEqual(["/pics/photo.png"]);
     // Alt text is required, as for a picture added from the toolbar.
     await dialog.getByRole("button", { name: "Insert" }).click();
-    await expect(dialog.getByText('Describe the image, or tick "This image is decorative".')).toBeVisible();
+    await expect(
+      dialog.getByText('Describe the image, or tick "This image is decorative".'),
+    ).toBeVisible();
     await dialog.getByLabel("Description (alt text)").fill("A single pixel");
     await dialog.getByRole("button", { name: "Insert" }).click();
     await expect(dialog).toBeHidden();
@@ -129,9 +131,7 @@ test.describe("dropping a picture on the editor", () => {
     await expect(warning(page).getByText("This file type")).toHaveCount(0, { timeout: 12000 });
   });
 
-  test("several files: the first picture is added and the others are counted", async ({
-    page,
-  }) => {
+  test("several files: the first picture is added and the others are counted", async ({ page }) => {
     await newProject(page);
     const files = ["/docs/a.txt", "/pics/one.png", "/pics/two.jpg", "/pics/three.gif"];
     await drop(page, files, await onPageSpot(page));
