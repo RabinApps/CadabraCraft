@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "./support/coverage";
 import { fakeImportTauri } from "./support/fakeImport";
-import { newProject, sidebar } from "./support/helpers";
+import { chapterAction, newProject, sidebar } from "./support/helpers";
 
 // The import preview: reorder (drag, keyboard, buttons), merge, split, and importing into the open book.
 
@@ -130,11 +130,11 @@ test("a chapter merges into the previous one, splits back, and the merged text i
   await dialog.getByLabel("Include chapter 1").check();
   await dialog.getByRole("button", { name: "Merge chapter 2 into the previous one" }).click();
   expect(await previewTitles(dialog)).toEqual(["One", "Three"]);
-  await expect(dialog.getByRole("button", { name: /^Split chapter 1/ })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: /^Split chapter 1 back/ })).toBeVisible();
   await expect(dialog.getByRole("status")).toContainText("2 chapters will be imported.");
-  await dialog.getByRole("button", { name: /^Split chapter 1/ }).click();
+  await dialog.getByRole("button", { name: /^Split chapter 1 back/ }).click();
   expect(await previewTitles(dialog)).toEqual(["One", "Two", "Three"]);
-  await expect(dialog.getByRole("button", { name: /^Split chapter/ })).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: /^Split chapter \d+ back/ })).toHaveCount(0);
   // Merge again, rename, and import.
   await dialog.getByRole("button", { name: "Merge chapter 3 into the previous one" }).click();
   await dialog.getByLabel("Title of chapter 2").fill("Two and three");
@@ -299,4 +299,91 @@ test("the preview list is usable on a phone and mirrors in right-to-left", async
   const grip = await dialog.getByRole("button", { name: "Reorder chapter 1" }).boundingBox();
   const title = await dialog.getByLabel("Title of chapter 1").boundingBox();
   expect(grip!.x + grip!.width / 2).toBeGreaterThan(title!.x + title!.width / 2); // the controls start at the right edge
+});
+
+test("a chapter merges into the next one, which keeps its title", async ({ page }) => {
+  await fakeImportTauri(page, "md3");
+  const dialog = await startImport(page);
+  await expect(
+    dialog.getByRole("button", { name: "Merge chapter 3 into the next one" }),
+  ).toBeDisabled();
+  await dialog.getByRole("button", { name: "Merge chapter 1 into the next one" }).click();
+  expect(await previewTitles(dialog)).toEqual(["Two", "Three"]);
+  await finish(page);
+  await expect(chapterNames(page)).toHaveText(["Two", "Three"]);
+  const merged = String(await page.evaluate(() => window.__disk["manuscript/001-two.json"]));
+  expect(merged.indexOf("First text.")).toBeLessThan(merged.indexOf("Second text."));
+});
+
+test("a chapter splits at a heading in the preview, merges back, and resets with the level", async ({
+  page,
+}) => {
+  await fakeImportTauri(page, "sections");
+  const dialog = await startImport(page);
+  expect(await previewTitles(dialog)).toEqual(["Book", "Last"]);
+  await expect(dialog.getByRole("button", { name: "Split chapter 2 at a heading" })).toBeDisabled();
+  await dialog.getByRole("button", { name: "Split chapter 1 at a heading" }).click();
+  await page.getByRole("menuitem", { name: "Beta" }).click();
+  expect(await previewTitles(dialog)).toEqual(["Book", "Beta", "Last"]);
+  await dialog.getByRole("button", { name: "Split chapter 1 at a heading" }).click();
+  await page.getByRole("menuitem", { name: "Alpha" }).click();
+  expect(await previewTitles(dialog)).toEqual(["Book", "Alpha", "Beta", "Last"]);
+  await dialog.getByRole("button", { name: "Merge chapter 3 into the previous one" }).click();
+  await dialog.getByRole("button", { name: "Merge chapter 2 into the previous one" }).click();
+  expect(await previewTitles(dialog)).toEqual(["Book", "Last"]); // split and merge cancel out
+  await dialog.getByRole("button", { name: "Split chapter 1 at a heading" }).click();
+  await page.getByRole("menuitem", { name: "Beta" }).click();
+  await dialog.getByRole("radio", { name: "Heading 2" }).click();
+  await dialog.getByRole("radio", { name: "Heading 1" }).click();
+  expect(await previewTitles(dialog)).toEqual(["Book", "Last"]); // the plan started over
+  await dialog.getByRole("button", { name: "Split chapter 1 at a heading" }).click();
+  await page.getByRole("menuitem", { name: "Beta" }).click();
+  await finish(page);
+  await expect(chapterNames(page)).toHaveText(["Book", "Beta", "Last"]);
+  const first = String(await page.evaluate(() => window.__disk["manuscript/001-book.json"]));
+  const second = String(await page.evaluate(() => window.__disk["manuscript/002-beta.json"]));
+  expect(first).toContain("Alpha text.");
+  expect(first).not.toContain("Beta text.");
+  expect(second).toContain("Beta text.");
+});
+
+test("importing into the open book adds the chapters where the author chose, inside a part too", async ({
+  page,
+}) => {
+  await fakeImportTauri(page, "md3", false);
+  await newProject(page);
+  await page.getByRole("button", { name: "Add chapter" }).click();
+  await chapterAction(page, "Chapter 2", "Start part here");
+  await page.waitForFunction(() =>
+    Boolean((window as never as { __cadabraMenu?: unknown }).__cadabraMenu),
+  );
+  await page.evaluate(() =>
+    (window as never as { __cadabraMenu: { run: (id: string) => boolean } }).__cadabraMenu.run(
+      "file.importInto",
+    ),
+  );
+  const dialog = page.getByRole("dialog", { name: "Import into this book" });
+  await dialog.getByRole("button", { name: "Choose file…" }).click();
+  await dialog.getByRole("button", { name: "Next" }).click();
+  const where = dialog.getByLabel("Add the chapters");
+  await expect(where.locator("option")).toHaveText([
+    "At the end of the book",
+    "After Chapter One",
+    "At the start of Part 1",
+    "After Chapter 2",
+  ]);
+  await expect(dialog).toContainText("join that part");
+  await where.selectOption({ label: "At the start of Part 1" });
+  await dialog.getByRole("button", { name: "Add to book", exact: true }).click();
+  const report = page.getByRole("dialog", { name: "Import report" });
+  await report.getByRole("button", { name: "Done" }).click();
+  const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
+  expect(manifest.chapters.map((c: { titles: { en: string } }) => c.titles.en)).toEqual([
+    "Chapter One",
+    "Part 1",
+    "One",
+    "Two",
+    "Three",
+    "Chapter 2",
+  ]);
 });

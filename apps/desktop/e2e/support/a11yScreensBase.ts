@@ -64,6 +64,19 @@ export const baseScreens: Screen[] = [
     },
   },
   {
+    name: "Import into book preview with destination and split menu",
+    open: async (p) => {
+      await fakeImportSources(p, "sections", false);
+      await newProject(p);
+      await menu(p, "file.importInto");
+      const dialog = dialogOf(p, "Import into this book");
+      await dialog.getByRole("button", { name: "Choose file…" }).click();
+      await dialog.getByRole("button", { name: "Next" }).click();
+      await dialog.getByRole("button", { name: "Split chapter 1 at a heading" }).click();
+      await shown(p.getByRole("menuitem", { name: "Alpha" }));
+    },
+  },
+  {
     name: "Import outline preview dialog",
     open: async (p) => {
       await fakeImportSources(p, "outlineMd", false);
