@@ -57,11 +57,11 @@ export const createOpenActions = (
         audio: null,
       });
     },
-    async createProject(root, title, author, trimSize) {
+    async createProject(root, title, author, trimSize, language) {
       const manifest = createManifest({
         title,
         author,
-        language: i18n.locale === "pseudo" ? "en" : i18n.locale,
+        language: language ?? (i18n.locale === "pseudo" ? "en" : i18n.locale),
         identifier: `urn:uuid:${crypto.randomUUID()}`,
         trimSize,
       });

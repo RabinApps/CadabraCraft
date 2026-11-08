@@ -3099,6 +3099,7 @@ msgstr ""
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsFields.tsx
+#: src/app/home/Home.tsx
 #: src/app/shell/Details.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Language"
@@ -4976,6 +4977,10 @@ msgstr ""
 
 #: src/app/export/PdfPanel.tsx
 msgid "set in Book details"
+msgstr ""
+
+#: src/app/home/Home.tsx
+msgid "Sets the book language for hyphenation, quotes and the EPUB. You can change it later in Book details."
 msgstr ""
 
 #: src/app/home/Home.tsx

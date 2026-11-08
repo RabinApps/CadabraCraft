@@ -3101,6 +3101,7 @@ msgstr "תווית"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsFields.tsx
+#: src/app/home/Home.tsx
 #: src/app/shell/Details.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Language"
@@ -4979,6 +4980,10 @@ msgstr "יעד מילים לסשן"
 #: src/app/export/PdfPanel.tsx
 msgid "set in Book details"
 msgstr "נקבע בפרטי הספר"
+
+#: src/app/home/Home.tsx
+msgid "Sets the book language for hyphenation, quotes and the EPUB. You can change it later in Book details."
+msgstr "קובע את שפת הספר להברה, לגרשיים ולקובץ ה-EPUB. אפשר לשנות אותה מאוחר יותר בפרטי הספר."
 
 #: src/app/home/Home.tsx
 msgid "Sets the page size for the print layout. You can change it later in Book details."

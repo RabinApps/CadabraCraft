@@ -359,6 +359,7 @@ export interface ProjectActions {
     title: string,
     author: string,
     trimSize?: TrimSize,
+    language?: string,
   ) => Promise<void>;
   /** Imports a .docx/.md file into a NEW project in `root` (the source is only read), opens it and sets `importReport`. Throws, having created nothing, when the file cannot be imported. */
   importBook: (

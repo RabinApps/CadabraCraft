@@ -33,8 +33,8 @@ export function HomeScreen({
           pickFolder={bridge.pickFolder}
           pickImportSource={bridge.pickImportSource}
           onImport={actions.importBook}
-          onCreate={(root, title, author, trimSize) =>
-            run(() => actions.createProject(root, title, author, trimSize))()
+          onCreate={(root, title, author, trimSize, language) =>
+            run(() => actions.createProject(root, title, author, trimSize, language))()
           }
           onOpenRecent={(r) => {
             setError("");

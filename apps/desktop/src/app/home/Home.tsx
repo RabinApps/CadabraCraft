@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
 import { DEFAULT_TEMPLATE_ID, resolveTrimSize } from "@cadabracraft/templates";
+import { i18n } from "@lingui/core";
 import { useLingui } from "@lingui/react/macro";
 import {
   BookPlus,
@@ -16,6 +17,7 @@ import { Modal } from "../../ui/Dialog";
 import { Field } from "../../ui/forms/Input";
 import { Select } from "../../ui/forms/Select";
 import { trimLabel } from "../../lib/export/trimLabels";
+import { ENABLED_LOCALES, LOCALES } from "../../i18n/locales";
 import { useStartDialogs } from "../../state/app/commands";
 import type { ImportChoices } from "../../lib/import/importBook";
 import { ImportDialog } from "../dialogs/import/LazyImportDialogs";
@@ -33,7 +35,13 @@ interface Props {
   onOpen: () => void;
   onOpenRecent: (root: string) => Promise<void>;
   pickFolder: () => Promise<string | null>;
-  onCreate: (root: string, title: string, author: string, trimSize: TrimSize) => void;
+  onCreate: (
+    root: string,
+    title: string,
+    author: string,
+    trimSize: TrimSize,
+    language: string,
+  ) => void;
   pickImportSource: () => Promise<string | null>;
   onImport: (
     source: string,
@@ -237,6 +245,9 @@ export function Home({
   );
 }
 
+/** The app's language, which the new book starts in unless the author picks another. */
+const defaultLanguage = (): string => (i18n.locale === "pseudo" ? "en" : i18n.locale);
+
 function NewProjectDialog({
   open,
   onOpenChange,
@@ -249,6 +260,7 @@ function NewProjectDialog({
   const [trimSize, setTrimSize] = useState<TrimSize>(
     resolveTrimSize({ template: DEFAULT_TEMPLATE_ID }),
   );
+  const [language, setLanguage] = useState(defaultLanguage);
   const [root, setRoot] = useState<string | null>(null);
   const [pickError, setPickError] = useState("");
   const ready = title.trim() !== "" && root !== null;
@@ -257,6 +269,7 @@ function NewProjectDialog({
     setTitle("");
     setAuthor("");
     setTrimSize(resolveTrimSize({ template: DEFAULT_TEMPLATE_ID }));
+    setLanguage(defaultLanguage());
     setRoot(null);
     setPickError("");
     onOpenChange(false);
@@ -270,7 +283,7 @@ function NewProjectDialog({
           if (!ready) return;
           const [bookTitle, bookAuthor, folder] = [title.trim(), author.trim() || t`Unknown`, root];
           change();
-          onCreate(folder, bookTitle, bookAuthor, trimSize);
+          onCreate(folder, bookTitle, bookAuthor, trimSize, language);
         }}
       >
         <Field
@@ -290,6 +303,19 @@ function NewProjectDialog({
           {(Object.keys(TRIM_SIZES) as TrimSize[]).map((id) => (
             <option key={id} value={id}>
               {trimLabel(id)}
+            </option>
+          ))}
+        </Select>
+        <Select
+          label={t`Language`}
+          className="h-10"
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          hint={t`Sets the book language for hyphenation, quotes and the EPUB. You can change it later in Book details.`}
+        >
+          {LOCALES.filter((l) => ENABLED_LOCALES.includes(l.code)).map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.nativeName}
             </option>
           ))}
         </Select>

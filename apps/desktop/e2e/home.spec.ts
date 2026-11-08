@@ -129,3 +129,19 @@ test("home dashboard: View all books opens the Library with the book count, and 
   await page.getByRole("button", { name: "Home" }).click();
   await expect(page.getByRole("heading", { name: "Your books" })).toBeVisible();
 });
+
+test("the New book dialog sets the book language, which defaults to the app language", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "New project" }).click();
+  const create = page.getByRole("dialog", { name: "New book" });
+  await expect(create.getByLabel("Language")).toHaveValue("en");
+  await create.getByLabel("Title").fill("Multilingual Book");
+  await create.getByLabel("Language").selectOption("es");
+  await create.getByRole("button", { name: "Choose…" }).click();
+  await create.getByRole("button", { name: "Create book" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+  const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
+  expect(manifest.editions[0].language).toBe("es");
+});
