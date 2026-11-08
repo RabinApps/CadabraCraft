@@ -104,3 +104,6 @@ export function dropLeadingPageBreak(doc: ChapterDoc): { doc: ChapterDoc; droppe
   if (doc.content[0]?.type !== "pageBreak") return { doc, dropped: 0 };
   return { doc: { ...doc, content: doc.content.slice(1) }, dropped: 1 };
 }
+export * from "./ean13";
+export * from "./sprint";
+export * from "./analysis";
