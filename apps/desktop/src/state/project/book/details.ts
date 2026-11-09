@@ -7,6 +7,7 @@ import {
 } from "@cadabracraft/format";
 import type { TrimSize } from "@cadabracraft/shared";
 import { resolveTrimSize } from "@cadabracraft/templates";
+import { isbnToStored } from "../../../lib/export/isbnForm";
 import { publishingFromForm, type PublishingForm } from "../../../lib/export/publishingForm";
 import type { ProjectActions } from "../types";
 import type { Ctx } from "../context";
@@ -63,7 +64,7 @@ export const createDetailsActions = (
           title: d.title.trim(),
           author: d.author.trim(),
           identifier: d.identifier.trim(),
-          isbn: d.isbn.trim() || null,
+          isbn: isbnToStored(d.isbn),
           cover: d.cover,
         });
         const withTrim = withTrimSize(
@@ -96,7 +97,7 @@ export const createDetailsActions = (
                 title: d.title.trim(),
                 author: d.author.trim(),
                 identifier: d.identifier.trim(),
-                isbn: d.isbn.trim() || null,
+                isbn: isbnToStored(d.isbn),
                 cover: d.cover,
               },
               d.publishing,

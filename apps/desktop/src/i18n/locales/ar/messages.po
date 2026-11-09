@@ -2326,6 +2326,10 @@ msgstr "هل يعجبك CadabraCraft؟"
 msgid "Enter a real date."
 msgstr "أدخل تاريخًا حقيقيًا."
 
+#: src/lib/export/isbnForm.ts
+msgid "Enter a valid ISBN: 10 or 13 digits with a correct check digit, or leave the field empty."
+msgstr "أدخل رقم ISBN صحيحا: 10 أو 13 رقما مع رقم تحقق صحيح، أو اترك الحقل فارغا."
+
 #: src/state/project/referencesWeb.ts
 msgid "Enter an address that starts with http:// or https://."
 msgstr "أدخل عنوانًا يبدأ بـ http:// أو https://."
@@ -2996,6 +3000,10 @@ msgstr "نمط غير صالح"
 #: src/app/shell/Details.tsx
 msgid "ISBN"
 msgstr "ISBN"
+
+#: src/app/dialogs/BookDetailsFields.tsx
+msgid "ISBN-10 or ISBN-13. Hyphens and spaces are removed when you save."
+msgstr "ISBN-10 أو ISBN-13. تُحذف الشرطات والمسافات عند الحفظ."
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "It adds nothing to the text, so screen readers skip it."
@@ -4840,6 +4848,7 @@ msgstr "لوحة المشاهد"
 msgid "Scene Board"
 msgstr "لوحة المشاهد"
 
+#: src/app/dialogs/SceneBreakField.tsx
 #: src/app/export/Templates.tsx
 #: src/editor/toolbar/useMenuOnlyItems.ts
 msgid "Scene break"

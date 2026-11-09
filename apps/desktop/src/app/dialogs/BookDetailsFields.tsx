@@ -11,6 +11,7 @@ import { Button, IconButton } from "../../ui/Button";
 import { Field } from "../../ui/forms/Input";
 import { Textarea } from "../../ui/forms/Textarea";
 import { Select } from "../../ui/forms/Select";
+import { isbnProblemText, isbnValid } from "../../lib/export/isbnForm";
 import { useProject, type BookDetails } from "../../state/project/index";
 
 /** Cover preview: the picked image, or a placeholder showing the title and author as they would sit on the cover. */
@@ -100,6 +101,7 @@ export function firstProblem(
   if (!form.identifier.trim()) {
     return { message: translate`The identifier cannot be empty.`, field: "identifier" };
   }
+  if (!isbnValid(form.isbn)) return { message: isbnProblemText(), field: "isbn" };
   if (problem) return { message: problemText(problem), field: problem.field };
   return { message: "", field: undefined };
 }
@@ -153,6 +155,8 @@ export function IdentityFields({
 }) {
   const { t } = useLingui();
   const languages = languageChoices(form.language);
+  // The ISBN message appears after the field loses focus, then follows each change until it is valid.
+  const [isbnChecked, setIsbnChecked] = useState(false);
   return (
     <>
       <Field
@@ -185,8 +189,12 @@ export function IdentityFields({
         <div className="min-w-0 flex-1">
           <Field
             label={t`ISBN`}
+            id="details-isbn"
             value={form.isbn}
+            error={isbnChecked && !isbnValid(form.isbn) ? isbnProblemText() : undefined}
             onChange={(e) => set({ isbn: e.target.value })}
+            onBlur={() => setIsbnChecked(true)}
+            hint={t`ISBN-10 or ISBN-13. Hyphens and spaces are removed when you save.`}
           />
         </div>
       </div>

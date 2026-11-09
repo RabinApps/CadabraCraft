@@ -261,7 +261,7 @@ describe("book details", () => {
     await a().addLanguage("fr", "copy");
     const d = { ...detailsOf(), language: "fr", isbn: " 978-3-16-148410-0 " };
     await a().updateDetails(d, "fr");
-    expect(m().editions[1]!.isbn).toBe("978-3-16-148410-0");
+    expect(m().editions[1]!.isbn).toBe("9783161484100");
     const before = disk.get("cadabra.json");
     await a().updateDetails({ ...d, isbn: "978-3-16-148410-0" }, "fr");
     expect(disk.get("cadabra.json")).toBe(before);

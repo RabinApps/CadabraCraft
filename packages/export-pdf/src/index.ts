@@ -2,6 +2,7 @@ export { buildTypst, buildTypstDocument, resolveFonts, requestedFonts } from "./
 export { renderPdf, type RenderPdfOptions } from "./render";
 export type { BlockMarkKind } from "./typst/blocks";
 export { bleedOf, pageBox, type PageBox } from "./typst/bleed";
+export { requireIsbnDigits } from "./typst/barcode";
 export {
   measurePages,
   parsePageReport,

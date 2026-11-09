@@ -94,7 +94,7 @@ export function BookDetailsDialog({ open, onOpenChange }: Props) {
     if (missing) {
       setError(missing);
       // A publishing field sits in the collapsed section: open it so the field can take focus.
-      if (badField && !["title", "author", "identifier"].includes(badField))
+      if (badField && !["title", "author", "identifier", "isbn"].includes(badField))
         document.getElementById("details-publishing")?.setAttribute("open", "");
       if (badField) focusField(`details-${badField}`);
       return;

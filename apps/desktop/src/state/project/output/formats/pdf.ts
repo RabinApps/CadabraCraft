@@ -1,5 +1,5 @@
 import { t } from "@lingui/core/macro";
-import { renderPdf } from "@cadabracraft/export-pdf";
+import { renderPdf, requireIsbnDigits } from "@cadabracraft/export-pdf";
 import {
   DEFAULT_TEMPLATE_ID,
   getTemplate,
@@ -27,6 +27,8 @@ export const createPdfActions = (ctx: Ctx): Pick<ExportActions, "exportPdf"> => 
         const templateId = hasTemplate(options.template) ? options.template : DEFAULT_TEMPLATE_ID;
         const template = getTemplate(templateId);
         const { edition, pages: chapters, dir, skipped } = await loadExportPages(options);
+        // A present ISBN must be valid before anything is drawn: the exporter's message is shown as it is.
+        if (edition.isbn) requireIsbnDigits(edition.isbn);
         const assets = await loadAssets(chapters);
         const cover = options.cover === false ? undefined : await loadCover(edition.cover);
         if (cover) assets.set(cover.path, cover.bytes);

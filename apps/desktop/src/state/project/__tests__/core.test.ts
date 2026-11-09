@@ -399,7 +399,7 @@ describe("project store", () => {
       expect(onDisk().language).toBe("de");
       expect(disk.has("manuscript/001-chapter-one.json")).toBe(true); // no file moved
     });
-    it("saves edited details, trims text and turns an empty ISBN into null", async () => {
+    it("saves edited details, trims text, stores the ISBN as 13 digits and turns an empty one into null", async () => {
       await a().updateDetails({
         ...form(),
         title: "  New Title ",
@@ -411,11 +411,20 @@ describe("project store", () => {
         title: "New Title",
         author: "Ann",
         language: "fr",
-        isbn: "978-3-16-148410-0",
+        isbn: "9783161484100",
         cover: null,
       });
+      await a().updateDetails({ ...form(), isbn: "0-306-40615-2" }); // an ISBN-10 is stored as its ISBN-13
+      expect(onDisk().isbn).toBe("9780306406157");
       await a().updateDetails({ ...form(), isbn: "  " });
       expect(onDisk().isbn).toBeNull();
+    });
+    it("refuses an invalid ISBN and writes nothing", async () => {
+      const before = disk.get("cadabra.json");
+      await expect(a().updateDetails({ ...form(), isbn: "978-3-16-148410-1" })).rejects.toThrow(
+        /valid ISBN/,
+      );
+      expect(disk.get("cadabra.json")).toBe(before);
     });
     it("saves the retail details of the source edition, trimmed, and removes them when emptied", async () => {
       const blank = {

@@ -2326,6 +2326,10 @@ msgstr "Ti piace CadabraCraft?"
 msgid "Enter a real date."
 msgstr "Inserisci una data reale."
 
+#: src/lib/export/isbnForm.ts
+msgid "Enter a valid ISBN: 10 or 13 digits with a correct check digit, or leave the field empty."
+msgstr "Inserisci un ISBN valido: 10 o 13 cifre con una cifra di controllo corretta, oppure lascia il campo vuoto."
+
 #: src/state/project/referencesWeb.ts
 msgid "Enter an address that starts with http:// or https://."
 msgstr "Inserisci un indirizzo che inizi con http:// o https://."
@@ -2996,6 +3000,10 @@ msgstr "Modello non valido"
 #: src/app/shell/Details.tsx
 msgid "ISBN"
 msgstr "ISBN"
+
+#: src/app/dialogs/BookDetailsFields.tsx
+msgid "ISBN-10 or ISBN-13. Hyphens and spaces are removed when you save."
+msgstr "ISBN-10 o ISBN-13. I trattini e gli spazi vengono rimossi al salvataggio."
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "It adds nothing to the text, so screen readers skip it."
@@ -4840,6 +4848,7 @@ msgstr "Bacheca delle scene"
 msgid "Scene Board"
 msgstr "Bacheca delle scene"
 
+#: src/app/dialogs/SceneBreakField.tsx
 #: src/app/export/Templates.tsx
 #: src/editor/toolbar/useMenuOnlyItems.ts
 msgid "Scene break"

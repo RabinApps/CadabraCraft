@@ -2324,6 +2324,10 @@ msgstr ""
 msgid "Enter a real date."
 msgstr ""
 
+#: src/lib/export/isbnForm.ts
+msgid "Enter a valid ISBN: 10 or 13 digits with a correct check digit, or leave the field empty."
+msgstr ""
+
 #: src/state/project/referencesWeb.ts
 msgid "Enter an address that starts with http:// or https://."
 msgstr ""
@@ -2993,6 +2997,10 @@ msgstr ""
 #: src/app/dialogs/BookDetailsFields.tsx
 #: src/app/shell/Details.tsx
 msgid "ISBN"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsFields.tsx
+msgid "ISBN-10 or ISBN-13. Hyphens and spaces are removed when you save."
 msgstr ""
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
@@ -4838,6 +4846,7 @@ msgstr ""
 msgid "Scene Board"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakField.tsx
 #: src/app/export/Templates.tsx
 #: src/editor/toolbar/useMenuOnlyItems.ts
 msgid "Scene break"
