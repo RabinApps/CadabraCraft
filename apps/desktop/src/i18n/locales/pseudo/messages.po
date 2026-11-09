@@ -2535,6 +2535,10 @@ msgstr ""
 msgid "Finding the page in your chapter…"
 msgstr ""
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Finished reading the chapter"
+msgstr ""
+
 #: src/app/shell/entries/RowMenu.tsx
 msgid "First letter"
 msgstr ""
@@ -3747,6 +3751,10 @@ msgstr ""
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 msgstr ""
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "No voice on this computer reads this language. Download a voice in Export, Audiobook."
+msgstr ""
+
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
@@ -3843,6 +3851,10 @@ msgstr ""
 
 #: src/app/toc/TocEditorParts.tsx
 msgid "Nothing to list yet. Add a chapter and it appears here."
+msgstr ""
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Nothing to read after the cursor"
 msgstr ""
 
 #: src/app/board/SceneBoard.tsx
@@ -4143,6 +4155,10 @@ msgstr ""
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr ""
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Pause"
+msgstr ""
+
 #: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "PDF"
@@ -4208,6 +4224,10 @@ msgstr ""
 
 #: src/app/home/Dashboard.tsx
 msgid "Place in the book"
+msgstr ""
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Play"
 msgstr ""
 
 #: src/app/dialogs/BookDetailsFields.tsx
@@ -4361,12 +4381,36 @@ msgstr ""
 msgid "Read"
 msgstr ""
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud"
+msgstr ""
+
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr ""
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud paused"
+msgstr ""
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped"
+msgstr ""
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped because the text changed"
+msgstr ""
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read from cursor"
+msgstr ""
+
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "Read this file as"
+msgstr ""
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Reading aloud"
 msgstr ""
 
 #: src/editor/reading/ReadingSettings.tsx
@@ -5160,6 +5204,7 @@ msgid "Sort references"
 msgstr ""
 
 #: src/app/export/AudioExport.tsx
+#: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Speed"
 msgstr ""
 
@@ -5268,6 +5313,10 @@ msgstr ""
 
 #: src/app/board/SceneCard.tsx
 msgid "Status of {title}"
+msgstr ""
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Stop"
 msgstr ""
 
 #: src/app/export/AudioFooter.tsx
@@ -5788,6 +5837,10 @@ msgstr ""
 
 #: src/state/project/output/narration/steps.ts
 msgid "There is nothing to read aloud, so there is no audiobook to build."
+msgstr ""
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "There is nothing to read in this chapter"
 msgstr ""
 
 #: src/app/dialogs/import/ImportReportDialog.tsx
