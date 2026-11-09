@@ -17,22 +17,22 @@ Every screen is drawn in light and dark. Tokens are Pencil variables with a `mod
 
 The System / Light / Dark preference is set only on Settings (Appearance). Home, Editor and Reading top bars link to Settings with a gear icon instead of a theme toggle. Reading mode's popover has a Theme control on the same preference, so changing either one changes both.
 
-| Token                   | Light                       | Dark                        | Use                                                              |
-| ----------------------- | --------------------------- | --------------------------- | ---------------------------------------------------------------- |
-| bg                      | #F4F6FA                     | #0F141C                     | app background                                                   |
-| sidebar                 | #EAEEF5                     | #131A24                     | chapter list, drawers                                            |
-| surface                 | #FFFFFF                     | #17202C                     | bars, cards, panels                                              |
-| raised                  | #FFFFFF                     | #1F2937                     | dialogs, popovers                                                |
-| paper                   | #FFFEFB                     | #161D28                     | manuscript page, reading mode                                    |
-| ink                     | #14202F                     | #E8EDF5                     | primary text                                                     |
-| ink-muted               | #5A6679                     | #9AA7BA                     | secondary text                                                   |
-| border                  | #D8DEE9                     | #2B3646                     | dividers, outlines                                               |
-| border-strong           | #7F8A9D                     | #64748C                     | control outlines (3:1): inputs, selects, chips, switch off state |
-| accent                  | #1F5FD1                     | #6EA2FF                     | primary action, active state (blue)                              |
-| accent-ink              | #FFFFFF                     | #08142B                     | text on accent                                                   |
-| accent-soft             | #DCE8FB                     | #1E3560                     | selected rows, active toggles                                    |
-| success / warn / danger | #1F7A4D / #8F5200 / #B3261E | #5CD08E / #F0B45A / #FF8F86 | status, with matching `-soft` fills                              |
-| scrim                   | #14202F66                   | #000000A0                   | behind drawers and dialogs                                       |
+| Token                   | Light                       | Dark                        | Use                                                                                                      |
+| ----------------------- | --------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------- |
+| bg                      | #F4F6FA                     | #0F141C                     | app background                                                                                           |
+| sidebar                 | #EAEEF5                     | #131A24                     | chapter list, drawers                                                                                    |
+| surface                 | #FFFFFF                     | #17202C                     | bars, cards, panels                                                                                      |
+| raised                  | #FFFFFF                     | #1F2937                     | dialogs, popovers                                                                                        |
+| paper                   | #FFFEFB                     | #161D28                     | manuscript page, reading mode                                                                            |
+| ink                     | #14202F                     | #E8EDF5                     | primary text                                                                                             |
+| ink-muted               | #5A6679                     | #9AA7BA                     | secondary text                                                                                           |
+| border                  | #D8DEE9                     | #2B3646                     | dividers, outlines                                                                                       |
+| border-strong           | #7F8A9D                     | #64748C                     | control outlines (3:1): inputs, selects, chips, switch off state                                         |
+| accent                  | #1F5FD1                     | #6EA2FF                     | primary action, active state (blue)                                                                      |
+| accent-ink              | #FFFFFF                     | #08142B                     | text on accent                                                                                           |
+| accent-soft             | #DCE8FB                     | #1E3560                     | selected rows, active toggles                                                                            |
+| success / warn / danger | #1F7A4D / #8F5200 / #B3261E | #5CD08E / #F0B45A / #FF8F86 | status; the `-soft` fills are #DDF1E6 / #FBEBD0 / #FADDDA (light) and #1E3A2B / #41311A / #4A2321 (dark) |
+| scrim                   | #14202F66                   | #000000A0                   | behind drawers and dialogs                                                                               |
 
 Fonts: `font-ui` Inter, `font-book` Newsreader (JetBrains Mono appears only in the Paste HTML preview).
 
