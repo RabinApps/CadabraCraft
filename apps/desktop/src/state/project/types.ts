@@ -10,7 +10,7 @@ import type {
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import type { OutlineFormat } from "@cadabracraft/outline";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
-import type { ChapterDoc, EntryKind, MatterKind } from "@cadabracraft/shared";
+import type { ChapterDoc, EntryKind, MatterKind, SceneBreakOrnamentId } from "@cadabracraft/shared";
 import type { PublishingForm } from "../../lib/export/publishingForm";
 import type { ImportChoices, ImportReport } from "../../lib/import/importBook";
 import type { BookSearchOptions } from "../../lib/search/bookSearch";
@@ -175,6 +175,8 @@ export interface BookDetails {
   cover: string | null;
   /** Print page size of the book (shared by every edition). Absent keeps what the book has. */
   trimSize?: TrimSize;
+  /** Scene-break ornament of the book. Null is the template's own mark; absent keeps the book's. */
+  sceneBreak?: SceneBreakOrnamentId | null;
   /** Retail details of this edition. Absent keeps what the edition has. */
   publishing?: PublishingForm;
 }

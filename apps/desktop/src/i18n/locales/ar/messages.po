@@ -960,6 +960,10 @@ msgstr "تقريبي: Typst غير متاح"
 msgid "Ask each time"
 msgstr "اسأل كل مرة"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Asterism"
+msgstr "أستريزم"
+
 #: src/app/shell/header/PageEstimate.tsx
 msgid "at {size}"
 msgstr "عند {size}"
@@ -2134,6 +2138,10 @@ msgstr "التفاصيل"
 msgid "Details Panel"
 msgstr "لوحة التفاصيل"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Dinkus"
+msgstr "دينكوس"
+
 #: src/app/references/panel/PanelParts.tsx
 msgid "Dismiss"
 msgstr "تجاهل"
@@ -2313,6 +2321,10 @@ msgstr "تحفظ الطبعات الترجمات في الكتاب نفسه وت
 #: src/app/settings/Settings.tsx
 msgid "Editor"
 msgstr "المحرر"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Em dash"
+msgstr "شرطة طويلة"
 
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Embeds everything needed to open the file in the future."
@@ -2565,6 +2577,10 @@ msgstr "علم"
 #: src/lib/useIconChoices.ts
 msgid "Flame"
 msgstr "لهب"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Fleuron"
+msgstr "فلورون"
 
 #: src/app/shell/header/AppHeader.tsx
 msgid "Focus mode"
@@ -3678,6 +3694,10 @@ msgstr "بلا مفتاح"
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "No label"
 msgstr "بلا تسمية"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "No mark"
+msgstr "بدون علامة"
 
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
@@ -5425,6 +5445,10 @@ msgstr "قائمة مهام"
 msgid "Template"
 msgstr "القالب"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Template default"
+msgstr "افتراضي القالب"
+
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useAlignItems.ts
 msgid "Template Default"
@@ -5676,6 +5700,10 @@ msgstr "الصورة {0} خارج مجلد المستند"
 #: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
 msgstr "تتبع القائمة فصولك. أعد تسمية الإدخالات أو أخفها أو غيّر ترتيبها أو أضف إدخالات هنا؛ تستخدم عمليات التصدير ومعاينة الطباعة هذه القائمة."
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "The mark between scenes in the print PDF, EPUB and Word files."
+msgstr "العلامة بين المشاهد في ملف PDF للطباعة وفي EPUB وملفات Word."
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
@@ -5951,6 +5979,10 @@ msgstr "تعذّرت قراءة نسخة «{title}» في هذه اللقطة ك
 #: src/app/dialogs/snapshots/Comparison.tsx
 msgid "This version has the same words as the current text."
 msgstr "لهذا الإصدار الكلمات نفسها الموجودة في النص الحالي."
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Three dots"
+msgstr "ثلاث نقاط"
 
 #: src/app/shell/App.tsx
 #: src/app/shell/header/AppHeader.tsx

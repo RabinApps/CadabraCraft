@@ -958,6 +958,10 @@ msgstr ""
 msgid "Ask each time"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Asterism"
+msgstr ""
+
 #: src/app/shell/header/PageEstimate.tsx
 msgid "at {size}"
 msgstr ""
@@ -2132,6 +2136,10 @@ msgstr ""
 msgid "Details Panel"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Dinkus"
+msgstr ""
+
 #: src/app/references/panel/PanelParts.tsx
 msgid "Dismiss"
 msgstr ""
@@ -2310,6 +2318,10 @@ msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "Editor"
+msgstr ""
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Em dash"
 msgstr ""
 
 #: src/app/export/parts/PdfPanelParts.tsx
@@ -2562,6 +2574,10 @@ msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Flame"
+msgstr ""
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Fleuron"
 msgstr ""
 
 #: src/app/shell/header/AppHeader.tsx
@@ -3675,6 +3691,10 @@ msgstr ""
 
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "No label"
+msgstr ""
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "No mark"
 msgstr ""
 
 #: src/app/references/PdfSearch.tsx
@@ -5423,6 +5443,10 @@ msgstr ""
 msgid "Template"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Template default"
+msgstr ""
+
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useAlignItems.ts
 msgid "Template Default"
@@ -5673,6 +5697,10 @@ msgstr ""
 
 #: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
+msgstr ""
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "The mark between scenes in the print PDF, EPUB and Word files."
 msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
@@ -5946,6 +5974,10 @@ msgstr ""
 
 #: src/app/dialogs/snapshots/Comparison.tsx
 msgid "This version has the same words as the current text."
+msgstr ""
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Three dots"
 msgstr ""
 
 #: src/app/shell/App.tsx

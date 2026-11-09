@@ -188,6 +188,16 @@ describe("pageCssVars", () => {
     "--page-scene-space",
   ];
 
+  it("draws the book's scene-break ornament, and the template's own mark when the book has none", () => {
+    const template = BUILTIN[0]!;
+    const own = getTemplate(template).print.sceneBreak.glyph;
+    expect(pageCssVars({ template })["--page-scene-glyph"]).toBe(JSON.stringify(own));
+    expect(pageCssVars({ template, sceneBreak: "fleuron" })["--page-scene-glyph"]).toBe(
+      JSON.stringify("❦"),
+    );
+    expect(pageCssVars({ template, sceneBreak: "none" })["--page-scene-glyph"]).toBe('""');
+  });
+
   it.each(BUILTIN)("has every key as a string for %s", (template) => {
     const v = pageCssVars({ template });
     expect(Object.keys(v).sort()).toEqual([...KEYS].sort());

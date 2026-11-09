@@ -46,6 +46,7 @@ const detailsOf = (
     identifier: e.identifier,
     cover: e.cover,
     trimSize: resolveTrimSize(m),
+    sceneBreak: m.sceneBreak ?? null,
     publishing: publishingToForm(e.publishing),
   };
 };

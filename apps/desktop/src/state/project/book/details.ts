@@ -5,7 +5,7 @@ import {
   type Edition,
   type Manifest,
 } from "@cadabracraft/format";
-import type { TrimSize } from "@cadabracraft/shared";
+import type { SceneBreakOrnamentId, TrimSize } from "@cadabracraft/shared";
 import { resolveTrimSize } from "@cadabracraft/templates";
 import { isbnToStored } from "../../../lib/export/isbnForm";
 import { publishingFromForm, type PublishingForm } from "../../../lib/export/publishingForm";
@@ -15,6 +15,13 @@ import type { Ctx } from "../context";
 /** Stores the book's trim size only when it differs from what the book resolves to now, so books that never chose one keep following their template. */
 const withTrimSize = (m: Manifest, trimSize: TrimSize | undefined): Manifest =>
   !trimSize || resolveTrimSize(m) === trimSize ? m : { ...m, trimSize };
+
+/** Stores the book's scene-break ornament: a chosen id, or null for the template's own mark (the key is then removed). Absent keeps the book's. */
+const withSceneBreak = (m: Manifest, id: SceneBreakOrnamentId | null | undefined): Manifest => {
+  if (id === undefined) return m;
+  const { sceneBreak: _old, ...rest } = m;
+  return id === null ? rest : { ...rest, sceneBreak: id };
+};
 
 /** The edition with the retail details of `form`; with no form it is unchanged, and an empty form removes `publishing`. */
 const withPublishing = (e: Edition, form: PublishingForm | undefined): Edition => {
@@ -67,14 +74,17 @@ export const createDetailsActions = (
           isbn: isbnToStored(d.isbn),
           cover: d.cover,
         });
-        const withTrim = withTrimSize(
-          {
-            ...next,
-            editions: next.editions.map((e) =>
-              e.language === edition ? withPublishing(e, d.publishing) : e,
-            ),
-          },
-          d.trimSize,
+        const withTrim = withSceneBreak(
+          withTrimSize(
+            {
+              ...next,
+              editions: next.editions.map((e) =>
+                e.language === edition ? withPublishing(e, d.publishing) : e,
+              ),
+            },
+            d.trimSize,
+          ),
+          d.sceneBreak,
         );
         validateManifest(withTrim);
         if (JSON.stringify(withTrim) !== JSON.stringify(manifest)) await saveManifest(withTrim);
@@ -86,45 +96,48 @@ export const createDetailsActions = (
         Object.fromEntries(
           Object.entries(map).map(([k, v]) => [k === source!.language ? language : k, v]),
         );
-      const next: Manifest = withTrimSize(
-        {
-          ...manifest,
-          editions: [
-            withPublishing(
-              {
-                ...source!,
-                language,
-                title: d.title.trim(),
-                author: d.author.trim(),
-                identifier: d.identifier.trim(),
-                isbn: isbnToStored(d.isbn),
-                cover: d.cover,
-              },
-              d.publishing,
-            ),
-            ...translations,
-          ],
-          ...(language === source!.language
-            ? {}
-            : {
-                frontMatter: manifest.frontMatter.map((e) => ({
-                  ...e,
-                  titles: rekey(e.titles),
-                  files: rekey(e.files),
-                })),
-                chapters: manifest.chapters.map((e) => ({
-                  ...e,
-                  titles: rekey(e.titles),
-                  files: rekey(e.files),
-                })),
-                backMatter: manifest.backMatter.map((e) => ({
-                  ...e,
-                  titles: rekey(e.titles),
-                  files: rekey(e.files),
-                })),
-              }),
-        },
-        d.trimSize,
+      const next: Manifest = withSceneBreak(
+        withTrimSize(
+          {
+            ...manifest,
+            editions: [
+              withPublishing(
+                {
+                  ...source!,
+                  language,
+                  title: d.title.trim(),
+                  author: d.author.trim(),
+                  identifier: d.identifier.trim(),
+                  isbn: isbnToStored(d.isbn),
+                  cover: d.cover,
+                },
+                d.publishing,
+              ),
+              ...translations,
+            ],
+            ...(language === source!.language
+              ? {}
+              : {
+                  frontMatter: manifest.frontMatter.map((e) => ({
+                    ...e,
+                    titles: rekey(e.titles),
+                    files: rekey(e.files),
+                  })),
+                  chapters: manifest.chapters.map((e) => ({
+                    ...e,
+                    titles: rekey(e.titles),
+                    files: rekey(e.files),
+                  })),
+                  backMatter: manifest.backMatter.map((e) => ({
+                    ...e,
+                    titles: rekey(e.titles),
+                    files: rekey(e.files),
+                  })),
+                }),
+          },
+          d.trimSize,
+        ),
+        d.sceneBreak,
       );
       // validateManifest owns the rules; it names the field, which is enough for the dialog to show.
       validateManifest(next);

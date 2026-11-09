@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { TrimSize } from "@cadabracraft/export-pdf";
+import type { SceneBreakOrnamentId } from "@cadabracraft/shared";
 import {
   DEFAULT_TEMPLATE_ID,
   getTemplate,
@@ -16,7 +17,11 @@ import { pageFontStack, pickPageFont } from "../pagination/frame";
 
 /** What every page of the book shares: the geometry, the print font and the titles. Computed once per view, not per chapter. */
 export interface PageLook {
-  book: { template: string; trimSize: TrimSize | undefined };
+  book: {
+    template: string;
+    trimSize: TrimSize | undefined;
+    sceneBreak: SceneBreakOrnamentId | undefined;
+  };
   g: PageGeometry;
   trim: TrimSize;
   print: ReturnType<typeof getTemplate>["print"];
@@ -36,8 +41,12 @@ export function usePageLook(): PageLook {
   const language = useProject((s) => s.activeLanguage ?? s.manifest?.editions[0]?.language ?? "");
   const { fonts } = useFontList();
   const book = useMemo(
-    () => ({ template: manifest.template, trimSize: manifest.trimSize }),
-    [manifest.template, manifest.trimSize],
+    () => ({
+      template: manifest.template,
+      trimSize: manifest.trimSize,
+      sceneBreak: manifest.sceneBreak,
+    }),
+    [manifest.template, manifest.trimSize, manifest.sceneBreak],
   );
   const g = useMemo(() => pageGeometry(book), [book]);
   const trim = resolveTrimSize(book);

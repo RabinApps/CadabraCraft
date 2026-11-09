@@ -960,6 +960,10 @@ msgstr "Ungefähr: Typst ist nicht verfügbar"
 msgid "Ask each time"
 msgstr "Jedes Mal fragen"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Asterism"
+msgstr "Asterismus"
+
 #: src/app/shell/header/PageEstimate.tsx
 msgid "at {size}"
 msgstr "bei {size}"
@@ -2134,6 +2138,10 @@ msgstr "Details"
 msgid "Details Panel"
 msgstr "Detailbereich"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Dinkus"
+msgstr "Dinkus"
+
 #: src/app/references/panel/PanelParts.tsx
 msgid "Dismiss"
 msgstr "Schließen"
@@ -2313,6 +2321,10 @@ msgstr "Ausgaben fassen Übersetzungen im selben Buch zusammen und werden einzel
 #: src/app/settings/Settings.tsx
 msgid "Editor"
 msgstr "Editor"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Em dash"
+msgstr "Gedankenstrich"
 
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Embeds everything needed to open the file in the future."
@@ -2565,6 +2577,10 @@ msgstr "Flagge"
 #: src/lib/useIconChoices.ts
 msgid "Flame"
 msgstr "Flamme"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Fleuron"
+msgstr "Fleuron"
 
 #: src/app/shell/header/AppHeader.tsx
 msgid "Focus mode"
@@ -3678,6 +3694,10 @@ msgstr "Keine Taste"
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "No label"
 msgstr "Keine Beschriftung"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "No mark"
+msgstr "Keine Marke"
 
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
@@ -5425,6 +5445,10 @@ msgstr "Aufgabenliste"
 msgid "Template"
 msgstr "Vorlage"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Template default"
+msgstr "Standard der Vorlage"
+
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useAlignItems.ts
 msgid "Template Default"
@@ -5676,6 +5700,10 @@ msgstr "Das Bild {0} liegt außerhalb des Dokumentordners"
 #: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
 msgstr "Die Liste folgt deinen Kapiteln. Benenne Einträge hier um, blende sie aus, ordne sie neu an oder füge welche hinzu; Exporte und die Druckvorschau verwenden diese Liste."
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "The mark between scenes in the print PDF, EPUB and Word files."
+msgstr "Das Zeichen zwischen Szenen im Druck-PDF, im EPUB und in Word-Dateien."
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
@@ -5951,6 +5979,10 @@ msgstr "Die Kopie von „{title}“ in diesem Schnappschuss konnte nicht als Kap
 #: src/app/dialogs/snapshots/Comparison.tsx
 msgid "This version has the same words as the current text."
 msgstr "Diese Version hat dieselben Wörter wie der aktuelle Text."
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Three dots"
+msgstr "Drei Punkte"
 
 #: src/app/shell/App.tsx
 #: src/app/shell/header/AppHeader.tsx

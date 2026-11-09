@@ -426,6 +426,15 @@ describe("project store", () => {
       );
       expect(disk.get("cadabra.json")).toBe(before);
     });
+    it("saves the scene-break ornament, removes it for the template default, and keeps it when the form leaves it out", async () => {
+      const mark = () => JSON.parse(disk.get("cadabra.json")!).sceneBreak;
+      await a().updateDetails({ ...form(), sceneBreak: "fleuron" });
+      expect(mark()).toBe("fleuron");
+      await a().updateDetails({ ...form() }); // not part of the form: the book keeps its ornament
+      expect(mark()).toBe("fleuron");
+      await a().updateDetails({ ...form(), sceneBreak: null }); // the template's own mark: the key is removed
+      expect(mark()).toBeUndefined();
+    });
     it("saves the retail details of the source edition, trimmed, and removes them when emptied", async () => {
       const blank = {
         publisher: "",

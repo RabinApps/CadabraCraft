@@ -13,6 +13,7 @@ import { Textarea } from "../../ui/forms/Textarea";
 import { Select } from "../../ui/forms/Select";
 import { isbnProblemText, isbnValid } from "../../lib/export/isbnForm";
 import { useProject, type BookDetails } from "../../state/project/index";
+import { SceneBreakField } from "./SceneBreakField";
 
 /** Cover preview: the picked image, or a placeholder showing the title and author as they would sit on the cover. */
 function CoverPreview({
@@ -210,6 +211,10 @@ export function IdentityFields({
           </option>
         ))}
       </Select>
+      <SceneBreakField
+        value={form.sceneBreak ?? null}
+        onChange={(sceneBreak) => set({ sceneBreak })}
+      />
       <Field
         label={t`Identifier`}
         id="details-identifier"
