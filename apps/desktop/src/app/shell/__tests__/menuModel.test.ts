@@ -46,6 +46,7 @@ const BOOK: Commands = Object.fromEntries(
     "file.importInto",
     "file.save",
     "file.bookDetails",
+    "file.analysis",
     "file.exportEpub",
     "file.exportPdf",
     "file.exportMarkdown",
@@ -239,6 +240,7 @@ describe("what is available in each context", () => {
     for (const id of [
       "file.save",
       "file.bookDetails",
+      "file.analysis",
       "file.exportEpub",
       "file.exportPdf",
       "file.exportMarkdown",

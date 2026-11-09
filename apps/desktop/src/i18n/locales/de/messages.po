@@ -176,6 +176,11 @@ msgstr "{0} existiert nicht. Wählen Sie eine andere Datei oder stellen Sie sie 
 msgid "{0} files, {minutes} min. Saved in {1}."
 msgstr "{0} Dateien, {minutes} Min. Gespeichert in {1}."
 
+#. placeholder {0}: fmt(found)
+#: src/app/analysis/AnalysisSection.tsx
+msgid "{0} found"
+msgstr "{0} gefunden"
+
 #. placeholder {0}: e.name
 #: src/lib/projectError.ts
 msgid "{0} is a type of file that cannot be added as a reference"
@@ -368,6 +373,11 @@ msgstr "{0}. Versuchen Sie es erneut und prüfen Sie, dass die Datei in keinem a
 #: src/lib/font/fontErrors.ts
 msgid "{0}. Try again."
 msgstr "{0}. Versuchen Sie es erneut."
+
+#. placeholder {0}: fmt(Math.round(share * 1000) / 10)
+#: src/app/analysis/analysisModel.ts
+msgid "{0}% of sentences. An estimate at sentence level: “was carried”, “were seen”"
+msgstr "{0} % der Sätze. Schätzung auf Satzebene: „was carried“, „were seen“"
 
 #: src/app/library/Library.tsx
 msgid "{added, plural, one {Added # new book.} other {Added # new books.}}"
@@ -667,6 +677,10 @@ msgstr "Eine Hörprobe wird bereits erstellt"
 msgid "A scene is in two chapters, probably because a move was interrupted. Only the first is shown; Undo finishes the move."
 msgstr "Eine Szene steht in zwei Kapiteln, wahrscheinlich weil ein Verschieben unterbrochen wurde. Nur die erste wird angezeigt; „Rückgängig“ schließt das Verschieben ab."
 
+#: src/app/analysis/analysisModel.ts
+msgid "A speech verb within three words after a closing quote mark"
+msgstr "Ein Sprechverb höchstens drei Wörter nach einem schließenden Anführungszeichen"
+
 #: src/app/export/AudioExport.tsx
 msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
 msgstr "Eine Textdatei des ganzen Buchs und je Kapitel eine WebVTT-Untertiteldatei, erstellt aus genau dem Text, den die Stimme liest. Die Untertitelzeiten sind geschätzt."
@@ -863,6 +877,10 @@ msgstr "Fügt die Kapitel einer Word-Datei (.docx), Markdown- oder HTML-Datei di
 msgid "Adds the cover as the first page, with a blank page behind it. Turn this off for a print-ready interior file; printers usually want the cover as a separate file."
 msgstr "Fügt das Cover als erste Seite hinzu, mit einer leeren Seite dahinter. Schalte das für eine druckfertige Innendatei aus; Druckereien wollen das Cover meist als eigene Datei."
 
+#: src/app/analysis/analysisModel.ts
+msgid "Adverbs"
+msgstr "Adverbien"
+
 #. placeholder {0}: o.title
 #: src/app/dialogs/import/ImportDestination.tsx
 msgid "After {0}"
@@ -939,6 +957,14 @@ msgstr "Ein Export läuft bereits"
 #: src/state/project/book/open.ts
 msgid "An import is already running"
 msgstr "Ein Import läuft bereits"
+
+#: src/app/analysis/AnalysisDialog.tsx
+msgid "Analysis"
+msgstr "Analyse"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Analysis…"
+msgstr "Analyse…"
 
 #: src/lib/useIconChoices.ts
 msgid "Anchor"
@@ -1129,6 +1155,7 @@ msgstr "Textschrift"
 msgid "Bold"
 msgstr "Fett"
 
+#: src/app/analysis/AnalysisTabs.tsx
 #: src/app/shell/Details.tsx
 msgid "Book"
 msgstr "Buch"
@@ -1358,6 +1385,7 @@ msgstr "Änderungen außerhalb der App werden möglicherweise nicht bemerkt. Spe
 msgid "Changes that no longer match"
 msgstr "Änderungen, die nicht mehr passen"
 
+#: src/app/analysis/AnalysisTabs.tsx
 #: src/app/board/SceneBoard.tsx
 #: src/app/shell/Details.tsx
 msgid "Chapter"
@@ -1550,6 +1578,10 @@ msgstr "Status löschen"
 msgid "Clear the story date of {title}"
 msgstr "Datum in der Geschichte von {title} löschen"
 
+#: src/app/analysis/analysisModel.ts
+msgid "Clichés"
+msgstr "Klischees"
+
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/export/AudioFooter.tsx
@@ -1685,6 +1717,10 @@ msgstr "Vergleich von „{title}“ mit dem Schnappschuss"
 #: src/lib/useIconChoices.ts
 msgid "Compass"
 msgstr "Kompass"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Content word of four or more letters, not a common function word; used four or more times"
+msgstr "Inhaltswort mit mindestens vier Buchstaben, kein häufiges Funktionswort; mindestens viermal verwendet"
 
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
@@ -1861,6 +1897,10 @@ msgstr "Die Auswahl konnte nicht geöffnet werden ({0}). Versuche es erneut."
 msgid "Could not open this book: {0}. Check the folder is not open elsewhere, or remove it from the list and open it again."
 msgstr "Dieses Buch konnte nicht geöffnet werden: {0}. Prüfen Sie, dass der Ordner nirgends geöffnet ist, oder entfernen Sie ihn aus der Liste und öffnen Sie ihn erneut."
 
+#: src/app/analysis/AnalysisDialog.tsx
+msgid "Could not read the book for the report: {error}."
+msgstr "Das Buch konnte für den Bericht nicht gelesen werden: {error}."
+
 #. placeholder {0}: causeText(e)
 #: src/app/dialogs/snapshots/useSnapshotList.ts
 msgid "Could not read the book snapshots ({0}). Close this dialog and open History again to retry."
@@ -1989,6 +2029,18 @@ msgstr "Rückgängig nicht möglich: {why}. Versuchen Sie es erneut oder stellen
 msgid "Could not use the newer text ({0}). Your saved text was not changed. Try again, or choose Keep saved text."
 msgstr "Der neuere Text konnte nicht übernommen werden ({0}). Dein gespeicherter Text wurde nicht verändert. Versuche es erneut oder wähle Gespeicherten Text behalten."
 
+#: src/app/analysis/AnalysisSection.tsx
+msgid "Count"
+msgstr "Anzahl"
+
+#: src/app/analysis/AnalysisDialog.tsx
+msgid "Counting…"
+msgstr "Wird gezählt…"
+
+#: src/app/analysis/AnalysisDialog.tsx
+msgid "Counts from the text, worked out on this computer. Nothing is sent anywhere, and nothing is changed in your book."
+msgstr "Zählungen aus dem Text, auf diesem Computer berechnet. Nichts wird gesendet, und an Ihrem Buch wird nichts geändert."
+
 #: src/app/dialogs/BookDetailsFields.tsx
 #: src/app/export/ApproxSpread.tsx
 #: src/app/export/parts/PrintPreviewParts.tsx
@@ -2054,6 +2106,10 @@ msgstr "Eigene Seite"
 #: src/app/shell/native/menuModel.ts
 msgid "Cut"
 msgstr "Ausschneiden"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Dale-Chall"
+msgstr "Dale-Chall"
 
 #: src/app/settings/SettingsSections.tsx
 #: src/editor/reading/ReadingSettings.tsx
@@ -2149,6 +2205,14 @@ msgstr "Details"
 #: src/app/shell/native/menuModel.ts
 msgid "Details Panel"
 msgstr "Detailbereich"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Dialogue tags"
+msgstr "Dialogmarkierungen"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Different speech verbs"
+msgstr "Verschiedene Sprechverben"
 
 #: src/app/dialogs/SceneBreakField.tsx
 msgid "Dinkus"
@@ -2497,6 +2561,11 @@ msgstr "Schnell und klar."
 msgid "Feather"
 msgstr "Feder"
 
+#. placeholder {0}: fmt(Math.round(perThousand * 10) / 10)
+#: src/app/analysis/analysisModel.ts
+msgid "felt, saw, heard, noticed and similar. {0} per 1,000 words"
+msgstr "felt, saw, heard, noticed und ähnliche. {0} pro 1.000 Wörter"
+
 #: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/references/ReferenceRow.tsx
 #: src/app/settings/shortcutList.ts
@@ -2527,6 +2596,10 @@ msgstr "Kommentare filtern"
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "Filter scenes"
 msgstr "Szenen filtern"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Filter words"
+msgstr "Filterwörter"
 
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "Filters"
@@ -2593,6 +2666,10 @@ msgstr "Flagge"
 #: src/lib/useIconChoices.ts
 msgid "Flame"
 msgstr "Flamme"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Flesch reading ease"
+msgstr "Flesch-Lesbarkeitsindex"
 
 #: src/app/dialogs/SceneBreakField.tsx
 msgid "Fleuron"
@@ -2830,6 +2907,10 @@ msgstr "Halten Sie Strg oder Alt zusammen mit der Taste gedrückt."
 msgid "Home"
 msgstr "Start"
 
+#: src/app/analysis/AnalysisSection.tsx
+msgid "How it counted"
+msgstr "So wurde gezählt"
+
 #. placeholder {0}: page?.title ?? ""
 #: src/app/dialogs/IconDialog.tsx
 msgid "Icon for “{0}”"
@@ -3055,6 +3136,7 @@ msgstr "Sie wird in den Projekt-Papierkorb innerhalb deines Buchordners verschob
 msgid "Italic"
 msgstr "Kursiv"
 
+#: src/app/analysis/AnalysisSection.tsx
 #: src/app/codex/CodexDialog.tsx
 msgid "Item"
 msgstr "Gegenstand"
@@ -3282,6 +3364,10 @@ msgstr "Links (einer pro Zeile)"
 #: src/app/toc/TocEditorParts.tsx
 msgid "List"
 msgstr "Liste"
+
+#: src/app/analysis/AnalysisSummary.tsx
+msgid "List pending"
+msgstr "Liste ausstehend"
 
 #: src/app/onboarding/Onboarding.tsx
 msgid "Listen, or hand it off"
@@ -3645,6 +3731,10 @@ msgstr "Nächste Seiten"
 msgid "No ads, no account, and the app is never sold."
 msgstr "Keine Werbung, kein Konto, und die App wird nie verkauft."
 
+#: src/app/analysis/analysisModel.ts
+msgid "No adverbs ending in -ly."
+msgstr "Keine Adverbien auf -ly gefunden."
+
 #. placeholder {0}: query.trim()
 #: src/app/library/Library.tsx
 msgid "No book matches “{0}”."
@@ -3670,9 +3760,17 @@ msgstr "Noch keine Kapitel"
 msgid "No command matches “{q}”."
 msgstr "Kein Befehl passt zu „{q}“."
 
+#: src/app/analysis/analysisModel.ts
+msgid "No content word is repeated often in this text."
+msgstr "Kein Inhaltswort wird in diesem Text oft wiederholt."
+
 #: src/app/timeline/TimelineRow.tsx
 msgid "No date"
 msgstr "Kein Datum"
+
+#: src/app/analysis/analysisModel.ts
+msgid "No dialogue tags found."
+msgstr "Keine Dialogmarkierung gefunden."
 
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
@@ -3685,6 +3783,10 @@ msgstr "Keine Datei gewählt"
 #: src/app/dialogs/import/ImportDialogs.tsx
 msgid "No file is chosen. Choose the file to import."
 msgstr "Es ist keine Datei ausgewählt. Wähle die Datei zum Importieren."
+
+#: src/app/analysis/analysisModel.ts
+msgid "No filter words found."
+msgstr "Keine Filterwörter gefunden."
 
 #: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/home/Home.tsx
@@ -3711,6 +3813,14 @@ msgstr "Keine Taste"
 msgid "No label"
 msgstr "Keine Beschriftung"
 
+#: src/app/analysis/analysisModel.ts
+msgid "No list bundled yet, so clichés are not counted."
+msgstr "Noch keine Liste enthalten, daher werden Klischees nicht gezählt."
+
+#: src/app/analysis/AnalysisSection.tsx
+msgid "No list yet"
+msgstr "Noch keine Liste"
+
 #: src/app/dialogs/SceneBreakField.tsx
 msgid "No mark"
 msgstr "Keine Marke"
@@ -3730,6 +3840,10 @@ msgstr "Noch niemand aus dem Codex."
 #: src/app/comments/CommentsPanel.tsx
 msgid "No open comments on this page."
 msgstr "Keine offenen Kommentare auf dieser Seite."
+
+#: src/app/analysis/analysisModel.ts
+msgid "No passive sentences found."
+msgstr "Keine Passivsätze gefunden."
 
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "No POV"
@@ -3787,6 +3901,10 @@ msgstr "In der Auswahl gibt es keine geraden Anführungszeichen oder Striche zum
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr "Noch kein Text"
+
+#: src/app/analysis/analysisModel.ts
+msgid "No three-word phrase is repeated in this text."
+msgstr "Keine Dreiwortfolge wird in diesem Text wiederholt."
 
 #. placeholder {0}: nativeName(edition.language)
 #: src/app/export/AudioExport.tsx
@@ -4185,6 +4303,10 @@ msgstr "Absatz"
 msgid "Part {0}"
 msgstr "Teil {0}"
 
+#: src/app/analysis/analysisModel.ts
+msgid "Passive sentences"
+msgstr "Passivsätze"
+
 #: src/app/shell/native/menuModel.ts
 msgid "Paste"
 msgstr "Einfügen"
@@ -4230,6 +4352,10 @@ msgstr "PDF/A (Archivierung)"
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "PDF/UA (accessible)"
 msgstr "PDF/UA (barrierefrei)"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Perception and feeling verbs"
+msgstr "Wahrnehmungs- und Gefühlsverben"
 
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Pick an edition to export."
@@ -4678,6 +4804,14 @@ msgstr "{title} umordnen"
 msgid "Reorder chapter {n}"
 msgstr "Kapitel {n} umsortieren"
 
+#: src/app/analysis/analysisModel.ts
+msgid "Repeated phrases"
+msgstr "Wiederholte Wendungen"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Repeated words"
+msgstr "Wiederholte Wörter"
+
 #: src/editor/find/FindBar.tsx
 msgid "Replace"
 msgstr "Ersetzen"
@@ -4878,6 +5012,10 @@ msgstr "Läuft"
 msgid "Rust libraries"
 msgstr "Rust-Bibliotheken"
 
+#: src/app/analysis/analysisModel.ts
+msgid "said"
+msgstr "said"
+
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Same as body"
 msgstr "Wie Textschrift"
@@ -4996,6 +5134,10 @@ msgstr "Szenen in {chapter}"
 msgid "Scenes on the timeline"
 msgstr "Szenen auf der Zeitleiste"
 
+#: src/app/analysis/AnalysisTabs.tsx
+msgid "Scope"
+msgstr "Umfang"
+
 #: src/lib/useIconChoices.ts
 msgid "Scroll"
 msgstr "Schriftrolle"
@@ -5068,6 +5210,10 @@ msgstr "ausgewählt"
 #: src/app/export/parts/AudioFieldParts.tsx
 msgid "Selected chapters"
 msgstr "Ausgewählte Kapitel"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Sentences"
+msgstr "Sätze"
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Series"
@@ -5271,6 +5417,10 @@ msgstr "Sortieren nach"
 #: src/app/references/panel/SortMenu.tsx
 msgid "Sort references"
 msgstr "Referenzen sortieren"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Speech verbs used as tags"
+msgstr "Sprechverben als Markierungen"
 
 #: src/app/export/AudioExport.tsx
 #: src/editor/readAloud/ReadAloudBar.tsx
@@ -5543,6 +5693,10 @@ msgstr "Schlagwörter"
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Tags headings, lists, tables and images so screen readers can read the file, and marks page numbers and running headers as decoration. Can be combined with PDF/A. Images need a description (alt text) in the editor."
 msgstr "Kennzeichnet Überschriften, Listen, Tabellen und Bilder, damit Screenreader die Datei lesen können, und markiert Seitenzahlen und Kolumnentitel als Dekoration. Kann mit PDF/A kombiniert werden. Bilder brauchen im Editor eine Beschreibung (Alternativtext)."
+
+#: src/app/analysis/analysisModel.ts
+msgid "Tags that use “said”"
+msgstr "Markierungen mit „said“"
 
 #: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Take snapshot"
@@ -5931,6 +6085,14 @@ msgstr "Design"
 msgid "There is no space left on the disk to write {0}. Free some space and try again."
 msgstr "Auf dem Datenträger ist kein Platz mehr, um {0} zu schreiben. Schaffen Sie Platz und versuchen Sie es erneut."
 
+#: src/app/analysis/AnalysisReport.tsx
+msgid "There is no text in this book yet."
+msgstr "In diesem Buch gibt es noch keinen Text."
+
+#: src/app/analysis/AnalysisReport.tsx
+msgid "There is no text in this chapter yet."
+msgstr "In diesem Kapitel gibt es noch keinen Text."
+
 #: src/lib/import/importBook.ts
 msgid "There is no text to import in this file."
 msgstr "In dieser Datei gibt es keinen Text zu importieren."
@@ -6107,6 +6269,10 @@ msgstr "Diese Version hat dieselben Wörter wie der aktuelle Text."
 #: src/app/dialogs/SceneBreakField.tsx
 msgid "Three dots"
 msgstr "Drei Punkte"
+
+#: src/app/analysis/analysisModel.ts
+msgid "Three words in a row, not all function words; used three or more times"
+msgstr "Drei Wörter in Folge, nicht nur Funktionswörter; mindestens dreimal verwendet"
 
 #: src/app/shell/App.tsx
 #: src/app/shell/header/AppHeader.tsx
@@ -6436,6 +6602,10 @@ msgstr "Warnung"
 msgid "Warning:"
 msgstr "Warnung:"
 
+#: src/app/analysis/analysisModel.ts
+msgid "Was or were with a past participle"
+msgstr "was oder were mit Partizip II"
+
 #: src/app/hooks/useAudioLabels.ts
 msgid "WAV"
 msgstr "WAV"
@@ -6506,9 +6676,15 @@ msgstr "Word (.docx)"
 msgid "Word (.docx)…"
 msgstr "Word (.docx)…"
 
+#: src/app/analysis/analysisModel.ts
 #: src/app/shell/Details.tsx
 msgid "Words"
 msgstr "Wörter"
+
+#. placeholder {0}: fmt(Math.round(perThousand * 10) / 10)
+#: src/app/analysis/analysisModel.ts
+msgid "Words ending in -ly, longer than four letters, not on the stop list. {0} per 1,000 words"
+msgstr "Wörter auf -ly, länger als vier Buchstaben, nicht auf der Stoppliste. {0} pro 1.000 Wörter"
 
 #: src/app/settings/SettingsSections.tsx
 msgid "Words to write each time you open a book. 0 turns it off."
