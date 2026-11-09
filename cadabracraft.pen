@@ -3095,7 +3095,7 @@
                             512,
                             512
                           ],
-                          "fill": "#1F5FD1",
+                          "fill": "$accent",
                           "width": 32,
                           "height": 32,
                           "stroke": "#1F5FD1",
@@ -3117,7 +3117,7 @@
                             512,
                             512
                           ],
-                          "fill": "#1F5FD1",
+                          "fill": "$accent",
                           "width": 32,
                           "height": 32,
                           "stroke": "#1F5FD1",
@@ -3139,7 +3139,7 @@
                             512,
                             512
                           ],
-                          "fill": "#1F5FD1",
+                          "fill": "$accent",
                           "width": 32,
                           "height": 32,
                           "stroke": "#1F5FD1",
@@ -3731,7 +3731,7 @@
                             512,
                             512
                           ],
-                          "fill": "#1F5FD1",
+                          "fill": "$accent",
                           "width": 32,
                           "height": 32,
                           "stroke": "#1F5FD1",
@@ -3753,7 +3753,7 @@
                             512,
                             512
                           ],
-                          "fill": "#1F5FD1",
+                          "fill": "$accent",
                           "width": 32,
                           "height": 32,
                           "stroke": "#1F5FD1",
@@ -3775,7 +3775,7 @@
                             512,
                             512
                           ],
-                          "fill": "#1F5FD1",
+                          "fill": "$accent",
                           "width": 32,
                           "height": 32,
                           "stroke": "#1F5FD1",
@@ -4376,7 +4376,7 @@
                             512,
                             512
                           ],
-                          "fill": "#1F5FD1",
+                          "fill": "$accent",
                           "width": 32,
                           "height": 32,
                           "stroke": "#1F5FD1",
@@ -4398,7 +4398,7 @@
                             512,
                             512
                           ],
-                          "fill": "#1F5FD1",
+                          "fill": "$accent",
                           "width": 32,
                           "height": 32,
                           "stroke": "#1F5FD1",
@@ -4420,7 +4420,7 @@
                             512,
                             512
                           ],
-                          "fill": "#1F5FD1",
+                          "fill": "$accent",
                           "width": 32,
                           "height": 32,
                           "stroke": "#1F5FD1",
@@ -149040,6 +149040,9 @@
           "x": 8420,
           "y": 160,
           "name": "Template preview / modern memoir / dark",
+          "theme": {
+            "mode": "dark"
+          },
           "width": 340,
           "height": 480,
           "fill": "$bg",
@@ -149191,6 +149194,9 @@
           "x": 9100,
           "y": 160,
           "name": "Template preview / poetry / dark",
+          "theme": {
+            "mode": "dark"
+          },
           "width": 340,
           "height": 480,
           "fill": "$bg",
