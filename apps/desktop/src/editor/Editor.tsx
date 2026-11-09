@@ -24,6 +24,9 @@ import { EDITOR_DROP_ATTR } from "../lib/fileDrop";
 import { EditorFileDrop } from "./drop/EditorFileDrop";
 import { FindBar } from "./find/FindBar";
 import { useFind } from "./find/findStore";
+import { ReadAloudHighlight } from "./readAloud/highlight";
+import { ReadAloudBar } from "./readAloud/ReadAloudBar";
+import { useReadAloud } from "./readAloud/useReadAloud";
 import { useCommentAnchoring } from "./useCommentAnchoring";
 import { useSceneEditingBridge } from "./useSceneEditingBridge";
 import { PasteDialog } from "./paste/PasteDialog";
@@ -68,6 +71,7 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
     extensions: [
       ...extensions,
       Search,
+      ReadAloudHighlight,
       Pagination,
       TabKey,
       // Smart quotes, dashes and ellipsis: always added, switched by the app setting and the language at each key (architecture.md, "Smart typography").
@@ -128,11 +132,13 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
   useSceneEditingBridge(editor);
   useJumpFromPreview(editor);
   useRefocusOnSurfaceChange(editor, pageView.on);
+  const readAloud = useReadAloud(editor, language);
   if (!editor) return null;
   return (
     <div {...{ [EDITOR_DROP_ATTR]: "" }} className="relative flex min-h-0 flex-1 flex-col">
       {findOpen && <FindBar editor={editor} focusMode={focus} />}
       {!focus && <Toolbar editor={editor} />}
+      <ReadAloudBar {...readAloud} />
       <PasteDialog
         pending={pending}
         remember={remember}

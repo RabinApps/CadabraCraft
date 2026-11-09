@@ -2277,3 +2277,22 @@ Rejected:
 **Trade-off:** an older app that opens and saves a book with `sceneBreak` drops the key (as it does for `trimSize` and `fonts`), and the book falls back to the template's glyph. Reverting that needs a version bump, which is the alternative above.
 
 **Follow-ups / caveats:** the Page view (`apps/desktop/src/lib/page/pageLayout.ts`) still draws the template's glyph, not the chosen one, until the picker lands with the pen designs. A `rule` ornament (a line instead of a glyph) is not in the library: the modern template's EPUB draws a border and its PDF an em dash, so a rule needs its own layout code.
+
+## Read aloud in the editor: one sample call per sentence, played in the webview (2026-11-09)
+
+**Decision:** "Read aloud" (`apps/desktop/src/editor/readAloud/`) reads the open chapter with the same bundled local voice as the audiobook and "Hear a sample". Each sentence is one `audio_sample` call (the existing WAV-bytes command, one chunk, the Settings voice or the best installed one for the language, the bar's speed). The WAV is played from a Blob URL in an `HTMLAudioElement`, and the next sentence is made while the current one plays. The position is a pure state machine (`machine.ts`), the sentences are read from the ProseMirror document (`sentenceList.ts`), and the highlight is a ProseMirror decoration (`highlight.ts`), so the text never changes. Any document update stops reading.
+
+**Why:** the engine already returns bytes for a clip and the webview already plays them (the sample player), so no new Rust command, no file in the project and no new dependency are needed. Clips are never written to the project, which keeps the file format unchanged.
+
+Rejected:
+
+| Option                                                    | Why not                                                                                                                                                               |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| One `audio_render_chapter` call for the whole chapter     | It writes files into the project and renders the chapter before the first word, so the reader would wait for minutes and get no sentence timing.                      |
+| A new Rust command that streams sentences over a channel  | More code on the Rust side for the same bytes; the sample command already does what is needed.                                                                        |
+| Web Speech API (`speechSynthesis`)                        | Uses the operating system's voices, not the bundled local engine, so the voice would differ from the audiobook and proofing would not hear what the book sounds like. |
+| Highlight by wrapping each sentence in a DOM span or mark | Changes the document, so the stored text would change and the history would fill up. A decoration changes nothing on disk.                                            |
+
+**Trade-off:** each sentence starts the engine once, so the first sentence waits for its clip and a slow voice can lag the reading. The next clip is prepared early to hide most of this. Speed changes restart the reading from the sentence being read.
+
+**Follow-ups / caveats:** sentences are split on `. ! ?` and the ellipsis, and a sentence over 300 characters is cut at a space for the engine, so the highlight covers that piece. Footnote text is not read (footnotes are inline nodes). The bar sits under the toolbar in every view, including Focus mode.

@@ -2549,6 +2549,10 @@ msgstr "Find…"
 msgid "Finding the page in your chapter…"
 msgstr "Finding the page in your chapter…"
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Finished reading the chapter"
+msgstr "Finished reading the chapter"
+
 #: src/app/shell/entries/RowMenu.tsx
 msgid "First letter"
 msgstr "First letter"
@@ -3761,6 +3765,10 @@ msgstr "No text yet"
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 msgstr "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "No voice on this computer reads this language. Download a voice in Export, Audiobook."
+msgstr "No voice on this computer reads this language. Download a voice in Export, Audiobook."
+
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
@@ -3858,6 +3866,10 @@ msgstr "Nothing removed"
 #: src/app/toc/TocEditorParts.tsx
 msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr "Nothing to list yet. Add a chapter and it appears here."
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Nothing to read after the cursor"
+msgstr "Nothing to read after the cursor"
 
 #: src/app/board/SceneBoard.tsx
 msgid "Nothing to wrap"
@@ -4158,6 +4170,7 @@ msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the 
 msgstr "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 
 #: src/app/shell/header/SprintPopover.tsx
+#: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Pause"
 msgstr "Pause"
 
@@ -4235,6 +4248,10 @@ msgstr "Place after"
 #: src/app/home/Dashboard.tsx
 msgid "Place in the book"
 msgstr "Place in the book"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Play"
+msgstr "Play"
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
@@ -4387,13 +4404,37 @@ msgstr "Raw HTML tags in pasted text: ask each time, turn them into formatting, 
 msgid "Read"
 msgstr "Read"
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud"
+msgstr "Read aloud"
+
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr "Read aloud by screen readers. Describe what the picture shows."
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud paused"
+msgstr "Read aloud paused"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped"
+msgstr "Read aloud stopped"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped because the text changed"
+msgstr "Read aloud stopped because the text changed"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read from cursor"
+msgstr "Read from cursor"
+
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "Read this file as"
 msgstr "Read this file as"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Reading aloud"
+msgstr "Reading aloud"
 
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Reading settings"
@@ -5203,6 +5244,7 @@ msgid "Sort references"
 msgstr "Sort references"
 
 #: src/app/export/AudioExport.tsx
+#: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Speed"
 msgstr "Speed"
 
@@ -5345,6 +5387,10 @@ msgstr "Status"
 #: src/app/board/SceneCard.tsx
 msgid "Status of {title}"
 msgstr "Status of {title}"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Stop"
+msgstr "Stop"
 
 #: src/app/export/AudioFooter.tsx
 msgid "Stop sample"
@@ -5867,6 +5913,10 @@ msgstr "There is nothing to read aloud in this chapter."
 #: src/state/project/output/narration/steps.ts
 msgid "There is nothing to read aloud, so there is no audiobook to build."
 msgstr "There is nothing to read aloud, so there is no audiobook to build."
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "There is nothing to read in this chapter"
+msgstr "There is nothing to read in this chapter"
 
 #: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "These are routine adjustments; nothing was lost."

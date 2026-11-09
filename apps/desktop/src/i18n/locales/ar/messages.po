@@ -2549,6 +2549,10 @@ msgstr "بحث…"
 msgid "Finding the page in your chapter…"
 msgstr "جارٍ البحث عن الصفحة في فصلك…"
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Finished reading the chapter"
+msgstr "انتهت قراءة الفصل"
+
 #: src/app/shell/entries/RowMenu.tsx
 msgid "First letter"
 msgstr "الحرف الأول"
@@ -3761,6 +3765,10 @@ msgstr "لا نص بعد"
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 msgstr "لا يوجد صوت على هذا الحاسوب يقرأ {0} حتى الآن. الأصوات التي يستطيع CadabraCraft تنزيلها تقرأ الإنجليزية فقط."
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "No voice on this computer reads this language. Download a voice in Export, Audiobook."
+msgstr "لا يوجد على هذا الحاسوب صوت يقرأ هذه اللغة. نزّل صوتًا من التصدير، كتاب صوتي."
+
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
@@ -3858,6 +3866,10 @@ msgstr "لم يُزَل شيء"
 #: src/app/toc/TocEditorParts.tsx
 msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr "لا شيء لإدراجه بعد. أضف فصلًا وسيظهر هنا."
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Nothing to read after the cursor"
+msgstr "لا شيء للقراءة بعد المؤشر"
 
 #: src/app/board/SceneBoard.tsx
 msgid "Nothing to wrap"
@@ -4158,6 +4170,7 @@ msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the 
 msgstr "تُركت الصور الملصوقة. استخدم إدراج ثم صورة لإضافة صورة إلى الكتاب."
 
 #: src/app/shell/header/SprintPopover.tsx
+#: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Pause"
 msgstr "إيقاف مؤقت"
 
@@ -4235,6 +4248,10 @@ msgstr "ضع بعد"
 #: src/app/home/Dashboard.tsx
 msgid "Place in the book"
 msgstr "الموضع في الكتاب"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Play"
+msgstr "تشغيل"
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
@@ -4387,13 +4404,37 @@ msgstr "وسوم HTML الخام في النص الملصوق: اسأل كل م�
 msgid "Read"
 msgstr "قراءة"
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud"
+msgstr "قراءة بصوت عالٍ"
+
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr "تقرؤها قارئات الشاشة بصوت عالٍ. صف ما تُظهره الصورة."
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud paused"
+msgstr "القراءة بصوت عالٍ متوقفة مؤقتًا"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped"
+msgstr "توقفت القراءة بصوت عالٍ"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped because the text changed"
+msgstr "توقفت القراءة بصوت عالٍ لأن النص تغيّر"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read from cursor"
+msgstr "اقرأ من المؤشر"
+
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "Read this file as"
 msgstr "قراءة هذا الملف على أنه"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Reading aloud"
+msgstr "جارٍ القراءة بصوت عالٍ"
 
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Reading settings"
@@ -5203,6 +5244,7 @@ msgid "Sort references"
 msgstr "فرز المراجع"
 
 #: src/app/export/AudioExport.tsx
+#: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Speed"
 msgstr "السرعة"
 
@@ -5345,6 +5387,10 @@ msgstr "الحالة"
 #: src/app/board/SceneCard.tsx
 msgid "Status of {title}"
 msgstr "حالة {title}"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Stop"
+msgstr "إيقاف"
 
 #: src/app/export/AudioFooter.tsx
 msgid "Stop sample"
@@ -5867,6 +5913,10 @@ msgstr "لا يوجد ما يُقرأ بصوت عالٍ في هذا الفصل."
 #: src/state/project/output/narration/steps.ts
 msgid "There is nothing to read aloud, so there is no audiobook to build."
 msgstr "لا يوجد ما يُقرأ بصوت عالٍ، لذلك لا يوجد كتاب صوتي لإنشائه."
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "There is nothing to read in this chapter"
+msgstr "لا شيء للقراءة في هذا الفصل"
 
 #: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "These are routine adjustments; nothing was lost."

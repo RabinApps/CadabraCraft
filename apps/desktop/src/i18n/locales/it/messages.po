@@ -2549,6 +2549,10 @@ msgstr "Trova…"
 msgid "Finding the page in your chapter…"
 msgstr "Ricerca della pagina nel capitolo…"
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Finished reading the chapter"
+msgstr "Lettura del capitolo terminata"
+
 #: src/app/shell/entries/RowMenu.tsx
 msgid "First letter"
 msgstr "Prima lettera"
@@ -3761,6 +3765,10 @@ msgstr "Ancora nessun testo"
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 msgstr "Nessuna voce su questo computer legge ancora {0}. Le voci che CadabraCraft può scaricare leggono solo l’inglese."
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "No voice on this computer reads this language. Download a voice in Export, Audiobook."
+msgstr "Nessuna voce su questo computer legge questa lingua. Scarica una voce da Esporta, Audiolibro."
+
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
@@ -3858,6 +3866,10 @@ msgstr "Nulla rimosso"
 #: src/app/toc/TocEditorParts.tsx
 msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr "Non c'è ancora nulla da elencare. Aggiungi un capitolo e comparirà qui."
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Nothing to read after the cursor"
+msgstr "Nulla da leggere dopo il cursore"
 
 #: src/app/board/SceneBoard.tsx
 msgid "Nothing to wrap"
@@ -4158,6 +4170,7 @@ msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the 
 msgstr "Le immagini incollate sono state escluse. Usa Inserisci, Immagine per aggiungere un'immagine al libro."
 
 #: src/app/shell/header/SprintPopover.tsx
+#: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Pause"
 msgstr "Pausa"
 
@@ -4235,6 +4248,10 @@ msgstr "Posiziona dopo"
 #: src/app/home/Dashboard.tsx
 msgid "Place in the book"
 msgstr "Posizione nel libro"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Play"
+msgstr "Riproduci"
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
@@ -4387,13 +4404,37 @@ msgstr "Tag HTML grezzi nel testo incollato: chiedi ogni volta, trasformali in f
 msgid "Read"
 msgstr "Leggi"
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud"
+msgstr "Leggi ad alta voce"
+
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr "Letta ad alta voce dagli screen reader. Descrivi ciò che mostra l'immagine."
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud paused"
+msgstr "Lettura ad alta voce in pausa"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped"
+msgstr "Lettura ad alta voce interrotta"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped because the text changed"
+msgstr "Lettura ad alta voce interrotta perché il testo è cambiato"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read from cursor"
+msgstr "Leggi dal cursore"
+
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "Read this file as"
 msgstr "Leggi questo file come"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Reading aloud"
+msgstr "Lettura ad alta voce in corso"
 
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Reading settings"
@@ -5203,6 +5244,7 @@ msgid "Sort references"
 msgstr "Ordina riferimenti"
 
 #: src/app/export/AudioExport.tsx
+#: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Speed"
 msgstr "Velocità"
 
@@ -5345,6 +5387,10 @@ msgstr "Stato"
 #: src/app/board/SceneCard.tsx
 msgid "Status of {title}"
 msgstr "Stato di {title}"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Stop"
+msgstr "Stop"
 
 #: src/app/export/AudioFooter.tsx
 msgid "Stop sample"
@@ -5867,6 +5913,10 @@ msgstr "Non c’è nulla da leggere ad alta voce in questo capitolo."
 #: src/state/project/output/narration/steps.ts
 msgid "There is nothing to read aloud, so there is no audiobook to build."
 msgstr "Non c’è nulla da leggere ad alta voce, quindi non c’è nessun audiolibro da creare."
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "There is nothing to read in this chapter"
+msgstr "Nulla da leggere in questo capitolo"
 
 #: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "These are routine adjustments; nothing was lost."

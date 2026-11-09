@@ -2549,6 +2549,10 @@ msgstr "חיפוש…"
 msgid "Finding the page in your chapter…"
 msgstr "מחפש את העמוד בפרק שלך…"
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Finished reading the chapter"
+msgstr "סיימתי לקרוא את הפרק"
+
 #: src/app/shell/entries/RowMenu.tsx
 msgid "First letter"
 msgstr "האות הראשונה"
@@ -3761,6 +3765,10 @@ msgstr "אין עדיין טקסט"
 msgid "No voice on this computer reads {0} yet. The voices CadabraCraft can download read English only."
 msgstr "אין עדיין קול במחשב זה שמקריא {0}. הקולות ש־CadabraCraft יכולה להוריד מקריאים באנגלית בלבד."
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "No voice on this computer reads this language. Download a voice in Export, Audiobook."
+msgstr "אין במחשב זה קול שקורא בשפה זו. הורידו קול בייצוא, בספר קולי."
+
 #: src/app/dialogs/IconDialog.tsx
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
@@ -3858,6 +3866,10 @@ msgstr "דבר לא הוסר"
 #: src/app/toc/TocEditorParts.tsx
 msgid "Nothing to list yet. Add a chapter and it appears here."
 msgstr "אין עדיין מה להציג. הוסף פרק והוא יופיע כאן."
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Nothing to read after the cursor"
+msgstr "אין מה לקרוא אחרי הסמן"
 
 #: src/app/board/SceneBoard.tsx
 msgid "Nothing to wrap"
@@ -4158,8 +4170,9 @@ msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the 
 msgstr "תמונות שהודבקו הושמטו. השתמש בהוספה, תמונה כדי להוסיף תמונה לספר."
 
 #: src/app/shell/header/SprintPopover.tsx
+#: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Pause"
-msgstr "השהה"
+msgstr "השהיה"
 
 #: src/app/shell/header/SprintControl.tsx
 msgid "Pause sprint"
@@ -4235,6 +4248,10 @@ msgstr "מקם אחרי"
 #: src/app/home/Dashboard.tsx
 msgid "Place in the book"
 msgstr "מקום בספר"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Play"
+msgstr "הפעלה"
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "PNG, JPEG or WebP, up to 25 MB. A copy is kept in the book's assets folder. Portrait, about 1600 × 2400 px, works best."
@@ -4387,13 +4404,37 @@ msgstr "תגי HTML גולמיים בטקסט מודבק: לשאול בכל פע
 msgid "Read"
 msgstr "קריאה"
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud"
+msgstr "קריאה בקול"
+
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr "קוראי מסך מקריאים אותו בקול. תאר מה התמונה מציגה."
 
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud paused"
+msgstr "הקריאה בקול מושהית"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped"
+msgstr "הקריאה בקול נעצרה"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read aloud stopped because the text changed"
+msgstr "הקריאה בקול נעצרה כי הטקסט השתנה"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Read from cursor"
+msgstr "קרא מהסמן"
+
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "Read this file as"
 msgstr "קריאת הקובץ בתור"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Reading aloud"
+msgstr "קורא בקול"
 
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Reading settings"
@@ -5203,6 +5244,7 @@ msgid "Sort references"
 msgstr "מיון הפניות"
 
 #: src/app/export/AudioExport.tsx
+#: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Speed"
 msgstr "מהירות"
 
@@ -5345,6 +5387,10 @@ msgstr "מצב"
 #: src/app/board/SceneCard.tsx
 msgid "Status of {title}"
 msgstr "מצב של {title}"
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "Stop"
+msgstr "עצור"
 
 #: src/app/export/AudioFooter.tsx
 msgid "Stop sample"
@@ -5867,6 +5913,10 @@ msgstr "אין מה להקריא בפרק זה."
 #: src/state/project/output/narration/steps.ts
 msgid "There is nothing to read aloud, so there is no audiobook to build."
 msgstr "אין מה להקריא, ולכן אין ספר שמע ליצור."
+
+#: src/editor/readAloud/ReadAloudBar.tsx
+msgid "There is nothing to read in this chapter"
+msgstr "אין מה לקרוא בפרק הזה"
 
 #: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "These are routine adjustments; nothing was lost."

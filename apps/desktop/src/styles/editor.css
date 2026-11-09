@@ -151,6 +151,27 @@
     color: HighlightText;
   }
 }
+/* Read aloud: the sentence being read (a background and an underline, so it does not rely on colour alone). */
+.prose-manuscript .ProseMirror .read-aloud-current {
+  background: var(--accent-soft);
+  border-radius: 2px;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .prose-manuscript .ProseMirror .read-aloud-current {
+    transition: background-color 150ms ease-out;
+  }
+}
+@media (forced-colors: active) {
+  .prose-manuscript .ProseMirror .read-aloud-current {
+    outline: 2px solid Highlight;
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}
 .prose-manuscript .ProseMirror hr.scene-break {
   border: 0;
   margin: 1.5rem 0;
