@@ -54,6 +54,7 @@ export const renderCallbacks = (run: AudioRun): Callbacks => {
             files: hit.files,
             durationSec: hit.durationSec,
             ...(hit.part ? { part: hit.part } : {}),
+            ...(hit.loudness ? { loudness: hit.loudness } : {}),
           }
         : undefined;
     },

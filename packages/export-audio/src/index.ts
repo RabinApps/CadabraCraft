@@ -18,6 +18,7 @@ export {
   type ChapterResult,
   type RenderHooks,
   type RenderRequest,
+  type LoudnessReport,
   type RenderedChapter,
   type VoiceInfo,
 } from "./render";

@@ -106,6 +106,7 @@ mod process {
         .unwrap();
         // two batches of 0.1 s plus a 1.0 s pause after the first and 0.6 s after the second
         assert!((r.duration_sec - 1.8).abs() < 0.001, "{}", r.duration_sec);
+        assert_eq!(r.loudness.target_lufs, -19.0);
         assert_eq!(r.files, vec![RenderedFile { format: "wav".into(), path: "exports/audio/01-one.wav".into() }]);
         let pcm = parse_wav(&fs::read(f.project.join("exports/audio/01-one.wav")).unwrap()).unwrap();
         assert_eq!(pcm.samples.len(), (1.8 * 24000.0) as usize);

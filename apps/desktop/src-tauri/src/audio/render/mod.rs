@@ -3,6 +3,7 @@ use super::batch::Chunk;
 use super::encode;
 use super::engine::synthesize;
 use super::error::{other, AudioError};
+use super::loudness::{self, LoudnessReport};
 use super::wav::write_wav;
 use crate::project::{self, ProjectError};
 use serde::{Deserialize, Serialize};
@@ -54,6 +55,8 @@ pub struct RenderedChapter {
     /// The part written for the M4B, when one was asked for.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub part: Option<String>,
+    /// The loudness of the chapter as written (measured, not changed): integrated LUFS, true peak and the pass check.
+    pub loudness: LoudnessReport,
 }
 
 /// Most bytes of one transcript file (a long novel is a few hundred kilobytes of text).
@@ -182,7 +185,8 @@ fn write_outputs(req: &ChapterRequest, root: &Path, rate: u32, samples: &[i16], 
         let bytes = encode::encode_flac(rate, samples).map_err(|message| AudioError::Encode { format: "flac".into(), message })?;
         project::write_audio_part(root, part, &bytes)?;
     }
-    Ok(RenderedChapter { files, duration_sec: samples.len() as f64 / rate as f64, part: req.part.clone() })
+    let loudness = loudness::measure(rate, samples);
+    Ok(RenderedChapter { files, duration_sec: samples.len() as f64 / rate as f64, part: req.part.clone(), loudness })
 }
 
 #[cfg(test)]
