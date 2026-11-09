@@ -2,6 +2,8 @@ import type { AudioFormat } from "@cadabracraft/export-audio";
 import { AUDIO_FORMATS } from "../../lib/audio/audioFormats";
 import { createPersistedStore } from "../../lib/persisted";
 import { cleanOverrides, type Overrides } from "../../lib/shortcutCombo";
+import type { Sprint } from "@cadabracraft/shared";
+import { DEFAULT_SPRINT_MINUTES, cleanSprint, newSprint, parseSprint } from "./sprintPrefs";
 
 /** A font the pages can be drawn in (not the Word export font, which is `ManuscriptFont` in export-docx): "newsreader", "inter" or a family name. */
 export type EditorFont = "newsreader" | "inter" | (string & {});
@@ -89,6 +91,7 @@ interface Prefs {
   /** Megabytes all whole-book snapshots of a book may take together. */ bookSnapshotMaxMb: number;
   /** Zoom of the pages in the editor. */ pageZoom: PageZoom;
   /** Keys the author changed in Settings > Shortcuts, by command id; everything else keeps its default. */ shortcutOverrides: Overrides;
+  /** The sprint timer in the status bar (a sprint that was running is read back paused). */ sprint: Sprint;
 }
 const defaults: Prefs = {
   typewriterScroll: false,
@@ -102,6 +105,7 @@ const defaults: Prefs = {
   audioFormats: ["opus"],
   pageZoom: "fit",
   shortcutOverrides: {},
+  sprint: newSprint(DEFAULT_SPRINT_MINUTES),
 };
 
 /** A whole number in 0..MAX_SESSION_GOAL; anything else becomes 0 (off). */
@@ -124,6 +128,7 @@ function parsePrefs(v: unknown): Prefs | null {
       audioFormats: cleanAudioFormats(o.audioFormats),
       pageZoom: cleanPageZoom(o.pageZoom),
       shortcutOverrides: cleanOverrides(o.shortcutOverrides),
+      sprint: parseSprint(o.sprint),
     };
   }
   return null;
@@ -146,5 +151,6 @@ export const useSettings = createPersistedStore<Prefs>({
     audioFormats: cleanAudioFormats(p.audioFormats),
     pageZoom: cleanPageZoom(p.pageZoom),
     shortcutOverrides: cleanOverrides(p.shortcutOverrides),
+    sprint: cleanSprint(p.sprint),
   }),
 });

@@ -5,6 +5,7 @@ import { ProgressBar } from "../../../ui/feedback/ProgressBar";
 import { usePageView } from "../../hooks/usePageView";
 import { PageEstimate, PagePosition } from "./PageEstimate";
 import { PageZoomSelect } from "./PageZoomSelect";
+import { SprintControl } from "./SprintControl";
 
 interface Props {
   /** Words in the open page and in the whole book (null while counting). */
@@ -51,6 +52,7 @@ export function StatusBar(p: Props) {
         {pageView.on && <PagePosition />}
       </span>
       <span className="flex items-center gap-3">
+        <SprintControl />
         {pageView.on && <PageZoomSelect zoom={pageView.zoom} onChange={pageView.setZoom} />}
         <span>
           {p.section === "front"

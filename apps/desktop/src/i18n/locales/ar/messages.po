@@ -386,6 +386,14 @@ msgstr "{chapterCount, plural, one {استُورد فصل واحد من {fileNam
 msgid "{chapterTitle} · {0} words"
 msgstr "{chapterTitle} · {0} كلمة"
 
+#: src/app/shell/header/SprintControl.tsx
+msgid "{clock} left"
+msgstr "متبقي {clock}"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "{clock} paused"
+msgstr "{clock} متوقف مؤقتًا"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr "{estimate, plural, one {نحو صفحة واحدة} two {نحو صفحتين} few {نحو # صفحات} many {نحو # صفحة} other {نحو # صفحة}}"
@@ -426,6 +434,10 @@ msgstr "توقّف {label}: {why}. قد يكون مشهد الآن في فصلي
 #: src/state/project/scenes.ts
 msgid "{label} stopped: {why}. Nothing was changed."
 msgstr "توقّف {label}: {why}. لم يتغيّر شيء."
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "{m} min"
+msgstr "{m} دقيقة"
 
 #: src/app/shell/Details.tsx
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
@@ -4145,6 +4157,18 @@ msgstr "هل تلصق كنص منسّق؟"
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr "تُركت الصور الملصوقة. استخدم إدراج ثم صورة لإضافة صورة إلى الكتاب."
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Pause"
+msgstr "إيقاف مؤقت"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Pause sprint"
+msgstr "إيقاف الجلسة مؤقتًا"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Paused"
+msgstr "متوقف مؤقتًا"
+
 #: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "PDF"
@@ -4390,6 +4414,10 @@ msgstr "جارٍ قراءة فصولك…"
 msgid "Reading…"
 msgstr "جارٍ القراءة…"
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Ready when you are"
+msgstr "جاهز متى شئت"
+
 #: src/app/home/Home.tsx
 msgid "Recent"
 msgstr "الأحدث"
@@ -4628,6 +4656,7 @@ msgid "Reply…"
 msgstr "رد…"
 
 #: src/app/settings/ShortcutsSection.tsx
+#: src/app/shell/header/SprintPopover.tsx
 msgid "Reset"
 msgstr "إعادة تعيين"
 
@@ -4736,6 +4765,14 @@ msgstr "جارٍ الاستعادة…"
 msgid "Results by page"
 msgstr "النتائج حسب الصفحة"
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Resume"
+msgstr "استئناف"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Resume sprint"
+msgstr "استئناف الجلسة"
+
 #: src/app/toc/TocPreview.tsx
 msgid "Retry"
 msgstr "إعادة المحاولة"
@@ -4763,6 +4800,10 @@ msgstr "الحقوق"
 #: src/editor/toolbar/TableCommands.tsx
 msgid "Rows"
 msgstr "الصفوف"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Running"
+msgstr "قيد التشغيل"
 
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "Rust libraries"
@@ -5215,6 +5256,27 @@ msgstr "رعاية CadabraCraft…"
 msgid "Spread controls"
 msgstr "عناصر التحكم في عرض الصفحتين"
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint"
+msgstr "سبرينت"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Sprint {clock}"
+msgstr "سبرينت {clock}"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Sprint done"
+msgstr "انتهت الجلسة"
+
+#: src/app/shell/header/SprintControl.tsx
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint done. Nice work."
+msgstr "انتهت الجلسة. أحسنت!"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint length"
+msgstr "مدة الجلسة"
+
 #: src/app/toc/TocRow.tsx
 msgid "Stale"
 msgstr "غير محدّث"
@@ -5222,6 +5284,10 @@ msgstr "غير محدّث"
 #: src/lib/useIconChoices.ts
 msgid "Star"
 msgstr "نجمة"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Start"
+msgstr "ابدأ"
 
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
@@ -5234,6 +5300,10 @@ msgstr "بدء فصل جديد عند"
 #: src/app/home/Home.tsx
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr "ابدأ مجلدًا جديدًا، أو افتح مجلدًا لديك بالفعل. يبقى كل شيء على هذا الحاسوب."
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Start again"
+msgstr "ابدأ من جديد"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start empty"
@@ -5254,6 +5324,10 @@ msgstr "البدء في الصفحة التالية"
 #: src/app/shell/entries/RowMenu.tsx
 msgid "Start part here"
 msgstr "بدء الجزء هنا"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Start sprint"
+msgstr "بدء الجلسة"
 
 #: src/app/dialogs/SplitChapterDialog.tsx
 msgid "Start the new chapter at"

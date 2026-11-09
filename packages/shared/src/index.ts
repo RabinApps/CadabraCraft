@@ -5,6 +5,7 @@ export * from "./ids";
 export * from "./matter";
 export * from "./isbn";
 export * from "./textAlign";
+export * from "./sprint";
 
 /** TipTap/ProseMirror JSON, the on-disk chapter format and the editor/exporter contract. */
 export interface Mark {

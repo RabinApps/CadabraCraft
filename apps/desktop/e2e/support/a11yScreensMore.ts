@@ -59,6 +59,14 @@ const withSnapshot = async (page: Page) => {
 /** Dialogs, panels and shell states added for the second accessibility sweep. */
 export const moreScreens: Screen[] = [
   {
+    name: "sprint popover in the status bar",
+    open: async (p) => {
+      await newProject(p);
+      await p.getByRole("button", { name: /^Sprint 25:00$/ }).click();
+      await shown(p.getByRole("region", { name: "Sprint" }));
+    },
+  },
+  {
     name: "Split chapter dialog",
     open: async (p) => {
       await newProject(p);

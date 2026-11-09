@@ -386,6 +386,14 @@ msgstr "{chapterCount, plural, one {יובא פרק # מתוך {fileName}.} othe
 msgid "{chapterTitle} · {0} words"
 msgstr "{chapterTitle} · {0} מילים"
 
+#: src/app/shell/header/SprintControl.tsx
+msgid "{clock} left"
+msgstr "נותרו {clock}"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "{clock} paused"
+msgstr "{clock} בהפסקה"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr "{estimate, plural, one {כעמוד #} other {כ־# עמודים}}"
@@ -426,6 +434,10 @@ msgstr "{label} נעצר: {why}. ייתכן שסצנה נמצאת כעת בשנ�
 #: src/state/project/scenes.ts
 msgid "{label} stopped: {why}. Nothing was changed."
 msgstr "{label} נעצר: {why}. שום דבר לא שונה."
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "{m} min"
+msgstr "{m} דק׳"
 
 #: src/app/shell/Details.tsx
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
@@ -4145,6 +4157,18 @@ msgstr "להדביק כטקסט מעוצב?"
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr "תמונות שהודבקו הושמטו. השתמש בהוספה, תמונה כדי להוסיף תמונה לספר."
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Pause"
+msgstr "השהה"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Pause sprint"
+msgstr "השהה את הספרינט"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Paused"
+msgstr "בהפסקה"
+
 #: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "PDF"
@@ -4390,6 +4414,10 @@ msgstr "קורא את הפרקים שלך…"
 msgid "Reading…"
 msgstr "קורא…"
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Ready when you are"
+msgstr "מוכן כשאתה מוכן"
+
 #: src/app/home/Home.tsx
 msgid "Recent"
 msgstr "אחרונים"
@@ -4628,6 +4656,7 @@ msgid "Reply…"
 msgstr "תגובה…"
 
 #: src/app/settings/ShortcutsSection.tsx
+#: src/app/shell/header/SprintPopover.tsx
 msgid "Reset"
 msgstr "איפוס"
 
@@ -4736,6 +4765,14 @@ msgstr "משחזר…"
 msgid "Results by page"
 msgstr "תוצאות לפי עמוד"
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Resume"
+msgstr "המשך"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Resume sprint"
+msgstr "המשך את הספרינט"
+
 #: src/app/toc/TocPreview.tsx
 msgid "Retry"
 msgstr "ניסיון חוזר"
@@ -4763,6 +4800,10 @@ msgstr "זכויות"
 #: src/editor/toolbar/TableCommands.tsx
 msgid "Rows"
 msgstr "שורות"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Running"
+msgstr "פועל"
 
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "Rust libraries"
@@ -5215,6 +5256,27 @@ msgstr "חסות ל־CadabraCraft…"
 msgid "Spread controls"
 msgstr "פקדי פריסת הכפולה"
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint"
+msgstr "ספרינט"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Sprint {clock}"
+msgstr "ספרינט {clock}"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Sprint done"
+msgstr "הספרינט הסתיים"
+
+#: src/app/shell/header/SprintControl.tsx
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint done. Nice work."
+msgstr "הספרינט הסתיים. עבודה טובה!"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint length"
+msgstr "אורך הספרינט"
+
 #: src/app/toc/TocRow.tsx
 msgid "Stale"
 msgstr "לא עדכני"
@@ -5222,6 +5284,10 @@ msgstr "לא עדכני"
 #: src/lib/useIconChoices.ts
 msgid "Star"
 msgstr "כוכב"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Start"
+msgstr "התחל"
 
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
@@ -5234,6 +5300,10 @@ msgstr "התחלת פרק חדש ב"
 #: src/app/home/Home.tsx
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr "התחל תיקייה חדשה, או פתח תיקייה שכבר יש לך. הכול נשאר במחשב זה."
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Start again"
+msgstr "התחל מחדש"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start empty"
@@ -5254,6 +5324,10 @@ msgstr "להתחיל בעמוד הבא"
 #: src/app/shell/entries/RowMenu.tsx
 msgid "Start part here"
 msgstr "להתחיל חלק כאן"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Start sprint"
+msgstr "התחל את הספרינט"
 
 #: src/app/dialogs/SplitChapterDialog.tsx
 msgid "Start the new chapter at"

@@ -384,6 +384,14 @@ msgstr ""
 msgid "{chapterTitle} · {0} words"
 msgstr ""
 
+#: src/app/shell/header/SprintControl.tsx
+msgid "{clock} left"
+msgstr ""
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "{clock} paused"
+msgstr ""
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr ""
@@ -423,6 +431,10 @@ msgstr ""
 
 #: src/state/project/scenes.ts
 msgid "{label} stopped: {why}. Nothing was changed."
+msgstr ""
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "{m} min"
 msgstr ""
 
 #: src/app/shell/Details.tsx
@@ -4143,6 +4155,18 @@ msgstr ""
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr ""
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Pause"
+msgstr ""
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Pause sprint"
+msgstr ""
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Paused"
+msgstr ""
+
 #: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "PDF"
@@ -4388,6 +4412,10 @@ msgstr ""
 msgid "Reading…"
 msgstr ""
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Ready when you are"
+msgstr ""
+
 #: src/app/home/Home.tsx
 msgid "Recent"
 msgstr ""
@@ -4626,6 +4654,7 @@ msgid "Reply…"
 msgstr ""
 
 #: src/app/settings/ShortcutsSection.tsx
+#: src/app/shell/header/SprintPopover.tsx
 msgid "Reset"
 msgstr ""
 
@@ -4734,6 +4763,14 @@ msgstr ""
 msgid "Results by page"
 msgstr ""
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Resume"
+msgstr ""
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Resume sprint"
+msgstr ""
+
 #: src/app/toc/TocPreview.tsx
 msgid "Retry"
 msgstr ""
@@ -4760,6 +4797,10 @@ msgstr ""
 
 #: src/editor/toolbar/TableCommands.tsx
 msgid "Rows"
+msgstr ""
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Running"
 msgstr ""
 
 #: src/app/dialogs/LicensesDialog.tsx
@@ -5213,12 +5254,37 @@ msgstr ""
 msgid "Spread controls"
 msgstr ""
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint"
+msgstr ""
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Sprint {clock}"
+msgstr ""
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Sprint done"
+msgstr ""
+
+#: src/app/shell/header/SprintControl.tsx
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint done. Nice work."
+msgstr ""
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint length"
+msgstr ""
+
 #: src/app/toc/TocRow.tsx
 msgid "Stale"
 msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Star"
+msgstr ""
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Start"
 msgstr ""
 
 #: src/app/home/Dashboard.tsx
@@ -5231,6 +5297,10 @@ msgstr ""
 
 #: src/app/home/Home.tsx
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
+msgstr ""
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Start again"
 msgstr ""
 
 #: src/app/dialogs/AddLanguageDialog.tsx
@@ -5251,6 +5321,10 @@ msgstr ""
 
 #: src/app/shell/entries/RowMenu.tsx
 msgid "Start part here"
+msgstr ""
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Start sprint"
 msgstr ""
 
 #: src/app/dialogs/SplitChapterDialog.tsx

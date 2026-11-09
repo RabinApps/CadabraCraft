@@ -386,6 +386,14 @@ msgstr "{chapterCount, plural, one {Importato # capitolo da {fileName}.} other {
 msgid "{chapterTitle} · {0} words"
 msgstr "{chapterTitle} · {0} parole"
 
+#: src/app/shell/header/SprintControl.tsx
+msgid "{clock} left"
+msgstr "{clock} rimanenti"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "{clock} paused"
+msgstr "{clock} in pausa"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr "{estimate, plural, one {Circa # pagina} other {Circa # pagine}}"
@@ -426,6 +434,10 @@ msgstr "{label} si è interrotto: {why}. Una scena potrebbe ora trovarsi in due 
 #: src/state/project/scenes.ts
 msgid "{label} stopped: {why}. Nothing was changed."
 msgstr "{label} si è interrotto: {why}. Non è cambiato nulla."
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "{m} min"
+msgstr "{m} min"
 
 #: src/app/shell/Details.tsx
 msgid "{minutes, plural, one {# minute} other {# minutes}}"
@@ -4145,6 +4157,18 @@ msgstr "Incollare come testo formattato?"
 msgid "Pasted pictures were left out. Use Insert, Image to add a picture to the book."
 msgstr "Le immagini incollate sono state escluse. Usa Inserisci, Immagine per aggiungere un'immagine al libro."
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Pause"
+msgstr "Pausa"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Pause sprint"
+msgstr "Metti in pausa la sessione"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Paused"
+msgstr "In pausa"
+
 #: src/app/references/panel/ReferenceFilters.tsx
 #: src/app/references/ReferenceRow.tsx
 msgid "PDF"
@@ -4390,6 +4414,10 @@ msgstr "Lettura dei capitoli…"
 msgid "Reading…"
 msgstr "Lettura…"
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Ready when you are"
+msgstr "Pronto quando vuoi"
+
 #: src/app/home/Home.tsx
 msgid "Recent"
 msgstr "Recenti"
@@ -4628,6 +4656,7 @@ msgid "Reply…"
 msgstr "Rispondi…"
 
 #: src/app/settings/ShortcutsSection.tsx
+#: src/app/shell/header/SprintPopover.tsx
 msgid "Reset"
 msgstr "Ripristina"
 
@@ -4736,6 +4765,14 @@ msgstr "Ripristino…"
 msgid "Results by page"
 msgstr "Risultati per pagina"
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Resume"
+msgstr "Riprendi"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Resume sprint"
+msgstr "Riprendi la sessione"
+
 #: src/app/toc/TocPreview.tsx
 msgid "Retry"
 msgstr "Riprova"
@@ -4763,6 +4800,10 @@ msgstr "Diritti"
 #: src/editor/toolbar/TableCommands.tsx
 msgid "Rows"
 msgstr "Righe"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Running"
+msgstr "In corso"
 
 #: src/app/dialogs/LicensesDialog.tsx
 msgid "Rust libraries"
@@ -5215,6 +5256,27 @@ msgstr "Sponsorizza CadabraCraft…"
 msgid "Spread controls"
 msgstr "Controlli della doppia pagina"
 
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint"
+msgstr "Sprint"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Sprint {clock}"
+msgstr "Sprint {clock}"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Sprint done"
+msgstr "Sprint terminato"
+
+#: src/app/shell/header/SprintControl.tsx
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint done. Nice work."
+msgstr "Sprint terminato. Ottimo lavoro!"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Sprint length"
+msgstr "Durata della sessione"
+
 #: src/app/toc/TocRow.tsx
 msgid "Stale"
 msgstr "Obsoleta"
@@ -5222,6 +5284,10 @@ msgstr "Obsoleta"
 #: src/lib/useIconChoices.ts
 msgid "Star"
 msgstr "Stella"
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Start"
+msgstr "Avvia"
 
 #: src/app/home/Dashboard.tsx
 msgid "Start a new book"
@@ -5234,6 +5300,10 @@ msgstr "Inizia un nuovo capitolo a"
 #: src/app/home/Home.tsx
 msgid "Start a new folder, or open one you already have. Everything stays on this computer."
 msgstr "Inizia una nuova cartella o aprine una che hai già. Tutto resta su questo computer."
+
+#: src/app/shell/header/SprintPopover.tsx
+msgid "Start again"
+msgstr "Ricomincia"
 
 #: src/app/dialogs/AddLanguageDialog.tsx
 msgid "Start empty"
@@ -5254,6 +5324,10 @@ msgstr "Inizia sulla pagina successiva"
 #: src/app/shell/entries/RowMenu.tsx
 msgid "Start part here"
 msgstr "Inizia la parte qui"
+
+#: src/app/shell/header/SprintControl.tsx
+msgid "Start sprint"
+msgstr "Avvia la sessione"
 
 #: src/app/dialogs/SplitChapterDialog.tsx
 msgid "Start the new chapter at"
