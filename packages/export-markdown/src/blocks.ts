@@ -1,5 +1,6 @@
 import {
   parseTextAlign,
+  sceneBreakText,
   textAlignProblem,
   type ChapterDoc,
   type DocNode,
@@ -238,7 +239,7 @@ function block(n: DocNode, ctx: Ctx, alt: boolean, top: boolean): string {
     case "scene":
       return blockList(kids, ctx).join("\n\n");
     case "sceneBreak":
-      return "* * *";
+      return sceneBreakText("* * *", ctx.opts.sceneBreak);
     case "pageBreak":
       // Markdown has no pages: the break is a comment, which reads as nothing and still marks where the book breaks.
       return "<!-- page break -->";

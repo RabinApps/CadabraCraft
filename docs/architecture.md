@@ -2258,3 +2258,22 @@ An earlier run on an older checkout gave 105 to 115 ms a key and 170 to 190 ms a
 | Rely on axe, IBM and HTMLCS only   | None of them reads component source, so an icon-only button in a `.tsx` file is found only when a screen renders it. |
 | Pa11y or Lighthouse CI as the gate | Both need a rendered page for everything; Lighthouse adds a large dependency for a subset of axe's rules.            |
 | Treat its score as conformance     | The tool says it is not one; the gate keeps a floor, and the manual screen reader tests stay.                        |
+
+## Scene-break ornaments: a book-wide manifest key, no version bump (2026-11-09)
+
+**Decision:** the author's scene-break mark is an optional top-level `sceneBreak` key in `cadabra.json`, one id from a fixed list (`asterism`, `three-dots`, `fleuron`, `dinkus`, `em-dash`, `none`). The library is `packages/shared/src/sceneBreak.ts`: each id has a `glyph` (the PDF and the EPUB stylesheet) and a `text` (Word, RTF and Markdown). Absent means the template's own glyph, so no book changes until its author chooses one. Every exporter takes the id as an option (`sceneBreak`) and throws `SceneBreakOrnamentError` for an id the library does not list. Word and RTF default to `#` and Markdown to `* * *`, as they always did, because those exporters never used the template glyph.
+
+**Why:** the mark is cosmetic and book-wide, the same kind of setting as `trimSize` and `fonts`, which were added the same way. Absent keeps every existing book's output byte for byte: the PDF source, the EPUB stylesheet (an override is appended only when a mark is chosen) and the EPUB chapter files are unchanged. Storing it in the manifest rather than the edition keeps it with the template, which is also book-wide.
+
+Rejected:
+
+| Option                                                   | Why not                                                                                                                                                                |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bump `formatVersion` to 13 (migration, old-version test) | An older app would refuse the book; a version bump for a cosmetic choice is heavy. This matches `trimSize` and `fonts`.                                                |
+| Store the mark per edition                               | The mark follows the template and the rest of the look, which are book-wide; a translation would only pick a different mark by mistake.                                |
+| Per-template default id in the template data             | The template's glyph is already its default. Renaming it to an id would change the template data shape and the Page view, which reads the glyph, for no output change. |
+| Export option only, not saved                            | The choice would be lost between exports and could not be used by the MCP and the app without passing it on each call.                                                 |
+
+**Trade-off:** an older app that opens and saves a book with `sceneBreak` drops the key (as it does for `trimSize` and `fonts`), and the book falls back to the template's glyph. Reverting that needs a version bump, which is the alternative above.
+
+**Follow-ups / caveats:** the Page view (`apps/desktop/src/lib/page/pageLayout.ts`) still draws the template's glyph, not the chosen one, until the picker lands with the pen designs. A `rule` ornament (a line instead of a glyph) is not in the library: the modern template's EPUB draws a border and its PDF an em dash, so a rule needs its own layout code.

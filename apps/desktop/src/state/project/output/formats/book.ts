@@ -66,6 +66,7 @@ export const createBookActions = (
             cover,
             ...(contents ? { contents: contents.visible } : {}),
             css: template.epub.css,
+            ...(manifest.sceneBreak === undefined ? {} : { sceneBreak: manifest.sceneBreak }),
             dropCap: resolveDropCap(template, manifest, {}),
             centerKinds: template.print.matter.verticalCenter,
           },
@@ -91,7 +92,11 @@ export const createBookActions = (
         if (!chapters.length)
           throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
         set({ exportStage: "rendering" });
-        const opts = { htmlMarks, imageBase: "../" };
+        const opts = {
+          htmlMarks,
+          imageBase: "../",
+          ...(manifest.sceneBreak === undefined ? {} : { sceneBreak: manifest.sceneBreak }),
+        };
         const contents = bookContents(manifest, edition.language, chapters);
         let markdown: string;
         try {

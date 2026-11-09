@@ -91,6 +91,7 @@ export interface BookMetadata {
 export * from "./errors";
 export * from "./wordcount";
 export * from "./trim";
+export * from "./sceneBreak";
 export * from "./words";
 export * from "./pageNumbering";
 

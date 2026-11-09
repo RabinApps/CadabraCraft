@@ -1,15 +1,20 @@
 import {
   isBackMatterKind,
   isFrontMatterKind,
+  isSceneBreakOrnamentId,
   isTrimSize,
   isValidEntryId,
   type EntryKind,
+  type SceneBreakOrnamentId,
   type TrimSize,
 } from "@cadabracraft/shared";
 import { FormatError } from "./errors";
 import { validateEditions } from "./editions";
 import { validateReferences } from "./references";
 import { validatePublishing, type Publishing } from "./publishing";
+import { validateFonts, type BookFonts } from "./fonts";
+
+export { validateFonts, type BookFonts };
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
@@ -119,12 +124,6 @@ export interface NoteReference extends ReferenceBase {
 
 export type Reference = FileReference | LinkReference | NoteReference;
 
-/** Font family names the author picked; each is a family name, not a file. */
-export interface BookFonts {
-  body?: string;
-  heading?: string;
-}
-
 export interface Manifest {
   formatVersion: number;
   editions: Edition[];
@@ -135,6 +134,8 @@ export interface Manifest {
   fonts?: BookFonts;
   /** Big first letter on chapter openings (formatVersion 8). Absent means the template decides; a chapter's own `dropCap` wins. */
   dropCap?: boolean;
+  /** Scene-break ornament for the whole book. Absent means the template's own glyph. Added without a version bump: older apps ignore it. */
+  sceneBreak?: SceneBreakOrnamentId;
   frontMatter: EditionEntry[];
   chapters: EditionEntry[];
   backMatter: EditionEntry[];
@@ -426,37 +427,6 @@ export function validateToc(v: unknown, name = "toc"): TocSettings {
   };
 }
 
-const FONT_KEYS = ["body", "heading"] as const;
-// eslint-disable-next-line no-control-regex -- intentional: font names may not hold control characters
-const CONTROL = /[\u0000-\u001F\u007F-\u009F]/;
-
-function fontName(v: unknown, name: string): string {
-  if (
-    typeof v !== "string" ||
-    v.trim() === "" ||
-    v !== v.trim() ||
-    v.length > 100 ||
-    CONTROL.test(v)
-  )
-    throw new FormatError(
-      `manifest: "${name}" must be a trimmed font family name of 1 to 100 characters without control characters`,
-    );
-  return v;
-}
-
-/** Validates `manifest.fonts`: an object with only `body` and `heading`, each a plain family name. Returns only the keys that are set. */
-export function validateFonts(v: unknown): BookFonts {
-  if (typeof v !== "object" || v === null || Array.isArray(v))
-    throw new FormatError('manifest: "fonts" must be an object');
-  const o = v as Record<string, unknown>;
-  for (const k of Object.keys(o))
-    if (!(FONT_KEYS as readonly string[]).includes(k))
-      throw new FormatError(`manifest: unknown key "fonts.${k}"`);
-  const out: BookFonts = {};
-  for (const k of FONT_KEYS) if (o[k] !== undefined) out[k] = fontName(o[k], `fonts.${k}`);
-  return out;
-}
-
 /** Validates an already-migrated manifest object. Throws FormatError on any problem. */
 export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION): Manifest {
   const o = (raw ?? {}) as Record<string, unknown>;
@@ -475,6 +445,11 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
     if (!isTrimSize(o.trimSize))
       throw new FormatError(`manifest: unknown trimSize ${JSON.stringify(o.trimSize)}`);
     m.trimSize = o.trimSize;
+  }
+  if (o.sceneBreak !== undefined) {
+    if (!isSceneBreakOrnamentId(o.sceneBreak))
+      throw new FormatError(`manifest: unknown sceneBreak ${JSON.stringify(o.sceneBreak)}`);
+    m.sceneBreak = o.sceneBreak;
   }
   if (o.fonts !== undefined) m.fonts = validateFonts(o.fonts);
   if (o.dropCap !== undefined) {

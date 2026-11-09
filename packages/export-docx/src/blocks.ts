@@ -1,4 +1,4 @@
-import type { DocNode } from "@cadabracraft/shared";
+import { sceneBreakText, type DocNode } from "@cadabracraft/shared";
 import { drawing } from "./drawing";
 import { INDENT } from "./parts";
 import { esc } from "./xml";
@@ -99,7 +99,13 @@ export function blockXml(n: DocNode, ctx: Ctx): string[] {
     case "codeBlock":
       return codeBlockXml(kids, ctx);
     case "sceneBreak":
-      return [para("<w:r><w:t>#</w:t></w:r>", { style: "SceneBreak" }, ctx)];
+      return [
+        para(
+          `<w:r><w:t>${esc(sceneBreakText("#", ctx.s.sceneBreak))}</w:t></w:r>`,
+          { style: "SceneBreak" },
+          ctx,
+        ),
+      ];
     case "pageBreak":
       return [para('<w:r><w:br w:type="page"/></w:r>', {}, ctx)];
     case "image":

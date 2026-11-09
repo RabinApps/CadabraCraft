@@ -10,6 +10,7 @@ import {
   type BookMetadata,
   type EntryKind,
   type ChapterDoc,
+  type SceneBreakOrnamentId,
   type MatterKind,
   type Section,
 } from "@cadabracraft/shared";
@@ -17,6 +18,7 @@ import { contentsHeading, coverLabel } from "./strings";
 import { EpubExportError } from "./errors";
 import { contentsList, listedItems, type ContentsItem } from "./contents";
 import { COVER_PAGE, navBody, packageOpf, xmlHead, type Cover } from "./package";
+import { sceneBreakCss } from "./sceneBreak";
 import { chapterToXhtmlBody, collectImageSources, esc, headingAnchor } from "./xhtml";
 
 export type { ContentsItem } from "./contents";
@@ -148,6 +150,8 @@ export interface BuildOptions {
   assets?: ReadonlyMap<string, Uint8Array>;
   /** Stylesheet to use instead of the built-in default, e.g. a template's `epub.css`. */
   css?: string;
+  /** Scene-break ornament (see `SCENE_BREAK_ORNAMENT_IDS`). Absent keeps the template's own rule; an unknown id throws. */
+  sceneBreak?: SceneBreakOrnamentId;
   /** Whether chapters with no `dropCap` of their own get a big first letter (the template's choice). The stylesheet draws it for a chapter body with the class `dropcap`. Default false. */
   dropCap?: boolean;
   /** Matter kinds that sit in the vertical middle when the page has no `verticalCenter` of its own (the template's choice, `print.matter.verticalCenter`). The page body gets the class `vcenter`, which the stylesheet centres (see `openingCss` and the default stylesheet). Default none. */
@@ -285,7 +289,9 @@ export function buildEpub(
   files["META-INF/container.xml"] = strToU8(
     `${xmlHead}<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`,
   );
-  files["OEBPS/style.css"] = strToU8(`${options.css ?? CSS}\n${ALIGN_CSS}`);
+  files["OEBPS/style.css"] = strToU8(
+    `${options.css ?? CSS}\n${ALIGN_CSS}${sceneBreakCss(options.sceneBreak)}`,
+  );
   // Images keep their relative `assets/<name>` path inside OEBPS, so chapter srcs need no rewriting.
   const cover = options.cover;
   const coverType = coverMediaType(cover);
