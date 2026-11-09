@@ -54,12 +54,27 @@ export interface RenderRequest {
   formats: AudioFormat[];
 }
 
+/** How loud a chapter is, measured (never changed) against the audiobook target of -19 LUFS and -3 dBTP. */
+export interface LoudnessReport {
+  /** Integrated loudness (BS.1770, gated), in LUFS. Silence reads -150. */
+  integratedLufs: number;
+  /** Estimated true peak (four times oversampled), in dBTP. */
+  truePeakDbtp: number;
+  targetLufs: number;
+  /** Within 1 LU of the target and a true peak at or below -3 dBTP. */
+  passed: boolean;
+}
+
 export interface RenderedChapter {
   /** Paths relative to the book folder (for example `exports/audio/01-the-quay.opus`). */
   files: { format: AudioFormat; path: string }[];
   durationSec: number;
   /** The lossless part kept for the book's M4B (`.cadabra/audio/parts/<id>.flac`), when `m4b` was asked for. */
   part?: string;
+  /**
+   * The chapter's loudness. Absent only for a chapter reused from a cache written before loudness was measured.
+   */
+  loudness?: LoudnessReport;
 }
 
 /**

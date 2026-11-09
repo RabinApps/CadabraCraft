@@ -47,6 +47,20 @@ function fakeRunner(over: Partial<AudioRunner> = {}): AudioRunner & { requests: 
 }
 
 describe("renderAudiobook", () => {
+  it("carries each chapter's loudness report through to its result", async () => {
+    const loudness = { integratedLufs: -19.2, truePeakDbtp: -3.4, targetLufs: -19, passed: true };
+    const runner = fakeRunner({
+      renderChapter: async (req) => ({
+        files: [{ format: "opus", path: `exports/audio/${req.chapterId}.opus` }],
+        durationSec: 10,
+        loudness,
+      }),
+    });
+    const results = await renderAudiobook(book, options, runner, {});
+    expect(results.every((r) => r.loudness?.passed === true)).toBe(true);
+    expect(results[0]?.loudness).toEqual(loudness);
+  });
+
   it("renders chapters in order and reports progress and results", async () => {
     const runner = fakeRunner();
     const progress: number[] = [];

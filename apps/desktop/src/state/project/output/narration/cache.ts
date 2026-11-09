@@ -1,4 +1,4 @@
-import type { AudioFormat } from "@cadabracraft/export-audio";
+import type { AudioFormat, LoudnessReport } from "@cadabracraft/export-audio";
 import { bridge } from "../../../../lib/bridge";
 
 const AUDIO_CACHE = ".cadabra/audio/cache.json";
@@ -8,6 +8,8 @@ interface AudioCacheEntry {
   durationSec: number;
   /** The lossless part kept for the M4B; a cached chapter is only reused while it is still on disk too. */
   part?: string;
+  /** The chapter's loudness as it was measured when it was rendered. */
+  loudness?: LoudnessReport;
 }
 
 /** The per-chapter audio cache: local to this computer (`.cadabra/`), never needed to open the book. A missing or damaged file is an empty cache. */
@@ -31,6 +33,7 @@ export async function saveAudioCache(
     files: AudioCacheEntry["files"];
     durationSec: number;
     part?: string;
+    loudness?: LoudnessReport;
   },
 ): Promise<void> {
   const f = await bridge.readFile(root, AUDIO_CACHE).catch(() => null);
@@ -40,6 +43,7 @@ export async function saveAudioCache(
     files: r.files,
     durationSec: r.durationSec,
     ...(r.part ? { part: r.part } : {}),
+    ...(r.loudness ? { loudness: r.loudness } : {}),
   };
   await bridge.writeFile(root, AUDIO_CACHE, JSON.stringify(all), f?.hash ?? null);
 }

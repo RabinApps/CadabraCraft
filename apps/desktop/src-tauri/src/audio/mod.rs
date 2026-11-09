@@ -11,7 +11,7 @@
 //! removed on every path, and the finished file is written atomically under `exports/` of the project.
 //!
 //! Layout: `voices` (catalog), `batch` (chunk planning, engine args), `wav`, `encode` (FLAC/Opus), `engine` (process),
-//! `render` (chapter and sample), `m4b` (the whole-book MP4 audiobook through ffmpeg), `jobs` (cancel flags, voices folder), `error`, `packs` (download catalog),
+//! `render` (chapter and sample), `loudness` (integrated LUFS and true peak of a chapter), `m4b` (the whole-book MP4 audiobook through ffmpeg), `jobs` (cancel flags, voices folder), `error`, `packs` (download catalog),
 //! `download` (resumable HTTPS downloader) and `commands` (the Tauri layer).
 pub mod batch;
 pub mod commands;
@@ -20,6 +20,7 @@ pub mod encode;
 pub mod engine;
 pub mod error;
 pub mod jobs;
+pub mod loudness;
 pub mod m4b;
 pub mod packs;
 pub mod render;
