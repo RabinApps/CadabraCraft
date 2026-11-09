@@ -24,6 +24,7 @@ import { attempt } from "../../../state/attempt";
 import { useStartDialogs } from "../../../state/app/commands";
 import { ReferenceViewer } from "../../references/ReferenceViewer";
 import { BookDetailsDialog } from "../../dialogs/BookDetailsDialog";
+import { AnalysisDialog } from "../../analysis/AnalysisDialog";
 import { ImportDialog, ImportReportDialog } from "../../dialogs/import/LazyImportDialogs";
 import { SponsorDialog } from "../../dialogs/SponsorDialog";
 import { LicensesDialog } from "../../dialogs/LicensesDialog";
@@ -232,6 +233,7 @@ function BookDialogs({
       <CommentsSheet open={overlays.commentsSheet} onOpenChange={overlays.setCommentsSheet} />
       <ScenesSheet open={overlays.scenesSheet} onOpenChange={overlays.setScenesSheet} />
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
+      <AnalysisDialog />
       <ImportDialog
         open={importingInto}
         onOpenChange={setImportingInto}
