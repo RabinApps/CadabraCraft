@@ -203,6 +203,7 @@ export function buildDocx(
   const s: Shared = {
     assets: options.assets ?? new Map(),
     font: fontName,
+    sceneBreak: options.sceneBreak,
     notes: [],
     rels: [],
     media: new Map(),

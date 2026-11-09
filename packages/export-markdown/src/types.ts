@@ -1,4 +1,4 @@
-import type { Mark } from "@cadabracraft/shared";
+import type { Mark, SceneBreakOrnamentId } from "@cadabracraft/shared";
 
 /** Thrown for anything that has no faithful Markdown form. Content is never silently dropped. */
 export class MarkdownExportError extends Error {
@@ -27,6 +27,8 @@ export interface MarkdownOptions {
   frontMatter?: boolean;
   /** Prefix for relative image paths, e.g. `../` when the file is written to `exports/`. Default none. */
   imageBase?: string;
+  /** Scene-break mark (see `SCENE_BREAK_ORNAMENT_IDS`). Absent keeps `* * *`; an unknown id throws. */
+  sceneBreak?: SceneBreakOrnamentId;
 }
 
 export interface Ctx {

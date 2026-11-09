@@ -182,6 +182,7 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
   const font = manuscriptFont(options.font);
   const s: Shared = {
     assets: options.assets ?? new Map(),
+    sceneBreak: options.sceneBreak,
     pendingBreak: false,
     lang: languageId(language),
   };

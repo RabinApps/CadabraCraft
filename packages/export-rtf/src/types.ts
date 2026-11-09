@@ -1,4 +1,4 @@
-import type { ChapterDoc, EntryKind, Section } from "@cadabracraft/shared";
+import type { ChapterDoc, EntryKind, SceneBreakOrnamentId, Section } from "@cadabracraft/shared";
 
 export interface RtfBook {
   title: string;
@@ -50,10 +50,14 @@ export interface RtfOptions {
   font?: ManuscriptFont;
   /** Written to the document properties. Default 2020-01-01 UTC, so output is deterministic for a given input. */
   modified?: Date;
+  /** Scene-break mark (see `SCENE_BREAK_ORNAMENT_IDS`). Absent keeps the exporter's own mark; an unknown id throws. */
+  sceneBreak?: SceneBreakOrnamentId;
 }
 
 export interface Shared {
   assets: ReadonlyMap<string, Uint8Array>;
+  /** The chosen scene-break ornament (see `RtfOptions.sceneBreak`). */
+  sceneBreak?: SceneBreakOrnamentId | undefined;
   /** The next paragraph starts a new page. */
   pendingBreak: boolean;
   /** Windows language id of the book (`\\lang`), written after `\\plain` because `\\plain` resets the character language. */

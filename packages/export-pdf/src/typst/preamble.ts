@@ -1,4 +1,4 @@
-import { langAndRegion } from "@cadabracraft/shared";
+import { langAndRegion, sceneBreakGlyph, type SceneBreakOrnamentId } from "@cadabracraft/shared";
 import type { PrintHeadingStyle, Template } from "@cadabracraft/templates";
 import { typstString } from "../escape";
 import { PdfExportError } from "../errors";
@@ -97,7 +97,7 @@ ${headingRule(3, p.headings[3], fonts.heading)}`;
 }
 
 /** Block quotes, lists, tables, code, figures, tasks, definitions, scene breaks and blank lines. */
-function blockStyles(p: Template["print"]): string {
+function blockStyles(p: Template["print"], ornament: SceneBreakOrnamentId | undefined): string {
   const q = p.blockQuote;
   return `#show quote.where(block: true): it => block(width: 100%, above: ${em(q.spaceEm)}, below: ${em(q.spaceEm)}, inset: (left: ${em(q.indentEm)}, right: ${em(q.indentEm)}), ${
     q.ruleLeft ? "stroke: (left: 0.6pt + luma(120)), " : ""
@@ -138,7 +138,7 @@ function blockStyles(p: Template["print"]): string {
   set par(first-line-indent: 0pt)
   body
 }))
-#let scene-break() = align(center, block(above: ${em(p.sceneBreak.spaceEm)}, below: ${em(p.sceneBreak.spaceEm)}, ${typstString(p.sceneBreak.glyph)}))
+#let scene-break() = align(center, block(above: ${em(p.sceneBreak.spaceEm)}, below: ${em(p.sceneBreak.spaceEm)}, ${typstString(sceneBreakGlyph(p.sceneBreak.glyph, ornament))}))
 // A paragraph the author left empty is one line of the body, as in the page view and the EPUB: the pitch of a line is measured there, so
 // it follows the font, the size and the leading of whatever it sits in, and the paragraph spacing on either side stays as it is.
 #let blank-line() = context v(measure([a\\ b]).height - measure([a]).height)`;
@@ -251,7 +251,7 @@ export function preamble(
       documentHead(book, t, options),
       pageSetup(options, geo, p, hasFront),
       textSetup(book, p, fonts, size),
-      blockStyles(p),
+      blockStyles(p, options.sceneBreak),
       chapterStart(p, options),
       matterPages(fonts),
     ].join("\n") + "\n"

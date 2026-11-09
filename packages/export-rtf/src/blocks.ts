@@ -1,4 +1,4 @@
-import type { DocNode } from "@cadabracraft/shared";
+import { sceneBreakText, type DocNode } from "@cadabracraft/shared";
 import { attrsOf, checkText, fail, jcOf, kidsOf } from "./helpers";
 import { picture } from "./image";
 import { definitionListRtf, listRtf, taskListRtf } from "./lists";
@@ -114,7 +114,7 @@ export function blockRtf(n: DocNode, ctx: Ctx): string[] {
     case "codeBlock":
       return codeBlockRtf(kids, ctx);
     case "sceneBreak":
-      return [para("#", { firstLine: 0, jc: "c" }, ctx)];
+      return [para(esc(sceneBreakText("#", ctx.s.sceneBreak)), { firstLine: 0, jc: "c" }, ctx)];
     case "pageBreak":
       return [para("\\page", { firstLine: 0 }, ctx)];
     case "image":

@@ -40,6 +40,7 @@ export const createTypstBook = (ctx: Ctx) => {
       toc:
         only === undefined ? pdfToc(bookContents(manifest, edition.language, chapters)) : undefined,
       trimSize: resolveTrimSize(manifest),
+      ...(manifest.sceneBreak === undefined ? {} : { sceneBreak: manifest.sceneBreak }),
       fonts: resolveBookFonts(manifest),
       assets: () => loadAssets(chapters),
     };

@@ -1,4 +1,5 @@
 import { sourceFileById } from "@cadabracraft/format";
+import type { SceneBreakOrnamentId } from "@cadabracraft/shared";
 import { t } from "@lingui/core/macro";
 import { buildDocx } from "@cadabracraft/export-docx";
 import { buildRtf } from "@cadabracraft/export-rtf";
@@ -22,6 +23,7 @@ export const createManuscriptActions = (
       pages: Parameters<typeof buildDocx>[1],
       assets: Map<string, Uint8Array>,
       contents: ReturnType<typeof bookContents>,
+      sceneBreak: SceneBreakOrnamentId | undefined,
     ) => Uint8Array,
   ) => {
     if (get().exportStage) throw new Error(t`An export is already running`);
@@ -43,6 +45,7 @@ export const createManuscriptActions = (
         pages,
         assets,
         contents,
+        manifest.sceneBreak,
       );
       set({ exportStage: "saving" });
       await bridge.writeBytes(root, `${dir}/${file}`, bytes);
@@ -56,10 +59,11 @@ export const createManuscriptActions = (
       const { dir, skipped } = await writeManuscript(
         scope,
         "manuscript.docx",
-        (book, pages, assets, contents) =>
+        (book, pages, assets, contents, sceneBreak) =>
           buildDocx(book, pages, {
             assets,
             font,
+            sceneBreak,
             modified: new Date(),
             ...(contents ? { contents: contents.visible } : {}),
           }),
@@ -70,12 +74,13 @@ export const createManuscriptActions = (
       const { dir, skipped } = await writeManuscript(
         scope,
         "manuscript.rtf",
-        (book, pages, assets, contents) =>
+        (book, pages, assets, contents, sceneBreak) =>
           // RTF is 7-bit ASCII (everything else is a \u escape), so UTF-8 encoding is the same bytes.
           new TextEncoder().encode(
             buildRtf(book, pages, {
               assets,
               font,
+              sceneBreak,
               modified: new Date(),
               ...(contents ? { contents: contents.visible } : {}),
             }),

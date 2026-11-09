@@ -1,4 +1,10 @@
-import type { BookMetadata, ChapterDoc, EntryKind, Section } from "@cadabracraft/shared";
+import type {
+  BookMetadata,
+  ChapterDoc,
+  EntryKind,
+  SceneBreakOrnamentId,
+  Section,
+} from "@cadabracraft/shared";
 import type { Template, TrimSizeId } from "@cadabracraft/templates";
 
 export type TrimSize = TrimSizeId;
@@ -44,6 +50,8 @@ export interface PdfOptions {
   /** Template id (default `novel`) or a template object. */
   template?: string | Template;
   trimSize?: TrimSize;
+  /** Scene-break ornament (see `SCENE_BREAK_ORNAMENT_IDS`). Absent means the template's own glyph; an unknown id throws. */
+  sceneBreak?: SceneBreakOrnamentId;
   /** Defaults to the template's margins. */
   margins?: Partial<PdfMargins>;
   /** Inside/outside margins alternate on facing pages (default true). When false, inside = left, outside = right. */
