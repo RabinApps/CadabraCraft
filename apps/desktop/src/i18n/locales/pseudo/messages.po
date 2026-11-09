@@ -970,6 +970,10 @@ msgstr ""
 msgid "Ask each time"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Asterism"
+msgstr ""
+
 #: src/app/shell/header/PageEstimate.tsx
 msgid "at {size}"
 msgstr ""
@@ -2144,6 +2148,10 @@ msgstr ""
 msgid "Details Panel"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Dinkus"
+msgstr ""
+
 #: src/app/references/panel/PanelParts.tsx
 msgid "Dismiss"
 msgstr ""
@@ -2324,6 +2332,10 @@ msgstr ""
 msgid "Editor"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Em dash"
+msgstr ""
+
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Embeds everything needed to open the file in the future."
 msgstr ""
@@ -2334,6 +2346,10 @@ msgstr ""
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Enter a real date."
+msgstr ""
+
+#: src/lib/export/isbnForm.ts
+msgid "Enter a valid ISBN: 10 or 13 digits with a correct check digit, or leave the field empty."
 msgstr ""
 
 #: src/state/project/referencesWeb.ts
@@ -2574,6 +2590,10 @@ msgstr ""
 
 #: src/lib/useIconChoices.ts
 msgid "Flame"
+msgstr ""
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Fleuron"
 msgstr ""
 
 #: src/app/shell/header/AppHeader.tsx
@@ -3009,6 +3029,10 @@ msgstr ""
 #: src/app/dialogs/BookDetailsFields.tsx
 #: src/app/shell/Details.tsx
 msgid "ISBN"
+msgstr ""
+
+#: src/app/dialogs/BookDetailsFields.tsx
+msgid "ISBN-10 or ISBN-13. Hyphens and spaces are removed when you save."
 msgstr ""
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
@@ -3683,6 +3707,10 @@ msgstr ""
 
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "No label"
+msgstr ""
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "No mark"
 msgstr ""
 
 #: src/app/references/PdfSearch.tsx
@@ -4920,6 +4948,7 @@ msgstr ""
 msgid "Scene Board"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakField.tsx
 #: src/app/export/Templates.tsx
 #: src/editor/toolbar/useMenuOnlyItems.ts
 msgid "Scene break"
@@ -5534,6 +5563,10 @@ msgstr ""
 msgid "Template"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Template default"
+msgstr ""
+
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useAlignItems.ts
 msgid "Template Default"
@@ -5784,6 +5817,10 @@ msgstr ""
 
 #: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
+msgstr ""
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "The mark between scenes in the print PDF, EPUB and Word files."
 msgstr ""
 
 #: src/app/dialogs/UpdateDialog.tsx
@@ -6061,6 +6098,10 @@ msgstr ""
 
 #: src/app/dialogs/snapshots/Comparison.tsx
 msgid "This version has the same words as the current text."
+msgstr ""
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Three dots"
 msgstr ""
 
 #: src/app/shell/App.tsx

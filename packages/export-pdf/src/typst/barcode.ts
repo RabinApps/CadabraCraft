@@ -19,6 +19,19 @@ function isGuard(p: number): boolean {
 const mm = (n: number): string => `${Number(n.toFixed(3))}mm`;
 
 /**
+ * The 13 digits of a present ISBN. Throws PdfExportError for a value that is not a valid ISBN-10 or ISBN-13 (shape or check
+ * digit), so a print file never goes out with an ISBN that cannot carry a barcode. The PDF export calls this before rendering.
+ */
+export function requireIsbnDigits(isbn: string): string {
+  const digits = normalizeIsbn(isbn);
+  if (digits === null)
+    throw new PdfExportError(
+      `The ISBN "${isbn.trim()}" is not a valid ISBN-10 or ISBN-13 (check the digits and the check digit), so no barcode can be drawn. Fix it or clear it before exporting.`,
+    );
+  return digits;
+}
+
+/**
  * The EAN-13 barcode of an ISBN as Typst source: vector bars (one rectangle per run of bars, the guard bars longer) and the
  * thirteen digits under them. Returns "" for an absent ISBN, so nothing is drawn. A present ISBN that is not valid (shape or
  * check digit) throws a PdfExportError, so a bad number never reaches a print file. The source is a `box` of 37.29 mm by
@@ -26,11 +39,7 @@ const mm = (n: number): string => `${Number(n.toFixed(3))}mm`;
  */
 export function isbnBarcode(isbn: string | null | undefined): string {
   if (isbn == null || isbn.trim() === "") return "";
-  const digits = normalizeIsbn(isbn);
-  if (digits === null)
-    throw new PdfExportError(
-      `The ISBN "${isbn.trim()}" is not a valid ISBN-10 or ISBN-13 (check the digits and the check digit), so no barcode can be drawn. Fix it or clear it before exporting.`,
-    );
+  const digits = requireIsbnDigits(isbn);
 
   const modules = ean13Modules(digits);
   const bars: string[] = [];

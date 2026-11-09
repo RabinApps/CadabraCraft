@@ -30,6 +30,7 @@
  *   tables and lists are measured by the DOM in the editor, not estimated here.
  */
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
+import { sceneBreakGlyph, type SceneBreakOrnamentId } from "@cadabracraft/shared";
 import {
   DEFAULT_TEMPLATE_ID,
   getTemplate as lookupTemplate,
@@ -53,7 +54,8 @@ export interface PageGeometry {
   text: { w: number; h: number };
 }
 
-type BookLike = { template: string; trimSize?: TrimSize };
+/** The book fields the layout reads: template, trim size and the scene-break ornament (absent: the template's mark). */
+type BookLike = { template: string; trimSize?: TrimSize; sceneBreak?: SceneBreakOrnamentId };
 
 /** Page, margins and text box in CSS px at zoom 1: trim inches x 96, the template's default margins (as the PDF exporter uses). */
 export function pageGeometry(book: BookLike): PageGeometry {
@@ -269,7 +271,7 @@ export function pageCssVars(
     "--page-bq-space": px(q.spaceEm * fontPx),
     "--page-bq-style": q.italic ? "italic" : "normal",
     "--page-bq-rule": q.ruleLeft ? "0.6pt solid rgb(120 120 120)" : "none",
-    "--page-scene-glyph": JSON.stringify(p.sceneBreak.glyph),
+    "--page-scene-glyph": JSON.stringify(sceneBreakGlyph(p.sceneBreak.glyph, book.sceneBreak)),
     "--page-scene-space": px(p.sceneBreak.spaceEm * fontPx),
   };
 }

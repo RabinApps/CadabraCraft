@@ -63,7 +63,7 @@ test("Book details: edit the title, pick a cover, save, then remove the cover", 
   await expect(dialog).toBeHidden();
   await expect(page.getByRole("heading", { level: 1, name: "Renamed Book" })).toBeVisible();
   expect(await manifest()).toMatchObject({
-    editions: [{ title: "Renamed Book", isbn: "978-3-16-148410-0", cover: "assets/pic.png" }],
+    editions: [{ title: "Renamed Book", isbn: "9783161484100", cover: "assets/pic.png" }],
   });
 
   await page.getByRole("button", { name: "Book details" }).click();

@@ -972,6 +972,10 @@ msgstr "Approssimativo: Typst non è disponibile"
 msgid "Ask each time"
 msgstr "Chiedi ogni volta"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Asterism"
+msgstr "Asterismo"
+
 #: src/app/shell/header/PageEstimate.tsx
 msgid "at {size}"
 msgstr "a {size}"
@@ -2146,6 +2150,10 @@ msgstr "Dettagli"
 msgid "Details Panel"
 msgstr "Pannello dei dettagli"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Dinkus"
+msgstr "Dinkus"
+
 #: src/app/references/panel/PanelParts.tsx
 msgid "Dismiss"
 msgstr "Chiudi"
@@ -2326,6 +2334,10 @@ msgstr "Le edizioni tengono le traduzioni nello stesso libro e le esportano sepa
 msgid "Editor"
 msgstr "Editor"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Em dash"
+msgstr "Lineetta lunga"
+
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Embeds everything needed to open the file in the future."
 msgstr "Incorpora tutto ciò che serve per aprire il file in futuro."
@@ -2337,6 +2349,10 @@ msgstr "Ti piace CadabraCraft?"
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Enter a real date."
 msgstr "Inserisci una data reale."
+
+#: src/lib/export/isbnForm.ts
+msgid "Enter a valid ISBN: 10 or 13 digits with a correct check digit, or leave the field empty."
+msgstr "Inserisci un ISBN valido: 10 o 13 cifre con una cifra di controllo corretta, oppure lascia il campo vuoto."
 
 #: src/state/project/referencesWeb.ts
 msgid "Enter an address that starts with http:// or https://."
@@ -2577,6 +2593,10 @@ msgstr "Bandiera"
 #: src/lib/useIconChoices.ts
 msgid "Flame"
 msgstr "Fiamma"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Fleuron"
+msgstr "Fleurone"
 
 #: src/app/shell/header/AppHeader.tsx
 msgid "Focus mode"
@@ -3012,6 +3032,10 @@ msgstr "Modello non valido"
 #: src/app/shell/Details.tsx
 msgid "ISBN"
 msgstr "ISBN"
+
+#: src/app/dialogs/BookDetailsFields.tsx
+msgid "ISBN-10 or ISBN-13. Hyphens and spaces are removed when you save."
+msgstr "ISBN-10 o ISBN-13. I trattini e gli spazi vengono rimossi al salvataggio."
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "It adds nothing to the text, so screen readers skip it."
@@ -3686,6 +3710,10 @@ msgstr "Nessun tasto"
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "No label"
 msgstr "Nessuna etichetta"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "No mark"
+msgstr "Nessun segno"
 
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
@@ -4922,6 +4950,7 @@ msgstr "Bacheca delle scene"
 msgid "Scene Board"
 msgstr "Bacheca delle scene"
 
+#: src/app/dialogs/SceneBreakField.tsx
 #: src/app/export/Templates.tsx
 #: src/editor/toolbar/useMenuOnlyItems.ts
 msgid "Scene break"
@@ -5536,6 +5565,10 @@ msgstr "Elenco di attività"
 msgid "Template"
 msgstr "Modello"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Template default"
+msgstr "Predefinito del modello"
+
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useAlignItems.ts
 msgid "Template Default"
@@ -5787,6 +5820,10 @@ msgstr "L’immagine {0} è fuori dalla cartella del documento"
 #: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
 msgstr "L'elenco segue i tuoi capitoli. Rinomina, nascondi, riordina o aggiungi voci qui; le esportazioni e l'anteprima di stampa usano questo elenco."
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "The mark between scenes in the print PDF, EPUB and Word files."
+msgstr "Il segno tra le scene nel PDF di stampa, nell'EPUB e nei file Word."
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
@@ -6066,6 +6103,10 @@ msgstr "La copia di «{title}» in questa istantanea non può essere letta come 
 #: src/app/dialogs/snapshots/Comparison.tsx
 msgid "This version has the same words as the current text."
 msgstr "Questa versione ha le stesse parole del testo attuale."
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Three dots"
+msgstr "Tre punti"
 
 #: src/app/shell/App.tsx
 #: src/app/shell/header/AppHeader.tsx

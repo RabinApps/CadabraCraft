@@ -972,6 +972,10 @@ msgstr "משוער: Typst אינו זמין"
 msgid "Ask each time"
 msgstr "לשאול בכל פעם"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Asterism"
+msgstr "אסטריזם"
+
 #: src/app/shell/header/PageEstimate.tsx
 msgid "at {size}"
 msgstr "ב־{size}"
@@ -2146,6 +2150,10 @@ msgstr "פרטים"
 msgid "Details Panel"
 msgstr "חלונית פרטים"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Dinkus"
+msgstr "דינקוס"
+
 #: src/app/references/panel/PanelParts.tsx
 msgid "Dismiss"
 msgstr "סגירה"
@@ -2326,6 +2334,10 @@ msgstr "מהדורות שומרות את התרגומים באותו ספר ומ
 msgid "Editor"
 msgstr "עורך"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Em dash"
+msgstr "מקף ארוך"
+
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Embeds everything needed to open the file in the future."
 msgstr "משלב את כל מה שנדרש כדי לפתוח את הקובץ בעתיד."
@@ -2337,6 +2349,10 @@ msgstr "נהנה מ־CadabraCraft?"
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Enter a real date."
 msgstr "הזן תאריך אמיתי."
+
+#: src/lib/export/isbnForm.ts
+msgid "Enter a valid ISBN: 10 or 13 digits with a correct check digit, or leave the field empty."
+msgstr "הזינו ISBN תקין: 10 או 13 ספרות עם ספרת ביקורת נכונה, או השאירו את השדה ריק."
 
 #: src/state/project/referencesWeb.ts
 msgid "Enter an address that starts with http:// or https://."
@@ -2577,6 +2593,10 @@ msgstr "דגל"
 #: src/lib/useIconChoices.ts
 msgid "Flame"
 msgstr "להבה"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Fleuron"
+msgstr "פלורון"
 
 #: src/app/shell/header/AppHeader.tsx
 msgid "Focus mode"
@@ -3012,6 +3032,10 @@ msgstr "תבנית לא תקינה"
 #: src/app/shell/Details.tsx
 msgid "ISBN"
 msgstr "ISBN"
+
+#: src/app/dialogs/BookDetailsFields.tsx
+msgid "ISBN-10 or ISBN-13. Hyphens and spaces are removed when you save."
+msgstr "ISBN-10 או ISBN-13. מקפים ורווחים מוסרים בשמירה."
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "It adds nothing to the text, so screen readers skip it."
@@ -3686,6 +3710,10 @@ msgstr "ללא מקש"
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "No label"
 msgstr "ללא תווית"
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "No mark"
+msgstr "ללא סימן"
 
 #: src/app/references/PdfSearch.tsx
 msgid "No matches"
@@ -4922,6 +4950,7 @@ msgstr "לוח סצנות"
 msgid "Scene Board"
 msgstr "לוח סצנות"
 
+#: src/app/dialogs/SceneBreakField.tsx
 #: src/app/export/Templates.tsx
 #: src/editor/toolbar/useMenuOnlyItems.ts
 msgid "Scene break"
@@ -5536,6 +5565,10 @@ msgstr "רשימת משימות"
 msgid "Template"
 msgstr "תבנית"
 
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Template default"
+msgstr "ברירת מחדל של התבנית"
+
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useAlignItems.ts
 msgid "Template Default"
@@ -5787,6 +5820,10 @@ msgstr "התמונה {0} נמצאת מחוץ לתיקיית המסמך"
 #: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
 msgstr "הרשימה עוקבת אחר הפרקים שלך. שנה שמות של פריטים, הסתר אותם, סדר אותם מחדש או הוסף פריטים כאן; הייצוא ותצוגת ההדפסה המקדימה משתמשים ברשימה זו."
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "The mark between scenes in the print PDF, EPUB and Word files."
+msgstr "הסימן בין הסצנות ב-PDF להדפסה, ב-EPUB ובקובצי Word."
 
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "The new version is downloaded from GitHub and checked against a signature before it installs. Installing closes CadabraCraft and reopens it on the new version."
@@ -6066,6 +6103,10 @@ msgstr "לא ניתן לקרוא את העותק של “{title}” בגרסה �
 #: src/app/dialogs/snapshots/Comparison.tsx
 msgid "This version has the same words as the current text."
 msgstr "בגרסה זו יש אותן מילים כמו בטקסט הנוכחי."
+
+#: src/app/dialogs/SceneBreakField.tsx
+msgid "Three dots"
+msgstr "שלוש נקודות"
 
 #: src/app/shell/App.tsx
 #: src/app/shell/header/AppHeader.tsx

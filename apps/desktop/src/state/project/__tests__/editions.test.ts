@@ -146,8 +146,15 @@ describe("book details per edition", () => {
   };
   it("changes the French title and ISBN without touching the source edition, and keeps the language", async () => {
     await a().addLanguage("fr", "copy");
-    await a().updateDetails({ ...form("fr"), title: "Livre", isbn: "978-2", language: "xx" }, "fr");
-    expect(m().editions[1]).toMatchObject({ language: "fr", title: "Livre", isbn: "978-2" });
+    await a().updateDetails(
+      { ...form("fr"), title: "Livre", isbn: "978-3-16-148410-0", language: "xx" },
+      "fr",
+    );
+    expect(m().editions[1]).toMatchObject({
+      language: "fr",
+      title: "Livre",
+      isbn: "9783161484100",
+    });
     expect(m().editions[0]).toMatchObject({ language: "en", title: "Book", isbn: null });
   });
 });

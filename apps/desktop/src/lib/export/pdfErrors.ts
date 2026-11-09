@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import {
   FontNotAvailableError,
   MissingAssetError,
+  PdfExportError,
   TypstCompileError,
   TypstNotFoundError,
   TypstTimeoutError,
@@ -56,5 +57,7 @@ export function describePdfError(e: unknown): PdfUiError {
       t`Missing image file ${e.srcs.join(", ")}. Add the image again or remove it from the page, then export again.`,
       cause,
     );
+  // The exporter's own message (for example a bad ISBN) is already written for the author.
+  if (e instanceof PdfExportError) return new PdfUiError("other", e.message, cause);
   return new PdfUiError("other", t`${errText(e)}. Try again.`, cause);
 }
