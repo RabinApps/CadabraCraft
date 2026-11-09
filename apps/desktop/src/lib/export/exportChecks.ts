@@ -9,6 +9,8 @@ import type { Margins } from "./printEstimate";
 export interface ExportCheck {
   tone: "ok" | "info" | "warn" | "error";
   text: string;
+  /** The page the check is about, when the author can be taken there (the Show link). */
+  pageId?: string;
 }
 
 /** KDP paperback page limits (unverified, from memory of KDP's help pages). */
@@ -105,6 +107,7 @@ export interface CheckPage {
   title: string;
   file?: string;
   doc: ChapterDoc;
+  id?: string;
 }
 
 /** One warning per chapter with images that have no description and are not marked decorative. Used by every format that carries alt text. */
@@ -120,6 +123,7 @@ export function imageAltChecks(pages: CheckPage[]): ExportCheck[] {
         one: `“${name}” has # image without alt text`,
         other: `“${name}” has # images without alt text`,
       }),
+      ...(p.id ? { pageId: p.id } : {}),
     });
   }
   return checks;

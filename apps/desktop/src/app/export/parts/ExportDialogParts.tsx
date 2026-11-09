@@ -174,9 +174,17 @@ export function FormatPanel({
 }
 
 /** The alt text check, for the formats that carry images into a document. */
-export function FormatChecks({ format, scope }: { format: ExportFormat; scope: ExportScope }) {
+export function FormatChecks({
+  format,
+  scope,
+  onShow,
+}: {
+  format: ExportFormat;
+  scope: ExportScope;
+  onShow: (pageId: string) => void;
+}) {
   if (format !== "pdf" && format !== "docx" && format !== "rtf") return null;
-  return <AltTextCheck {...scope} />;
+  return <AltTextCheck {...scope} onShow={onShow} />;
 }
 
 /** The progress line and bar while an export runs. */

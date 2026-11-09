@@ -2283,6 +2283,7 @@ msgstr "Editar {title}"
 msgid "Edit details"
 msgstr "Editar detalles"
 
+#: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/TypstSpread.tsx
 msgid "Edit this page"
 msgstr "Editar esta página"
@@ -5023,6 +5024,10 @@ msgstr "Atajo de {action} guardado."
 #: src/app/settings/Settings.tsx
 msgid "Shortcuts"
 msgstr "Atajos"
+
+#: src/app/export/CheckList.tsx
+msgid "Show"
+msgstr "Mostrar"
 
 #: src/app/shell/native/menuModel.ts
 msgid "Show All"

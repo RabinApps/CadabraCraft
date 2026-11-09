@@ -2283,6 +2283,7 @@ msgstr "تعديل {title}"
 msgid "Edit details"
 msgstr "تحرير التفاصيل"
 
+#: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/TypstSpread.tsx
 msgid "Edit this page"
 msgstr "حرّر هذه الصفحة"
@@ -5023,6 +5024,10 @@ msgstr "حُفظ اختصار {action}."
 #: src/app/settings/Settings.tsx
 msgid "Shortcuts"
 msgstr "الاختصارات"
+
+#: src/app/export/CheckList.tsx
+msgid "Show"
+msgstr "عرض"
 
 #: src/app/shell/native/menuModel.ts
 msgid "Show All"

@@ -7,6 +7,7 @@ import { Modal } from "../../ui/Dialog";
 import { useSponsor } from "../../state/app/sponsor";
 import { useProject } from "../../state/project";
 import { EditionsChecklist } from "./EditionsChecklist";
+import { useShowCheckedPage } from "./useShowCheckedPage";
 import { OUTLINE_FORMATS } from "@cadabracraft/outline";
 import { usePdfOptions } from "./PdfPanel";
 import { useAudioExport } from "./useAudioExport";
@@ -77,6 +78,7 @@ export function ExportDialog({
     }
     onOpenChange(o);
   };
+  const showPage = useShowCheckedPage(() => change(false));
   const submit = async () => {
     setError(null);
     try {
@@ -139,7 +141,7 @@ export function ExportDialog({
           pdf={pdf}
           onChangeTrimSize={onChangeTrimSize}
         />
-        <FormatChecks format={format} scope={scope} />
+        <FormatChecks format={format} scope={scope} onShow={showPage} />
         <ExportStatus
           progress={running ? stageText[stage] : null}
           error={error}

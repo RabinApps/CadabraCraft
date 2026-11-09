@@ -18,8 +18,16 @@ export const checkIcons: Record<ExportCheck["tone"], LucideIcon> = {
   error: CircleX,
 };
 
-/** The pre-export checks (EPUB accessibility, print layout) as a list of toned rows. */
-export function CheckList({ checks, label }: { checks: ExportCheck[]; label: string }) {
+/** The pre-export checks (EPUB accessibility, print layout) as a list of toned rows. A row with a page gets a Show link when `onShow` is given. */
+export function CheckList({
+  checks,
+  label,
+  onShow,
+}: {
+  checks: ExportCheck[];
+  label: string;
+  onShow?: (pageId: string) => void;
+}) {
   const { t } = useLingui();
   return (
     <ul aria-label={label} className="flex flex-col gap-2">
@@ -34,7 +42,16 @@ export function CheckList({ checks, label }: { checks: ExportCheck[]; label: str
           })()}
           {c.tone === "error" && <span className="sr-only">{t`Error:`} </span>}
           {c.tone === "warn" && <span className="sr-only">{t`Warning:`} </span>}
-          {c.text}
+          <span className="min-w-0 flex-1">{c.text}</span>
+          {c.pageId && onShow && (
+            <button
+              type="button"
+              className="shrink-0 rounded px-1 font-semibold underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              onClick={() => onShow(c.pageId!)}
+            >
+              {t`Show`}
+            </button>
+          )}
         </li>
       ))}
     </ul>

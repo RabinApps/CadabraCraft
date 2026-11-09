@@ -137,7 +137,8 @@ const SCREENS: Record<string, Open> = {
     await expect(page.getByTestId("preview-zoom")).toHaveText("200%");
     // On a touch screen the way into the editor is drawn on the page, not shown on hover.
     await expect(page.getByRole("button", { name: "Open page 1 in the editor" })).toBeVisible();
-    await expect(page.getByText("Edit this page")).toBeVisible();
+    // The page hint and the side panel button both read "Edit this page"; the hint comes first on the page.
+    await expect(page.getByText("Edit this page").first()).toBeVisible();
   },
   "print preview fitted to the window": async (page) => {
     await exportFormat("Print PDF")(page);

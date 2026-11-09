@@ -331,3 +331,31 @@ for (const [name, size] of [
     await expect.poll(caretWord).toBe(HEBREW_WORDS.slice(23).join(" ") + ".");
   });
 }
+
+test("Edit this page opens the editor at the first page in view, and follows the page turned to", async ({
+  page,
+}) => {
+  await newProject(page);
+  await seed(page);
+  const id = await page.evaluate(
+    () => JSON.parse(window.__disk["cadabra.json"] as string).chapters[0].id as string,
+  );
+  await page.evaluate(
+    ([lines]) => {
+      window.__typstPageText = [[], [...lines!]];
+    },
+    [["Chapter One", ...wordsOf(40, 3).slice(0, 12)]] as const,
+  );
+  await preview(page);
+  await page.evaluate((r) => (window.__typstQueryResult = r), report(id));
+  await page.getByRole("button", { name: "Edit this page" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+  await expect(page.getByRole("img", { name: "Page 1", exact: true })).toHaveCount(0);
+
+  await preview(page);
+  await page.evaluate((r) => (window.__typstQueryResult = r), report(id));
+  await page.getByRole("button", { name: "Next pages" }).click();
+  await expect(page.getByRole("img", { name: "Page 2", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Edit this page" }).click();
+  await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
+});

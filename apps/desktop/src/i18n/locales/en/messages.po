@@ -2283,6 +2283,7 @@ msgstr "Edit {title}"
 msgid "Edit details"
 msgstr "Edit details"
 
+#: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/TypstSpread.tsx
 msgid "Edit this page"
 msgstr "Edit this page"
@@ -5023,6 +5024,10 @@ msgstr "Shortcut for {action} saved."
 #: src/app/settings/Settings.tsx
 msgid "Shortcuts"
 msgstr "Shortcuts"
+
+#: src/app/export/CheckList.tsx
+msgid "Show"
+msgstr "Show"
 
 #: src/app/shell/native/menuModel.ts
 msgid "Show All"

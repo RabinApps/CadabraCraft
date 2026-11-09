@@ -132,6 +132,30 @@ test.describe("images", () => {
     await expect(dialog.getByRole("list", { name: "Image checks" })).toHaveCount(0);
   });
 
+  test("the Show link on an image check closes the dialog and opens the editor at that chapter", async ({
+    page,
+  }) => {
+    await newProject(page);
+    const heading = {
+      type: "heading",
+      attrs: { level: 1 },
+      content: [{ type: "text", text: "Pics" }],
+    };
+    await seedChapters(page, [
+      {
+        ...{ type: "doc" },
+        content: [heading, { type: "image", attrs: { src: "assets/pic.png", alt: "" } } as never],
+      },
+    ]);
+    await page.getByRole("button", { name: "Export", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Export book" });
+    await dialog.getByRole("radio", { name: /Word/ }).click();
+    const checks = dialog.getByRole("list", { name: "Image checks" });
+    await checks.getByRole("button", { name: "Show", exact: true }).click();
+    await expect(page.getByRole("dialog", { name: "Export book" })).toHaveCount(0);
+    await expect(page.locator(".ProseMirror h1")).toHaveText("Pics");
+  });
+
   test("a refused image shows a message and inserts nothing", async ({ page }) => {
     await newProject(page);
     await page.evaluate(() => {

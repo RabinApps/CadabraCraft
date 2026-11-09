@@ -7151,17 +7151,6 @@
                           }
                         },
                         {
-                          "id": "m5phKo",
-                          "type": "ref",
-                          "ref": "ML1v1",
-                          "name": "task-list",
-                          "descendants": {
-                            "ygSVs": {
-                              "icon": "list-checks"
-                            }
-                          }
-                        },
-                        {
                           "type": "rectangle",
                           "id": "t7R78Z",
                           "name": "Divider",
@@ -9393,17 +9382,6 @@
                           "descendants": {
                             "ygSVs": {
                               "icon": "list-ordered"
-                            }
-                          }
-                        },
-                        {
-                          "id": "g4hz8F",
-                          "type": "ref",
-                          "ref": "ML1v1",
-                          "name": "task-list",
-                          "descendants": {
-                            "ygSVs": {
-                              "icon": "list-checks"
                             }
                           }
                         },

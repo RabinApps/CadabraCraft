@@ -2283,6 +2283,7 @@ msgstr "עריכת {title}"
 msgid "Edit details"
 msgstr "עריכת פרטים"
 
+#: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/TypstSpread.tsx
 msgid "Edit this page"
 msgstr "ערוך עמוד זה"
@@ -5023,6 +5024,10 @@ msgstr "קיצור המקשים של {action} נשמר."
 #: src/app/settings/Settings.tsx
 msgid "Shortcuts"
 msgstr "קיצורי מקשים"
+
+#: src/app/export/CheckList.tsx
+msgid "Show"
+msgstr "הצג"
 
 #: src/app/shell/native/menuModel.ts
 msgid "Show All"

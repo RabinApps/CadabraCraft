@@ -2281,6 +2281,7 @@ msgstr ""
 msgid "Edit details"
 msgstr ""
 
+#: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/TypstSpread.tsx
 msgid "Edit this page"
 msgstr ""
@@ -5020,6 +5021,10 @@ msgstr ""
 
 #: src/app/settings/Settings.tsx
 msgid "Shortcuts"
+msgstr ""
+
+#: src/app/export/CheckList.tsx
+msgid "Show"
 msgstr ""
 
 #: src/app/shell/native/menuModel.ts

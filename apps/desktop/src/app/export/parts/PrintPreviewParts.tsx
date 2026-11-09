@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
+import { PenLine } from "lucide-react";
 import { TRIM_SIZES, type TrimSize } from "@cadabracraft/export-pdf";
 import { errText } from "../../../lib/projectError";
 import { trimLabel } from "../../../lib/export/trimLabels";
 import type { WordClick } from "../../../lib/export/pdfWords";
+import { Button } from "../../../ui/Button";
 import { Select } from "../../../ui/forms/Select";
 import { Switch } from "../../../ui/forms/Switch";
 import { Notice } from "../../../ui/feedback/Notice";
@@ -26,6 +28,8 @@ interface OpenPageContext {
 /** A page of the preview opens its chapter in the editor, at the word that was clicked, else at the text that starts the page. */
 export function useOpenPreviewPage({ trimSize, bleedIn, cropMarks, onBack }: OpenPageContext) {
   const { t } = useLingui();
+  /** The first page of the spread on screen, reported by the spread; Edit this page opens it. */
+  const [pageInView, setPageInView] = useState(1);
   const previewTarget = useProject((s) => s.actions.previewTarget);
   const selectChapter = useProject((s) => s.actions.selectChapter);
   const setMode = useViewMode((s) => s.setMode);
@@ -45,7 +49,8 @@ export function useOpenPreviewPage({ trimSize, bleedIn, cropMarks, onBack }: Ope
       .catch((e: unknown) => setOpenError(errText(e)))
       .finally(() => setOpening(false));
   };
-  return { opening, openError, openPage };
+  const editPage = { disabled: opening, open: () => openPage(pageInView, null) };
+  return { opening, openError, openPage, setPageInView, editPage };
 }
 
 /** The strip of page thumbnails beside the estimate (shown only while the real layout is not). */
@@ -127,6 +132,7 @@ export function PreviewNotices({
 
 /** The "Page setup" sidebar: trim size, bleed, page count, cover note and the margin and crop mark switches. */
 export function PageSetup({
+  editPage,
   trim,
   onTrim,
   bleed,
@@ -149,6 +155,8 @@ export function PageSetup({
   showMargins: boolean;
   onShowMargins: (on: boolean) => void;
   cropMarks: boolean;
+  /** Opens the editor at the page in view. */
+  editPage: { disabled: boolean; open: () => void };
 }) {
   const { t } = useLingui();
   return (
@@ -202,6 +210,9 @@ export function PageSetup({
         <span>{t`Crop marks`}</span>
         <Switch label={t`Crop marks`} checked={cropMarks} onChange={setCropMarks} />
       </div>
+      <Button icon={PenLine} disabled={editPage.disabled} onClick={editPage.open}>
+        {t`Edit this page`}
+      </Button>
     </aside>
   );
 }

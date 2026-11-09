@@ -188,6 +188,8 @@ interface Props {
    * pages are not clickable.
    */
   onOpenPage?: (page: number, click: WordClick | null) => void;
+  /** The first page of the spread on screen, whenever it changes (the side panel's Edit this page uses it). */
+  onPageInView?: (page: number) => void;
 }
 
 /**
@@ -202,6 +204,7 @@ export function TypstSpread({
   stale,
   onPages,
   onOpenPage,
+  onPageInView,
 }: Props) {
   const { t } = useLingui();
   const { doc, error } = usePdfDocument(pdf, onPages);
@@ -214,6 +217,10 @@ export function TypstSpread({
   // A shorter PDF (a different trim size) can have fewer spreads than the one that was open.
   const index = Math.min(wanted, Math.max(0, spreads - 1));
   const spread = spreadPages(index, total);
+  const firstInView = spread.find((p) => p !== null) ?? null;
+  useEffect(() => {
+    if (firstInView !== null) onPageInView?.(firstInView);
+  }, [firstInView, onPageInView]);
   const shown = spreadLabel(spread);
   // Fit: the pages of this spread across the width of the pane, side by side.
   const across = spread.filter((p) => p !== null).length || 1;

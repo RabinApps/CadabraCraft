@@ -15,7 +15,9 @@ export function useAltPages(language: string | undefined): CheckPage[] {
     readPages(language).then(
       (pages) => {
         if (live)
-          setAltPages(pages.map((p) => ({ title: p.title, file: fileOf(p.id), doc: p.doc })));
+          setAltPages(
+            pages.map((p) => ({ id: p.id, title: p.title, file: fileOf(p.id), doc: p.doc })),
+          );
       },
       () => {
         if (live) setAltPages([]);

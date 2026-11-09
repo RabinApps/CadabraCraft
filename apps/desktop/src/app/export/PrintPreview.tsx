@@ -121,7 +121,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
   const typeset = usePrintPdf({ trimSize: trim, bleedIn, cropMarks });
   const [pdfPages, setPdfPages] = useState(0);
   const onPages = useCallback((n: number) => setPdfPages(n), []);
-  const { opening, openError, openPage } = useOpenPreviewPage({
+  const { opening, openError, openPage, setPageInView, editPage } = useOpenPreviewPage({
     trimSize: trim,
     bleedIn,
     cropMarks,
@@ -186,6 +186,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
               stale={typeset.loading}
               onPages={onPages}
               {...(opening ? {} : { onOpenPage: openPage })}
+              onPageInView={setPageInView}
             />
           ) : (
             !typeset.loading && (
@@ -201,6 +202,7 @@ export function PrintPreview({ onBack, onExport }: Props) {
           )}
         </main>
         <PageSetup
+          editPage={editPage}
           trim={trim}
           onTrim={setTrim}
           bleed={bleed}
