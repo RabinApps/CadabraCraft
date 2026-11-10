@@ -109,3 +109,4 @@ export function dropLeadingPageBreak(doc: ChapterDoc): { doc: ChapterDoc; droppe
 export * from "./ean13";
 export * from "./sprint";
 export * from "./analysis";
+export * from "./dates";

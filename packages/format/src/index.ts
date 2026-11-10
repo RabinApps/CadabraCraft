@@ -14,3 +14,6 @@ export * from "./contents";
 export * from "./icons";
 export * from "./comments";
 export * from "./codex";
+export * from "./book/goal";
+
+export * from "./book/fonts";

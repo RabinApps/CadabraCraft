@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 12)
+# CadabraCraft project file format (formatVersion 13)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -20,11 +20,12 @@ MyBook/
 
 ```json
 {
-  "formatVersion": 12,
+  "formatVersion": 13,
   "template": "novel",
   "trimSize": "5.5x8.5",
   "dropCap": true,
   "fonts": { "body": "EB Garamond", "heading": "Inter" },
+  "goal": { "words": 80000, "deadline": "2027-06-30" },
   "editions": [
     {
       "language": "en",
@@ -109,6 +110,7 @@ MyBook/
 - `formatVersion` is an integer. Readers reject versions newer than they know; older versions are migrated on open after a backup copy goes to `.cadabra/backups/`.
 - Reading order is the order of the `frontMatter`, `chapters` and `backMatter` arrays, never filenames.
 - `trimSize` (optional) is the print page size the book is written for: one of `4.25x6.87`, `5x8`, `5.25x8`, `5.5x8.5`, `6x9`, `7x10`, `8.5x11` (inches, width x height). Absent means the template's default size. It was added without a `formatVersion` bump (see architecture.md): older apps ignore it, and an unknown value is refused.
+- `goal` (optional, formatVersion 13) is the author's writing goal for this book. It is an object with `words` (a positive integer, at most 10,000,000: the book's word target) and `deadline` (optional, a real calendar date `YYYY-MM-DD`). Absent means no goal. Any other key, a missing `words`, or a value of the wrong type is refused. The daily plan (words still to write, and words per day to reach the goal by the deadline) is derived from the goal and the book's current words; it is never stored. Older manifests have no `goal`, which is read as no goal, so opening them loses nothing.
 - `dropCap` (optional, formatVersion 8) is `true` or `false`: whether chapters open with a large first letter in the PDF, the EPUB and Page view. Absent means the template decides (only the novel template has one). A chapter's own `dropCap` (see below) wins over the book's. Any other type is refused.
 - `sceneBreak` (optional) is the scene-break ornament for the whole book: one of `asterism`, `three-dots`, `fleuron`, `dinkus`, `em-dash` or `none`. Absent means the template's own glyph. The PDF and the EPUB draw the glyph, Word, RTF and Markdown write the ornament's plain-text mark. Any other value is refused. It was added without a `formatVersion` bump, like `trimSize` and `fonts` (see architecture.md, "Scene-break ornaments"): an older app reads past it, and a save from it drops the key.
 - `fonts` (optional) holds the font families the author chose for the book: `body` and `heading`, either or both. Each is a family name (not a file path), a non-empty trimmed string of at most 100 characters without control characters; any other key inside `fonts`, or a `fonts` that is not an object, is refused. Absent (or a missing key) means the template's fonts. The PDF export uses a chosen family exactly and refuses the export when it is not installed instead of substituting another; the Word export writes `body` as the document font name. It was added without a `formatVersion` bump (see architecture.md): older apps ignore it.
@@ -245,6 +247,7 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 
 ## Versioning
 
+- Version 12 -> 13: adds the optional `goal` on the manifest (see above): `words` and an optional `deadline`. The migration changes nothing: no book has a goal until the author sets one, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 12 app refuses a version 13 project rather than dropping the author's goal on its next save. Contract fixture: `fixtures/contract/manifest-v12.json`.
 - Version 10 -> 11: a chapter entry may carry `kind: "part"` (see [Parts](#parts-formatversion-11)), and a contents page's `toc` may carry `parts` (default `true`). The migration changes nothing: no book has a part until the author adds one, no file moves, and existing contents pages list no parts because none exist. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 10 app refuses a version 11 project rather than dropping the divider on its next save. Contract fixture: `fixtures/contract/manifest-v10.json`.
 - Version 11 -> 12: every item in `references` gets `kind: "file"` (an existing key is kept); `link` and `note` are new kinds with `url` and `text`. Nothing else changes and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 11 app refuses a version 12 project rather than dropping or mangling the links and notes on its next save. Contract fixture: `fixtures/contract/manifest-v11.json`.
 - Version 8 -> 9: front and back matter entries may carry `verticalCenter` (see above). The migration changes nothing: no page has it until the author sets it, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 8 app refuses a version 9 project instead of dropping the per-page choice on its next save, which is why this bumps the version. Contract fixture: `fixtures/contract/manifest-v8.json`.

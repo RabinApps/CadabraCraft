@@ -1,4 +1,4 @@
-import { FormatError } from "./errors";
+import { FormatError } from "../errors";
 
 /** Font family names the author picked; each is a family name, not a file. */
 export interface BookFonts {

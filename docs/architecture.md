@@ -2296,3 +2296,18 @@ Rejected:
 **Trade-off:** each sentence starts the engine once, so the first sentence waits for its clip and a slow voice can lag the reading. The next clip is prepared early to hide most of this. Speed changes restart the reading from the sentence being read.
 
 **Follow-ups / caveats:** sentences are split on `. ! ?` and the ellipsis, and a sentence over 300 characters is cut at a space for the engine, so the highlight covers that piece. Footnote text is not read (footnotes are inline nodes). The bar sits under the toolbar in every view, including Focus mode.
+
+## A persisted book goal and its daily plan (2026-11-09, format 13)
+
+**Decision:** the writing goal is the optional `goal` object in `cadabra.json`: `words` (a whole number from 1 to 10,000,000) and `deadline` (optional, a real `YYYY-MM-DD` date). It is a format bump to 13. The migration from 12 changes nothing (absent means no goal), and a test opens a real v12 manifest and checks that every entry, title, file, reference and edition survives. `dailyPlan(goal, bookWords, today)` in `packages/format/src/book/goal.ts` is pure: it returns what remains, whether the goal is met, the days left to the deadline (today counts as one day, so a deadline of today leaves one), the words per day needed (rounded up), and whether the deadline passed unmet. Only the goal is stored; the plan is derived and never written. The date helpers (`isDateKey`, `daysBetween`, `shiftDateKey`, `weekdayOf`) live in `packages/shared/src/dates.ts` and do whole-day UTC arithmetic, so a daylight-saving change cannot move a deadline. The font validator moved to `packages/format/src/book/fonts.ts` so that `manifest.ts` stays under the 400-line limit.
+
+**Why:** a goal describes one manuscript. In the manifest it travels with the folder, syncs with it, and is seen by the headless MCP tools. The version is bumped because an older app that loads and saves the manifest would drop the key, the same reason `publishing` bumped the version (formatVersion 6).
+
+| Rejected                                             | Why                                                                                                                                        |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Keep the goal in the app's preferences (per machine) | A goal belongs to the book. Per-app preferences would give every book the same target and would not follow the folder to another computer. |
+| Store the daily plan on disk next to the goal        | The plan changes with every word typed; a stored copy would go stale. It is derived from the goal, the book's words and today's date.      |
+| Add the field without a version bump                 | An older app would drop `goal` on its next save, silently losing the author's target. The bump makes an older app refuse the book instead. |
+| Take "today" from the clock inside `dailyPlan`       | Makes the function impure and its tests depend on the date. The caller passes the local date as `YYYY-MM-DD`.                              |
+
+**Caveats:** the format package's strict 100% coverage gate is not met at this commit. The gaps are in code this change did not touch (`edit/chapters.ts`, `edit/matter.ts`, `toc/edit.ts`, and one `toc.parts` type check in `manifest.ts`), so they were already there before this bump. The new modules are fully covered.

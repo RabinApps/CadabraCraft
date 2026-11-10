@@ -12,13 +12,14 @@ import { FormatError } from "./errors";
 import { validateEditions } from "./editions";
 import { validateReferences } from "./references";
 import { validatePublishing, type Publishing } from "./publishing";
-import { validateFonts, type BookFonts } from "./fonts";
+import { validateGoal, type BookGoal } from "./book/goal";
+import { validateFonts, type BookFonts } from "./book/fonts";
 
 export { validateFonts, type BookFonts };
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 12;
+export const CURRENT_FORMAT_VERSION = 13;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -140,6 +141,8 @@ export interface Manifest {
   chapters: EditionEntry[];
   backMatter: EditionEntry[];
   references: Reference[];
+  /** The author's writing goal (formatVersion 13); absent means none. */
+  goal?: BookGoal;
 }
 
 export function createManifest(init: {
@@ -457,6 +460,7 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
       throw new FormatError(`manifest: "dropCap" must be true or false`);
     m.dropCap = o.dropCap;
   }
+  if (o.goal !== undefined) m.goal = validateGoal(o.goal);
   validateEditions(m.editions, readingOrder(m));
   const seen = new Set<string>();
   for (const e of readingOrder(m)) {

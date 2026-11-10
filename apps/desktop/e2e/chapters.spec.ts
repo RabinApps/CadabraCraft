@@ -13,7 +13,7 @@ test("creating a project shows a first chapter in the editor", async ({ page }) 
   await expect(page.locator(".ProseMirror h1")).toHaveText("Chapter One");
   const manifest = await page.evaluate(() => JSON.parse(window.__disk["cadabra.json"] as string));
   expect(manifest).toMatchObject({
-    formatVersion: 12,
+    formatVersion: 13,
     editions: [{ title: "E2E Book", author: "Tester" }],
   });
 });

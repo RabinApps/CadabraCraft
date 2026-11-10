@@ -114,7 +114,7 @@ describe("publishing in the manifest", () => {
     const v5 = { ...book(), formatVersion: 5 };
     const r = parseManifest(JSON.stringify(v5));
     expect(r.migrated).toBe(true);
-    expect(r.manifest.formatVersion).toBe(12);
+    expect(r.manifest.formatVersion).toBe(13);
     expect(r.manifest.editions).toEqual(v5.editions);
   });
   it("saves and reopens an edition's publishing", () => {
