@@ -9,6 +9,7 @@ import type {
 } from "@cadabracraft/format";
 import type { AudioFormat } from "@cadabracraft/export-audio";
 import type { OutlineFormat } from "@cadabracraft/outline";
+import type { LoudnessSummary } from "../../lib/audio/loudnessReport";
 import type { PageReport, TrimSize } from "@cadabracraft/export-pdf";
 import type { ChapterDoc, EntryKind, MatterKind, SceneBreakOrnamentId } from "@cadabracraft/shared";
 import type { PublishingForm } from "../../lib/export/publishingForm";
@@ -78,6 +79,8 @@ export interface AudioJob {
   dir: string;
   /** Every chapter is rendered and the book's M4B is being joined and encoded. */
   packing: boolean;
+  /** The measured loudness of the finished audiobook; null for a render from before loudness was measured. */
+  loudness: LoudnessSummary | null;
   error: AudioUiError | null;
 }
 

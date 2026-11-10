@@ -415,6 +415,7 @@ export async function fakeTauri(page: Page) {
                 path: `${a.request.base}.${f}`,
               })),
               durationSec: 60,
+              ...(w.__audioLoudness ? { loudness: w.__audioLoudness } : {}),
             };
           }
           case "audio_build_m4b": {

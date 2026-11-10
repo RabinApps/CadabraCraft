@@ -389,6 +389,10 @@ msgstr ""
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr ""
 
+#: src/lib/audio/loudnessReport.ts
+msgid "{chapters, plural, one {Measured on # chapter.} other {Measured on # chapters. Shows the chapter furthest from the target and the highest peak.}}"
+msgstr ""
+
 #. placeholder {0}: sceneWordsLabel(scene)
 #: src/app/timeline/TimelineRow.tsx
 msgid "{chapterTitle} · {0} words"
@@ -694,6 +698,10 @@ msgstr ""
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
 msgid "About the author"
+msgstr ""
+
+#: src/lib/audio/loudnessReport.ts
+msgid "Above -3 dBTP: lower the peak"
 msgstr ""
 
 #: src/app/shell/native/menuModel.ts
@@ -3098,6 +3106,10 @@ msgstr ""
 msgid "Installing…"
 msgstr ""
 
+#: src/lib/audio/loudnessReport.ts
+msgid "Integrated loudness"
+msgstr ""
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Interface language"
 msgstr ""
@@ -3402,6 +3414,10 @@ msgstr ""
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "Lossless, about 60% of the size of WAV."
+msgstr ""
+
+#: src/app/export/parts/AudioLoudnessCard.tsx
+msgid "Loudness"
 msgstr ""
 
 #: src/app/hooks/useAudioLabels.ts
@@ -4198,6 +4214,10 @@ msgstr ""
 msgid "Outline…"
 msgstr ""
 
+#: src/lib/audio/loudnessReport.ts
+msgid "Outside the retail target: adjust the source"
+msgstr ""
+
 #: src/app/export/AudioExport.tsx
 msgid "Packing the audiobook…"
 msgstr ""
@@ -4962,6 +4982,10 @@ msgstr ""
 msgid "Restoring…"
 msgstr ""
 
+#: src/app/export/parts/AudioLoudnessCard.tsx
+msgid "Result"
+msgstr ""
+
 #: src/editor/find/FindResults.tsx
 msgid "Results by page"
 msgstr ""
@@ -5700,6 +5724,10 @@ msgstr ""
 msgid "Take snapshot"
 msgstr ""
 
+#: src/lib/audio/loudnessReport.ts
+msgid "Target"
+msgstr ""
+
 #: src/app/scenes/SceneRail.tsx
 msgid "Target words"
 msgstr ""
@@ -5789,6 +5817,10 @@ msgstr ""
 
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
+msgstr ""
+
+#: src/app/export/parts/AudioLoudnessCard.tsx
+msgid "The audio is not changed. Adjust the source to meet the target."
 msgstr ""
 
 #: src/lib/audio/audioErrors.ts
@@ -6350,6 +6382,10 @@ msgstr ""
 msgid "Trim size"
 msgstr ""
 
+#: src/lib/audio/loudnessReport.ts
+msgid "True peak"
+msgstr ""
+
 #: src/app/dialogs/LicensesDialog.tsx
 #: src/app/dialogs/UpdateDialog.tsx
 #: src/app/export/AudioFooter.tsx
@@ -6660,6 +6696,10 @@ msgstr ""
 
 #: src/lib/export/exportChecks.ts
 msgid "With bleed, KDP needs top, bottom and outside margins of at least {KDP_MIN_OUTER_BLEED_IN} in."
+msgstr ""
+
+#: src/lib/audio/loudnessReport.ts
+msgid "Within the retail target"
 msgstr ""
 
 #: src/app/export/parts/ExportDialogParts.tsx

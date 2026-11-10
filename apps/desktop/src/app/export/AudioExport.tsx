@@ -13,6 +13,7 @@ import { useAudioLabels } from "../hooks/useAudioLabels";
 import type { AudioJob, VoiceDownload } from "../../state/project/index";
 import { Notice } from "../../ui/feedback/Notice";
 import { ProgressBar } from "../../ui/feedback/ProgressBar";
+import { AudioLoudnessCard } from "./parts/AudioLoudnessCard";
 import {
   AudioChapterPicker,
   AudioEditionPicker,
@@ -207,6 +208,7 @@ export function AudioJobView({ job }: { job: AudioJob }) {
               ))}
             </ul>
           )}
+          {job.loudness && <AudioLoudnessCard loudness={job.loudness} />}
         </div>
       )}
       {job.status === "error" &&

@@ -391,6 +391,10 @@ msgstr "{bookWords} en el libro"
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {Se importó # capítulo de {fileName}.} other {Se importaron # capítulos de {fileName}.}}"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "{chapters, plural, one {Measured on # chapter.} other {Measured on # chapters. Shows the chapter furthest from the target and the highest peak.}}"
+msgstr "{chapters, plural, one {Medido en # capítulo.} other {Medido en # capítulos. Muestra el capítulo más alejado del objetivo y el pico más alto.}}"
+
 #. placeholder {0}: sceneWordsLabel(scene)
 #: src/app/timeline/TimelineRow.tsx
 msgid "{chapterTitle} · {0} words"
@@ -697,6 +701,10 @@ msgstr "Acerca de CadabraCraft"
 #: src/app/shell/useKindLabels.ts
 msgid "About the author"
 msgstr "Sobre el autor"
+
+#: src/lib/audio/loudnessReport.ts
+msgid "Above -3 dBTP: lower the peak"
+msgstr "Por encima de -3 dBTP: baje el pico"
 
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
@@ -3100,6 +3108,10 @@ msgstr "Instalado, unos {0} MB en este ordenador."
 msgid "Installing…"
 msgstr "Instalando…"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "Integrated loudness"
+msgstr "Sonoridad integrada"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Interface language"
 msgstr "Idioma de la interfaz"
@@ -3405,6 +3417,10 @@ msgstr "Sin pérdida y grande: unos 1,7 GB por cada 10 horas."
 #: src/app/hooks/useAudioLabels.ts
 msgid "Lossless, about 60% of the size of WAV."
 msgstr "Sin pérdida, aproximadamente el 60 % del tamaño de WAV."
+
+#: src/app/export/parts/AudioLoudnessCard.tsx
+msgid "Loudness"
+msgstr "Sonoridad"
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "M4B audiobook"
@@ -4200,6 +4216,10 @@ msgstr "Esquema"
 msgid "Outline…"
 msgstr "Esquema…"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "Outside the retail target: adjust the source"
+msgstr "Fuera del objetivo comercial: ajuste la fuente"
+
 #: src/app/export/AudioExport.tsx
 msgid "Packing the audiobook…"
 msgstr "Empaquetando el audiolibro…"
@@ -4964,6 +4984,10 @@ msgstr "Al restaurar el libro completo, primero se guarda el libro tal como est�
 msgid "Restoring…"
 msgstr "Restaurando…"
 
+#: src/app/export/parts/AudioLoudnessCard.tsx
+msgid "Result"
+msgstr "Resultado"
+
 #: src/editor/find/FindResults.tsx
 msgid "Results by page"
 msgstr "Resultados por página"
@@ -5702,6 +5726,10 @@ msgstr "Acotaciones con “said”"
 msgid "Take snapshot"
 msgstr "Hacer instantánea"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "Target"
+msgstr "Objetivo"
+
 #: src/app/scenes/SceneRail.tsx
 msgid "Target words"
 msgstr "Palabras objetivo"
@@ -5792,6 +5820,10 @@ msgstr "Ese texto es demasiado largo para una nota, así que no se añadió."
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
 msgstr "Los formatos de audio marcados al abrir la exportación."
+
+#: src/app/export/parts/AudioLoudnessCard.tsx
+msgid "The audio is not changed. Adjust the source to meet the target."
+msgstr "El audio no se modifica. Ajuste la fuente para cumplir el objetivo."
 
 #: src/lib/audio/audioErrors.ts
 msgid "The audiobook was cancelled. Chapters that were finished are kept."
@@ -6354,6 +6386,10 @@ msgstr "Papelera"
 msgid "Trim size"
 msgstr "Tamaño de página"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "True peak"
+msgstr "Pico real"
+
 #: src/app/dialogs/LicensesDialog.tsx
 #: src/app/dialogs/UpdateDialog.tsx
 #: src/app/export/AudioFooter.tsx
@@ -6667,6 +6703,10 @@ msgstr "Ventana"
 #: src/lib/export/exportChecks.ts
 msgid "With bleed, KDP needs top, bottom and outside margins of at least {KDP_MIN_OUTER_BLEED_IN} in."
 msgstr "Con sangrado, KDP necesita márgenes superior, inferior y exterior de al menos {KDP_MIN_OUTER_BLEED_IN} in."
+
+#: src/lib/audio/loudnessReport.ts
+msgid "Within the retail target"
+msgstr "Dentro del objetivo comercial"
 
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Word (.docx)"

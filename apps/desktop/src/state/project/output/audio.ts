@@ -9,6 +9,7 @@ import {
 import { bridge } from "../../../lib/bridge";
 import { audioDir, createTauriAudioRunner, mapAudioError } from "../../../lib/audio/audioRunner";
 import { describeAudioError } from "../../../lib/audio/audioErrors";
+import { summarizeLoudness } from "../../../lib/audio/loudnessReport";
 import type { AudioActions } from "../types";
 import type { Ctx } from "../context";
 import { createPickChapters } from "./narration/pick";
@@ -65,6 +66,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
           transcripts: [],
           dir,
           packing: false,
+          loudness: null,
           error: null,
         },
       });
@@ -79,7 +81,7 @@ export const createAudioActions = (ctx: Ctx): AudioActions => {
         );
         if (options.formats.includes("m4b")) await packM4b(run, results);
         if (options.transcript) await writeTranscripts(run, results);
-        update((j) => ({ ...j, status: "done", overall: 1 }));
+        update((j) => ({ ...j, status: "done", overall: 1, loudness: summarizeLoudness(results) }));
         set({ notice: t`Exported the audiobook to ${dir}` });
       } catch (e) {
         const error = describeAudioError(e);

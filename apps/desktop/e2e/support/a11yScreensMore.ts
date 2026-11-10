@@ -390,6 +390,22 @@ export const moreScreens: Screen[] = [
     },
   },
   {
+    name: "audiobook export, done with loudness",
+    open: async (p) => {
+      await startAudiobook(p, () =>
+        p.evaluate(() => {
+          window.__audioLoudness = {
+            integratedLufs: -19.2,
+            truePeakDbtp: -3.4,
+            targetLufs: -19,
+            passed: true,
+          };
+        }),
+      );
+      await shown(dialogOf(p, "Export book").getByRole("region", { name: "Loudness" }));
+    },
+  },
+  {
     name: "audiobook export, error",
     open: async (p) => {
       await covBackend(p);

@@ -391,6 +391,10 @@ msgstr "{bookWords} בספר"
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
 msgstr "{chapterCount, plural, one {יובא פרק # מתוך {fileName}.} other {יובאו # פרקים מתוך {fileName}.}}"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "{chapters, plural, one {Measured on # chapter.} other {Measured on # chapters. Shows the chapter furthest from the target and the highest peak.}}"
+msgstr "{chapters, plural, one {נמדד על פרק אחד.} other {נמדד על # פרקים. מוצג הפרק הרחוק ביותר מהיעד והשיא הגבוה ביותר.}}"
+
 #. placeholder {0}: sceneWordsLabel(scene)
 #: src/app/timeline/TimelineRow.tsx
 msgid "{chapterTitle} · {0} words"
@@ -697,6 +701,10 @@ msgstr "אודות CadabraCraft"
 #: src/app/shell/useKindLabels.ts
 msgid "About the author"
 msgstr "אודות המחבר"
+
+#: src/lib/audio/loudnessReport.ts
+msgid "Above -3 dBTP: lower the peak"
+msgstr "מעל -3 dBTP: הורידו את השיא"
 
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
@@ -3100,6 +3108,10 @@ msgstr "מותקן, כ־{0} MB במחשב זה."
 msgid "Installing…"
 msgstr "מתקין…"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "Integrated loudness"
+msgstr "עוצמה משולבת"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Interface language"
 msgstr "שפת הממשק"
@@ -3405,6 +3417,10 @@ msgstr "ללא אובדן ונפח גדול: כ־1.7 GB לכל 10 שעות."
 #: src/app/hooks/useAudioLabels.ts
 msgid "Lossless, about 60% of the size of WAV."
 msgstr "ללא אובדן, כ־60% מגודל WAV."
+
+#: src/app/export/parts/AudioLoudnessCard.tsx
+msgid "Loudness"
+msgstr "עוצמה"
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "M4B audiobook"
@@ -4200,6 +4216,10 @@ msgstr "מבנה"
 msgid "Outline…"
 msgstr "מבנה…"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "Outside the retail target: adjust the source"
+msgstr "מחוץ ליעד המסחרי: התאימו את המקור"
+
 #: src/app/export/AudioExport.tsx
 msgid "Packing the audiobook…"
 msgstr "אורז את ספר השמע…"
@@ -4964,6 +4984,10 @@ msgstr "שחזור הספר כולו שומר תחילה את הספר במצב�
 msgid "Restoring…"
 msgstr "משחזר…"
 
+#: src/app/export/parts/AudioLoudnessCard.tsx
+msgid "Result"
+msgstr "תוצאה"
+
 #: src/editor/find/FindResults.tsx
 msgid "Results by page"
 msgstr "תוצאות לפי עמוד"
@@ -5702,6 +5726,10 @@ msgstr "תגיות עם “said”"
 msgid "Take snapshot"
 msgstr "צילום מצב"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "Target"
+msgstr "יעד"
+
 #: src/app/scenes/SceneRail.tsx
 msgid "Target words"
 msgstr "מילות יעד"
@@ -5792,6 +5820,10 @@ msgstr "הטקסט ארוך מדי להערה ולכן לא נוסף."
 #: src/app/settings/AudioSection.tsx
 msgid "The audio formats ticked when you open the export."
 msgstr "פורמטי השמע שמסומנים בעת פתיחת הייצוא."
+
+#: src/app/export/parts/AudioLoudnessCard.tsx
+msgid "The audio is not changed. Adjust the source to meet the target."
+msgstr "האודיו לא משתנה. התאימו את המקור כדי להגיע ליעד."
 
 #: src/lib/audio/audioErrors.ts
 msgid "The audiobook was cancelled. Chapters that were finished are kept."
@@ -6354,6 +6386,10 @@ msgstr "אשפה"
 msgid "Trim size"
 msgstr "גודל עמוד"
 
+#: src/lib/audio/loudnessReport.ts
+msgid "True peak"
+msgstr "שיא אמת"
+
 #: src/app/dialogs/LicensesDialog.tsx
 #: src/app/dialogs/UpdateDialog.tsx
 #: src/app/export/AudioFooter.tsx
@@ -6667,6 +6703,10 @@ msgstr "חלון"
 #: src/lib/export/exportChecks.ts
 msgid "With bleed, KDP needs top, bottom and outside margins of at least {KDP_MIN_OUTER_BLEED_IN} in."
 msgstr "עם שולי חיתוך, KDP דורשת שוליים עליונים, תחתונים וחיצוניים של {KDP_MIN_OUTER_BLEED_IN} אינץ׳ לפחות."
+
+#: src/lib/audio/loudnessReport.ts
+msgid "Within the retail target"
+msgstr "בתוך היעד המסחרי"
 
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Word (.docx)"

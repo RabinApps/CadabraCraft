@@ -178,6 +178,13 @@ declare global {
     __audioPacks?: FakePack[];
     __audioCalls: AudioCall[];
     __audioHold?: boolean;
+    /** The loudness report each rendered chapter carries (left out when unset, as for an older render). */
+    __audioLoudness?: {
+      integratedLufs: number;
+      truePeakDbtp: number;
+      targetLufs: number;
+      passed: boolean;
+    };
     __audioReject?: (reason: unknown) => void;
     __downloads?: string[];
     __downloadHold?: boolean;
