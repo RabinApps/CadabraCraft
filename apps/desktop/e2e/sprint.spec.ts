@@ -67,14 +67,16 @@ test("a sprint that runs out says so once, and Start again begins a new one", as
 
   await page.getByRole("button", { name: "Resume sprint" }).click();
   await expect(timer()).toHaveText("Sprint done", { timeout: 10_000 });
-  await expect(page.locator('[aria-live="polite"]').filter({ hasText: "Sprint done. Nice work." })).toHaveCount(
-    1,
-  );
+  await expect(
+    page.locator('[aria-live="polite"]').filter({ hasText: "Sprint done. Nice work." }),
+  ).toHaveCount(1);
 
   await timer().click();
   const panel = page.getByRole("region", { name: "Sprint" });
   await expect(panel.getByRole("button", { name: "Start again" })).toBeVisible();
   await panel.getByRole("button", { name: "Start again" }).click();
   await expect(timer()).toHaveText(/ left$/);
-  await expect(page.locator('[aria-live="polite"]').filter({ hasText: "Sprint done" })).toHaveCount(0);
+  await expect(page.locator('[aria-live="polite"]').filter({ hasText: "Sprint done" })).toHaveCount(
+    0,
+  );
 });
