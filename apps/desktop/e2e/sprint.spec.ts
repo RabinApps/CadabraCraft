@@ -22,7 +22,11 @@ function seedSprint(minutes: number, elapsedMs: number) {
 test("the sprint timer starts, pauses, resets and changes length", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await newProject(page);
-  const timer = () => page.locator("button[aria-controls]").first();
+  const timer = () =>
+    page
+      .locator("button[aria-expanded]")
+      .filter({ hasText: /Sprint|\d{2}:\d{2}/ })
+      .first();
   await expect(timer()).toHaveText("Sprint 25:00");
 
   await timer().click();
@@ -62,7 +66,11 @@ test("a sprint that runs out says so once, and Start again begins a new one", as
   );
   await page.setViewportSize({ width: 1280, height: 800 });
   await newProject(page);
-  const timer = () => page.locator("button[aria-controls]").first();
+  const timer = () =>
+    page
+      .locator("button[aria-expanded]")
+      .filter({ hasText: /Sprint|\d{2}:\d{2}/ })
+      .first();
   await expect(timer()).toHaveText("00:02 paused");
 
   await page.getByRole("button", { name: "Resume sprint" }).click();

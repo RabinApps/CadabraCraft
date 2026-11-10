@@ -86,7 +86,7 @@ export function SprintControl() {
         ref={toggleRef}
         type="button"
         aria-expanded={open}
-        aria-controls={panelId}
+        aria-controls={open ? panelId : undefined}
         onClick={() => setOpen((o) => !o)}
         className={cx(
           "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-semibold tabular-nums max-md:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
