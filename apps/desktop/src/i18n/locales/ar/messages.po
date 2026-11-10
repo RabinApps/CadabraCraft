@@ -113,6 +113,13 @@ msgstr "{0, plural, zero {لا مشاهد} one {مشهد واحد} two {مشهد
 msgid "{0, plural, one {# snapshot} other {# snapshots}}"
 msgstr "{0, plural, zero {لا لقطات} one {لقطة واحدة} two {لقطتان} few {# لقطات} many {# لقطة} other {# لقطة}}"
 
+#. placeholder {0}: cell.words
+#. placeholder {1}: cell.date
+#. placeholder {2}: cell.date
+#: src/app/writing/WritingHeatmap.tsx
+msgid "{0, plural, one {# word on {1}} other {# words on {2}}}"
+msgstr "{0, plural, one {كلمة واحدة في {1}} other {# كلمة في {2}}}"
+
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
 #. placeholder {0}: wordsOf(item, result)
@@ -487,9 +494,17 @@ msgstr "{minutes, plural, one {دقيقة واحدة} two {دقيقتان} few {
 msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 msgstr "{missing, plural, one {في “{name}” صورة واحدة بلا نص بديل} two {في “{name}” صورتان بلا نص بديل} few {في “{name}” # صور بلا نص بديل} many {في “{name}” # صورة بلا نص بديل} other {في “{name}” # صورة بلا نص بديل}}"
 
+#: src/app/writing/WritingStats.tsx
+msgid "{n, plural, one {# day} other {# days}}"
+msgstr "{n, plural, one {يوم واحد} other {# أيام}}"
+
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr "{n, plural, one {حُذفت صفحة واحدة غير مترجمة} two {حُذفت صفحتان غير مترجمتين} few {حُذفت # صفحات غير مترجمة} many {حُذفت # صفحة غير مترجمة} other {حُذفت # صفحة غير مترجمة}}"
+
+#: src/app/writing/WritingStats.tsx
+msgid "{n, plural, one {# word} other {# words}}"
+msgstr "{n, plural, one {كلمة واحدة} other {# كلمة}}"
 
 #: src/editor/find/FindResults.tsx
 msgid "{n, plural, one {match} other {matches}}"
@@ -653,6 +668,18 @@ msgstr "+H1-H3"
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "0.125 in"
 msgstr "0.125 بوصة"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "1 to 250"
+msgstr "من 1 إلى 250"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "251 to 500"
+msgstr "من 251 إلى 500"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "501 to 1,000"
+msgstr "من 501 إلى 1,000"
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "A BCP 47 tag such as fr, fr-CA or zh-Hans. Screen readers and exports use it to pronounce and hyphenate the passage."
@@ -1959,6 +1986,10 @@ msgstr "تعذّرت قراءة الملف بهذه الطريقة ({0}). اخت
 msgid "Could not read the trash ({0}). Close this dialog and open the trash again to retry."
 msgstr "تعذّرت قراءة سلة المهملات ({0}). أغلق هذه النافذة وافتح سلة المهملات مرة أخرى لإعادة المحاولة."
 
+#: src/app/writing/WritingHistoryDialog.tsx
+msgid "Could not read the writing history: {error}."
+msgstr "تعذّرت قراءة سجل الكتابة: {error}."
+
 #. placeholder {0}: reading.message
 #: src/app/dialogs/SplitChapterDialog.tsx
 msgid "Could not read this chapter ({0}). Nothing was changed."
@@ -2158,6 +2189,10 @@ msgstr "دايل-تشال"
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Dark"
 msgstr "داكن"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "Darker squares have more words. Each square is one day."
+msgstr "المربعات الأغمق تحتوي على كلمات أكثر. كل مربع يمثل يومًا واحدًا."
 
 #: src/app/dialogs/GoalDialog.tsx
 msgid "Deadline (optional)"
@@ -2951,6 +2986,7 @@ msgid "Hide scenes of {0}"
 msgstr "إخفاء مشاهد {0}"
 
 #: src/app/shell/entries/RowMenu.tsx
+#: src/app/writing/WritingHistoryDialog.tsx
 msgid "History"
 msgstr "السجل"
 
@@ -3330,6 +3366,14 @@ msgstr "وسم اللغة"
 msgid "Larger text"
 msgstr "نص أكبر"
 
+#: src/app/writing/WritingHeatmap.tsx
+msgid "Last 24 weeks"
+msgstr "آخر 24 أسبوعًا"
+
+#: src/app/writing/WritingStats.tsx
+msgid "Last 7 days"
+msgstr "آخر 7 أيام"
+
 #: src/app/library/Library.tsx
 msgid "Last edited"
 msgstr "آخر تعديل"
@@ -3455,6 +3499,7 @@ msgstr "جارٍ تحميل الكتاب"
 
 #: src/app/dialogs/LicensesDialog.tsx
 #: src/app/references/Previews.tsx
+#: src/app/writing/WritingHistoryDialog.tsx
 msgid "Loading…"
 msgstr "جارٍ التحميل…"
 
@@ -3607,6 +3652,10 @@ msgstr "المزيد من الإجراءات"
 #: src/editor/toolbar/MoreFormatting.tsx
 msgid "More formatting"
 msgstr "مزيد من التنسيق"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "More than 1,000"
+msgstr "أكثر من 1,000"
 
 #: src/app/export/AudioExport.tsx
 msgid "Most natural, slower."
@@ -3999,6 +4048,7 @@ msgstr "لا يوجد على هذا الحاسوب صوت يقرأ هذه الل
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
 #: src/app/scenes/SceneFilterBar.tsx
+#: src/app/writing/WritingHeatmap.tsx
 msgid "None"
 msgstr "بلا"
 
@@ -5721,6 +5771,10 @@ msgstr "بنية قصصية"
 msgid "Story time of {title}"
 msgstr "وقت القصة لمشهد {title}"
 
+#: src/app/writing/WritingStats.tsx
+msgid "Streak"
+msgstr "سلسلة"
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useMenuOnlyItems.ts
@@ -6192,6 +6246,14 @@ msgstr "الصوت الذي يبدأ به تصدير الكتاب الصوتي. 
 msgid "The voices' licences are listed in Settings, Audio."
 msgstr "تراخيص الأصوات مذكورة في الإعدادات، الصوت."
 
+#: src/state/project/context.ts
+msgid "The writing history could not be read; the old copy was kept as {backup}"
+msgstr "تعذّرت قراءة سجل الكتابة؛ حُفظت النسخة القديمة باسم {backup}"
+
+#: src/app/writing/WritingHistoryDialog.tsx
+msgid "The writing history could not be read; the old copy was kept as {backup}."
+msgstr "تعذّرت قراءة سجل الكتابة؛ حُفظت النسخة القديمة باسم {backup}."
+
 #: src/app/settings/SettingsSections.tsx
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Theme"
@@ -6350,6 +6412,10 @@ msgstr "هذه الصورة زخرفية"
 msgid "This image path is not allowed: {0}"
 msgstr "مسار الصورة هذا غير مسموح: {0}"
 
+#: src/app/writing/WritingStats.tsx
+msgid "This month"
+msgstr "هذا الشهر"
+
 #: src/lib/import/importErrorText.ts
 msgid "This outline file is damaged or not written correctly, so it could not be read. Open it in the program that made it, save a copy and try again."
 msgstr "ملف المخطط هذا تالف أو غير مكتوب بشكل صحيح، لذلك تعذّرت قراءته. افتحه في البرنامج الذي أنشأه، واحفظ نسخة وحاول مرة أخرى."
@@ -6437,6 +6503,10 @@ msgstr "صفحة العنوان"
 #: src/app/references/panel/SortMenu.tsx
 msgid "Title Z-A"
 msgstr "العنوان من ي إلى أ"
+
+#: src/app/writing/WritingStats.tsx
+msgid "Today"
+msgstr "اليوم"
 
 #: src/app/shell/native/menuModel.ts
 msgid "Toggle Header Row"
@@ -6731,6 +6801,11 @@ msgstr "was أو were مع اسم المفعول"
 msgid "WAV"
 msgstr "WAV"
 
+#. placeholder {0}: week[0]!.date
+#: src/app/writing/WritingHeatmap.tsx
+msgid "Week of {0}"
+msgstr "أسبوع {0}"
+
 #: src/app/shell/App.tsx
 msgid "Welcome"
 msgstr "أهلًا بك"
@@ -6819,6 +6894,10 @@ msgstr "كلمات تنتهي بـ -ly، أطول من أربعة أحرف، و�
 msgid "Words to write each time you open a book. 0 turns it off."
 msgstr "كلمات تكتبها في كل مرة تفتح فيها كتابًا. 0 يعطّل ذلك."
 
+#: src/app/writing/WritingHistoryDialog.tsx
+msgid "Words written, by day. Counted at each save and kept in this book's folder, on this computer."
+msgstr "الكلمات المكتوبة حسب اليوم. تُحسب عند كل حفظ وتُحفظ في مجلد هذا الكتاب على هذا الحاسوب."
+
 #: src/app/board/BoardColumn.tsx
 msgid "Wrap into a scene"
 msgstr "تغليف في مشهد"
@@ -6871,6 +6950,10 @@ msgstr "يكتب الكتاب كله كملف Markdown واحد في مجلد ا
 #: src/app/dialogs/GoalDialog.tsx
 msgid "Writing goal"
 msgstr "هدف الكتابة"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Writing history…"
+msgstr "سجل الكتابة…"
 
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writing Markdown…"

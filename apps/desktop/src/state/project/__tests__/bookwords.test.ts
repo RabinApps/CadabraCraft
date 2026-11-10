@@ -4,6 +4,12 @@ import { countWords } from "@cadabracraft/shared";
 import { bigBook } from "../../../test/bigBook";
 import { disk, readFile } from "../../../test/fakeBridge";
 
+// The writing history (stats.json) reads the book's words at each save and open; these tests count the page reads of the word count.
+vi.mock("../writingSave", () => ({
+  noteWritingSave: async () => null,
+  noteWritingBaseline: async () => null,
+}));
+
 // In-memory project layer that counts reads, so the tests can prove which pages the word count touches.
 const reads: string[] = [];
 vi.mock("../../../lib/bridge", async () =>
