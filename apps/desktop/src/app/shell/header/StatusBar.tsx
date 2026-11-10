@@ -1,8 +1,10 @@
+import type { BookGoal } from "@cadabracraft/format";
 import { useLingui } from "@lingui/react/macro";
 import { plural } from "@lingui/core/macro";
 import { cx } from "../../../ui/cx";
 import { ProgressBar } from "../../../ui/feedback/ProgressBar";
 import { usePageView } from "../../hooks/usePageView";
+import { GoalControl } from "./GoalControl";
 import { PageEstimate, PagePosition } from "./PageEstimate";
 import { PageZoomSelect } from "./PageZoomSelect";
 import { SprintControl } from "./SprintControl";
@@ -11,6 +13,8 @@ interface Props {
   /** Words in the open page and in the whole book (null while counting). */
   words: number;
   bookWords: number | null;
+  /** The book's writing goal, if one is set. */
+  goal?: BookGoal;
   section: "front" | "chapter" | "back" | null;
   chapterNo: number;
   chapterCount: number;
@@ -52,6 +56,7 @@ export function StatusBar(p: Props) {
         {pageView.on && <PagePosition />}
       </span>
       <span className="flex items-center gap-3">
+        <GoalControl goal={p.goal} bookWords={bookWords} />
         <SprintControl />
         {pageView.on && <PageZoomSelect zoom={pageView.zoom} onChange={pageView.setZoom} />}
         <span>

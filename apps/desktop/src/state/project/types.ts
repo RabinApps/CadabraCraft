@@ -1,4 +1,5 @@
 import type {
+  BookGoal,
   CommentThread,
   Manifest,
   Outlines,
@@ -383,6 +384,8 @@ export interface ProjectActions {
   setBookDropCap: (dropCap: boolean | null) => Promise<void>;
   /** Saves the book's print fonts (`manifest.fonts`). A missing or empty key means the template's own font; no key at all removes `fonts`. A no-op when nothing changes. */
   setBookFonts: (fonts: { body?: string; heading?: string }) => Promise<void>;
+  /** Saves the book's writing goal (`manifest.goal`), or removes it with null. Throws when the words or deadline are invalid. A no-op when nothing changes. */
+  setBookGoal: (goal: BookGoal | null) => Promise<void>;
   /** Saves the book details (cadabra.json) of `edition` (default: the source; a translation keeps its language). Trims text; an empty ISBN becomes null. Throws (a message for the author) when the title, author, language or identifier is empty or the cover is not an `assets/` image. */
   updateDetails: (details: BookDetails, edition?: string) => Promise<void>;
 }
