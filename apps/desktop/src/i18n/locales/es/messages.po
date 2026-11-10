@@ -56,6 +56,11 @@ msgstr "{0, plural, one {# capítulo} other {# capítulos}}"
 msgid "{0, plural, one {# chapter} other {# chapters}} · {1, plural, one {# word} other {# words}}"
 msgstr "{0, plural, one {# capítulo} other {# capítulos}} · {1, plural, one {# palabra} other {# palabras}}"
 
+#. placeholder {0}: plan.daysLeft
+#: src/app/dialogs/GoalDialog.tsx
+msgid "{0, plural, one {# day left} other {# days left}}"
+msgstr "{0, plural, one {# día restante} other {# días restantes}}"
+
 #. placeholder {0}: found.skipped
 #: src/app/library/Library.tsx
 msgid "{0, plural, one {# folder with a damaged cadabra.json was skipped.} other {# folders with a damaged cadabra.json were skipped.}}"
@@ -330,6 +335,11 @@ msgstr "{0} palabras"
 msgid "{0} words sit outside every scene."
 msgstr "{0} palabras quedan fuera de todas las escenas."
 
+#. placeholder {0}: plan.remaining
+#: src/app/dialogs/GoalDialog.tsx
+msgid "{0} words to go."
+msgstr "Faltan {0} palabras."
+
 #. placeholder {0}: scene.synopsis
 #: src/app/board/SceneCard.tsx
 msgid "{0}, edit synopsis of {title}"
@@ -386,6 +396,22 @@ msgstr "{added, plural, one {Se añadió # libro nuevo.} other {Se añadieron # 
 #: src/app/shell/header/StatusBar.tsx
 msgid "{bookWords} in the book"
 msgstr "{bookWords} en el libro"
+
+#. placeholder {0}: goal.words
+#: src/app/shell/header/GoalControl.tsx
+msgid "{bookWords} of {0} words"
+msgstr "{bookWords} de {0} palabras"
+
+#. placeholder {0}: goal.words
+#. placeholder {1}: view.plan.wordsPerDay
+#: src/app/shell/header/GoalControl.tsx
+msgid "{bookWords} of {0} words · {1} a day"
+msgstr "{bookWords} de {0} palabras · {1} al día"
+
+#. placeholder {0}: goal.words
+#: src/app/shell/header/GoalControl.tsx
+msgid "{bookWords} of {0} words · late"
+msgstr "{bookWords} de {0} palabras · con retraso"
 
 #: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "{chapterCount, plural, one {Imported # chapter from {fileName}.} other {Imported # chapters from {fileName}.}}"
@@ -488,6 +514,10 @@ msgstr "{page} / {pages}"
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{pdfPages, plural, one {# page in the PDF} other {# pages in the PDF}}"
 msgstr "{pdfPages, plural, one {# página en el PDF} other {# páginas en el PDF}}"
+
+#: src/app/dialogs/GoalDialog.tsx
+msgid "{perDay} words a day to {deadline}, {dayPhrase}."
+msgstr "{perDay} palabras al día hasta {deadline}, {dayPhrase}."
 
 #: src/app/dialogs/snapshots/snapshotText.ts
 msgid "{pinned, plural, one {# pinned snapshot moved to .cadabra/trash too, because the pinned snapshots alone take more than the size limit allows. Unpin or delete some, or raise the size limit in Settings.} other {# pinned snapshots moved to .cadabra/trash too, because the pinned snapshots alone take more than the size limit allows. Unpin or delete some, or raise the size limit in Settings.}}"
@@ -1263,6 +1293,7 @@ msgstr "CadabraCraft está actualizado."
 #: src/app/comments/CommentsPanel.tsx
 #: src/app/dialogs/AddLanguageDialog.tsx
 #: src/app/dialogs/BookDetailsDialog.tsx
+#: src/app/dialogs/GoalDialog.tsx
 #: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/dialogs/snapshots/SnapshotRow.tsx
 #: src/app/dialogs/SplitChapterDialog.tsx
@@ -1544,6 +1575,10 @@ msgstr "Borrar todos los filtros"
 #: src/app/scenes/NoMatch.tsx
 msgid "Clear filters"
 msgstr "Borrar filtros"
+
+#: src/app/dialogs/GoalDialog.tsx
+msgid "Clear goal"
+msgstr "Quitar meta"
 
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "Clear label"
@@ -2116,6 +2151,10 @@ msgstr "Dale-Chall"
 msgid "Dark"
 msgstr "Oscuro"
 
+#: src/app/dialogs/GoalDialog.tsx
+msgid "Deadline (optional)"
+msgstr "Fecha límite (opcional)"
+
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
 msgid "Dedication"
@@ -2410,6 +2449,10 @@ msgstr "Incrusta todo lo necesario para abrir el archivo en el futuro."
 msgid "Enjoying CadabraCraft?"
 msgstr "¿Te gusta CadabraCraft?"
 
+#: src/app/dialogs/GoalDialog.tsx
+msgid "Enter a real date, or clear the deadline."
+msgstr "Escribe una fecha válida o borra la fecha límite."
+
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Enter a real date."
 msgstr "Introduce una fecha real."
@@ -2417,6 +2460,10 @@ msgstr "Introduce una fecha real."
 #: src/lib/export/isbnForm.ts
 msgid "Enter a valid ISBN: 10 or 13 digits with a correct check digit, or leave the field empty."
 msgstr "Introduce un ISBN válido: 10 o 13 dígitos con un dígito de control correcto, o deja el campo vacío."
+
+#: src/app/dialogs/GoalDialog.tsx
+msgid "Enter a whole number of words from 1 to {MAX_GOAL_WORDS}."
+msgstr "Escribe un número entero de palabras, de 1 a {MAX_GOAL_WORDS}."
 
 #: src/state/project/referencesWeb.ts
 msgid "Enter an address that starts with http:// or https://."
@@ -2794,6 +2841,23 @@ msgstr "Ponle un título al libro."
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Give the book an author."
 msgstr "Ponle un autor al libro."
+
+#: src/app/shell/header/GoalControl.tsx
+msgid "Goal met"
+msgstr "Meta cumplida"
+
+#: src/app/dialogs/GoalDialog.tsx
+msgid "Goal met. Nothing left to write."
+msgstr "Meta cumplida. No queda nada por escribir."
+
+#: src/app/shell/header/GoalControl.tsx
+msgid "Goal progress"
+msgstr "Progreso de la meta"
+
+#. placeholder {0}: goal.words
+#: src/app/shell/header/GoalControl.tsx
+msgid "Goal: {0} words"
+msgstr "Meta: {0} palabras"
 
 #: src/app/library/Library.tsx
 msgid "Group by series"
@@ -5039,6 +5103,10 @@ msgstr "Guardar una transcripción"
 msgid "Save details"
 msgstr "Guardar detalles"
 
+#: src/app/dialogs/GoalDialog.tsx
+msgid "Save goal"
+msgstr "Guardar meta"
+
 #: src/app/shell/header/AppHeader.tsx
 #: src/state/project/pages/edit.ts
 msgid "Saved"
@@ -5234,6 +5302,10 @@ msgstr "Objetivo de la sesión"
 #: src/app/settings/SettingsSections.tsx
 msgid "Session word goal"
 msgstr "Objetivo de palabras por sesión"
+
+#: src/app/shell/header/GoalControl.tsx
+msgid "Set a writing goal"
+msgstr "Fijar una meta de escritura"
 
 #: src/app/export/PdfPanel.tsx
 msgid "set in Book details"
@@ -5904,6 +5976,11 @@ msgstr "No se pudo leer la imagen de portada."
 msgid "The cover is the first page, with a blank page behind it, unless you turn it off in the export dialog."
 msgstr "La portada es la primera página, con una página en blanco detrás, salvo que la desactives en el cuadro de exportación."
 
+#. placeholder {0}: plan.remaining
+#: src/app/dialogs/GoalDialog.tsx
+msgid "The deadline has passed with {0} words to go."
+msgstr "Ha pasado la fecha límite con {0} palabras pendientes."
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "The details could not be saved: {why}. Try again; nothing was changed."
 msgstr "No se pudieron guardar los detalles: {why}. Inténtalo de nuevo; no se cambió nada."
@@ -5961,6 +6038,14 @@ msgstr "La fuente del texto corrido. Se guarda con el libro; el archivo de la fu
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "The font of titles and headings. Settings, Fonts has more."
 msgstr "La fuente de títulos y encabezados. Ajustes, Fuentes tiene más."
+
+#: src/app/dialogs/GoalDialog.tsx
+msgid "The goal could not be cleared: {why}. Try again; nothing was changed."
+msgstr "No se pudo quitar la meta: {why}. Inténtalo de nuevo; no se cambió nada."
+
+#: src/app/dialogs/GoalDialog.tsx
+msgid "The goal could not be saved: {why}. Try again; nothing was changed."
+msgstr "No se pudo guardar la meta: {why}. Inténtalo de nuevo; no se cambió nada."
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "The identifier cannot be empty."
@@ -6676,6 +6761,10 @@ msgstr "Word (.docx)"
 msgid "Word (.docx)…"
 msgstr "Word (.docx)…"
 
+#: src/app/dialogs/GoalDialog.tsx
+msgid "Word goal"
+msgstr "Meta de palabras"
+
 #: src/app/analysis/analysisModel.ts
 #: src/app/shell/Details.tsx
 msgid "Words"
@@ -6738,6 +6827,10 @@ msgstr "Escribe todo el libro como un archivo de Word en formato estándar de ma
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
 msgstr "Escribe todo el libro como un único archivo Markdown en la carpeta de exportaciones, en orden de lectura. No hace falta nada más en este ordenador."
+
+#: src/app/dialogs/GoalDialog.tsx
+msgid "Writing goal"
+msgstr "Meta de escritura"
 
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writing Markdown…"

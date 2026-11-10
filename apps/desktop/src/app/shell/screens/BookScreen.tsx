@@ -187,6 +187,7 @@ function PageFooter({
     <StatusBar
       words={words}
       bookWords={bookWords}
+      goal={manifest.goal}
       section={section}
       chapterNo={chapters.findIndex((c) => c.id === currentId) + 1}
       chapterCount={chapters.length}

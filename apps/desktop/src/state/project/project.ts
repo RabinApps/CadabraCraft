@@ -1,6 +1,7 @@
 import type { ProjectActions } from "./types";
 import type { Ctx } from "./context";
 import { createDetailsActions } from "./book/details";
+import { createGoalActions } from "./book/goal";
 import { createExternalActions } from "./book/external";
 import { createOpenActions } from "./book/open";
 
@@ -9,4 +10,5 @@ export const createProjectActions = (ctx: Ctx): ProjectActions => ({
   ...createExternalActions(ctx),
   ...createOpenActions(ctx),
   ...createDetailsActions(ctx),
+  ...createGoalActions(ctx),
 });
