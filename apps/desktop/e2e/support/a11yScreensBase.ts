@@ -158,6 +158,17 @@ export const baseScreens: Screen[] = [
     },
   },
   {
+    name: "Book details, scene ornament menu open",
+    open: async (p) => {
+      await newProject(p);
+      await p.getByRole("button", { name: "Book details" }).first().click();
+      await dialogOf(p, "Book details")
+        .getByRole("button", { name: /^Scene break/ })
+        .click();
+      await shown(p.getByRole("menu"));
+    },
+  },
+  {
     name: "command palette",
     open: async (p) => {
       await newProject(p);

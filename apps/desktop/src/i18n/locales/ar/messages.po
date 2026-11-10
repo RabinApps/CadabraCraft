@@ -1063,7 +1063,7 @@ msgstr "تقريبي: Typst غير متاح"
 msgid "Ask each time"
 msgstr "اسأل كل مرة"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Asterism"
 msgstr "أستريزم"
 
@@ -1653,6 +1653,7 @@ msgid "Clichés"
 msgstr "الكليشيهات"
 
 #: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/SceneBreakMenu.tsx
 #: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/export/AudioFooter.tsx
 #: src/app/quicknav/QuickPicker.tsx
@@ -2296,7 +2297,7 @@ msgstr "وسوم الحوار"
 msgid "Different speech verbs"
 msgstr "أفعال قول مختلفة"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Dinkus"
 msgstr "دينكوس"
 
@@ -2480,7 +2481,7 @@ msgstr "تحفظ الطبعات الترجمات في الكتاب نفسه وت
 msgid "Editor"
 msgstr "المحرر"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Em dash"
 msgstr "شرطة طويلة"
 
@@ -2761,7 +2762,7 @@ msgstr "لهب"
 msgid "Flesch reading ease"
 msgstr "مؤشر سهولة القراءة لفليش"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Fleuron"
 msgstr "فلورون"
 
@@ -3950,7 +3951,7 @@ msgstr "لم تُضَف قائمة بعد، لذلك لا تُحسب الكلي�
 msgid "No list yet"
 msgstr "لا قائمة بعد"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "No mark"
 msgstr "بدون علامة"
 
@@ -4305,6 +4306,10 @@ msgstr "Opus"
 #: src/app/timeline/Timeline.tsx
 msgid "Order"
 msgstr "الترتيب"
+
+#: src/app/dialogs/SceneBreakMenu.tsx
+msgid "Ornament by template"
+msgstr "الزخرفة حسب القالب"
 
 #: src/app/references/panel/ReferenceFilters.tsx
 msgid "Other"
@@ -5244,6 +5249,10 @@ msgstr "فاصل مشهد"
 msgid "Scene Break"
 msgstr "فاصل مشهد"
 
+#: src/app/dialogs/SceneBreakMenu.tsx
+msgid "Scene ornament"
+msgstr "زخرفة الفاصل بين المشاهد"
+
 #: src/app/scenes/SceneRail.tsx
 msgid "Scene status"
 msgstr "حالة المشهد"
@@ -5877,7 +5886,8 @@ msgstr "قائمة مهام"
 msgid "Template"
 msgstr "القالب"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
+#: src/app/dialogs/SceneBreakMenu.tsx
 msgid "Template default"
 msgstr "افتراضي القالب"
 
@@ -6453,7 +6463,7 @@ msgstr "تعذّرت قراءة نسخة «{title}» في هذه اللقطة ك
 msgid "This version has the same words as the current text."
 msgstr "لهذا الإصدار الكلمات نفسها الموجودة في النص الحالي."
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Three dots"
 msgstr "ثلاث نقاط"
 

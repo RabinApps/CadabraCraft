@@ -1061,7 +1061,7 @@ msgstr ""
 msgid "Ask each time"
 msgstr ""
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Asterism"
 msgstr ""
 
@@ -1651,6 +1651,7 @@ msgid "Clichés"
 msgstr ""
 
 #: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/SceneBreakMenu.tsx
 #: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/export/AudioFooter.tsx
 #: src/app/quicknav/QuickPicker.tsx
@@ -2294,7 +2295,7 @@ msgstr ""
 msgid "Different speech verbs"
 msgstr ""
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Dinkus"
 msgstr ""
 
@@ -2478,7 +2479,7 @@ msgstr ""
 msgid "Editor"
 msgstr ""
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Em dash"
 msgstr ""
 
@@ -2759,7 +2760,7 @@ msgstr ""
 msgid "Flesch reading ease"
 msgstr ""
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Fleuron"
 msgstr ""
 
@@ -3948,7 +3949,7 @@ msgstr ""
 msgid "No list yet"
 msgstr ""
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "No mark"
 msgstr ""
 
@@ -4302,6 +4303,10 @@ msgstr ""
 
 #: src/app/timeline/Timeline.tsx
 msgid "Order"
+msgstr ""
+
+#: src/app/dialogs/SceneBreakMenu.tsx
+msgid "Ornament by template"
 msgstr ""
 
 #: src/app/references/panel/ReferenceFilters.tsx
@@ -5242,6 +5247,10 @@ msgstr ""
 msgid "Scene Break"
 msgstr ""
 
+#: src/app/dialogs/SceneBreakMenu.tsx
+msgid "Scene ornament"
+msgstr ""
+
 #: src/app/scenes/SceneRail.tsx
 msgid "Scene status"
 msgstr ""
@@ -5875,7 +5884,8 @@ msgstr ""
 msgid "Template"
 msgstr ""
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
+#: src/app/dialogs/SceneBreakMenu.tsx
 msgid "Template default"
 msgstr ""
 
@@ -6449,7 +6459,7 @@ msgstr ""
 msgid "This version has the same words as the current text."
 msgstr ""
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Three dots"
 msgstr ""
 

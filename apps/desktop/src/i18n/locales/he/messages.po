@@ -1063,7 +1063,7 @@ msgstr "משוער: Typst אינו זמין"
 msgid "Ask each time"
 msgstr "לשאול בכל פעם"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Asterism"
 msgstr "אסטריזם"
 
@@ -1653,6 +1653,7 @@ msgid "Clichés"
 msgstr "קלישאות"
 
 #: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/SceneBreakMenu.tsx
 #: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/export/AudioFooter.tsx
 #: src/app/quicknav/QuickPicker.tsx
@@ -2296,7 +2297,7 @@ msgstr "תגיות דיבור"
 msgid "Different speech verbs"
 msgstr "פעלי דיבור שונים"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Dinkus"
 msgstr "דינקוס"
 
@@ -2480,7 +2481,7 @@ msgstr "מהדורות שומרות את התרגומים באותו ספר ומ
 msgid "Editor"
 msgstr "עורך"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Em dash"
 msgstr "מקף ארוך"
 
@@ -2761,7 +2762,7 @@ msgstr "להבה"
 msgid "Flesch reading ease"
 msgstr "מדד הקריאות של פלש"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Fleuron"
 msgstr "פלורון"
 
@@ -3950,7 +3951,7 @@ msgstr "עדיין אין רשימה מצורפת, לכן קלישאות אינ�
 msgid "No list yet"
 msgstr "אין רשימה עדיין"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "No mark"
 msgstr "ללא סימן"
 
@@ -4305,6 +4306,10 @@ msgstr "Opus"
 #: src/app/timeline/Timeline.tsx
 msgid "Order"
 msgstr "סדר"
+
+#: src/app/dialogs/SceneBreakMenu.tsx
+msgid "Ornament by template"
+msgstr "קישוט לפי תבנית"
 
 #: src/app/references/panel/ReferenceFilters.tsx
 msgid "Other"
@@ -5244,6 +5249,10 @@ msgstr "מעבר סצנה"
 msgid "Scene Break"
 msgstr "מעבר סצנה"
 
+#: src/app/dialogs/SceneBreakMenu.tsx
+msgid "Scene ornament"
+msgstr "קישוט מעבר סצנה"
+
 #: src/app/scenes/SceneRail.tsx
 msgid "Scene status"
 msgstr "מצב הסצנה"
@@ -5877,7 +5886,8 @@ msgstr "רשימת משימות"
 msgid "Template"
 msgstr "תבנית"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
+#: src/app/dialogs/SceneBreakMenu.tsx
 msgid "Template default"
 msgstr "ברירת מחדל של התבנית"
 
@@ -6453,7 +6463,7 @@ msgstr "לא ניתן לקרוא את העותק של “{title}” בגרסה �
 msgid "This version has the same words as the current text."
 msgstr "בגרסה זו יש אותן מילים כמו בטקסט הנוכחי."
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Three dots"
 msgstr "שלוש נקודות"
 

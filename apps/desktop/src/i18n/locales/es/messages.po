@@ -1063,7 +1063,7 @@ msgstr "Aproximado: Typst no está disponible"
 msgid "Ask each time"
 msgstr "Preguntar cada vez"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Asterism"
 msgstr "Asterismo"
 
@@ -1653,6 +1653,7 @@ msgid "Clichés"
 msgstr "Clichés"
 
 #: src/app/dialogs/HistoryDialog.tsx
+#: src/app/dialogs/SceneBreakMenu.tsx
 #: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/export/AudioFooter.tsx
 #: src/app/quicknav/QuickPicker.tsx
@@ -2296,7 +2297,7 @@ msgstr "Acotaciones de diálogo"
 msgid "Different speech verbs"
 msgstr "Verbos de habla distintos"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Dinkus"
 msgstr "Dinkus"
 
@@ -2480,7 +2481,7 @@ msgstr "Las ediciones guardan las traducciones en el mismo libro y se exportan p
 msgid "Editor"
 msgstr "Editor"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Em dash"
 msgstr "Raya larga"
 
@@ -2761,7 +2762,7 @@ msgstr "Llama"
 msgid "Flesch reading ease"
 msgstr "Índice de legibilidad Flesch"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Fleuron"
 msgstr "Fleurón"
 
@@ -3950,7 +3951,7 @@ msgstr "Todavía no hay una lista incluida, así que los clichés no se cuentan.
 msgid "No list yet"
 msgstr "Sin lista todavía"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "No mark"
 msgstr "Sin marca"
 
@@ -4305,6 +4306,10 @@ msgstr "Opus"
 #: src/app/timeline/Timeline.tsx
 msgid "Order"
 msgstr "Orden"
+
+#: src/app/dialogs/SceneBreakMenu.tsx
+msgid "Ornament by template"
+msgstr "Ornamento por plantilla"
 
 #: src/app/references/panel/ReferenceFilters.tsx
 msgid "Other"
@@ -5244,6 +5249,10 @@ msgstr "Separador de escena"
 msgid "Scene Break"
 msgstr "Separador de escena"
 
+#: src/app/dialogs/SceneBreakMenu.tsx
+msgid "Scene ornament"
+msgstr "Ornamento de escena"
+
 #: src/app/scenes/SceneRail.tsx
 msgid "Scene status"
 msgstr "Estado de la escena"
@@ -5877,7 +5886,8 @@ msgstr "Lista de tareas"
 msgid "Template"
 msgstr "Plantilla"
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
+#: src/app/dialogs/SceneBreakMenu.tsx
 msgid "Template default"
 msgstr "Predeterminado de la plantilla"
 
@@ -6453,7 +6463,7 @@ msgstr "La copia de «{title}» en esta instantánea no se pudo leer como capít
 msgid "This version has the same words as the current text."
 msgstr "Esta versión tiene las mismas palabras que el texto actual."
 
-#: src/app/dialogs/SceneBreakField.tsx
+#: src/app/dialogs/sceneBreakChoices.ts
 msgid "Three dots"
 msgstr "Tres puntos"
 
