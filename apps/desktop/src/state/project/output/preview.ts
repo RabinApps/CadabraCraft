@@ -46,6 +46,7 @@ export const createPreviewActions = (
         book.edition.language,
         book.chapters,
         book.toc,
+        book.generated,
       ]),
     );
     const build = async () => {
@@ -68,6 +69,7 @@ export const createPreviewActions = (
           ...(cropMarks ? { cropMarks: true } : {}),
           ...(Object.keys(book.fonts).length ? { fonts: book.fonts } : {}),
           ...(book.toc ? { toc: book.toc } : {}),
+          ...book.generated,
           assets: Object.fromEntries(assets),
           ...(cover ? { cover: cover.path } : {}),
         },

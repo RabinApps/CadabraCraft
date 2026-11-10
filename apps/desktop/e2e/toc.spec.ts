@@ -85,7 +85,7 @@ test("Contents is a single-use front-matter page; selecting it shows the list in
   await expect(contents(page)).toBeVisible();
   await expect(page.locator(".ProseMirror")).toHaveCount(0);
   const m = await manifestOf(page);
-  expect(m.formatVersion).toBe(13);
+  expect(m.formatVersion).toBe(14);
   expect(m.frontMatter.map((e: { kind: string }) => e.kind)).toEqual(["contents"]);
   expect(await entryTitles(page)).toEqual(["Arrival", "Storm", "Calm"]);
   // A second one cannot be added.

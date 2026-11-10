@@ -15,5 +15,7 @@ export * from "./icons";
 export * from "./comments";
 export * from "./codex";
 export * from "./book/goal";
+export * from "./book/indexSettings";
+export * from "./book/glossarySettings";
 
 export * from "./book/fonts";

@@ -9,6 +9,7 @@ import {
 import { bridge } from "../../../../lib/bridge";
 import { describePdfError } from "../../../../lib/export/pdfErrors";
 import { createTauriRunner } from "../../../../lib/export/typstRunner";
+import { indexingForExport } from "../../../../lib/indexing/pageSpecs";
 import { bookContents, pdfToc } from "../../../../lib/export/tocExport";
 import type { ExportActions } from "../../types";
 import type { Ctx } from "../../context";
@@ -34,13 +35,19 @@ export const createPdfActions = (ctx: Ctx): Pick<ExportActions, "exportPdf"> => 
         if (cover) assets.set(cover.path, cover.bytes);
         set({ exportStage: "rendering" });
         const runner = createTauriRunner(bridge);
+        const { pages: marked, ...generated } = indexingForExport(
+          manifest,
+          chapters,
+          edition.language,
+        );
         const toc = pdfToc(bookContents(manifest, edition.language, chapters));
         // The book's own choice unless the caller names fonts; only the keys that are set (the rest follow the template).
         const fonts = options.fonts ?? resolveBookFonts(manifest);
         const { pdf } = await renderPdf(
           { title: edition.title, author: edition.author, language: edition.language },
-          chapters,
+          marked,
           {
+            ...generated,
             template,
             trimSize: options.trimSize,
             mirrored: true,

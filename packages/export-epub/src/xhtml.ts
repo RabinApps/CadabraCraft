@@ -7,6 +7,7 @@ import {
 } from "@cadabracraft/shared";
 import { EpubExportError, type EpubErrorCode } from "./errors";
 import { backToTextLabel } from "./strings";
+import { glossaryTags, type GlossaryWalk } from "./glossaryMark";
 
 /** Characters XML 1.0 cannot carry at all (not even escaped): most control characters, U+FFFE/U+FFFF and lone surrogates. */
 const XML_ILLEGAL =
@@ -28,7 +29,7 @@ export const esc = (s: string): string => {
     .replace(/"/g, "&quot;");
 };
 
-const MARK_TAGS: Record<Mark["type"], (m: Mark) => [string, string]> = {
+const MARK_TAGS: Record<Exclude<Mark["type"], "glossaryTerm">, (m: Mark) => [string, string]> = {
   bold: () => ["<strong>", "</strong>"],
   italic: () => ["<em>", "</em>"],
   underline: () => ['<span class="underline">', "</span>"],
@@ -42,6 +43,8 @@ const MARK_TAGS: Record<Mark["type"], (m: Mark) => [string, string]> = {
   lang: (m) => [`<span lang="${m.attrs!.lang}" xml:lang="${m.attrs!.lang}">`, "</span>"],
   // Comments are a writing tool: the text is written and the mark is dropped.
   comment: () => ["", ""],
+  // A place in the index: an anchor the generated index links back to. The id was checked by the validator and is safe to write.
+  indexEntry: (m) => [`<span id="idx-${esc(m.attrs?.id ?? "")}">`, "</span>"],
 };
 
 interface Ctx {
@@ -54,6 +57,8 @@ interface Ctx {
   headingIds: boolean;
   /** Headings seen so far. */
   headings: number;
+  /** Writing the links from glossary terms to the glossary page (off when the book has no glossary page). */
+  glossary: GlossaryWalk | undefined;
 }
 
 /** Runs `fn` for child `i` of its parent, so errors thrown inside can name the place. */
@@ -97,7 +102,15 @@ function inline(nodes: DocNode[] | undefined, ctx: Ctx): string {
           let out = esc(n.text);
           // A tab is collapsed to a space by XHTML. In text it is an em space, so the indent the author typed is in the book; code keeps it.
           if (!(n.marks ?? []).some((m) => m.type === "code")) out = out.replace(/\t/g, "\u2003");
-          for (const m of [...(n.marks ?? [])].reverse()) {
+          const marks = n.marks ?? [];
+          const inLink = marks.some((x) => x.type === "link");
+          for (const m of [...marks].reverse()) {
+            if (m.type === "glossaryTerm") {
+              // A link to the glossary page, or plain text (see glossaryMark.ts).
+              const [open, close] = glossaryTags(m.attrs?.id, ctx.glossary, inLink);
+              out = open + out + close;
+              continue;
+            }
             const tags = MARK_TAGS[m.type] as ((m: Mark) => [string, string]) | undefined;
             if (!tags)
               throw fail(
@@ -381,7 +394,7 @@ export const headingAnchor = (index: number): string => `h-${index}`;
  */
 export function chapterToXhtmlBody(
   doc: ChapterDoc,
-  options: { headingIds?: boolean; language?: string } = {},
+  options: { headingIds?: boolean; language?: string; glossary?: GlossaryWalk } = {},
 ): string {
   const language = options.language ?? "en";
   const ctx: Ctx = {
@@ -390,6 +403,7 @@ export function chapterToXhtmlBody(
     path: [],
     headingIds: options.headingIds ?? false,
     headings: 0,
+    glossary: options.glossary,
   };
   const body = doc.content.map((n, i) => at(ctx, n, i, () => block(n, ctx))).join("\n");
   if (!ctx.notes.length) return body;

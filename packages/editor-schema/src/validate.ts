@@ -4,6 +4,9 @@ import {
   isLangTag,
   isValidCommentId,
   isValidEntryId,
+  isValidGlossaryId,
+  isValidIndexEntryId,
+  isValidIndexTerm,
   isValidSceneId,
   safeHref,
   textAlignProblem,
@@ -91,6 +94,28 @@ const NODE_CHECKS: ((n: RawNode) => string | null)[] = [
       (m) => !isValidCommentId(m.attrs?.id),
       (m) =>
         `comment ${JSON.stringify(m.attrs?.id ?? "")} is not allowed (a thread id of a letter, then letters, digits, _ or -, at most 64 characters)`,
+    ),
+  (n) =>
+    markProblem(
+      n,
+      "indexEntry",
+      (m) =>
+        !isValidIndexEntryId(m.attrs?.id) ||
+        !isValidIndexTerm(m.attrs?.term) ||
+        [m.attrs?.sub, m.attrs?.see, m.attrs?.seeAlso].some(
+          (v) => v !== undefined && v !== null && !isValidIndexTerm(v),
+        ) ||
+        (m.attrs?.see != null && m.attrs?.seeAlso != null),
+      (m) =>
+        `index entry ${JSON.stringify(m.attrs?.term ?? "")} is not allowed (an id of a letter, then letters, digits, _ or -; a term, subentry or target of 1 to 120 characters on one line; not both see and seeAlso)`,
+    ),
+  (n) =>
+    markProblem(
+      n,
+      "glossaryTerm",
+      (m) => !isValidGlossaryId(m.attrs?.id),
+      (m) =>
+        `glossary term ${JSON.stringify(m.attrs?.id ?? "")} is not allowed (an entry id of a letter, then letters, digits, _ or -, at most 64 characters)`,
     ),
   (n) => (n.type === "scene" ? sceneProblem(n) : null),
   (n) =>

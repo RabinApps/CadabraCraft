@@ -5,7 +5,7 @@ vi.stubGlobal("localStorage", {
   getItem: (k: string) => store.get(k) ?? null,
   setItem: (k: string, v: string) => void store.set(k, v),
 });
-const { SIDEBAR_DEFAULT_WIDTH, SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH, useLayout } =
+const { SIDEBAR_DEFAULT_WIDTH, SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH, panelPatch, useLayout } =
   await import("../view/layout");
 
 describe("useLayout", () => {
@@ -16,6 +16,8 @@ describe("useLayout", () => {
       details: true,
       references: false,
       comments: false,
+      index: false,
+      glossary: false,
       sidebarWidth: SIDEBAR_DEFAULT_WIDTH,
     });
   });
@@ -26,6 +28,8 @@ describe("useLayout", () => {
       details: true,
       references: false,
       comments: false,
+      index: false,
+      glossary: false,
       sidebarWidth: SIDEBAR_DEFAULT_WIDTH,
     });
     useLayout.getState().set({ details: false });
@@ -34,8 +38,21 @@ describe("useLayout", () => {
       details: false,
       references: false,
       comments: false,
+      index: false,
+      glossary: false,
       sidebarWidth: SIDEBAR_DEFAULT_WIDTH,
     });
+  });
+  it("shows one right-hand panel at a time and remembers the Index and Glossary choice", () => {
+    useLayout.getState().set(panelPatch("index", true));
+    expect(JSON.parse(store.get("cadabracraft.layout")!)).toMatchObject({
+      index: true,
+      glossary: false,
+    });
+    useLayout.getState().set(panelPatch("glossary", true));
+    expect(useLayout.getState()).toMatchObject({ index: false, glossary: true, comments: false });
+    useLayout.getState().set(panelPatch("glossary", false));
+    expect(useLayout.getState().glossary).toBe(false);
   });
   it("keeps the sidebar width within its limits and persists it", () => {
     useLayout.getState().set({ sidebarWidth: 500 });

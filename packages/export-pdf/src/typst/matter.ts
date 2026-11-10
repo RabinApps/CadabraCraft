@@ -248,12 +248,14 @@ export function bodyOf(
     st.prev = kind;
     ctx.headingKeys = ctx.tocHeadings?.get(page.id);
     ctx.headingNo = 0;
-    const content =
+    const body =
       (kind === undefined && (page.dropCap ?? dropCap)
         ? dropCapOpening(doc.content, ctx, indentEm, index, dropped)
         : null) ??
       (ctx.marks ? markedBlocks(doc.content, ctx, index, dropped) : blocks(doc.content, ctx));
-    out.push(pageSource(page, kind, content, doc, st));
+    // The index and the glossary are written under their title by their own code (see generated.ts).
+    const tail = ctx.generatedTails?.get(page.id);
+    out.push(pageSource(page, kind, tail === undefined ? body : `${body}\n\n${tail}`, doc, st));
   }
   return out.join("\n");
 }

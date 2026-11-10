@@ -23,6 +23,7 @@ import type { FontUiError } from "../../lib/font/fontErrors";
 import type { RemovedReference } from "../../lib/references/referenceKinds";
 import type { DroppedItem } from "../../lib/references/dropped";
 import type { PreviewTarget } from "../../lib/export/previewTarget";
+import type { IndexActions } from "./indexing/types";
 
 export interface PdfExportOptions extends ExportScope {
   trimSize: TrimSize;
@@ -275,7 +276,8 @@ export interface ProjectState {
     VoiceActions &
     FontActions &
     EditionActions &
-    CommentActions;
+    CommentActions &
+    IndexActions;
 }
 
 export interface ReferenceActions {

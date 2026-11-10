@@ -142,14 +142,14 @@ function writeTarget(manifest: Manifest, entry: EditionEntry, language: string):
   };
 }
 
-interface Written {
+export interface Written {
   hash: string;
   conflictCopy: string | null;
   backup: string | null;
 }
 
 /** Replaces a chapter file. The previous version is kept: as a conflict copy when baseHash shows it changed outside, else as a backup. */
-function replaceChapter(root: string, file: string, doc: unknown, baseHash: string | undefined): Written {
+export function replaceChapter(root: string, file: string, doc: unknown, baseHash: string | undefined): Written {
   const text = json(doc);
   const existing = readProjectFile(root, file);
   const conflicts = !!(baseHash && existing && existing.hash !== baseHash);

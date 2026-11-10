@@ -1,10 +1,11 @@
-import { isCodexFile, sourceFileById } from "@cadabracraft/format";
+import { isCodexFile, sourceFileById, type Manifest, type TocItem } from "@cadabracraft/format";
 import { t } from "@lingui/core/macro";
 import { buildEpub } from "@cadabracraft/export-epub";
 import {
   bookToMarkdown,
   chapterToMarkdown,
   MarkdownExportError,
+  type MarkdownOptions,
 } from "@cadabracraft/export-markdown";
 import { OUTLINE_FORMATS, buildOutline, serializeOutline } from "@cadabracraft/outline";
 import {
@@ -15,8 +16,9 @@ import {
 } from "@cadabracraft/templates";
 import { bridge } from "../../../../lib/bridge";
 import { describeEpubError } from "../../../../lib/export/epubErrors";
+import { indexingForExport } from "../../../../lib/indexing/pageSpecs";
 import { bookContents } from "../../../../lib/export/tocExport";
-import type { ExportActions } from "../../types";
+import type { BookPage, ExportActions } from "../../types";
 import type { Ctx } from "../../context";
 import { left } from "./shared";
 
@@ -29,6 +31,33 @@ const readCodex = (root: string) =>
       return isCodexFile(parsed) ? parsed.entries : [];
     })
     .catch(() => []);
+
+/**
+ * The book as Markdown. The library's error does not say where, so a failure names the first page that fails (a page with an empty
+ * title is named by its file instead).
+ */
+function markdownOf(
+  manifest: Manifest,
+  meta: { title: string; author: string },
+  pages: { chapters: BookPage[]; marked: BookPage[] },
+  how: { opts: MarkdownOptions; contents: { items: TocItem[] } | undefined },
+): string {
+  try {
+    return bookToMarkdown(meta, pages.marked, how.opts, how.contents);
+  } catch (e) {
+    if (!(e instanceof MarkdownExportError)) throw e;
+    const bad = pages.chapters.find((c) => {
+      try {
+        chapterToMarkdown(c.doc, how.opts);
+        return false;
+      } catch {
+        return true;
+      }
+    });
+    const where = bad && (bad.title.trim() || sourceFileById(manifest, bad.id)!);
+    throw new Error(where ? t`In “${where}”: ${e.message}` : e.message, { cause: e });
+  }
+}
 
 /** The EPUB, Markdown and outline exports. */
 export const createBookActions = (
@@ -50,6 +79,11 @@ export const createBookActions = (
         const template = getTemplate(
           hasTemplate(manifest.template) ? manifest.template : DEFAULT_TEMPLATE_ID,
         );
+        const { pages: marked, ...generated } = indexingForExport(
+          manifest,
+          chapters,
+          edition.language,
+        );
         const bytes = buildEpub(
           {
             title: edition.title,
@@ -60,10 +94,11 @@ export const createBookActions = (
             publishing: edition.publishing,
             modified: new Date(),
           },
-          chapters,
+          marked,
           {
             assets,
             cover,
+            ...generated,
             ...(contents ? { contents: contents.visible } : {}),
             css: template.epub.css,
             ...(manifest.sceneBreak === undefined ? {} : { sceneBreak: manifest.sceneBreak }),
@@ -92,35 +127,24 @@ export const createBookActions = (
         if (!chapters.length)
           throw new Error(t`The book has no pages to export yet. Add a chapter first.`);
         set({ exportStage: "rendering" });
+        const { pages: marked, ...generated } = indexingForExport(
+          manifest,
+          chapters,
+          edition.language,
+        );
         const opts = {
+          ...generated,
           htmlMarks,
           imageBase: "../",
           ...(manifest.sceneBreak === undefined ? {} : { sceneBreak: manifest.sceneBreak }),
         };
         const contents = bookContents(manifest, edition.language, chapters);
-        let markdown: string;
-        try {
-          markdown = bookToMarkdown(
-            { title: edition.title, author: edition.author },
-            chapters,
-            opts,
-            contents && { items: contents.visible },
-          );
-        } catch (e) {
-          if (!(e instanceof MarkdownExportError)) throw e;
-          // The library's message does not say where; find the first page that fails so the author can.
-          const bad = chapters.find((c) => {
-            try {
-              chapterToMarkdown(c.doc, opts);
-              return false;
-            } catch {
-              return true;
-            }
-          });
-          // A page with an empty title is named by its file instead.
-          const where = bad && (bad.title.trim() || sourceFileById(manifest, bad.id)!);
-          throw new Error(where ? t`In “${where}”: ${e.message}` : e.message, { cause: e });
-        }
+        const markdown = markdownOf(
+          manifest,
+          { title: edition.title, author: edition.author },
+          { chapters, marked },
+          { opts, contents: contents && { items: contents.visible } },
+        );
         set({ exportStage: "saving" });
         await bridge.writeBytes(root, `${dir}/book.md`, new TextEncoder().encode(markdown));
         set({ notice: t`Exported ${dir}/book.md` + left(skipped.length) });

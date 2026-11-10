@@ -11,7 +11,15 @@ import {
   TaskItem,
   TaskList,
 } from "./nodes/lists";
-import { Comment, Lang, SmallCaps, Subscript, Superscript } from "./marks/marks";
+import {
+  Comment,
+  GlossaryTerm,
+  IndexEntry,
+  Lang,
+  SmallCaps,
+  Subscript,
+  Superscript,
+} from "./marks/marks";
 import { TextAlignment } from "./alignment";
 
 /**
@@ -54,6 +62,8 @@ export const extensions = [
   Subscript,
   Lang,
   Comment,
+  IndexEntry,
+  GlossaryTerm,
   Footnote,
   BookTable,
   BookTableRow,

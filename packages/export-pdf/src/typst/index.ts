@@ -10,6 +10,7 @@ import {
 import { PdfExportError } from "../errors";
 import type { Ctx } from "./ctx";
 import { coverAlt } from "../strings";
+import { generatedDefs, generatedPages } from "./generated";
 import { bodyOf, coverPage } from "./matter";
 import { resolveFonts, resolveMargins, resolveTemplate } from "./options";
 import { preamble } from "./preamble";
@@ -58,7 +59,7 @@ export function buildTypstDocument(
   const head = preamble(book, t, options, { fonts: resolved, margins, hasFront });
   const cover = options.cover === undefined ? "" : coverPage(options.cover, ctx);
   const body = bodyOf(
-    chapters,
+    [...chapters, ...generatedPages(book, chapters, options, ctx)],
     ctx,
     t.print.chapterOpening.dropCap,
     t.print.paragraph.style === "indent" ? t.print.paragraph.indentEm : 0,
@@ -72,7 +73,7 @@ export function buildTypstDocument(
     : "";
   const droplet = ctx.usesDropCap ? '#import "typst-droplet/lib.typ": dropcap\n' : "";
   return {
-    source: `${head}\n${tocHead}${droplet}${cover}${body}${pageReport(hasFront, options.pageNumbers ?? true, options.blockMarks === true)}`,
+    source: `${head}\n${tocHead}${generatedDefs(options, hasFront)}${droplet}${cover}${body}${pageReport(hasFront, options.pageNumbers ?? true, options.blockMarks === true)}`,
     images: ctx.images,
     fonts: resolved,
     usesDropCap: ctx.usesDropCap === true,

@@ -22,6 +22,8 @@ export interface Ctx {
   /** While a page entry is written: its headings that get a mark, and how many headings were written so far. */
   headingKeys?: Map<number, string> | undefined;
   headingNo: number;
+  /** Generated pages (the index and the glossary): page id -> Typst source written under the page title. */
+  generatedTails?: Map<string, string>;
 }
 
 export const unsupported = (type: string): never => {

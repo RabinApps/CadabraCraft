@@ -45,7 +45,7 @@ it("opens a version 10 manifest without changing it, and defaults its contents p
   const r = parseManifest(json);
   expect(r.migrated).toBe(true);
   expect(r.fromVersion).toBe(10);
-  expect(r.manifest.formatVersion).toBe(13);
+  expect(r.manifest.formatVersion).toBe(14);
   expect(r.manifest.chapters).toEqual(v10.chapters);
   const contents = r.manifest.frontMatter.find((e) => e.kind === "contents")!;
   expect(tocSettingsOf(contents).parts).toBe(true);
@@ -150,10 +150,10 @@ describe("part pages", () => {
 
   it("writes 12 as the format version and opens an older manifest", () => {
     const m = book();
-    expect(JSON.parse(serializeManifest(m)).formatVersion).toBe(13);
+    expect(JSON.parse(serializeManifest(m)).formatVersion).toBe(14);
     const old = JSON.parse(serializeManifest(m));
     old.formatVersion = 10;
-    expect(validateManifest({ ...old, formatVersion: 13 }).chapters[1]!.kind).toBe("part");
+    expect(validateManifest({ ...old, formatVersion: 14 }).chapters[1]!.kind).toBe("part");
   });
 });
 

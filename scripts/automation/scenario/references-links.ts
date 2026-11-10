@@ -43,7 +43,7 @@ export async function linkAndNoteSteps({ app, book, shot, step }: Context) {
     await submit("Add note");
     await app.sleep(1000);
     const m = manifest();
-    assert(m.formatVersion === 13, `format version ${m.formatVersion}`);
+    assert(m.formatVersion === 14, `format version ${m.formatVersion}`);
     assert(
       m.references.length === 2 &&
         m.references[0].kind === "link" &&

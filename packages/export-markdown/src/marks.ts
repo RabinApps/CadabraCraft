@@ -34,7 +34,8 @@ function canonicalMarks(marks: Mark[] | undefined, ctx: Ctx): Mark[] {
   const out: Mark[] = [];
   for (const m of marks ?? []) {
     // Comments are a writing tool: the text is written and the mark is dropped.
-    if ((m as { type?: unknown }).type === "comment") continue;
+    const t0 = (m as { type?: unknown }).type;
+    if (t0 === "comment" || t0 === "indexEntry" || t0 === "glossaryTerm") continue;
     const type = (m as { type?: unknown }).type;
     if (!MARK_ORDER.includes(type as Mark["type"]))
       throw new MarkdownExportError(`Unsupported mark type in chapter: ${String(type)}`);

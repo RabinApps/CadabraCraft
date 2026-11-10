@@ -1,13 +1,24 @@
 import { sourceFileById } from "@cadabracraft/format";
-import type { SceneBreakOrnamentId } from "@cadabracraft/shared";
+import type { GlossaryPageSpec, IndexPageSpec, SceneBreakOrnamentId } from "@cadabracraft/shared";
 import { t } from "@lingui/core/macro";
 import { buildDocx } from "@cadabracraft/export-docx";
 import { buildRtf } from "@cadabracraft/export-rtf";
 import { bridge } from "../../../../lib/bridge";
+import { indexingForExport } from "../../../../lib/indexing/pageSpecs";
 import { bookContents } from "../../../../lib/export/tocExport";
 import type { ExportActions, ExportScope } from "../../types";
 import type { Ctx } from "../../context";
 import { left } from "./shared";
+
+/** What a manuscript is built from besides the book's title, author and language. */
+interface ManuscriptInput {
+  pages: Parameters<typeof buildDocx>[1];
+  assets: Map<string, Uint8Array>;
+  contents: ReturnType<typeof bookContents>;
+  sceneBreak: SceneBreakOrnamentId | undefined;
+  /** The index and glossary pages, only the ones the author switched on. */
+  generated: { index?: IndexPageSpec; glossary?: GlossaryPageSpec };
+}
 
 /** The Word and Rich Text manuscripts. */
 export const createManuscriptActions = (
@@ -20,10 +31,7 @@ export const createManuscriptActions = (
     file: string,
     build: (
       book: { title: string; author: string; language: string },
-      pages: Parameters<typeof buildDocx>[1],
-      assets: Map<string, Uint8Array>,
-      contents: ReturnType<typeof bookContents>,
-      sceneBreak: SceneBreakOrnamentId | undefined,
+      input: ManuscriptInput,
     ) => Uint8Array,
   ) => {
     if (get().exportStage) throw new Error(t`An export is already running`);
@@ -39,13 +47,15 @@ export const createManuscriptActions = (
       set({ exportStage: "rendering" });
       const contents = bookContents(manifest, edition.language, chapters);
       // A page with an empty title is named by its file in error messages.
-      const pages = chapters.map((c) => ({ ...c, id: sourceFileById(manifest, c.id)! }));
+      const { pages: marked, ...generated } = indexingForExport(
+        manifest,
+        chapters,
+        edition.language,
+      );
+      const pages = marked.map((c) => ({ ...c, id: sourceFileById(manifest, c.id)! }));
       const bytes = build(
         { title: edition.title, author: edition.author, language: edition.language },
-        pages,
-        assets,
-        contents,
-        manifest.sceneBreak,
+        { pages, assets, contents, sceneBreak: manifest.sceneBreak, generated },
       );
       set({ exportStage: "saving" });
       await bridge.writeBytes(root, `${dir}/${file}`, bytes);
@@ -59,12 +69,13 @@ export const createManuscriptActions = (
       const { dir, skipped } = await writeManuscript(
         scope,
         "manuscript.docx",
-        (book, pages, assets, contents, sceneBreak) =>
+        (book, { pages, assets, contents, sceneBreak, generated }) =>
           buildDocx(book, pages, {
             assets,
             font,
             sceneBreak,
             modified: new Date(),
+            ...generated,
             ...(contents ? { contents: contents.visible } : {}),
           }),
       );
@@ -74,7 +85,7 @@ export const createManuscriptActions = (
       const { dir, skipped } = await writeManuscript(
         scope,
         "manuscript.rtf",
-        (book, pages, assets, contents, sceneBreak) =>
+        (book, { pages, assets, contents, sceneBreak, generated }) =>
           // RTF is 7-bit ASCII (everything else is a \u escape), so UTF-8 encoding is the same bytes.
           new TextEncoder().encode(
             buildRtf(book, pages, {
@@ -82,6 +93,7 @@ export const createManuscriptActions = (
               font,
               sceneBreak,
               modified: new Date(),
+              ...generated,
               ...(contents ? { contents: contents.visible } : {}),
             }),
           ),

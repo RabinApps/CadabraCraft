@@ -10,6 +10,8 @@ import {
   type BookMetadata,
   type EntryKind,
   type ChapterDoc,
+  type GlossaryPageSpec,
+  type IndexPageSpec,
   type SceneBreakOrnamentId,
   type MatterKind,
   type Section,
@@ -20,6 +22,8 @@ import { contentsList, listedItems, type ContentsItem } from "./contents";
 import { COVER_PAGE, navBody, packageOpf, xmlHead, type Cover } from "./package";
 import { sceneBreakCss } from "./sceneBreak";
 import { chapterToXhtmlBody, collectImageSources, esc, headingAnchor } from "./xhtml";
+import { GENERATED_CSS, GLOSSARY_PAGE, INDEX_PAGE, glossaryBody, indexBody } from "./generated";
+import type { GlossaryLinks } from "./glossaryMark";
 
 export type { ContentsItem } from "./contents";
 
@@ -78,7 +82,14 @@ const BACK_TYPES: Partial<Record<MatterKind, string>> = {
 };
 
 /** Ids that the package itself uses for its own files and manifest items. */
-const RESERVED_IDS = new Set(["nav", "css", COVER_PAGE, "epub-cover-image"]);
+const RESERVED_IDS = new Set([
+  "nav",
+  "css",
+  COVER_PAGE,
+  "epub-cover-image",
+  INDEX_PAGE,
+  GLOSSARY_PAGE,
+]);
 
 /** Chapter ids become file names and XML ids, so they must be plain, unique and not clash with the package's own items. */
 function checkIds(chapters: EpubChapter[]): void {
@@ -165,6 +176,10 @@ export interface BuildOptions {
    * (a reflowable book has none). Not given: the navigation lists the pages as before and a contents page shows only its own text.
    */
   contents?: readonly ContentsItem[];
+  /** The back-of-book index, already built (see `buildIndex`). Written as a page at the end of the book, linked from the navigation and the landmarks; each term links to the anchors the chapters write at the marked words. */
+  index?: IndexPageSpec;
+  /** The glossary, already built (see `buildGlossary`). Written as a page after the index; with `markFirstUse` the first use of each term in a chapter links to its entry, and the entry links back. */
+  glossary?: GlossaryPageSpec;
 }
 
 /** Builds an EPUB3 package as bytes. Output is deterministic for a given input. Throws an `EpubExportError` (naming the page and the place in it) for an unknown node or mark, a malformed table, a heading level outside 1-3, a nested footnote, an XML-illegal character, an invalid or duplicate page id, or a referenced image that is not an allowed `assets/` image or has no bytes. */
@@ -242,11 +257,13 @@ interface PageContext {
   shown: readonly ContentsItem[] | undefined;
   known: ReadonlySet<string>;
   page: PageFn;
+  /** The links from glossary terms to the glossary page; absent when the book has none. */
+  glossary: GlossaryLinks | undefined;
 }
 
 /** One chapter or matter page as an XHTML document. */
 function chapterPage(c: EpubChapter, pc: PageContext): string {
-  const { meta, options, shown, known, page } = pc;
+  const { meta, options, shown, known, page, glossary } = pc;
   const { type, cls: base } = semantics(c);
   // A break as the page's first block asks for nothing (the page is a document of its own, already at the top); kept, it would draw
   // a break at the top of the page.
@@ -257,6 +274,7 @@ function chapterPage(c: EpubChapter, pc: PageContext): string {
     body = chapterToXhtmlBody(doc, {
       headingIds: shown !== undefined,
       language: meta.language,
+      glossary: glossary && { links: glossary, chapterId: c.id, seen: new Set() },
     });
   } catch (e) {
     throw e instanceof EpubExportError ? e.inChapter({ id: c.id, title: c.title }) : e;
@@ -300,15 +318,55 @@ export function buildEpub(
   if (cover) files[`OEBPS/${COVER_PAGE}.xhtml`] = strToU8(coverPage(meta, cover, page));
   const shown = options.contents === undefined ? undefined : listedItems(options.contents);
   const known = new Set(chapters.map((c) => c.id));
-  const pc: PageContext = { meta, options, shown, known, page };
+  const glossary = options.glossary?.items.length ? options.glossary : undefined;
+  const glossaryLinks: GlossaryLinks | undefined = glossary && {
+    ids: new Set(glossary.items.map((i) => i.entry.id)),
+    markFirstUse: glossary.markFirstUse,
+    page: GLOSSARY_PAGE,
+    written: new Map(),
+  };
+  const pc: PageContext = { meta, options, shown, known, page, glossary: glossaryLinks };
   for (const c of chapters) files[`OEBPS/${c.id}.xhtml`] = strToU8(chapterPage(c, pc));
-  files["OEBPS/nav.xhtml"] = strToU8(
-    page(meta.title, navBody(meta, chapters, shown, known, cover)),
-  );
+  // The index and glossary are generated from the marks, after the author's pages; one with nothing to list is left out.
+  const generated: EpubChapter[] = [];
+  const addGenerated = (id: string, title: string, body: string, cls: string, type: string) => {
+    generated.push({
+      id,
+      title,
+      doc: { type: "doc", content: [] },
+      section: "back",
+      kind: "custom",
+    });
+    files[`OEBPS/${id}.xhtml`] = strToU8(page(title, body, ` epub:type="${type}" class="${cls}"`));
+  };
+  const index = options.index?.tree.groups.length ? options.index : undefined;
+  if (index)
+    addGenerated(
+      INDEX_PAGE,
+      index.heading,
+      indexBody(index, meta.language),
+      "generated-index",
+      "backmatter index",
+    );
+  if (glossary && glossaryLinks)
+    addGenerated(
+      GLOSSARY_PAGE,
+      glossary.heading,
+      glossaryBody(glossary, glossaryLinks, meta.language),
+      "generated-glossary",
+      "backmatter glossary",
+    );
+  const all = [...chapters, ...generated];
+  // The style for the generated pages goes after the scene-break rule, and only into books that have them.
+  if (generated.length > 0)
+    files["OEBPS/style.css"] = strToU8(
+      `${options.css ?? CSS}\n${ALIGN_CSS}${sceneBreakCss(options.sceneBreak)}${GENERATED_CSS}`,
+    );
+  files["OEBPS/nav.xhtml"] = strToU8(page(meta.title, navBody(meta, all, shown, known, cover)));
   files["OEBPS/content.opf"] = strToU8(
     packageOpf({
       meta,
-      chapters,
+      chapters: all,
       cover,
       coverType,
       imageItems: images.items,

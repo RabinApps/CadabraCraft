@@ -13,5 +13,10 @@ export const isValidEntryId = (id: string): boolean => ENTRY_ID.test(id);
 export const isValidCommentId = (id: unknown): boolean =>
   typeof id === "string" && ENTRY_ID.test(id);
 
+/** An index entry's place id (`indexEntry` mark) and a glossary entry's id (`glossaryTerm` mark) follow the same rule as comment ids. */
+export const isValidIndexEntryId = (id: unknown): boolean =>
+  typeof id === "string" && ENTRY_ID.test(id);
+export const isValidGlossaryId = isValidIndexEntryId;
+
 /** A scene's id names it in its chapter's `scene` node, so it follows the same rule as page ids. */
 export const isValidSceneId = (id: unknown): boolean => typeof id === "string" && ENTRY_ID.test(id);

@@ -45,8 +45,14 @@ function wrapMark(content: string, m: Mark): string {
       return linkMark(content, m);
     case "lang":
       return langMark(content, m);
+    case "indexEntry":
+      // A place for the index page to look up: an invisible mark, then the words. `#[...]` after the call, so text that starts with
+      // a bracket, a parenthesis or a dot cannot be read as part of it.
+      return `#mark("index-place", info: (id: ${typstString(m.attrs?.id ?? "")}))#[${content}]`;
     case "comment":
-      // Comments are a writing tool, never printed: the text stays and the mark goes.
+    case "glossaryTerm":
+      // Comments are a writing tool, never printed. A glossary term is collected into the glossary page at export time (it has no
+      // page numbers). In both the text stays and the mark goes.
       return content;
     default:
       return unsupported(`mark:${String((m as { type: unknown }).type)}`);

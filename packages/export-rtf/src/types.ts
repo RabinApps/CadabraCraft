@@ -1,4 +1,11 @@
-import type { ChapterDoc, EntryKind, SceneBreakOrnamentId, Section } from "@cadabracraft/shared";
+import type {
+  ChapterDoc,
+  EntryKind,
+  GlossaryPageSpec,
+  IndexPageSpec,
+  SceneBreakOrnamentId,
+  Section,
+} from "@cadabracraft/shared";
 
 export interface RtfBook {
   title: string;
@@ -52,6 +59,13 @@ export interface RtfOptions {
   modified?: Date;
   /** Scene-break mark (see `SCENE_BREAK_ORNAMENT_IDS`). Absent keeps the exporter's own mark; an unknown id throws. */
   sceneBreak?: SceneBreakOrnamentId;
+  /**
+   * The back-of-book index, already built (`buildIndex`). Written as a last page: each term lists the titles of the pages it is marked on
+   * (a count when a page has it more than once), because Word numbers its own pages. Left out when it has nothing to list.
+   */
+  index?: IndexPageSpec;
+  /** The glossary, already built (`buildGlossary`), written after the index: each term in bold with its definition. */
+  glossary?: GlossaryPageSpec;
 }
 
 export interface Shared {

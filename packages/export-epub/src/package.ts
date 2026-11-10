@@ -9,6 +9,7 @@ import { accessibilityMetadata } from "./a11y";
 import { contentsList, type ContentsItem } from "./contents";
 import { contentsHeading, coverLabel, landmarksHeading, startOfContentLabel } from "./strings";
 import { esc, imageAltStats } from "./xhtml";
+import { GLOSSARY_PAGE, INDEX_PAGE } from "./generated";
 import type { EpubChapter } from "./epub";
 
 export const COVER_PAGE = "epub-cover";
@@ -58,7 +59,13 @@ export function navBody(
 ): string {
   // The contents lists chapters and reading sections; if that leaves nothing (only a title page, say) it lists every page.
   const listed = chapters.filter(listedInToc);
-  const navList = shown !== undefined ? contentsList(shown, known, true) : "";
+  // The generated index and glossary pages follow the contents list the author arranged.
+  const generated = chapters.filter((c) => c.id === INDEX_PAGE || c.id === GLOSSARY_PAGE);
+  const extra = generated
+    .map((c) => `<li><a href="${c.id}.xhtml">${esc(c.title)}</a></li>`)
+    .join("");
+  const navList =
+    shown !== undefined ? contentsList(shown, known, true).replace(/<\/ol>$/, `${extra}</ol>`) : "";
   const toc =
     navList !== ""
       ? navList
@@ -77,7 +84,12 @@ export function navBody(
     start
       ? `<li><a epub:type="bodymatter" href="${start.id}.xhtml">${esc(startOfContentLabel(meta.language))}</a></li>`
       : ""
-  }<li><a epub:type="toc" href="nav.xhtml#toc">${esc(contents)}</a></li></ol></nav>`;
+  }<li><a epub:type="toc" href="nav.xhtml#toc">${esc(contents)}</a></li>${generated
+    .map(
+      (c) =>
+        `<li><a epub:type="${c.id === INDEX_PAGE ? "index" : "glossary"}" href="${c.id}.xhtml">${esc(c.title)}</a></li>`,
+    )
+    .join("")}</ol></nav>`;
   return `<nav epub:type="toc" role="doc-toc" id="toc"><h1>${esc(contents)}</h1>${toc}</nav>${landmarks}`;
 }
 

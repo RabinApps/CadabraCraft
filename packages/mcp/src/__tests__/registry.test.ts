@@ -22,6 +22,15 @@ const EXPECTED = [
   "cadabra_reference_update",
   "cadabra_toc_get",
   "cadabra_toc_update",
+  "cadabra_index_list",
+  "cadabra_index_add",
+  "cadabra_index_remove",
+  "cadabra_index_settings",
+  "cadabra_glossary_list",
+  "cadabra_glossary_add",
+  "cadabra_glossary_update",
+  "cadabra_glossary_remove",
+  "cadabra_glossary_settings",
   "cadabra_export_epub",
   "cadabra_export_pdf",
   "cadabra_export_markdown",
@@ -43,6 +52,8 @@ const READ_ONLY = [
   "list_templates",
   "reference_list",
   "toc_get",
+  "index_list",
+  "glossary_list",
 ].map((n) => `cadabra_${n}`);
 
 describe("tool registry", () => {
@@ -81,6 +92,9 @@ describe("tool registry", () => {
     });
     expect(by["cadabra_toc_get"]!.idempotentHint).toBe(true);
     expect(by["cadabra_export_epub"]!.destructiveHint).toBe(false);
+    expect(by["cadabra_index_remove"]!.destructiveHint).toBe(true);
+    expect(by["cadabra_glossary_remove"]!.destructiveHint).toBe(true);
+    expect(by["cadabra_index_add"]!.destructiveHint).toBe(false);
   });
 
   it("serves the two docs as resources", async () => {

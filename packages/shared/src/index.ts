@@ -6,6 +6,8 @@ export * from "./matter";
 export * from "./isbn";
 export * from "./textAlign";
 export * from "./sprint";
+export * from "./indexing/limits";
+export * from "./indexing";
 
 /** TipTap/ProseMirror JSON, the on-disk chapter format and the editor/exporter contract. */
 export interface Mark {
@@ -20,9 +22,23 @@ export interface Mark {
     | "subscript"
     | "link"
     | "lang"
-    | "comment";
-  /** `href` belongs to `link`; `lang` (a BCP 47 tag) to `lang`; `id` (a thread id) to `comment`. */
-  attrs?: { href?: string; lang?: string; id?: string };
+    | "comment"
+    | "indexEntry"
+    | "glossaryTerm";
+  /**
+   * `href` belongs to `link`; `lang` (a BCP 47 tag) to `lang`; `id` (a thread id) to `comment`. An `indexEntry` carries
+   * `id` (this one place), `term`, and optionally `sub` (a subentry), `see` or `seeAlso` (another term); a `glossaryTerm`
+   * carries `id`, the glossary entry in the manifest.
+   */
+  attrs?: {
+    href?: string;
+    lang?: string;
+    id?: string;
+    term?: string;
+    sub?: string;
+    see?: string;
+    seeAlso?: string;
+  };
 }
 
 export type DocNode =

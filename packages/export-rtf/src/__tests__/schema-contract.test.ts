@@ -113,6 +113,8 @@ const NODE_SAMPLES: Record<string, ChapterDoc> = {
 
 const MARK_SAMPLES: Record<string, Mark> = {
   comment: { type: "comment", attrs: { id: "t-1" } },
+  indexEntry: { type: "indexEntry", attrs: { id: "ix-1", term: "orchard", sub: "wall" } },
+  glossaryTerm: { type: "glossaryTerm", attrs: { id: "g-1" } },
   bold: { type: "bold" },
   italic: { type: "italic" },
   underline: { type: "underline" },

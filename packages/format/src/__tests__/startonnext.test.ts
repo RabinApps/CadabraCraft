@@ -110,7 +110,7 @@ describe("migration v9 -> v10", () => {
     const r = parseManifest(json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(9);
-    expect(CURRENT_FORMAT_VERSION).toBe(13);
+    expect(CURRENT_FORMAT_VERSION).toBe(14);
     expect(r.manifest.frontMatter.some((e) => e.startOnNext !== undefined)).toBe(false);
     // What v9 added is still there.
     expect(r.manifest.frontMatter.find((e) => e.kind === "dedication")!.verticalCenter).toBe(true);
@@ -118,7 +118,7 @@ describe("migration v9 -> v10", () => {
     for (const e of expected.frontMatter) if (e.toc) e.toc.parts = true;
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
       ...kinded(expected),
-      formatVersion: 13,
+      formatVersion: 14,
     });
   });
 });

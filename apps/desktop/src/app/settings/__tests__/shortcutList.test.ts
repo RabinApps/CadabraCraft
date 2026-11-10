@@ -59,6 +59,9 @@ function registeredEditorCombos(): string[] {
   return [...combos];
 }
 
+/** Editor commands with a key of their own that the app handles at window level (`useMarkDialogs`), not through TipTap. */
+const WINDOW_LEVEL = ["editor.indexEntry", "editor.glossaryTerm"];
+
 describe("the shortcut list", () => {
   const list = buildShortcuts();
   const listed = new Set(list.flatMap((s) => s.combos));
@@ -83,14 +86,18 @@ describe("the shortcut list", () => {
   });
 
   it("does not list a key the editor does not have", () => {
-    const editorOnly = list.filter((s) => s.id.startsWith("editor."));
+    const editorOnly = list.filter(
+      (s) => s.id.startsWith("editor.") && !WINDOW_LEVEL.includes(s.id),
+    );
     const registered = new Set(registeredEditorCombos());
     for (const s of editorOnly)
       for (const c of s.combos) expect(registered.has(c), `${s.id} ${c}`).toBe(true);
   });
 
   it("can rebind exactly the editor keys that are not fixed, and the schema agrees with the list on the defaults", () => {
-    const rebindable = list.filter((s) => s.id.startsWith("editor.") && !s.fixed);
+    const rebindable = list.filter(
+      (s) => s.id.startsWith("editor.") && !s.fixed && !WINDOW_LEVEL.includes(s.id),
+    );
     expect(rebindable.map((s) => s.id).sort()).toEqual(Object.keys(EDITOR_KEY_COMMANDS).sort());
     for (const s of rebindable)
       expect(s.combos, s.id).toEqual([comboFromTiptapKey(EDITOR_KEY_COMMANDS[s.id]!.key)]);

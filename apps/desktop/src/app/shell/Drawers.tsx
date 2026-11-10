@@ -4,6 +4,9 @@ import { X } from "lucide-react";
 import { IconButton } from "../../ui/Button";
 import { overlayClass, panelClass } from "../../ui/Dialog";
 import { cx } from "../../ui/cx";
+import { GlossaryPanel } from "../indexing/GlossaryPanel";
+import { IndexPanel } from "../indexing/IndexPanel";
+import { useIndexSheets } from "../indexing/useIndexSheets";
 import { CommentsPanel } from "../comments/CommentsPanel";
 import { ReferencesPanel } from "../references/ReferencesPanel";
 import { ScenesPanel } from "../scenes/ScenesPanel";
@@ -135,6 +138,51 @@ export function CommentsSheet({
         >
           <D.Title className="sr-only">{t`Comments`}</D.Title>
           <CommentsPanel onClose={() => onOpenChange(false)} />
+        </D.Content>
+      </D.Portal>
+    </D.Root>
+  );
+}
+
+const sheetClass = cx(
+  panelClass,
+  "inset-x-0 bottom-0 h-[80dvh] overflow-hidden rounded-t-lg bg-surface xl:hidden",
+  "md:inset-y-0 md:inset-e-0 md:inset-s-auto md:h-auto md:w-100 md:rounded-none md:border-e-0",
+);
+
+/** The Index panel as a sheet (bottom on phones, right on tablets), where the side panel is hidden. */
+export function IndexSheet() {
+  const { t } = useLingui();
+  const open = useIndexSheets((s) => s.index);
+  const set = useIndexSheets((s) => s.set);
+  return (
+    <D.Root open={open} onOpenChange={(o) => set({ index: o })}>
+      <D.Portal>
+        <D.Overlay className={cx(overlayClass, "xl:hidden")} />
+        <D.Content aria-describedby={undefined} className={sheetClass}>
+          <D.Title className="sr-only">{t`Index`}</D.Title>
+          <IndexPanel onClose={() => set({ index: false })} onJump={() => set({ index: false })} />
+        </D.Content>
+      </D.Portal>
+    </D.Root>
+  );
+}
+
+/** The Glossary panel as a sheet, like the Index one. */
+export function GlossarySheet() {
+  const { t } = useLingui();
+  const open = useIndexSheets((s) => s.glossary);
+  const set = useIndexSheets((s) => s.set);
+  return (
+    <D.Root open={open} onOpenChange={(o) => set({ glossary: o })}>
+      <D.Portal>
+        <D.Overlay className={cx(overlayClass, "xl:hidden")} />
+        <D.Content aria-describedby={undefined} className={sheetClass}>
+          <D.Title className="sr-only">{t`Glossary`}</D.Title>
+          <GlossaryPanel
+            onClose={() => set({ glossary: false })}
+            onJump={() => set({ glossary: false })}
+          />
         </D.Content>
       </D.Portal>
     </D.Root>
