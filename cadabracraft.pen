@@ -87923,7 +87923,7 @@
       "y": 26180,
       "name": "Section / Templates, preview and export",
       "width": 8080,
-      "height": 18795,
+      "height": 20956,
       "fill": "#00000000",
       "layout": "none",
       "children": [
@@ -149264,6 +149264,2402 @@
                   "fontFamily": "$font-book",
                   "fontSize": "$type-manuscript",
                   "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "joig0",
+          "x": 2960,
+          "y": 13349,
+          "name": "Export EPUB check (result) / light",
+          "theme": {
+            "mode": "light"
+          },
+          "clip": true,
+          "width": 1280,
+          "height": 960,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "drMi2",
+              "name": "Top bar",
+              "width": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                10,
+                16
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "y35S0",
+                  "name": "Left",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "slWtd",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "arrow-left",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "arrow-left"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "Ev10E",
+                      "name": "The Salt Orchard",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-lead",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "NV0LM",
+              "name": "Body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "z5pIN",
+                  "name": "Export dialog",
+                  "width": 520,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 18,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zac9c",
+                      "name": "Export book",
+                      "fill": "$ink",
+                      "content": "Export book",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "pmrKi",
+                      "name": "Format",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "rJehh",
+                          "name": "Format row 1",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "SAj63",
+                              "name": "EPUB 3",
+                              "fill": "$accent-soft",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "jI2iT",
+                                  "name": "EPUB 3 label",
+                                  "fill": "$accent",
+                                  "content": "EPUB 3",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "HD4Qc",
+                              "name": "Print PDF",
+                              "fill": "#00000000",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "jADsH",
+                                  "name": "Print PDF label",
+                                  "fill": "$ink-muted",
+                                  "content": "Print PDF",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "M1c5zr",
+                              "name": "Markdown",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "ayfcd",
+                                  "name": "Markdown label",
+                                  "fill": "$ink-muted",
+                                  "content": "Markdown",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "PyfyM",
+                              "name": "Word (.docx)",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "T80zZv",
+                                  "name": "Word (.docx) label",
+                                  "fill": "$ink-muted",
+                                  "content": "Word (.docx)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "UJ5EV",
+                              "name": "Rich Text (.rtf)",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "VTbR7",
+                                  "name": "Rich Text (.rtf) label",
+                                  "fill": "$ink-muted",
+                                  "content": "Rich Text (.rtf)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "j4Ntho",
+                          "name": "Format row 2",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "oISHA",
+                              "name": "Audiobook",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "DXPVH",
+                                  "name": "Audiobook label",
+                                  "fill": "$ink-muted",
+                                  "content": "Audiobook",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "tn4AS",
+                      "name": "EPUBCheck passed",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "l24TOk",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "circle-check",
+                          "library": "lucide",
+                          "fill": "$success"
+                        },
+                        {
+                          "type": "text",
+                          "id": "civcS",
+                          "name": "EPUBCheck passed",
+                          "fill": "$ink",
+                          "content": "EPUBCheck passed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UKmbP",
+                      "name": "2 chapters have no title text",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "DrMwB",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "triangle-alert",
+                          "library": "lucide",
+                          "fill": "$warn"
+                        },
+                        {
+                          "type": "text",
+                          "id": "c0l9x",
+                          "name": "2 chapters have no title",
+                          "fill": "$ink",
+                          "content": "2 chapters have no title text",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "S13C6",
+                      "name": "Cover image not set",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "KnspV",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "u6td5",
+                          "name": "Cover image not set",
+                          "fill": "$ink",
+                          "content": "Cover image not set",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sPHiG",
+                      "name": "Check (warn) alt text",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "DClZ6",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "B5Y48",
+                          "name": "Cover image not set",
+                          "fill": "$ink",
+                          "content": "2 images have no alt text",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "m0dlMq",
+                          "name": "Show images",
+                          "fill": "$accent",
+                          "content": "Show",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "n4dIr",
+                      "name": "EPUBCheck",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "a66PsE",
+                          "name": "EPUBCheck header",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "z82q10",
+                              "name": "EPUBCheck title",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "DUYyl",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Check with EPUBCheck",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "L9dFn",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "The EPUB validator used by e-book stores. It runs on your computer and checks the file you exported.",
+                                  "lineHeight": 1.45,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "L0Cmxh",
+                              "type": "ref",
+                              "ref": "aWqMK",
+                              "name": "Check EPUB",
+                              "descendants": {
+                                "I6qeCj": {
+                                  "icon": "shield-check"
+                                },
+                                "l83V3": {
+                                  "content": "Check EPUB"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "nPowF",
+                          "name": "Summary",
+                          "fill": "$ink",
+                          "content": "1 error, 1 warning",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "eK5oD",
+                          "name": "EPUBCheck results",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "id": "e4Ss4",
+                              "type": "ref",
+                              "ref": "ZADRI",
+                              "name": "Error row",
+                              "width": "fill_container",
+                              "descendants": {
+                                "nJlZW": {
+                                  "content": "RSC-005: Duplicate ID \"intro\" (OEBPS/chapter-2.xhtml:14)"
+                                }
+                              }
+                            },
+                            {
+                              "id": "iiSrI",
+                              "type": "ref",
+                              "ref": "k4lpw4",
+                              "name": "Warning row",
+                              "width": "fill_container",
+                              "descendants": {
+                                "n9XrLj": {
+                                  "content": "OPF-014: The \"scripted\" property is declared but no script was found (OEBPS/chapter-1.xhtml)"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "Gx7Pg",
+                          "name": "Version",
+                          "fill": "$ink-muted",
+                          "content": "EPUBCheck 5.4.0. Its messages are in English.",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "m1wG5",
+                          "name": "Check after every export",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "XCrZw",
+                              "name": "Label",
+                              "fill": "$ink",
+                              "content": "Check the EPUB after every export",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Ixfs2",
+                              "name": "Switch",
+                              "width": 40,
+                              "height": 22,
+                              "fill": "$border-strong",
+                              "cornerRadius": "$radius-full",
+                              "padding": 3,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "L1irng",
+                                  "name": "Knob",
+                                  "fill": "$surface",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "aCRol",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "children": [
+                        {
+                          "id": "Vkv8v",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "I6qeCj": {
+                              "enabled": false
+                            },
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "aDEPv",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Export",
+                          "descendants": {
+                            "FuxJL": {
+                              "icon": "download"
+                            },
+                            "gNKXH": {
+                              "content": "Export"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "DyKul",
+          "x": 2960,
+          "y": 14389,
+          "name": "Export EPUB check (running) / light",
+          "theme": {
+            "mode": "light"
+          },
+          "clip": true,
+          "width": 1280,
+          "height": 960,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Sqe9Z",
+              "name": "Top bar",
+              "width": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                10,
+                16
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "p2kmXT",
+                  "name": "Left",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "S0zNFP",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "arrow-left",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "arrow-left"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "HFDQX",
+                      "name": "The Salt Orchard",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-lead",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "GTYmM",
+              "name": "Body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "x6rzw1",
+                  "name": "Export dialog",
+                  "width": 520,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 18,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tSxfC",
+                      "name": "Export book",
+                      "fill": "$ink",
+                      "content": "Export book",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ywlao",
+                      "name": "Format",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "f4K7Xo",
+                          "name": "Format row 1",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "v0BvB",
+                              "name": "EPUB 3",
+                              "fill": "$accent-soft",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "yqNQG",
+                                  "name": "EPUB 3 label",
+                                  "fill": "$accent",
+                                  "content": "EPUB 3",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "t1I40",
+                              "name": "Print PDF",
+                              "fill": "#00000000",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "gbq7n",
+                                  "name": "Print PDF label",
+                                  "fill": "$ink-muted",
+                                  "content": "Print PDF",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "eGRtg",
+                              "name": "Markdown",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "p1HwZM",
+                                  "name": "Markdown label",
+                                  "fill": "$ink-muted",
+                                  "content": "Markdown",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "X8dcrV",
+                              "name": "Word (.docx)",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "q4JgoD",
+                                  "name": "Word (.docx) label",
+                                  "fill": "$ink-muted",
+                                  "content": "Word (.docx)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "t6kuh",
+                              "name": "Rich Text (.rtf)",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "WWrzO",
+                                  "name": "Rich Text (.rtf) label",
+                                  "fill": "$ink-muted",
+                                  "content": "Rich Text (.rtf)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "MgRdV",
+                          "name": "Format row 2",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "NK994",
+                              "name": "Audiobook",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "cZN8X",
+                                  "name": "Audiobook label",
+                                  "fill": "$ink-muted",
+                                  "content": "Audiobook",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "j4Y03O",
+                      "name": "EPUBCheck passed",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "FdFHy",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "circle-check",
+                          "library": "lucide",
+                          "fill": "$success"
+                        },
+                        {
+                          "type": "text",
+                          "id": "P4EbB",
+                          "name": "EPUBCheck passed",
+                          "fill": "$ink",
+                          "content": "EPUBCheck passed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kqFDp",
+                      "name": "2 chapters have no title text",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "y50Jq",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "triangle-alert",
+                          "library": "lucide",
+                          "fill": "$warn"
+                        },
+                        {
+                          "type": "text",
+                          "id": "WcY9D",
+                          "name": "2 chapters have no title",
+                          "fill": "$ink",
+                          "content": "2 chapters have no title text",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ls8Og",
+                      "name": "Cover image not set",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "EHB6I",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "PCRLJ",
+                          "name": "Cover image not set",
+                          "fill": "$ink",
+                          "content": "Cover image not set",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YeZxZ",
+                      "name": "Check (warn) alt text",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "DTsmR",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "inUHy",
+                          "name": "Cover image not set",
+                          "fill": "$ink",
+                          "content": "2 images have no alt text",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ziPHK",
+                          "name": "Show images",
+                          "fill": "$accent",
+                          "content": "Show",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jjC4x",
+                      "name": "EPUBCheck",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "RtNDD",
+                          "name": "EPUBCheck header",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "nbTit",
+                              "name": "EPUBCheck title",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "vrNEd",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Check with EPUBCheck",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "bfZBi",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "The EPUB validator used by e-book stores. It runs on your computer and checks the file you exported.",
+                                  "lineHeight": 1.45,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "LRfVS",
+                              "type": "ref",
+                              "ref": "aWqMK",
+                              "name": "Stop",
+                              "descendants": {
+                                "I6qeCj": {
+                                  "enabled": false
+                                },
+                                "l83V3": {
+                                  "content": "Stop"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "Iiuu2",
+                          "name": "Progress text",
+                          "fill": "$ink-muted",
+                          "content": "Checking with EPUBCheck. This takes a few seconds…",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "hB1Wl",
+                          "name": "Check after every export",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VLN87",
+                              "name": "Label",
+                              "fill": "$ink",
+                              "content": "Check the EPUB after every export",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Ws3Cf",
+                              "name": "Switch",
+                              "width": 40,
+                              "height": 22,
+                              "fill": "$border-strong",
+                              "cornerRadius": "$radius-full",
+                              "padding": 3,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "y8twz",
+                                  "name": "Knob",
+                                  "fill": "$surface",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "nJa1o",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "children": [
+                        {
+                          "id": "MLm9v",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "I6qeCj": {
+                              "enabled": false
+                            },
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "vTsRB",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Export",
+                          "descendants": {
+                            "FuxJL": {
+                              "icon": "download"
+                            },
+                            "gNKXH": {
+                              "content": "Export"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "I3mxXT",
+          "x": 2960,
+          "y": 18836,
+          "name": "Export EPUB check (result) / dark",
+          "theme": {
+            "mode": "dark"
+          },
+          "clip": true,
+          "width": 1280,
+          "height": 960,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "dgVsS",
+              "name": "Top bar",
+              "width": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                10,
+                16
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "W9vWJv",
+                  "name": "Left",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "mOOTQ",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "arrow-left",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "arrow-left"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "C1EkAC",
+                      "name": "The Salt Orchard",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-lead",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "vT6eC",
+              "name": "Body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Ocla0",
+                  "name": "Export dialog",
+                  "width": 520,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 18,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "saGw5",
+                      "name": "Export book",
+                      "fill": "$ink",
+                      "content": "Export book",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "X8wmy",
+                      "name": "Format",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "EFZRp",
+                          "name": "Format row 1",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Bso6V",
+                              "name": "EPUB 3",
+                              "fill": "$accent-soft",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "ObBSr",
+                                  "name": "EPUB 3 label",
+                                  "fill": "$accent",
+                                  "content": "EPUB 3",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "P0OMMT",
+                              "name": "Print PDF",
+                              "fill": "#00000000",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "S7f5e",
+                                  "name": "Print PDF label",
+                                  "fill": "$ink-muted",
+                                  "content": "Print PDF",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "rFHmf",
+                              "name": "Markdown",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "fXpfb",
+                                  "name": "Markdown label",
+                                  "fill": "$ink-muted",
+                                  "content": "Markdown",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Uigm5",
+                              "name": "Word (.docx)",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "bSoia",
+                                  "name": "Word (.docx) label",
+                                  "fill": "$ink-muted",
+                                  "content": "Word (.docx)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "X35qX",
+                              "name": "Rich Text (.rtf)",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "GeyQT",
+                                  "name": "Rich Text (.rtf) label",
+                                  "fill": "$ink-muted",
+                                  "content": "Rich Text (.rtf)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ydAEK",
+                          "name": "Format row 2",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "jvQgo",
+                              "name": "Audiobook",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "jYmc3",
+                                  "name": "Audiobook label",
+                                  "fill": "$ink-muted",
+                                  "content": "Audiobook",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "OYwdX",
+                      "name": "EPUBCheck passed",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "SXuTR",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "circle-check",
+                          "library": "lucide",
+                          "fill": "$success"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ToLVr",
+                          "name": "EPUBCheck passed",
+                          "fill": "$ink",
+                          "content": "EPUBCheck passed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yHaxt",
+                      "name": "2 chapters have no title text",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "X2s5dG",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "triangle-alert",
+                          "library": "lucide",
+                          "fill": "$warn"
+                        },
+                        {
+                          "type": "text",
+                          "id": "qH3Ww",
+                          "name": "2 chapters have no title",
+                          "fill": "$ink",
+                          "content": "2 chapters have no title text",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cGbWP",
+                      "name": "Cover image not set",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "Vk2sS",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "M2gwIu",
+                          "name": "Cover image not set",
+                          "fill": "$ink",
+                          "content": "Cover image not set",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "W9XcpI",
+                      "name": "Check (warn) alt text",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "i41ER2",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "zxi36",
+                          "name": "Cover image not set",
+                          "fill": "$ink",
+                          "content": "2 images have no alt text",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "FS4AE",
+                          "name": "Show images",
+                          "fill": "$accent",
+                          "content": "Show",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bod85",
+                      "name": "EPUBCheck",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "h2LBIo",
+                          "name": "EPUBCheck header",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "kPQnZ",
+                              "name": "EPUBCheck title",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Qfktd",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Check with EPUBCheck",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "aqejx",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "The EPUB validator used by e-book stores. It runs on your computer and checks the file you exported.",
+                                  "lineHeight": 1.45,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "AI5FG",
+                              "type": "ref",
+                              "ref": "aWqMK",
+                              "name": "Check EPUB",
+                              "descendants": {
+                                "I6qeCj": {
+                                  "icon": "shield-check"
+                                },
+                                "l83V3": {
+                                  "content": "Check EPUB"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "s4oySh",
+                          "name": "Summary",
+                          "fill": "$ink",
+                          "content": "1 error, 1 warning",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "XtnXx",
+                          "name": "EPUBCheck results",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "id": "l8kj62",
+                              "type": "ref",
+                              "ref": "ZADRI",
+                              "name": "Error row",
+                              "width": "fill_container",
+                              "descendants": {
+                                "nJlZW": {
+                                  "content": "RSC-005: Duplicate ID \"intro\" (OEBPS/chapter-2.xhtml:14)"
+                                }
+                              }
+                            },
+                            {
+                              "id": "rTuBb",
+                              "type": "ref",
+                              "ref": "k4lpw4",
+                              "name": "Warning row",
+                              "width": "fill_container",
+                              "descendants": {
+                                "n9XrLj": {
+                                  "content": "OPF-014: The \"scripted\" property is declared but no script was found (OEBPS/chapter-1.xhtml)"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "wKp8U",
+                          "name": "Version",
+                          "fill": "$ink-muted",
+                          "content": "EPUBCheck 5.4.0. Its messages are in English.",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "tk7eW",
+                          "name": "Check after every export",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "rE8Jw",
+                              "name": "Label",
+                              "fill": "$ink",
+                              "content": "Check the EPUB after every export",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Z64mcX",
+                              "name": "Switch",
+                              "width": 40,
+                              "height": 22,
+                              "fill": "$border-strong",
+                              "cornerRadius": "$radius-full",
+                              "padding": 3,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "BGg7w",
+                                  "name": "Knob",
+                                  "fill": "$surface",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "EcfTe",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "children": [
+                        {
+                          "id": "ugiKx",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "I6qeCj": {
+                              "enabled": false
+                            },
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "Ybo5Y",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Export",
+                          "descendants": {
+                            "FuxJL": {
+                              "icon": "download"
+                            },
+                            "gNKXH": {
+                              "content": "Export"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ssd3c",
+          "x": 2960,
+          "y": 19876,
+          "name": "Export EPUB check (running) / dark",
+          "theme": {
+            "mode": "dark"
+          },
+          "clip": true,
+          "width": 1280,
+          "height": 960,
+          "fill": "$bg",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "UbmIz",
+              "name": "Top bar",
+              "width": "fill_container",
+              "fill": "$surface",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                10,
+                16
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "KUc2s",
+                  "name": "Left",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "h3tjt",
+                      "type": "ref",
+                      "ref": "ML1v1",
+                      "name": "arrow-left",
+                      "descendants": {
+                        "ygSVs": {
+                          "icon": "arrow-left"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "AilFF",
+                      "name": "The Salt Orchard",
+                      "fill": "$ink",
+                      "content": "The Salt Orchard",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-lead",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "A4N16",
+              "name": "Body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$sidebar",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "WVNrj",
+                  "name": "Export dialog",
+                  "width": 520,
+                  "fill": "$raised",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#00000033",
+                    "offset": {
+                      "x": 0,
+                      "y": 12
+                    },
+                    "blur": 32
+                  },
+                  "layout": "vertical",
+                  "gap": 18,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "fUMdw",
+                      "name": "Export book",
+                      "fill": "$ink",
+                      "content": "Export book",
+                      "fontFamily": "$font-book",
+                      "fontSize": "$type-title",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "EAZFm",
+                      "name": "Format",
+                      "fill": "$bg",
+                      "cornerRadius": "$radius",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "g71i7",
+                          "name": "Format row 1",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "P5DyNA",
+                              "name": "EPUB 3",
+                              "fill": "$accent-soft",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Ncqzo",
+                                  "name": "EPUB 3 label",
+                                  "fill": "$accent",
+                                  "content": "EPUB 3",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "PF5JA",
+                              "name": "Print PDF",
+                              "fill": "#00000000",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "SI8zi",
+                                  "name": "Print PDF label",
+                                  "fill": "$ink-muted",
+                                  "content": "Print PDF",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "HaxNq",
+                              "name": "Markdown",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "q049K",
+                                  "name": "Markdown label",
+                                  "fill": "$ink-muted",
+                                  "content": "Markdown",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "RNe4x",
+                              "name": "Word (.docx)",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "FWLsV",
+                                  "name": "Word (.docx) label",
+                                  "fill": "$ink-muted",
+                                  "content": "Word (.docx)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "I9P1gd",
+                              "name": "Rich Text (.rtf)",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "aQVkg",
+                                  "name": "Rich Text (.rtf) label",
+                                  "fill": "$ink-muted",
+                                  "content": "Rich Text (.rtf)",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "wW5YL",
+                          "name": "Format row 2",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "UA4rH",
+                              "name": "Audiobook",
+                              "cornerRadius": "$radius-sm",
+                              "padding": [
+                                6,
+                                12
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "R2KAU",
+                                  "name": "Audiobook label",
+                                  "fill": "$ink-muted",
+                                  "content": "Audiobook",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-small",
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Vzk8G",
+                      "name": "EPUBCheck passed",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "W0CHu",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "circle-check",
+                          "library": "lucide",
+                          "fill": "$success"
+                        },
+                        {
+                          "type": "text",
+                          "id": "VonkB",
+                          "name": "EPUBCheck passed",
+                          "fill": "$ink",
+                          "content": "EPUBCheck passed",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JB9iO",
+                      "name": "2 chapters have no title text",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "TLEkI",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "triangle-alert",
+                          "library": "lucide",
+                          "fill": "$warn"
+                        },
+                        {
+                          "type": "text",
+                          "id": "E77Fc",
+                          "name": "2 chapters have no title",
+                          "fill": "$ink",
+                          "content": "2 chapters have no title text",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "qLC9Q",
+                      "name": "Cover image not set",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "SUNI0",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "DiBMf",
+                          "name": "Cover image not set",
+                          "fill": "$ink",
+                          "content": "Cover image not set",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "d67kSR",
+                      "name": "Check (warn) alt text",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "yrht2",
+                          "name": "i",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "info",
+                          "library": "lucide",
+                          "fill": "$ink-muted"
+                        },
+                        {
+                          "type": "text",
+                          "id": "PuJBK",
+                          "name": "Cover image not set",
+                          "fill": "$ink",
+                          "content": "2 images have no alt text",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "R6NEt",
+                          "name": "Show images",
+                          "fill": "$accent",
+                          "content": "Show",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Gnb8W",
+                      "name": "EPUBCheck",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "tGEvN",
+                          "name": "EPUBCheck header",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "OeP3j",
+                              "name": "EPUBCheck title",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "P5lP6",
+                                  "name": "Title",
+                                  "fill": "$ink",
+                                  "content": "Check with EPUBCheck",
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Xizv3",
+                                  "name": "Description",
+                                  "fill": "$ink-muted",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "The EPUB validator used by e-book stores. It runs on your computer and checks the file you exported.",
+                                  "lineHeight": 1.45,
+                                  "fontFamily": "$font-ui",
+                                  "fontSize": "$type-caption",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "wnvku",
+                              "type": "ref",
+                              "ref": "aWqMK",
+                              "name": "Stop",
+                              "descendants": {
+                                "I6qeCj": {
+                                  "enabled": false
+                                },
+                                "l83V3": {
+                                  "content": "Stop"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "Ltf21",
+                          "name": "Progress text",
+                          "fill": "$ink-muted",
+                          "content": "Checking with EPUBCheck. This takes a few seconds…",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "rUN7I",
+                          "name": "Check after every export",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "u0fLlK",
+                              "name": "Label",
+                              "fill": "$ink",
+                              "content": "Check the EPUB after every export",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "xM0iQ",
+                              "name": "Switch",
+                              "width": 40,
+                              "height": 22,
+                              "fill": "$border-strong",
+                              "cornerRadius": "$radius-full",
+                              "padding": 3,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "YhYCk",
+                                  "name": "Knob",
+                                  "fill": "$surface",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "qhH4A",
+                      "name": "Actions",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "justifyContent": "end",
+                      "children": [
+                        {
+                          "id": "EXMku",
+                          "type": "ref",
+                          "ref": "aWqMK",
+                          "name": "Cancel",
+                          "descendants": {
+                            "I6qeCj": {
+                              "enabled": false
+                            },
+                            "l83V3": {
+                              "content": "Cancel"
+                            }
+                          }
+                        },
+                        {
+                          "id": "vtg8J",
+                          "type": "ref",
+                          "ref": "RHvJO",
+                          "name": "Export",
+                          "descendants": {
+                            "FuxJL": {
+                              "icon": "download"
+                            },
+                            "gNKXH": {
+                              "content": "Export"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
