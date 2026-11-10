@@ -146,10 +146,13 @@ const hiddenFocus = (page: Page) =>
 
 /** Like hiddenFocus, but a hit gets 500 ms to be a scroll that is still smoothly on its way (Settings scrolls smoothly in WebKit). */
 async function settledHidden(page: Page) {
-  const first = await hiddenFocus(page);
-  if (!first) return null;
-  await page.waitForTimeout(500);
-  return hiddenFocus(page);
+  // Under load a drawer or scroll can take several seconds to settle; a stop only counts if it is still hidden after that.
+  let hidden = await hiddenFocus(page);
+  for (let i = 0; hidden && i < 8; i++) {
+    await page.waitForTimeout(500);
+    hidden = await hiddenFocus(page);
+  }
+  return hidden;
 }
 
 test.describe("2.4.11 focus not obscured", () => {
