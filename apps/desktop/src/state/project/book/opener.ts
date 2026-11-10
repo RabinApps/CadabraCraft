@@ -7,6 +7,7 @@ import { noManifestMessage } from "../../../lib/projectError";
 import { useSettings } from "../../view/editorPrefs";
 import { useRecents } from "../../app/recents";
 import { bestEffort, NO_HISTORY } from "../util";
+import { noteWritingBaseline } from "../writingSave";
 import type { ProjectState } from "../types";
 import type { Ctx } from "../context";
 
@@ -117,6 +118,8 @@ export const createOpener = (ctx: Ctx) => {
     }
     const first = parsed.manifest.chapters[0] ?? readingOrder(parsed.manifest)[0];
     if (first) await load(first.id);
+    // The baseline for the writing history: the book's words as it opens, so the first save counts only what is typed after.
+    void noteWritingBaseline(root, () => get().actions.bookWords());
     await bridge.watchProject(root);
     void bestEffort(
       () => bridge.pruneSnapshots(root, pageFiles, useSettings.getState().snapshotKeep),

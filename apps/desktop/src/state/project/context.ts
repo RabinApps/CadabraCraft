@@ -15,6 +15,7 @@ import { alertOf, emptyDoc, parseChapter } from "./util";
 import type { ProjectState } from "./types";
 import { createReads } from "./context/reads";
 import { createWrites } from "./context/writes";
+import { noteWritingSave } from "./writingSave";
 
 export type Set = StoreApi<ProjectState>["setState"];
 export type Get = StoreApi<ProjectState>["getState"];
@@ -47,6 +48,15 @@ export function createContext(set: Set, get: Get) {
     await get().actions.saveCurrent(d);
     // Typing that arrived while the write was running stays a draft (and is saved by the next flush).
     set(get().draft === d ? { draft: null, currentDoc: d } : { currentDoc: d });
+    const { root } = get();
+    if (root) {
+      const backup = await noteWritingSave(root, () => get().actions.bookWords());
+      if (backup) {
+        set({
+          notice: t`The writing history could not be read; the old copy was kept as ${backup}`,
+        });
+      }
+    }
   };
   /** Flushes run one after another so two saves of the same chapter never overlap. */
   let flushTail: Promise<void> | null = null;

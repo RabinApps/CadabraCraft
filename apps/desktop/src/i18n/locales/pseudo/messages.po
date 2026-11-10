@@ -108,6 +108,13 @@ msgstr ""
 msgid "{0, plural, one {# snapshot} other {# snapshots}}"
 msgstr ""
 
+#. placeholder {0}: cell.words
+#. placeholder {1}: cell.date
+#. placeholder {2}: cell.date
+#: src/app/writing/WritingHeatmap.tsx
+msgid "{0, plural, one {# word on {1}} other {# words on {2}}}"
+msgstr ""
+
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
 #. placeholder {0}: wordsOf(item, result)
@@ -455,8 +462,16 @@ msgstr ""
 msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 msgstr ""
 
+#: src/app/writing/WritingStats.tsx
+msgid "{n, plural, one {# day} other {# days}}"
+msgstr ""
+
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
+msgstr ""
+
+#: src/app/writing/WritingStats.tsx
+msgid "{n, plural, one {# word} other {# words}}"
 msgstr ""
 
 #: src/editor/find/FindResults.tsx
@@ -616,6 +631,18 @@ msgstr ""
 
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "0.125 in"
+msgstr ""
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "1 to 250"
+msgstr ""
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "251 to 500"
+msgstr ""
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "501 to 1,000"
 msgstr ""
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
@@ -1914,6 +1941,10 @@ msgstr ""
 msgid "Could not read the trash ({0}). Close this dialog and open the trash again to retry."
 msgstr ""
 
+#: src/app/writing/WritingHistoryDialog.tsx
+msgid "Could not read the writing history: {error}."
+msgstr ""
+
 #. placeholder {0}: reading.message
 #: src/app/dialogs/SplitChapterDialog.tsx
 msgid "Could not read this chapter ({0}). Nothing was changed."
@@ -2112,6 +2143,10 @@ msgstr ""
 #: src/app/settings/SettingsSections.tsx
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Dark"
+msgstr ""
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "Darker squares have more words. Each square is one day."
 msgstr ""
 
 #: src/app/shell/native/menuModel.ts
@@ -2877,6 +2912,7 @@ msgid "Hide scenes of {0}"
 msgstr ""
 
 #: src/app/shell/entries/RowMenu.tsx
+#: src/app/writing/WritingHistoryDialog.tsx
 msgid "History"
 msgstr ""
 
@@ -3252,6 +3288,14 @@ msgstr ""
 msgid "Larger text"
 msgstr ""
 
+#: src/app/writing/WritingHeatmap.tsx
+msgid "Last 24 weeks"
+msgstr ""
+
+#: src/app/writing/WritingStats.tsx
+msgid "Last 7 days"
+msgstr ""
+
 #: src/app/library/Library.tsx
 msgid "Last edited"
 msgstr ""
@@ -3377,6 +3421,7 @@ msgstr ""
 
 #: src/app/dialogs/LicensesDialog.tsx
 #: src/app/references/Previews.tsx
+#: src/app/writing/WritingHistoryDialog.tsx
 msgid "Loading…"
 msgstr ""
 
@@ -3524,6 +3569,10 @@ msgstr ""
 
 #: src/editor/toolbar/MoreFormatting.tsx
 msgid "More formatting"
+msgstr ""
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "More than 1,000"
 msgstr ""
 
 #: src/app/export/AudioExport.tsx
@@ -3917,6 +3966,7 @@ msgstr ""
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
 #: src/app/scenes/SceneFilterBar.tsx
+#: src/app/writing/WritingHeatmap.tsx
 msgid "None"
 msgstr ""
 
@@ -5623,6 +5673,10 @@ msgstr ""
 msgid "Story time of {title}"
 msgstr ""
 
+#: src/app/writing/WritingStats.tsx
+msgid "Streak"
+msgstr ""
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useMenuOnlyItems.ts
@@ -6071,6 +6125,14 @@ msgstr ""
 msgid "The voices' licences are listed in Settings, Audio."
 msgstr ""
 
+#: src/state/project/context.ts
+msgid "The writing history could not be read; the old copy was kept as {backup}"
+msgstr ""
+
+#: src/app/writing/WritingHistoryDialog.tsx
+msgid "The writing history could not be read; the old copy was kept as {backup}."
+msgstr ""
+
 #: src/app/settings/SettingsSections.tsx
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Theme"
@@ -6229,6 +6291,10 @@ msgstr ""
 msgid "This image path is not allowed: {0}"
 msgstr ""
 
+#: src/app/writing/WritingStats.tsx
+msgid "This month"
+msgstr ""
+
 #: src/lib/import/importErrorText.ts
 msgid "This outline file is damaged or not written correctly, so it could not be read. Open it in the program that made it, save a copy and try again."
 msgstr ""
@@ -6315,6 +6381,10 @@ msgstr ""
 
 #: src/app/references/panel/SortMenu.tsx
 msgid "Title Z-A"
+msgstr ""
+
+#: src/app/writing/WritingStats.tsx
+msgid "Today"
 msgstr ""
 
 #: src/app/shell/native/menuModel.ts
@@ -6604,6 +6674,11 @@ msgstr ""
 msgid "WAV"
 msgstr ""
 
+#. placeholder {0}: week[0]!.date
+#: src/app/writing/WritingHeatmap.tsx
+msgid "Week of {0}"
+msgstr ""
+
 #: src/app/shell/App.tsx
 msgid "Welcome"
 msgstr ""
@@ -6684,6 +6759,10 @@ msgstr ""
 msgid "Words to write each time you open a book. 0 turns it off."
 msgstr ""
 
+#: src/app/writing/WritingHistoryDialog.tsx
+msgid "Words written, by day. Counted at each save and kept in this book's folder, on this computer."
+msgstr ""
+
 #: src/app/board/BoardColumn.tsx
 msgid "Wrap into a scene"
 msgstr ""
@@ -6731,6 +6810,10 @@ msgstr ""
 
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
+msgstr ""
+
+#: src/app/shell/native/menuModel.ts
+msgid "Writing history…"
 msgstr ""
 
 #: src/app/export/parts/ExportDialogParts.tsx

@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { disk, hashOf as h } from "../../../test/fakeBridge";
 
+// The writing history (stats.json) has its own tests; these tests count the chapter writes only.
+vi.mock("../writingSave", () => ({
+  noteWritingSave: async () => null,
+  noteWritingBaseline: async () => null,
+}));
+
 // Writes can be held back to test overlapping saves.
 const writes: { path: string; contents: string }[] = [];
 let hold: Promise<void> | null = null;

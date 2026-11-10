@@ -245,6 +245,14 @@ Active: the app and the MCP server read and write version 4. The design is in [a
 - The source edition keeps its v3 file paths. New editions use `manuscript/<lang>/` and `front-matter/<lang>/`, `back-matter/<lang>/`.
 - Export writes to `exports/<lang>/`.
 
+## Writing history: `stats.json` (no format version change)
+
+- A file in the project folder, next to `cadabra.json`: `stats.json`. It is not part of the book's content and not in the manifest. Adding it changed no format version: a book with or without it opens and saves the same in every version, and an older app ignores it.
+- Content (JSON, 2-space indent, days in date order): `version` (1), `days` (an object: `YYYY-MM-DD` of the author's local day to the net words the book gained that day, which can be negative after cuts) and `lastTotal` (the book's words at the last save, or null before the first one). Only real calendar dates are keys.
+- Written after each page save: the difference from `lastTotal` is added to today, then `lastTotal` is set. The first count of a book is taken when it opens, so the first save counts only what is typed after it opened. The file is written by the same temp-file-and-rename path as the chapters, with the hash of the file it replaces.
+- A missing file is an empty history. A file that cannot be read (not JSON, another `version`, a bad date key or count) is copied to `stats.json.corrupt-YYYYMMDD-HHMMSS` (`-2`, `-3`... when that name is taken; an existing copy is never overwritten), then replaced by an empty history. The app says so once.
+- Nothing refers to it, and it is safe to delete (the count starts again). The History screen (File > Writing history…) only reads it; the figures are computed by `packages/shared/src/history/`.
+
 ## Versioning
 
 - Version 12 -> 13: adds the optional `goal` on the manifest (see above): `words` and an optional `deadline`. The migration changes nothing: no book has a goal until the author sets one, and no file moves. It backs up `cadabra.json` to `.cadabra/backups/` before it writes. A version 12 app refuses a version 13 project rather than dropping the author's goal on its next save. Contract fixture: `fixtures/contract/manifest-v12.json`.

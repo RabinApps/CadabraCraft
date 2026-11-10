@@ -108,6 +108,13 @@ msgstr "{0, plural, one {סצנה #} other {# סצנות}}"
 msgid "{0, plural, one {# snapshot} other {# snapshots}}"
 msgstr "{0, plural, one {גרסה שמורה #} other {# גרסאות שמורות}}"
 
+#. placeholder {0}: cell.words
+#. placeholder {1}: cell.date
+#. placeholder {2}: cell.date
+#: src/app/writing/WritingHeatmap.tsx
+msgid "{0, plural, one {# word on {1}} other {# words on {2}}}"
+msgstr "{0, plural, one {# מילה ב-{1}} other {# מילים ב-{2}}}"
+
 #. placeholder {0}: here.words
 #. placeholder {0}: v.words
 #. placeholder {0}: wordsOf(item, result)
@@ -457,9 +464,17 @@ msgstr "{minutes, plural, one {דקה #} other {# דקות}}"
 msgid "{missing, plural, one {“{name}” has # image without alt text} other {“{name}” has # images without alt text}}"
 msgstr "{missing, plural, one {ב־“{name}” יש תמונה # ללא טקסט חלופי} other {ב־“{name}” יש # תמונות ללא טקסט חלופי}}"
 
+#: src/app/writing/WritingStats.tsx
+msgid "{n, plural, one {# day} other {# days}}"
+msgstr "{n, plural, one {# יום} other {# ימים}}"
+
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr "{n, plural, one {עמוד # שלא תורגם הושמט} other {# עמודים שלא תורגמו הושמטו}}"
+
+#: src/app/writing/WritingStats.tsx
+msgid "{n, plural, one {# word} other {# words}}"
+msgstr "{n, plural, one {# מילה} other {# מילים}}"
 
 #: src/editor/find/FindResults.tsx
 msgid "{n, plural, one {match} other {matches}}"
@@ -619,6 +634,18 @@ msgstr "+H1-H3"
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "0.125 in"
 msgstr "0.125 אינץ׳"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "1 to 250"
+msgstr "1 עד 250"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "251 to 500"
+msgstr "251 עד 500"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "501 to 1,000"
+msgstr "501 עד 1,000"
 
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "A BCP 47 tag such as fr, fr-CA or zh-Hans. Screen readers and exports use it to pronounce and hyphenate the passage."
@@ -1916,6 +1943,10 @@ msgstr "לא ניתן היה לקרוא את הקובץ בדרך זו ({0}). ב�
 msgid "Could not read the trash ({0}). Close this dialog and open the trash again to retry."
 msgstr "לא ניתן היה לקרוא את האשפה ({0}). סגור חלון זה ופתח שוב את האשפה כדי לנסות שוב."
 
+#: src/app/writing/WritingHistoryDialog.tsx
+msgid "Could not read the writing history: {error}."
+msgstr "לא ניתן לקרוא את היסטוריית הכתיבה: {error}."
+
 #. placeholder {0}: reading.message
 #: src/app/dialogs/SplitChapterDialog.tsx
 msgid "Could not read this chapter ({0}). Nothing was changed."
@@ -2115,6 +2146,10 @@ msgstr "דייל-צ׳ול"
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Dark"
 msgstr "כהה"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "Darker squares have more words. Each square is one day."
+msgstr "משבצות כהות יותר הן יותר מילים. כל משבצת היא יום אחד."
 
 #: src/app/shell/native/menuModel.ts
 #: src/app/shell/useKindLabels.ts
@@ -2879,6 +2914,7 @@ msgid "Hide scenes of {0}"
 msgstr "הסתרת הסצנות של {0}"
 
 #: src/app/shell/entries/RowMenu.tsx
+#: src/app/writing/WritingHistoryDialog.tsx
 msgid "History"
 msgstr "היסטוריה"
 
@@ -3254,6 +3290,14 @@ msgstr "תגית שפה"
 msgid "Larger text"
 msgstr "טקסט גדול יותר"
 
+#: src/app/writing/WritingHeatmap.tsx
+msgid "Last 24 weeks"
+msgstr "24 השבועות האחרונים"
+
+#: src/app/writing/WritingStats.tsx
+msgid "Last 7 days"
+msgstr "7 הימים האחרונים"
+
 #: src/app/library/Library.tsx
 msgid "Last edited"
 msgstr "נערך לאחרונה"
@@ -3379,6 +3423,7 @@ msgstr "טוען את הספר"
 
 #: src/app/dialogs/LicensesDialog.tsx
 #: src/app/references/Previews.tsx
+#: src/app/writing/WritingHistoryDialog.tsx
 msgid "Loading…"
 msgstr "טוען…"
 
@@ -3527,6 +3572,10 @@ msgstr "פעולות נוספות"
 #: src/editor/toolbar/MoreFormatting.tsx
 msgid "More formatting"
 msgstr "עיצוב נוסף"
+
+#: src/app/writing/WritingHeatmap.tsx
+msgid "More than 1,000"
+msgstr "יותר מ-1,000"
 
 #: src/app/export/AudioExport.tsx
 msgid "Most natural, slower."
@@ -3919,6 +3968,7 @@ msgstr "אין במחשב זה קול שקורא בשפה זו. הורידו ק�
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/Templates.tsx
 #: src/app/scenes/SceneFilterBar.tsx
+#: src/app/writing/WritingHeatmap.tsx
 msgid "None"
 msgstr "ללא"
 
@@ -5625,6 +5675,10 @@ msgstr "מבנה סיפור"
 msgid "Story time of {title}"
 msgstr "שעת הסיפור של {title}"
 
+#: src/app/writing/WritingStats.tsx
+msgid "Streak"
+msgstr "רצף"
+
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/useMenuOnlyItems.ts
@@ -6075,6 +6129,14 @@ msgstr "הקול שבו מתחיל ייצוא ספר השמע. אפשר לבחו
 msgid "The voices' licences are listed in Settings, Audio."
 msgstr "רישיונות הקולות מפורטים בהגדרות, שמע."
 
+#: src/state/project/context.ts
+msgid "The writing history could not be read; the old copy was kept as {backup}"
+msgstr "לא ניתן לקרוא את היסטוריית הכתיבה; העותק הישן נשמר בשם {backup}"
+
+#: src/app/writing/WritingHistoryDialog.tsx
+msgid "The writing history could not be read; the old copy was kept as {backup}."
+msgstr "לא ניתן לקרוא את היסטוריית הכתיבה; העותק הישן נשמר בשם {backup}."
+
 #: src/app/settings/SettingsSections.tsx
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Theme"
@@ -6233,6 +6295,10 @@ msgstr "תמונה זו דקורטיבית"
 msgid "This image path is not allowed: {0}"
 msgstr "נתיב התמונה הזה אסור: {0}"
 
+#: src/app/writing/WritingStats.tsx
+msgid "This month"
+msgstr "החודש"
+
 #: src/lib/import/importErrorText.ts
 msgid "This outline file is damaged or not written correctly, so it could not be read. Open it in the program that made it, save a copy and try again."
 msgstr "קובץ המבנה הזה פגום או כתוב שלא כראוי, ולכן לא ניתן היה לקרוא אותו. פתח אותו בתוכנה שיצרה אותו, שמור עותק ונסה שוב."
@@ -6320,6 +6386,10 @@ msgstr "עמוד שער"
 #: src/app/references/panel/SortMenu.tsx
 msgid "Title Z-A"
 msgstr "כותרת ת׳–א׳"
+
+#: src/app/writing/WritingStats.tsx
+msgid "Today"
+msgstr "היום"
 
 #: src/app/shell/native/menuModel.ts
 msgid "Toggle Header Row"
@@ -6610,6 +6680,11 @@ msgstr "was או were עם צורת עבר של הפועל"
 msgid "WAV"
 msgstr "WAV"
 
+#. placeholder {0}: week[0]!.date
+#: src/app/writing/WritingHeatmap.tsx
+msgid "Week of {0}"
+msgstr "שבוע של {0}"
+
 #: src/app/shell/App.tsx
 msgid "Welcome"
 msgstr "ברוכים הבאים"
@@ -6690,6 +6765,10 @@ msgstr "מילים בסיומת -ly, יותר מארבע אותיות, שאינ�
 msgid "Words to write each time you open a book. 0 turns it off."
 msgstr "מילים לכתוב בכל פעם שאתה פותח ספר. 0 מכבה זאת."
 
+#: src/app/writing/WritingHistoryDialog.tsx
+msgid "Words written, by day. Counted at each save and kept in this book's folder, on this computer."
+msgstr "מילים שנכתבו לפי יום. נספרות בכל שמירה ונשמרות בתיקיית הספר הזה, במחשב הזה."
+
 #: src/app/board/BoardColumn.tsx
 msgid "Wrap into a scene"
 msgstr "עטיפה בסצנה"
@@ -6738,6 +6817,10 @@ msgstr "כותב את כל הספר כקובץ Word בפורמט כתב יד ס�
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writes the whole book as one Markdown file in the exports folder, in reading order. Nothing else is needed on this computer."
 msgstr "כותב את כל הספר כקובץ Markdown אחד בתיקיית הייצוא, לפי סדר הקריאה. אין צורך בדבר נוסף במחשב זה."
+
+#: src/app/shell/native/menuModel.ts
+msgid "Writing history…"
+msgstr "היסטוריית כתיבה…"
 
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writing Markdown…"

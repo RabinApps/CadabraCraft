@@ -1,6 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 import { fakeImportSources } from "./fakeImport";
 import { analysisScreens } from "./a11yScreensAnalysis";
+import { historyScreens } from "./a11yScreensHistory";
 import { answer, covBackend, failOn } from "./cov";
 import { seedBookSnapshots } from "./bookSnapshots";
 import { addReference, chapterAction, newProject } from "./helpers";
@@ -538,4 +539,5 @@ export const moreScreens: Screen[] = [
     },
   },
   ...analysisScreens,
+  ...historyScreens,
 ];

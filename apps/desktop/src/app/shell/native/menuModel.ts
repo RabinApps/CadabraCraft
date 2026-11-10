@@ -216,6 +216,7 @@ function fileMenu(b: Builder, ctx: MenuContext): MenuEntry {
     cmd("file.save", t`Save`, "CmdOrCtrl+S"),
     cmd("file.bookDetails", t`Book Details…`),
     cmd("file.analysis", t`Analysis…`),
+    cmd("file.writingHistory", t`Writing history…`),
     sep,
     sub(t`Export`, [
       cmd("file.exportEpub", t`EPUB…`, "CmdOrCtrl+Alt+E"),

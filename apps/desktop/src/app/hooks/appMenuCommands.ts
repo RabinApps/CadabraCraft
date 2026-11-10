@@ -5,6 +5,7 @@ import { bridge } from "../../lib/bridge";
 import { errText } from "../../lib/projectError";
 import type { Command } from "../../state/app/commands";
 import { useAnalysis } from "../../state/app/analysis";
+import { useWritingDialog } from "../../state/app/writingDialog";
 import { useLicenses } from "../../state/app/licenses";
 import { SPONSOR_URL } from "../../state/app/sponsor";
 import { useUpdates } from "../../state/app/updates";
@@ -170,6 +171,7 @@ function bookFileCommands(env: CommandEnv): Record<string, Command> {
     "file.save": { run: guard(actions.flush) },
     "file.bookDetails": { run: h.openDetails },
     "file.analysis": { run: () => useAnalysis.getState().show() },
+    "file.writingHistory": { run: () => useWritingDialog.getState().show() },
     "file.printPreview": afterFlush(() => h.setView("print")),
     "file.importInto": afterFlush(() => env.setImportingInto(true)),
     "file.close": { run: guard(() => leave(env)) },

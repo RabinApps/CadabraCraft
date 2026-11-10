@@ -2311,3 +2311,18 @@ Rejected:
 | Take "today" from the clock inside `dailyPlan`       | Makes the function impure and its tests depend on the date. The caller passes the local date as `YYYY-MM-DD`.                              |
 
 **Caveats:** the format package's strict 100% coverage gate is not met at this commit. The gaps are in code this change did not touch (`edit/chapters.ts`, `edit/matter.ts`, `toc/edit.ts`, and one `toc.parts` type check in `manifest.ts`), so they were already there before this bump. The new modules are fully covered.
+
+## Writing history in `stats.json`, counted at each save (2026-11-09, no format change)
+
+**Decision:** the words written per day are one file in the project folder, `stats.json` (see [file-format.md](file-format.md), "Writing history"). The figures and the heatmap are pure functions in `packages/shared/src/history/` (`summary.ts`, `heatmap.ts`, `file.ts`). The app counts the book's words after each page save (`countBook`, the chapters' words) and adds the difference from the last saved total to today (`apps/desktop/src/state/project/writingSave.ts`). The first count is taken when the book opens. The file is read and written through the same commands as the chapters, so the temp file, rename and hash check are the ones the chapters use. The heatmap uses a fixed scale (none, 1 to 250, 251 to 500, 501 to 1000, more than 1000 words), so one square means the same count in every book.
+
+**Why:** the history belongs to the folder it counts, so it moves with the book and a second book keeps its own. A separate file can be deleted or lost without touching the manuscript, and it needs no format bump, because nothing in the book refers to it.
+
+| Rejected                                                      | Why not                                                                                                                                                                                   |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Keep the history in the app's preferences                     | Preferences are per machine and per app, not per book. Two books would share one count, and the history would not follow the folder to another computer.                                  |
+| Keep the history in the manifest (`cadabra.json`)             | The manifest is the book's structure and is read by the MCP tools and the exporters. Writing it at every save would make every save a manifest change, with its backup and conflict path. |
+| Bump the format version and store the history in the manifest | It would change the format on every save, not once: an older app would refuse or drop the history each time it saved a book that had one. A separate file avoids both.                    |
+| Count words from the editor's transactions as they are typed  | It would need a new editor hook (the editor is not changed in this milestone) and would count typing that is later undone. The save-time difference is exact and needs no editor change.  |
+
+**Trade-offs and caveats:** the count is per save, so words typed and never saved are not counted (the autosave runs within seconds, so this is small). A change made to the book outside the app (another computer, a script) since the last save is counted at the next save in the app. A stats file that cannot be read is kept as a copy and the history starts again from empty; the app says where the copy is. The file can be deleted at any time. It is a convenience figure, not a record, so it is not part of any export.
