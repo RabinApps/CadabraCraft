@@ -4698,6 +4698,10 @@ msgstr ""
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr ""
 
+#: src/app/shell/native/menuModel.ts
+msgid "Read Aloud from Cursor"
+msgstr ""
+
 #: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Read aloud paused"
 msgstr ""

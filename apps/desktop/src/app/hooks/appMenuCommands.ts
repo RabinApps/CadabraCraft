@@ -12,6 +12,7 @@ import { useUpdates } from "../../state/app/updates";
 import { useProject } from "../../state/project/index";
 import { quitApp } from "../shell/native/quit";
 import type { ExportFormat } from "../export/exportFormat";
+import { useReadAloudRequest } from "../../state/app/readAloudRequest";
 
 export type View =
   "book" | "settings" | "fonts" | "templates" | "print" | "welcome" | "board" | "timeline";
@@ -246,5 +247,6 @@ export function writingCommands(env: CommandEnv): Record<string, Command> {
     "view.outline": { run: () => env.showQuickNav("outline") },
     "view.focus": { run: () => setLayout({ focus: !layout.focus }), checked: layout.focus },
     "view.typewriter": { run: () => env.setTypewriter(!typewriter), checked: typewriter },
+    "view.readAloud": { run: () => useReadAloudRequest.getState().request() },
   };
 }

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import {
@@ -27,6 +27,7 @@ import { useFind } from "./find/findStore";
 import { ReadAloudHighlight } from "./readAloud/highlight";
 import { ReadAloudBar } from "./readAloud/ReadAloudBar";
 import { useReadAloud } from "./readAloud/useReadAloud";
+import { useReadAloudRequest } from "../state/app/readAloudRequest";
 import { useCommentAnchoring } from "./useCommentAnchoring";
 import { useSceneEditingBridge } from "./useSceneEditingBridge";
 import { PasteDialog } from "./paste/PasteDialog";
@@ -133,12 +134,19 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
   useJumpFromPreview(editor);
   useRefocusOnSurfaceChange(editor, pageView.on);
   const readAloud = useReadAloud(editor, language);
+  const readAloudCount = useReadAloudRequest((s) => s.count);
+  const readAloudSeen = useRef(readAloudCount);
+  useEffect(() => {
+    if (readAloudCount === readAloudSeen.current) return;
+    readAloudSeen.current = readAloudCount;
+    readAloud.readFromCursor();
+  }, [readAloudCount, readAloud]);
   if (!editor) return null;
   return (
     <div {...{ [EDITOR_DROP_ATTR]: "" }} className="relative flex min-h-0 flex-1 flex-col">
       {findOpen && <FindBar editor={editor} focusMode={focus} />}
       {!focus && <Toolbar editor={editor} />}
-      <ReadAloudBar {...readAloud} />
+      {readAloud.state.status !== "idle" && <ReadAloudBar {...readAloud} />}
       <PasteDialog
         pending={pending}
         remember={remember}

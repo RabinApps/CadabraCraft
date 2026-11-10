@@ -4700,6 +4700,10 @@ msgstr "קריאה בקול"
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr "קוראי מסך מקריאים אותו בקול. תאר מה התמונה מציגה."
 
+#: src/app/shell/native/menuModel.ts
+msgid "Read Aloud from Cursor"
+msgstr "קריאה בקול מהסמן"
+
 #: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Read aloud paused"
 msgstr "הקריאה בקול מושהית"

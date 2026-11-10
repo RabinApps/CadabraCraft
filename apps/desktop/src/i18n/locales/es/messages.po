@@ -4700,6 +4700,10 @@ msgstr "Leer en voz alta"
 msgid "Read aloud by screen readers. Describe what the picture shows."
 msgstr "Los lectores de pantalla la leen en voz alta. Describe lo que muestra la imagen."
 
+#: src/app/shell/native/menuModel.ts
+msgid "Read Aloud from Cursor"
+msgstr "Leer en voz alta desde el cursor"
+
 #: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Read aloud paused"
 msgstr "Lectura en voz alta en pausa"

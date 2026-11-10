@@ -334,6 +334,7 @@ function viewMenu(b: Builder, _ctx: MenuContext): MenuEntry {
     sep,
     cmd("view.focus", t`Focus Mode`, "CmdOrCtrl+Shift+F"),
     cmd("view.typewriter", t`Typewriter Scrolling`, "CmdOrCtrl+Alt+T"),
+    cmd("view.readAloud", t`Read Aloud from Cursor`),
     cmd("view.details", t`Details Panel`),
     cmd("view.references", t`References Panel`),
     cmd("view.board", t`Scene Board`),
