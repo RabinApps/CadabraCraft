@@ -97,8 +97,10 @@ test.describe("command palette", () => {
     await openPalette(page);
     await page.keyboard.type("fcs");
     const options = palette(page).getByRole("option");
-    await expect(options.first()).toContainText("Focus Mode");
-    await expect(options.first().locator("mark")).toHaveText(["F", "c", "s"]);
+    // Several commands match the letters; Focus Mode is one of them, and its letters are highlighted.
+    const focus = options.filter({ hasText: "Focus Mode" });
+    await expect(focus).toHaveCount(1);
+    await expect(focus.locator("mark")).toHaveText(["F", "c", "s"]);
     await expect(palette(page).getByRole("status")).toHaveText(/^\d+ results$/);
     await page.keyboard.press("ControlOrMeta+a");
     await page.keyboard.type("qqqq");
