@@ -31,7 +31,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             </a>
           </span>
           <LocaleSwitcher locale={locale} />
-          <ThemeToggle />
+          <ThemeToggle labels={m.theme} />
         </nav>
         <details className="relative md:hidden">
           <summary className="cursor-pointer list-none rounded-md border border-border px-3 py-1.5 text-sm">

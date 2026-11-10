@@ -8,6 +8,7 @@ export const en = {
     support: "Support",
   },
   header: { menu: "Menu", github: "GitHub", language: "Language" },
+  theme: { label: "Theme", system: "System", light: "Light", dark: "Dark" },
   footer: {
     tagline: "Free, source-available book writing and formatting.",
     download: "Download",
