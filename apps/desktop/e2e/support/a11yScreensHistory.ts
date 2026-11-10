@@ -6,6 +6,7 @@ import { dayKey, seedWritingStats } from "./writingStats";
 export const historyScreens: Screen[] = [
   {
     name: "Writing history dialog",
+    noText: true,
     open: async (p) => {
       await newProject(p);
       await seedWritingStats(p, { [dayKey(0)]: 612, [dayKey(-1)]: 300, [dayKey(-2)]: 1400 });

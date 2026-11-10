@@ -89,7 +89,7 @@ export function SprintControl() {
         aria-controls={open ? panelId : undefined}
         onClick={() => setOpen((o) => !o)}
         className={cx(
-          "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-semibold tabular-nums max-md:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+          "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 font-semibold tabular-nums max-md:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
           running || done
             ? "border-accent bg-accent-soft text-accent"
             : "border-border-strong text-ink-muted hover:bg-accent-soft",

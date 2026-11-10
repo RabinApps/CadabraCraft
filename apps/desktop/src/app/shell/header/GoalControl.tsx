@@ -38,7 +38,7 @@ export function GoalControl({ goal, bookWords }: Props) {
         type="button"
         aria-haspopup="dialog"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 tabular-nums hover:bg-accent-soft max-md:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-1.5 py-0.5 tabular-nums hover:bg-accent-soft max-md:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <Target size={14} aria-hidden />
         <span>{label}</span>

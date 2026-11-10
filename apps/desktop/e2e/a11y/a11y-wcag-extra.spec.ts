@@ -118,10 +118,11 @@ test.describe("2.2.2 and 2.3.1 moving content", () => {
   });
 
   test("the app starts no timer that updates the screen on a loop", async () => {
-    const found = sources()
-      .filter(({ text }) => /\bsetInterval\s*\(/.test(text))
-      .map((s) => s.file);
-    expect(found).toEqual([]);
+    const files = sources();
+    const found = files.filter(({ text }) => /\bsetInterval\s*\(/.test(text)).map((s) => s.file);
+    // The sprint timer is the one timer, and only the author starts it; it has a Pause button on screen.
+    expect(found).toEqual(["src/app/shell/header/SprintControl.tsx"]);
+    expect(files.find((f) => f.file.endsWith("SprintControl.tsx"))!.text).toMatch(/Pause sprint/);
   });
 
   test("no animation flashes: the app's own loops are slower than 3 per second", async () => {
@@ -169,7 +170,12 @@ test.describe("1.4.2 audio control", () => {
     const players = files
       .filter(({ text }) => /new Audio\(|AudioContext/.test(text))
       .map((f) => f.file);
-    expect(players).toEqual(["src/app/export/parts/useAudioSample.ts"]);
+    expect(players).toEqual([
+      "src/app/export/parts/useAudioSample.ts",
+      "src/editor/readAloud/playback.ts",
+    ]);
+    // Read aloud starts only from its Play button and stops from its Stop button.
+    expect(files.find((f) => f.file.endsWith("ReadAloudBar.tsx"))!.text).toMatch(/stop/i);
     const hook = files.find((f) => f.file.endsWith("useAudioSample.ts"))!.text;
     expect(hook).toMatch(/if \(sample === "playing"\) return stopSample\(\)/);
   });

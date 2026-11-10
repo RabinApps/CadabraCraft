@@ -63,7 +63,11 @@ test("importing Markdown creates a new project with chapters, shows the report, 
   );
   expect(
     result.files.every(
-      (f) => f === "cadabra.json" || f.startsWith("manuscript/") || f.startsWith("assets/"),
+      (f) =>
+        f === "cadabra.json" ||
+        f === "stats.json" ||
+        f.startsWith("manuscript/") ||
+        f.startsWith("assets/"),
     ),
   ).toBe(true);
 });

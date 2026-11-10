@@ -67,7 +67,6 @@ export function WritingHeatmap({ weeks }: { weeks: HeatCell[][] }) {
                       <span
                         role="img"
                         aria-label={label}
-                        title={label}
                         className={cx("block size-3 rounded-[3px]", LEVEL_CLASS[cell.level])}
                       />
                     </td>
