@@ -4,6 +4,8 @@
   "include": [
     "src",
     "e2e",
+    "e2e-screenshots",
+    "playwright.screenshots.config.ts",
     "e2e-native",
     "e2e-voiceover",
     "vite.config.ts",

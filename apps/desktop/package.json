@@ -13,6 +13,7 @@
     "i18n:check": "lingui extract --clean && git diff --exit-code src/i18n/locales",
     "test": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
+    "screenshots:website": "playwright test -c playwright.screenshots.config.ts",
     "test:e2e:webkit": "WEBKIT=1 playwright test --project=webkit",
     "test:a11y": "playwright test a11y language-mark images.spec",
     "test:a11y:locales": "E2E_LOCALES=1 playwright test --project=locale-he --project=locale-ar --project=locale-pseudo --project=locale-pseudo-rtl",
