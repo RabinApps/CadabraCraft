@@ -39,6 +39,8 @@ export const MIGRATIONS: Migration[] = [
   { from: 11, up: migrateV11ToV12 },
   // v12 -> v13: a manifest `goal` (words and an optional deadline). Absent means no goal, so nothing changes and no file moves.
   { from: 12, up: (raw) => ({ ...raw }) },
+  // v13 -> v14: a manifest `index` and `glossary` (settings and glossary entries). Absent means none, so nothing changes and no file moves.
+  { from: 13, up: (raw) => ({ ...raw }) },
 ];
 
 export interface MigrationResult {

@@ -2,6 +2,8 @@ import type {
   BookMetadata,
   ChapterDoc,
   EntryKind,
+  GlossaryPageSpec,
+  IndexPageSpec,
   SceneBreakOrnamentId,
   Section,
 } from "@cadabracraft/shared";
@@ -105,6 +107,10 @@ export interface PdfOptions {
    * layout; `pageNumbers: false`, or `PdfOptions.pageNumbers` false, leaves them and the dot leaders out.
    */
   toc?: PdfToc;
+  /** The back-of-book index, already built (`buildIndex`). Written as a page after the back matter, with the page numbers the layout gives each marked place (ranges when `ranges` is set). */
+  index?: IndexPageSpec;
+  /** The glossary, already built (`buildGlossary`). Written as a page after the index: each term in bold with its meaning (no page numbers). */
+  glossary?: GlossaryPageSpec;
 }
 
 /** The part of a `TocItem` (`@cadabracraft/format`) the PDF needs, so a `TocItem` can be passed as is. */

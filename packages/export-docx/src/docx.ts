@@ -1,8 +1,11 @@
 import { strToU8, zipSync } from "fflate";
 import { contentsLines, starterTitle } from "@cadabracraft/format";
 import {
+  GENERATED_GLOSSARY_ID,
+  GENERATED_INDEX_ID,
   countWords,
   dropLeadingPageBreak,
+  generatedDocPages,
   textDirection,
   type ChapterDoc,
   type Section,
@@ -237,8 +240,18 @@ export function buildDocx(
 
   body.push(...titleBlocks(title, author, words, s, emptyHdr));
 
+  // The index and the glossary are generated from the marks, after the author's pages; one with nothing to list is left out.
+  const titles = new Map<string, string>();
+  for (const c of pages) if (c.id !== undefined) titles.set(c.id, c.title.trim());
+  const clash = pages.find((c) => c.id === GENERATED_INDEX_ID || c.id === GENERATED_GLOSSARY_ID);
+  if (clash) throw new DocxExportError(`Page id "${clash.id}" is reserved for a generated page`);
+  const generated = generatedDocPages(options, titles, language).map((g) => ({
+    ...g,
+    section: "back" as const,
+    kind: "custom" as const,
+  }));
   let first = true;
-  for (const c of pages) {
+  for (const c of [...pages, ...generated]) {
     // A blank page has no text; Word paginates itself, so it is left out (as in the RTF and Markdown exports).
     if (c.kind === "title-page" || c.kind === "blank") continue;
     body.push(...pageBlocks(c, s, !first, options, language));

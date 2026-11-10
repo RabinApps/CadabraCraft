@@ -6,6 +6,7 @@ import {
   type Section,
 } from "@cadabracraft/shared";
 import { renderChapter, type MarkdownOptions } from "./markdown";
+import { glossaryMarkdown, indexMarkdown } from "./generated";
 import {
   contentsMarkdown,
   headingTexts,
@@ -66,7 +67,7 @@ function readingOrder(chapters: MarkdownChapter[]): MarkdownChapter[] {
  * to the pages' headings by their GitHub-style anchors (see `MarkdownContents`).
  */
 export function chaptersToMarkdown(
-  _book: MarkdownBook,
+  book: MarkdownBook,
   chapters: MarkdownChapter[],
   opts: MarkdownOptions = {},
   contents?: MarkdownContents,
@@ -109,13 +110,21 @@ export function chaptersToMarkdown(
         pages.set(c.id, { id: c.id, ...(file === undefined ? {} : { file }), anchors, added });
     }
   }
-  return docs.map(({ c, doc }) => {
+  const out = docs.map(({ c, doc }) => {
     const r = renderChapter(doc, { ...opts, footnoteOffset: offset });
     offset += r.footnotes;
     if (contents === undefined || c.kind !== "contents") return r.markdown;
     const list = contentsMarkdown(contents, pages);
     return list === "" ? r.markdown : `${r.markdown === "" ? "" : `${r.markdown}\n`}${list}\n`;
   });
+  // The index and the glossary are generated from the marks, after the author's pages; one with nothing to list is left out.
+  if (opts.index && opts.index.tree.groups.length > 0) {
+    const titles = new Map<string, string>();
+    for (const { c } of docs) if (c.id !== undefined) titles.set(c.id, c.title.trim());
+    out.push(indexMarkdown(opts.index, titles, book.language));
+  }
+  if (opts.glossary && opts.glossary.items.length > 0) out.push(glossaryMarkdown(opts.glossary));
+  return out;
 }
 
 /** A one-line YAML scalar: JSON strings are valid double-quoted YAML. */

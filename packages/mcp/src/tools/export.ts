@@ -14,6 +14,7 @@ import { ProjectFsError, readProjectFile, writeBytes } from "@cadabracraft/proje
 import { getTemplate, hasTemplate, resolveBookFonts, resolveTrimSize } from "@cadabracraft/templates";
 import { exportDir, isCodexFile, readingOrder, sectionOf, type Manifest } from "@cadabracraft/format";
 import { loadBook, type Book } from "../book";
+import { exportSpecs, specCounts, specOptions } from "../indexing/specs";
 import { ToolError } from "../errors";
 import { poppler, runEpubcheck, typstPath } from "../external";
 import { editionOf, loadProject, projectRoot } from "../project";
@@ -38,18 +39,20 @@ export const exportEpub = defineTool({
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
   run: ({ path, language, skipUntranslated }, ctx) =>
     withLock(projectRoot(ctx, path), async () => {
-      const { root, manifest, edition, dir, skipped, chapters, assets, templateId } = loadBook(ctx, path, { language, skipUntranslated });
+      const { root, manifest, edition, dir, skipped, chapters: pages, assets, templateId } = loadBook(ctx, path, { language, skipUntranslated });
+      const specs = exportSpecs(manifest, pages, edition.language);
+      const chapters = specs.chapters;
       const EPUB = `${dir}/book.epub`;
       let bytes: Uint8Array;
       try {
-        bytes = buildEpub({ title: edition.title, author: edition.author, language: edition.language, identifier: edition.identifier, isbn: edition.isbn, publishing: edition.publishing, modified: new Date() }, chapters, { assets, ...ornamentOf(manifest), css: getTemplate(templateId).epub.css, dropCap: getTemplate(templateId).print.chapterOpening.dropCap, centerKinds: getTemplate(templateId).print.matter.verticalCenter });
+        bytes = buildEpub({ title: edition.title, author: edition.author, language: edition.language, identifier: edition.identifier, isbn: edition.isbn, publishing: edition.publishing, modified: new Date() }, chapters, { assets, ...ornamentOf(manifest), ...specOptions(specs), css: getTemplate(templateId).epub.css, dropCap: getTemplate(templateId).print.chapterOpening.dropCap, centerKinds: getTemplate(templateId).print.matter.verticalCenter });
       } catch (e) {
         throw new ToolError("epub_error", errMsg(e));
       }
       writeBytes(root, EPUB, bytes);
       const epubcheck = await runEpubcheck(ctx, join(root, EPUB));
       const check = !epubcheck.ran ? `EPUBCheck not run (${epubcheck.reason})` : epubcheck.passed ? "EPUBCheck passed" : `EPUBCheck reported ${epubcheck.messages.length} message(s)`;
-      return { summary: `Wrote ${EPUB} (${bytes.length} bytes, ${chapters.length} chapters). ${check}${skippedNote(skipped)}`, data: { file: EPUB, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), template: templateId, epubcheck } };
+      return { summary: `Wrote ${EPUB} (${bytes.length} bytes, ${chapters.length} chapters). ${check}${skippedNote(skipped)}`, data: { file: EPUB, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), template: templateId, ...specCounts(specs), epubcheck } };
     }),
 });
 
@@ -62,17 +65,19 @@ export const exportMarkdown = defineTool({
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
   run: ({ path, htmlMarks, language, skipUntranslated }, ctx) =>
     withLock(projectRoot(ctx, path), async () => {
-      const { root, manifest, edition, dir, skipped, chapters } = loadBook(ctx, path, { language, skipUntranslated });
+      const { root, manifest, edition, dir, skipped, chapters: pages } = loadBook(ctx, path, { language, skipUntranslated });
+      const specs = exportSpecs(manifest, pages, edition.language);
+      const chapters = specs.chapters;
       const MARKDOWN = `${dir}/book.md`;
       let markdown: string;
       try {
-        markdown = bookToMarkdown({ title: edition.title, author: edition.author }, chapters, { htmlMarks: htmlMarks === true, imageBase: "../", ...ornamentOf(manifest) });
+        markdown = bookToMarkdown({ title: edition.title, author: edition.author }, chapters, { htmlMarks: htmlMarks === true, imageBase: "../", ...ornamentOf(manifest), ...specOptions(specs) });
       } catch (e) {
         throw new ToolError("markdown_error", errMsg(e));
       }
       const bytes = new TextEncoder().encode(markdown);
       writeBytes(root, MARKDOWN, bytes);
-      return { summary: `Wrote ${MARKDOWN} (${bytes.length} bytes, ${chapters.length} chapters)${skippedNote(skipped)}`, data: { file: MARKDOWN, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), htmlMarks: htmlMarks === true } };
+      return { summary: `Wrote ${MARKDOWN} (${bytes.length} bytes, ${chapters.length} chapters)${skippedNote(skipped)}`, data: { file: MARKDOWN, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), htmlMarks: htmlMarks === true, ...specCounts(specs) } };
     }),
 });
 
@@ -125,7 +130,9 @@ export const exportPdf = defineTool({
   run: ({ path, trimSize, template, bodyFont, headingFont, pdfA, bleedIn, cropMarks, language, skipUntranslated }, ctx) =>
     withLock(projectRoot(ctx, path), async () => {
       if (template !== undefined && !hasTemplate(template)) getTemplate(template); // throws template_unknown listing the ids
-      const { root, manifest, edition, dir, skipped, chapters, assets, templateId } = loadBook(ctx, path, { language, skipUntranslated });
+      const { root, manifest, edition, dir, skipped, chapters: pages, assets, templateId } = loadBook(ctx, path, { language, skipUntranslated });
+      const specs = exportSpecs(manifest, pages, edition.language);
+      const chapters = specs.chapters;
       const PDF = `${dir}/book.pdf`;
       const id = template ?? templateId;
       const size: TrimSize = trimSize ?? resolveTrimSize({ template: id, ...(manifest.trimSize ? { trimSize: manifest.trimSize } : {}) });
@@ -135,11 +142,11 @@ export const exportPdf = defineTool({
       const { pdf, fonts } = await renderPdf(
         { title: edition.title, author: edition.author, language: edition.language },
         chapters,
-        { template: id, trimSize: size, ...ornamentOf(manifest), assets: Object.fromEntries(assets), pdfA: pdfA === true, ...(bleedIn ? { bleedIn } : {}), ...(cropMarks ? { cropMarks: true } : {}), ...(Object.keys(bookFonts).length ? { fonts: bookFonts } : {}) },
+        { template: id, trimSize: size, ...ornamentOf(manifest), ...specOptions(specs), assets: Object.fromEntries(assets), pdfA: pdfA === true, ...(bleedIn ? { bleedIn } : {}), ...(cropMarks ? { cropMarks: true } : {}), ...(Object.keys(bookFonts).length ? { fonts: bookFonts } : {}) },
         runner,
       );
       writeBytes(root, PDF, pdf);
-      return { summary: `Wrote ${PDF} (${pdf.length} bytes, ${size}, template ${id}${pdfA ? ", PDF/A-2b" : ""}${bleedIn ? `, ${bleedIn} in bleed${cropMarks ? " with crop marks" : ""}` : ""})${skippedNote(skipped)}`, data: { file: PDF, language: edition.language, skipped: skippedData(skipped), bytes: pdf.length, options: { trimSize: size, template: id, pdfA: pdfA === true, bleedIn: bleedIn ?? 0, cropMarks: cropMarks === true }, fonts } };
+      return { summary: `Wrote ${PDF} (${pdf.length} bytes, ${size}, template ${id}${pdfA ? ", PDF/A-2b" : ""}${bleedIn ? `, ${bleedIn} in bleed${cropMarks ? " with crop marks" : ""}` : ""})${skippedNote(skipped)}`, data: { file: PDF, language: edition.language, skipped: skippedData(skipped), bytes: pdf.length, ...specCounts(specs), options: { trimSize: size, template: id, pdfA: pdfA === true, bleedIn: bleedIn ?? 0, cropMarks: cropMarks === true }, fonts } };
     }),
 });
 
@@ -161,7 +168,7 @@ function manuscriptPages(manifest: Manifest, chapters: Book["chapters"]) {
 }
 
 /** Word and RTF are the same tool with a different writer: standard manuscript format into exports/<language>/manuscript.<ext>. */
-function manuscriptTool(o: { name: string; title: string; ext: "docx" | "rtf"; describe: string; code: "docx_error" | "rtf_error"; build: (b: Book, font: string | undefined) => Uint8Array }) {
+function manuscriptTool(o: { name: string; title: string; ext: "docx" | "rtf"; describe: string; code: "docx_error" | "rtf_error"; build: (b: Book, font: string | undefined, specs: ReturnType<typeof exportSpecs<Book["chapters"][number]>>) => Uint8Array }) {
   return defineTool({
     name: o.name,
     title: o.title,
@@ -172,15 +179,16 @@ function manuscriptTool(o: { name: string; title: string; ext: "docx" | "rtf"; d
       withLock(projectRoot(ctx, path), async () => {
         const book = loadBook(ctx, path, { language, skipUntranslated });
         const { root, edition, dir, skipped, chapters } = book;
+        const specs = exportSpecs(book.manifest, chapters, edition.language);
         const FILE = `${dir}/manuscript.${o.ext}`;
         let bytes: Uint8Array;
         try {
-          bytes = o.build(book, font);
+          bytes = o.build(book, font, specs);
         } catch (e) {
           throw new ToolError(o.code, errMsg(e));
         }
         writeBytes(root, FILE, bytes);
-        return { summary: `Wrote ${FILE} (${bytes.length} bytes, ${chapters.length} pages)${skippedNote(skipped)}`, data: { file: FILE, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), font: font ?? "times" } };
+        return { summary: `Wrote ${FILE} (${bytes.length} bytes, ${chapters.length} pages)${skippedNote(skipped)}`, data: { file: FILE, language: edition.language, bytes: bytes.length, chapterCount: chapters.length, skipped: skippedData(skipped), font: font ?? "times", ...specCounts(specs) } };
       }),
   });
 }
@@ -191,8 +199,8 @@ export const exportDocx = manuscriptTool({
   describe: "Build a Word (.docx) manuscript from one edition of the book, the file agents and editors ask for.",
   ext: "docx",
   code: "docx_error",
-  build: ({ manifest, edition, chapters, assets }, font) =>
-    buildDocx({ title: edition.title, author: edition.author, language: edition.language }, manuscriptPages(manifest, chapters), { assets, ...(font ? { font } : {}), ...ornamentOf(manifest), modified: new Date() }),
+  build: ({ manifest, edition, assets }, font, specs) =>
+    buildDocx({ title: edition.title, author: edition.author, language: edition.language }, manuscriptPages(manifest, specs.chapters), { assets, ...(font ? { font } : {}), ...ornamentOf(manifest), ...specOptions(specs), modified: new Date() }),
 });
 
 export const exportRtf = manuscriptTool({
@@ -201,8 +209,8 @@ export const exportRtf = manuscriptTool({
   describe: "Build a Rich Text Format (.rtf) manuscript from one edition of the book, for word processors and submission systems that want RTF. Images must be PNG or JPEG.",
   ext: "rtf",
   code: "rtf_error",
-  build: ({ manifest, edition, chapters, assets }, font) =>
-    new TextEncoder().encode(buildRtf({ title: edition.title, author: edition.author, language: edition.language }, manuscriptPages(manifest, chapters), { assets, ...(font ? { font } : {}), ...ornamentOf(manifest), modified: new Date() })),
+  build: ({ manifest, edition, assets }, font, specs) =>
+    new TextEncoder().encode(buildRtf({ title: edition.title, author: edition.author, language: edition.language }, manuscriptPages(manifest, specs.chapters), { assets, ...(font ? { font } : {}), ...ornamentOf(manifest), ...specOptions(specs), modified: new Date() })),
 });
 
 function sizeOf(file: string, rel: string, hint: string): number {

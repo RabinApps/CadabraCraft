@@ -29,6 +29,9 @@ import { ReadAloudBar } from "./readAloud/ReadAloudBar";
 import { useReadAloud } from "./readAloud/useReadAloud";
 import { useReadAloudRequest } from "../state/app/readAloudRequest";
 import { useCommentAnchoring } from "./useCommentAnchoring";
+import { appIndexMarkers } from "./indexing/appMarkers";
+import { useMarkDialogs } from "./indexing/useMarkDialogs";
+import { useMarkJumpEffect } from "./indexing/useMarkJump";
 import { useSceneEditingBridge } from "./useSceneEditingBridge";
 import { PasteDialog } from "./paste/PasteDialog";
 import {
@@ -81,6 +84,8 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
         language: () => languageRef.current,
       }),
       FootnoteA11y((n) => t`Footnote ${n}`),
+      // A tooltip on the words marked for the index or the glossary (the bar under them is CSS).
+      appIndexMarkers(),
       shortcutRemap(editorRemap(useSettings.getState().shortcutOverrides)),
     ],
     editorProps: {
@@ -127,6 +132,9 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
   });
   // The comments rail anchors a new thread by putting a `comment` mark on what is selected here.
   useCommentAnchoring(editor, hasSelection);
+  // The Index and Glossary panels, the Insert menu and the keys put marks on the selection through these dialogs.
+  const marks = useMarkDialogs(editor);
+  useMarkJumpEffect(editor);
 
   useFindShortcuts(editor, () => convertSelection(editor, insertRef.current), hasSelection);
   useHeadingJump(editor);
@@ -145,7 +153,8 @@ export function Editor({ initial, language, onChange, focus, readOnly }: Props) 
   return (
     <div {...{ [EDITOR_DROP_ATTR]: "" }} className="relative flex min-h-0 flex-1 flex-col">
       {findOpen && <FindBar editor={editor} focusMode={focus} />}
-      {!focus && <Toolbar editor={editor} />}
+      {!focus && <Toolbar editor={editor} marks={marks} />}
+      {marks.dialogs}
       {readAloud.state.status !== "idle" && <ReadAloudBar {...readAloud} />}
       <PasteDialog
         pending={pending}

@@ -166,8 +166,8 @@ describe("the goal in the manifest (formatVersion 13)", () => {
       identifier: "urn:uuid:6f1d2c3a-4b5e-4f70-8a9b-0c1d2e3f4a5b",
     });
 
-  it("is version 13, with a migration from 12 that changes nothing", () => {
-    expect(CURRENT_FORMAT_VERSION).toBe(13);
+  it("is version 14 now, and the migration from 12 changed nothing", () => {
+    expect(CURRENT_FORMAT_VERSION).toBe(14);
     const step = MIGRATIONS.find((m) => m.from === 12);
     expect(step).toBeDefined();
     const raw = { formatVersion: 12, editions: [] };
@@ -206,7 +206,7 @@ describe("migration v12 -> v13 (a real v12 manifest)", () => {
     const r = parseManifest(v12Json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(12);
-    expect(r.manifest.formatVersion).toBe(13);
+    expect(r.manifest.formatVersion).toBe(14);
     expect(r.manifest.goal).toBeUndefined();
 
     // Every entry, title, file and reference survives the upgrade unchanged.
@@ -249,10 +249,10 @@ describe("migration v12 -> v13 (a real v12 manifest)", () => {
     });
   });
 
-  it("saves as version 13 and reopens without migrating again, with the same content", () => {
+  it("saves as version 14 and reopens without migrating again, with the same content", () => {
     const first = parseManifest(v12Json).manifest;
     const saved = serializeManifest(first);
-    expect(JSON.parse(saved).formatVersion).toBe(13);
+    expect(JSON.parse(saved).formatVersion).toBe(14);
     const again = parseManifest(saved);
     expect(again.migrated).toBe(false);
     expect(again.manifest).toEqual(first);

@@ -1,4 +1,9 @@
-import type { Mark, SceneBreakOrnamentId } from "@cadabracraft/shared";
+import type {
+  GlossaryPageSpec,
+  IndexPageSpec,
+  Mark,
+  SceneBreakOrnamentId,
+} from "@cadabracraft/shared";
 
 /** Thrown for anything that has no faithful Markdown form. Content is never silently dropped. */
 export class MarkdownExportError extends Error {
@@ -29,6 +34,13 @@ export interface MarkdownOptions {
   imageBase?: string;
   /** Scene-break mark (see `SCENE_BREAK_ORNAMENT_IDS`). Absent keeps `* * *`; an unknown id throws. */
   sceneBreak?: SceneBreakOrnamentId;
+  /**
+   * The back-of-book index, already built (`buildIndex`). `chaptersToMarkdown` and `bookToMarkdown` add it as a last page: each term lists
+   * the chapters it is marked in (Markdown has no page numbers). `chapterToMarkdown` ignores it.
+   */
+  index?: IndexPageSpec;
+  /** The glossary, already built (`buildGlossary`), added after the index: each term in bold with its definition. */
+  glossary?: GlossaryPageSpec;
 }
 
 export interface Ctx {

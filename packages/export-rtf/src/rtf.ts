@@ -1,7 +1,10 @@
 import { contentsLines, starterTitle } from "@cadabracraft/format";
 import {
+  GENERATED_GLOSSARY_ID,
+  GENERATED_INDEX_ID,
   countWords,
   dropLeadingPageBreak,
+  generatedDocPages,
   textDirection,
   type ChapterDoc,
   type Section,
@@ -196,8 +199,18 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
   );
 
   const body: string[] = titlePage(title, author, words, s);
+  // The index and the glossary are generated from the marks, after the author's pages; one with nothing to list is left out.
+  const titles = new Map<string, string>();
+  for (const c of pages) if (c.id !== undefined) titles.set(c.id, c.title.trim());
+  const clash = pages.find((c) => c.id === GENERATED_INDEX_ID || c.id === GENERATED_GLOSSARY_ID);
+  if (clash) throw new RtfExportError(`Page id "${clash.id}" is reserved for a generated page`);
+  const generated = generatedDocPages(options, titles, language).map((g) => ({
+    ...g,
+    section: "back" as const,
+    kind: "custom" as const,
+  }));
   let first = true;
-  for (const c of pages) {
+  for (const c of [...pages, ...generated]) {
     // The generated manuscript title page replaces a "title-page" matter page (which only holds the title and author).
     // A blank page has no text; Rich Text has no page layout of its own here, so it is left out.
     if (c.kind === "title-page" || c.kind === "blank") continue;

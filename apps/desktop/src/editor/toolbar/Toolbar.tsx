@@ -12,6 +12,7 @@ import { ImageDialog, LangDialog, LinkDialog } from "./ToolbarDialogs";
 import { useImageDialog } from "../useImageDialog";
 import { useLangDialog } from "../useLangDialog";
 import { useConvertQuotes } from "./useConvertQuotes";
+import { useIndexItems, type MarkOpeners } from "../indexing/useIndexItems";
 import { LiveNote } from "./LiveNote";
 import { useToolbarState } from "./useToolbarState";
 import { useMenuOnlyItems } from "./useMenuOnlyItems";
@@ -21,7 +22,7 @@ import { useLinkDialog, useRegisterToolbarCommands, useToolbarGroups } from "./u
 const MORE = "more";
 const ALIGN = "align";
 
-export function Toolbar({ editor }: { editor: Editor }) {
+export function Toolbar({ editor, marks }: { editor: Editor; marks: MarkOpeners }) {
   const { t } = useLingui();
   const s = useToolbarState(editor);
   const c = () => editor.chain().focus();
@@ -33,7 +34,10 @@ export function Toolbar({ editor }: { editor: Editor }) {
     useLinkDialog(editor, c, s.link);
   const groups = useToolbarGroups(s, c, { setLink, addImage });
 
-  const menuOnly = useMenuOnlyItems(editor, s, c, actions, editImage);
+  const menuOnly = [
+    ...useMenuOnlyItems(editor, s, c, actions, editImage),
+    ...useIndexItems(s.hasSelection, marks),
+  ];
   const { alignNow, alignItems } = useAlignItems(s, c);
 
   useRegisterToolbarCommands(groups.flat(), menuOnly, alignItems, alignNow);
@@ -41,9 +45,8 @@ export function Toolbar({ editor }: { editor: Editor }) {
   // One tab stop for the whole toolbar; arrow keys move between the buttons (the WAI-ARIA toolbar pattern).
   const barRef = useRef<HTMLDivElement>(null);
   const [stop, setStop] = useState<string | null>(null);
-  const all = groups.flat();
   // The alignment button and the More formatting button are stops of the bar too, and are never disabled.
-  const stops = [...all, { id: ALIGN, disabled: false }, { id: MORE, disabled: false }];
+  const stops = [...groups.flat(), { id: ALIGN, disabled: false }, { id: MORE, disabled: false }];
   const stopId = (stops.find((b) => b.id === stop && !b.disabled) ?? stops.find((b) => !b.disabled))
     ?.id;
   const overrides = useSettings((p) => p.shortcutOverrides);
@@ -62,7 +65,8 @@ export function Toolbar({ editor }: { editor: Editor }) {
     });
   const moreSections = [
     more(["strike", "code", "superscript", "subscript"]),
-    more(["lang", "clearLang"]),
+    more(["lang", "clearLang", "indexEntry", "glossaryTerm"]),
+
     more(["imageDetails", "sceneBreak", "pageBreak", "codeBlock", "taskList", "definitionList"]),
   ];
 

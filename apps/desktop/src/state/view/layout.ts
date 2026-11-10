@@ -16,6 +16,10 @@ interface Prefs {
   references: boolean;
   /** Show the comments rail instead of the other panels (xl screens). */
   comments: boolean;
+  /** Show the back-of-book Index rail instead of the other panels (xl screens). */
+  index: boolean;
+  /** Show the Glossary rail instead of the other panels (xl screens). */
+  glossary: boolean;
   /** The chapter list's width on desktop. */
   sidebarWidth: number;
 }
@@ -24,6 +28,8 @@ const defaults: Prefs = {
   details: true,
   references: false,
   comments: false,
+  index: false,
+  glossary: false,
   sidebarWidth: SIDEBAR_DEFAULT_WIDTH,
 };
 
@@ -39,6 +45,8 @@ export const useLayout = createPersistedStore<Prefs>({
           details: o.details,
           references: o.references === true,
           comments: o.comments === true,
+          index: o.index === true,
+          glossary: o.glossary === true,
           sidebarWidth:
             typeof o.sidebarWidth === "number" && Number.isFinite(o.sidebarWidth)
               ? clampSidebarWidth(o.sidebarWidth)
@@ -47,4 +55,16 @@ export const useLayout = createPersistedStore<Prefs>({
       : null;
   },
   clean: (next) => ({ ...next, sidebarWidth: clampSidebarWidth(next.sidebarWidth) }),
+});
+
+/** The patch that shows one of the right-hand panels (or hides it), so that never more than one is on. */
+export const panelPatch = (
+  panel: "references" | "comments" | "index" | "glossary",
+  on: boolean,
+): Partial<Prefs> => ({
+  references: false,
+  comments: false,
+  index: false,
+  glossary: false,
+  [panel]: on,
 });

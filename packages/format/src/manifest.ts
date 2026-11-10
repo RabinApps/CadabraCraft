@@ -13,13 +13,15 @@ import { validateEditions } from "./editions";
 import { validateReferences } from "./references";
 import { validatePublishing, type Publishing } from "./publishing";
 import { validateGoal, type BookGoal } from "./book/goal";
+import { validateIndexSettings, type IndexSettings } from "./book/indexSettings";
+import { validateGlossarySettings, type GlossarySettings } from "./book/glossarySettings";
 import { validateFonts, type BookFonts } from "./book/fonts";
 
 export { validateFonts, type BookFonts };
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 13;
+export const CURRENT_FORMAT_VERSION = 14;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -143,6 +145,10 @@ export interface Manifest {
   references: Reference[];
   /** The author's writing goal (formatVersion 13); absent means none. */
   goal?: BookGoal;
+  /** Settings of the generated back-of-book index (formatVersion 14); absent means no index. */
+  index?: IndexSettings;
+  /** The glossary and its settings (formatVersion 14); absent means no glossary. */
+  glossary?: GlossarySettings;
 }
 
 export function createManifest(init: {
@@ -461,6 +467,8 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
     m.dropCap = o.dropCap;
   }
   if (o.goal !== undefined) m.goal = validateGoal(o.goal);
+  if (o.index !== undefined) m.index = validateIndexSettings(o.index);
+  if (o.glossary !== undefined) m.glossary = validateGlossarySettings(o.glossary);
   validateEditions(m.editions, readingOrder(m));
   const seen = new Set<string>();
   for (const e of readingOrder(m)) {

@@ -1,0 +1,165 @@
+{
+  "formatVersion": 13,
+  "template": "novel",
+  "trimSize": "5.5x8.5",
+  "dropCap": true,
+  "fonts": {
+    "body": "EB Garamond",
+    "heading": "Inter"
+  },
+  "editions": [
+    {
+      "language": "en",
+      "title": "The Keeper of Quay Light",
+      "author": "A. Writer",
+      "identifier": "urn:uuid:6f1d2c3a-4b5e-4f70-8a9b-0c1d2e3f4a5b",
+      "isbn": null,
+      "cover": null,
+      "publishing": {
+        "publisher": "Quay Press",
+        "subjects": [
+          "Fiction",
+          "Historical"
+        ],
+        "series": "Harbour Lights",
+        "seriesNumber": "1"
+      }
+    }
+  ],
+  "frontMatter": [
+    {
+      "id": "fm-1",
+      "kind": "title-page",
+      "titles": {
+        "en": "Title Page"
+      },
+      "files": {
+        "en": "front-matter/01-title-page.json"
+      }
+    },
+    {
+      "id": "fm-2",
+      "kind": "contents",
+      "titles": {
+        "en": "Contents"
+      },
+      "files": {
+        "en": "front-matter/02-contents.json"
+      },
+      "toc": {
+        "depth": 1,
+        "pageNumbers": true,
+        "hidden": [
+          "ch-1#1:a quiet harbour:0"
+        ],
+        "titles": {
+          "ch-1": {
+            "en": "Prologue"
+          }
+        },
+        "order": [
+          "ch-1",
+          "custom:c-1"
+        ],
+        "custom": [
+          {
+            "id": "c-1",
+            "titles": {
+              "en": "Map of the coast"
+            },
+            "after": "ch-1",
+            "target": "ch-1"
+          }
+        ]
+      }
+    }
+  ],
+  "chapters": [
+    {
+      "id": "pt-1",
+      "kind": "part",
+      "titles": {
+        "en": "Part One"
+      },
+      "files": {
+        "en": "manuscript/part-001-part-one.json"
+      }
+    },
+    {
+      "id": "ch-1",
+      "titles": {
+        "en": "Chapter One"
+      },
+      "files": {
+        "en": "manuscript/001-chapter-one.json"
+      },
+      "icon": "feather",
+      "dropCap": false
+    },
+    {
+      "id": "ch-2",
+      "titles": {
+        "en": "Chapter Two"
+      },
+      "files": {
+        "en": "manuscript/002-chapter-two.json"
+      }
+    }
+  ],
+  "backMatter": [
+    {
+      "id": "bm-1",
+      "kind": "about-the-author",
+      "titles": {
+        "en": "About the Author"
+      },
+      "files": {
+        "en": "back-matter/01-about-the-author.json"
+      }
+    }
+  ],
+  "references": [
+    {
+      "id": "ref-1",
+      "kind": "file",
+      "file": "references/lighthouse-history.pdf",
+      "title": "Lighthouse history",
+      "note": "Dates for the keeper dispute.",
+      "tags": [
+        "history"
+      ],
+      "chapters": [
+        "ch-1"
+      ],
+      "addedAt": "2026-10-28T09:30:00.000Z"
+    },
+    {
+      "id": "ref-2",
+      "kind": "link",
+      "url": "https://example.org/harbour-archive",
+      "title": "Harbour archive",
+      "note": "Parish registers.",
+      "tags": [],
+      "chapters": [
+        "ch-2"
+      ],
+      "addedAt": "2026-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "ref-3",
+      "kind": "note",
+      "text": "The storm should break after the funeral, not before.",
+      "title": "Storm timing",
+      "note": "",
+      "tags": [
+        "plot"
+      ],
+      "chapters": [],
+      "addedAt": "2026-11-02T12:00:00.000Z"
+    }
+  ],
+  "goal": {
+    "words": 80000,
+    "deadline": "2027-06-30"
+  }
+}

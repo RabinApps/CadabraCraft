@@ -27,7 +27,8 @@ import { Button, IconButton } from "../../../ui/Button";
 import { Segmented } from "../../../ui/forms/Segmented";
 import { EditionSwitcher } from "./EditionSwitcher";
 import { HeaderMenu } from "./HeaderMenu";
-import { useLayout } from "../../../state/view/layout";
+import { panelPatch, useLayout } from "../../../state/view/layout";
+import { IndexButtons } from "./IndexButtons";
 import { useQuickNav } from "../../../state/app/quickNav";
 import { useProject } from "../../../state/project/index";
 import { noticeIsAlert } from "../../../state/project/util";
@@ -61,7 +62,7 @@ function HeaderNotice() {
   const notice = useProject((s) => s.notice);
   const isAlert = useProject(noticeIsAlert);
   return (
-    <div className="flex min-w-0 flex-1 items-start gap-1 text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:has-[[role=status]:empty+[role=alert]:empty]:hidden">
+    <div className="flex min-w-48 flex-1 items-start gap-1 text-sm text-ink-muted max-sm:order-last max-sm:basis-full max-sm:px-2 max-sm:has-[[role=status]:empty+[role=alert]:empty]:hidden">
       {/* A failure is assertive (role alert), everything else polite (role status). Both stay in the accessibility tree even when empty (sr-only, never display:none), or a message put into a hidden region may not be announced. */}
       <span role="status" className="min-w-0 break-words empty:sr-only">
         {isAlert ? "" : notice}
@@ -120,7 +121,7 @@ function WriteTools({
         label={t`References`}
         active={references}
         className="max-xl:hidden"
-        onClick={() => setLayout({ references: !references })}
+        onClick={() => setLayout(panelPatch("references", !references))}
       />
       <IconButton
         icon={Library}
@@ -133,7 +134,7 @@ function WriteTools({
         label={t`Comments`}
         active={comments}
         className="max-xl:hidden"
-        onClick={() => setLayout({ comments: !comments, references: false })}
+        onClick={() => setLayout(panelPatch("comments", !comments))}
       />
       <IconButton
         icon={MessageSquareText}
@@ -141,6 +142,7 @@ function WriteTools({
         className="xl:hidden"
         onClick={onComments}
       />
+      <IndexButtons />
       <IconButton icon={Layers} label={t`Scenes`} className="lg:hidden" onClick={onScenes} />
       <IconButton
         icon={LayoutGrid}
@@ -159,7 +161,14 @@ function WriteTools({
         label={t`Details`}
         active={details && !references}
         className="max-xl:hidden"
-        onClick={() => setLayout({ details: references ? true : !details, references: false })}
+        onClick={() =>
+          setLayout({
+            details: references ? true : !details,
+            references: false,
+            index: false,
+            glossary: false,
+          })
+        }
       />
       <Button icon={Save} className="max-sm:hidden" onClick={onSave}>{t`Save`}</Button>
     </>

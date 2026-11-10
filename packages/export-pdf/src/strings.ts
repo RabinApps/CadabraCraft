@@ -17,3 +17,6 @@ const COVER: Record<string, string> = {
 export function coverAlt(language: string | undefined): string {
   return COVER[primaryLanguage(language ?? "")] ?? "Cover";
 }
+
+/** `[see, see also]` before an index cross-reference, in the book's language (English when there is no translation). */
+export { seeWords } from "@cadabracraft/shared";

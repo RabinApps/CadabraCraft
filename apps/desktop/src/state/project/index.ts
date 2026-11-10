@@ -7,6 +7,7 @@ import { createEditionActions } from "./editions";
 import { createExportActions } from "./output/exports";
 import { createFontActions } from "./output/fonts";
 import { createHistoryActions } from "./history";
+import { createIndexActions } from "./indexing";
 import { createPageActions } from "./pages";
 import { createProjectActions } from "./project";
 import { createReferenceActions } from "./references";
@@ -87,6 +88,7 @@ export const useProject = create<ProjectState>((set, get) => {
       ...createVoiceActions(ctx),
       ...createFontActions(ctx),
       ...createCommentActions(ctx),
+      ...createIndexActions(ctx),
     },
   };
 });

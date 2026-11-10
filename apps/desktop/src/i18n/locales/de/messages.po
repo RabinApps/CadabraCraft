@@ -20,6 +20,11 @@ msgstr ".ttf- und .otf-Dateien. Eine Kopie wird in der App gespeichert, nie in d
 msgid "“{0}” is removed from this computer. Your chapters are not changed."
 msgstr "„{0}“ wird von diesem Computer entfernt. Deine Kapitel bleiben unverändert."
 
+#. placeholder {0}: entry.term
+#: src/app/indexing/GlossaryEntryDialog.tsx
+msgid "“{0}” leaves the glossary and every use of it is unmarked. The words stay in your pages. This cannot be undone."
+msgstr "„{0}“ verlässt das Glossar und jede Verwendung wird entmarkiert. Die Wörter bleiben in deinen Seiten. Das lässt sich nicht rückgängig machen."
+
 #: src/lib/export/epubErrors.ts
 msgid "“{page}” has a “{kind}” the EPUB export cannot write (at {place}). The export stopped so nothing is lost."
 msgstr "„{page}“ enthält ein Element „{kind}“, das der EPUB-Export nicht schreiben kann (bei {place}). Der Export wurde angehalten, damit nichts verloren geht."
@@ -31,6 +36,10 @@ msgstr "„{page}“ verwendet einen Textstil, den der EPUB-Export nicht schreib
 #: src/lib/export/epubErrors.ts
 msgid "“{page}”: {detail}"
 msgstr "„{page}“: {detail}"
+
+#: src/app/indexing/IndexTermCard.tsx
+msgid "“{target}” is not in the index"
+msgstr "„{target}“ steht nicht im Index"
 
 #: src/app/toc/TocRow.tsx
 msgid "(estimated)"
@@ -112,6 +121,16 @@ msgstr "{0, plural, one {# Szene} other {# Szenen}}"
 #: src/app/dialogs/snapshots/snapshotText.ts
 msgid "{0, plural, one {# snapshot} other {# snapshots}}"
 msgstr "{0, plural, one {# Schnappschuss} other {# Schnappschüsse}}"
+
+#. placeholder {0}: items.length
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "{0, plural, one {# term} other {# terms}}"
+msgstr "{0, plural, one {# Begriff} other {# Begriffe}}"
+
+#. placeholder {0}: use?.count ?? 0
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "{0, plural, one {# use} other {# uses}}"
+msgstr "{0, plural, one {# Verwendung} other {# Verwendungen}}"
 
 #. placeholder {0}: cell.words
 #. placeholder {1}: cell.date
@@ -466,6 +485,10 @@ msgstr "{file} ist kein gültiges Kapitel und wurde deshalb nicht geöffnet. Die
 msgid "{file} is not valid JSON, so it was not opened. The file was left untouched."
 msgstr "{file} ist kein gültiges JSON und wurde deshalb nicht geöffnet. Die Datei wurde nicht angetastet."
 
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "{found} found in the book"
+msgstr "{found} im Buch gefunden"
+
 #: src/app/dialogs/import/ImportReportDialog.tsx
 msgid "{imageCount, plural, one {# image added.} other {# images added.}}"
 msgstr "{imageCount, plural, one {# Bild hinzugefügt.} other {# Bilder hinzugefügt.}}"
@@ -510,9 +533,25 @@ msgstr "{n, plural, one {# Tag} other {# Tage}}"
 msgid "{n, plural, one {# more message is not shown} other {# more messages are not shown}}"
 msgstr ""
 
+#: src/state/project/indexing/marks.ts
+msgid "{n, plural, one {# more place marked in the index} other {# more places marked in the index}}"
+msgstr "{n, plural, one {# weitere Stelle im Index markiert} other {# weitere Stellen im Index markiert}}"
+
+#: src/state/project/indexing/marks.ts
+msgid "{n, plural, one {# place changed in the book} other {# places changed in the book}}"
+msgstr "{n, plural, one {# Stelle im Buch geändert} other {# Stellen im Buch geändert}}"
+
+#: src/state/project/indexing/marks.ts
+msgid "{n, plural, one {# place taken out of the index} other {# places taken out of the index}}"
+msgstr "{n, plural, one {# Stelle aus dem Index entfernt} other {# Stellen aus dem Index entfernt}}"
+
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
 msgstr "{n, plural, one {# unübersetzte Seite ausgelassen} other {# unübersetzte Seiten ausgelassen}}"
+
+#: src/state/project/indexing/marks.ts
+msgid "{n, plural, one {# use of the term marked} other {# uses of the term marked}}"
+msgstr "{n, plural, one {# Verwendung des Begriffs markiert} other {# Verwendungen des Begriffs markiert}}"
 
 #: src/app/writing/WritingStats.tsx
 msgid "{n, plural, one {# word} other {# words}}"
@@ -645,6 +684,10 @@ msgstr "{title}: normaler erster Buchstabe"
 msgid "{title}: vertical position follows the template"
 msgstr "{title}: vertikale Position folgt der Vorlage"
 
+#: src/app/indexing/IndexPanel.tsx
+msgid "{total, plural, one {# term} other {# terms}}"
+msgstr "{total, plural, one {# Begriff} other {# Begriffe}}"
+
 #: src/app/timeline/Timeline.tsx
 msgid "{undated} without a story date."
 msgstr "{undated} ohne Datum in der Geschichte."
@@ -721,6 +764,14 @@ msgstr "Ein Cover muss ein PNG-, JPEG- oder WebP-Bild sein. Wählen Sie eine and
 msgid "A download is already running"
 msgstr "Ein Download läuft bereits"
 
+#: src/editor/indexing/useMarkDialogs.tsx
+msgid "A glossary term cannot go here"
+msgstr "Hier kann kein Glossarbegriff stehen"
+
+#: src/lib/indexing/problemText.ts
+msgid "A glossary term needs a name."
+msgstr "Ein Glossarbegriff braucht einen Namen."
+
 #: src/app/export/OutlinePanel.tsx
 msgid "A heading for each chapter and scene, the synopsis below it."
 msgstr "Eine Überschrift für jedes Kapitel und jede Szene, darunter die Zusammenfassung."
@@ -758,6 +809,14 @@ msgstr "Eine Szene steht in zwei Kapiteln, wahrscheinlich weil ein Verschieben u
 msgid "A speech verb within three words after a closing quote mark"
 msgstr "Ein Sprechverb höchstens drei Wörter nach einem schließenden Anführungszeichen"
 
+#: src/lib/indexing/problemText.ts
+msgid "A term is one line."
+msgstr "Ein Begriff ist eine Zeile."
+
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "A term with no definition is not printed in the glossary."
+msgstr "Ein Begriff ohne Definition wird im Glossar nicht gedruckt."
+
 #: src/app/export/AudioExport.tsx
 msgid "A text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated."
 msgstr "Eine Textdatei des ganzen Buchs und je Kapitel eine WebVTT-Untertiteldatei, erstellt aus genau dem Text, den die Stimme liest. Die Untertitelzeiten sind geschätzt."
@@ -765,6 +824,14 @@ msgstr "Eine Textdatei des ganzen Buchs und je Kapitel eine WebVTT-Untertiteldat
 #: src/app/shell/entries/RenameField.tsx
 msgid "A title cannot be empty, so the old title was kept."
 msgstr "Ein Titel darf nicht leer sein, daher wurde der alte Titel beibehalten."
+
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "A to Z"
+msgstr "A bis Z"
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "A, B, C start each group."
+msgstr "A, B, C stehen am Anfang jeder Gruppe."
 
 #: src/app/shell/native/menuModel.ts
 msgid "About CadabraCraft"
@@ -798,6 +865,7 @@ msgid "Actions for {title}"
 msgstr "Aktionen für {title}"
 
 #: src/app/references/add/AddMenu.tsx
+#: src/editor/indexing/IndexMarkDialog.tsx
 msgid "Add"
 msgstr "Hinzufügen"
 
@@ -817,6 +885,10 @@ msgstr "{title} hinzufügen"
 msgid "Add a folder of books…"
 msgstr "Ordner mit Büchern hinzufügen…"
 
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "Add a glossary to the book"
+msgstr "Dem Buch ein Glossar hinzufügen"
+
 #: src/app/board/StructureDialog.tsx
 msgid "Add a story structure"
 msgstr "Eine Handlungsstruktur hinzufügen"
@@ -832,6 +904,18 @@ msgstr "Zusammenfassung zu {title} hinzufügen"
 #: src/app/references/ReferenceDetails.tsx
 msgid "Add a tag"
 msgstr "Schlagwort hinzufügen"
+
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Add a term to the glossary."
+msgstr "Füge dem Glossar einen Begriff hinzu."
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Add an index to the book"
+msgstr "Dem Buch einen Index hinzufügen"
+
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Add and mark"
+msgstr "Hinzufügen und markieren"
 
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "Add bleed (0.125 in)"
@@ -903,13 +987,26 @@ msgstr "Teil hinzufügen"
 msgid "Add Row Below"
 msgstr "Zeile darunter hinzufügen"
 
+#: src/app/indexing/IndexPanel.tsx
+msgid "Add selection"
+msgstr "Auswahl hinzufügen"
+
 #: src/state/project/scenes.ts
 msgid "Add story structure"
 msgstr "Handlungsstruktur hinzufügen"
 
+#: src/app/indexing/GlossaryPanel.tsx
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Add term"
+msgstr "Begriff hinzufügen"
+
 #: src/app/dialogs/import/ImportDestination.tsx
 msgid "Add the chapters"
 msgstr "Kapitel einfügen"
+
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Add the selected words to the glossary, or mark them as a term that is already there."
+msgstr "Füge die ausgewählten Wörter dem Glossar hinzu oder markiere sie als bereits vorhandenen Begriff."
 
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "Add to book"
@@ -988,6 +1085,8 @@ msgid "Alignment"
 msgstr "Ausrichtung"
 
 #: src/app/codex/CodexDialog.tsx
+#: src/app/indexing/GlossaryPanel.tsx
+#: src/app/indexing/IndexPanel.tsx
 #: src/app/references/panel/ReferenceFilters.tsx
 msgid "All"
 msgstr "Alle"
@@ -1025,6 +1124,15 @@ msgstr "Bereits nach {0} geschrieben: {1} Kapiteldateien und {2} Bilder; die Kap
 msgid "Also by"
 msgstr "Weitere Bücher des Autors"
 
+#: src/app/indexing/GlossaryEntryDialog.tsx
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Also called"
+msgstr "Auch genannt"
+
+#: src/lib/indexing/problemText.ts
+msgid "An alternative spelling is empty, too long or has line breaks."
+msgstr "Eine alternative Schreibweise ist leer, zu lang oder enthält Zeilenumbrüche."
+
 #: src/app/toc/AddEntryDialog.tsx
 msgid "An entry of your own, such as “Acknowledgments” or a part title. It takes its page number from the entry it points at."
 msgstr "Ein eigener Eintrag, etwa „Danksagung“ oder ein Teiltitel. Er übernimmt die Seitenzahl des Eintrags, auf den er verweist."
@@ -1038,6 +1146,10 @@ msgstr "Ein Export läuft bereits"
 #: src/state/project/book/open.ts
 msgid "An import is already running"
 msgstr "Ein Import läuft bereits"
+
+#: src/editor/indexing/useMarkDialogs.tsx
+msgid "An index entry cannot go here"
+msgstr "Hier kann kein Indexeintrag stehen"
 
 #: src/app/analysis/AnalysisDialog.tsx
 msgid "Analysis"
@@ -1351,10 +1463,15 @@ msgstr "CadabraCraft ist auf dem neuesten Stand."
 #: src/app/export/AudioFooter.tsx
 #: src/app/export/parts/ExportDialogParts.tsx
 #: src/app/home/Home.tsx
+#: src/app/indexing/GlossaryEntryDialog.tsx
+#: src/app/indexing/GlossarySettingsDialog.tsx
+#: src/app/indexing/IndexSettingsDialog.tsx
 #: src/app/references/add/AddLinkDialog.tsx
 #: src/app/references/add/AddNoteDialog.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/app/toc/AddEntryDialog.tsx
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+#: src/editor/indexing/IndexMarkDialog.tsx
 #: src/editor/toolbar/TableCommands.tsx
 #: src/editor/toolbar/ToolbarDialogs.tsx
 #: src/ui/Dialog.tsx
@@ -1595,6 +1712,10 @@ msgstr "Wähle ein Kapitel, um zu beginnen."
 msgid "Choose a look for your book"
 msgstr "Wähle einen Look für dein Buch"
 
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Choose a term"
+msgstr "Begriff wählen"
+
 #: src/app/codex/CodexDialog.tsx
 msgid "Choose an entry, or add one."
 msgstr "Wähle einen Eintrag oder füge einen hinzu."
@@ -1611,6 +1732,10 @@ msgstr "Wählen Sie Ändern und drücken Sie dann die neuen Tasten. Esc bricht a
 #: src/app/settings/FontsSection.tsx
 msgid "Choose file…"
 msgstr "Datei wählen…"
+
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "Choose how the selected words are listed in the index at the end of the book."
+msgstr "Wähle, wie die ausgewählten Wörter im Index am Ende des Buchs aufgeführt werden."
 
 #. placeholder {0}: nativeName(blocked)
 #: src/app/export/parts/ExportDialogParts.tsx
@@ -1688,6 +1813,7 @@ msgstr "Klischees"
 #: src/app/dialogs/SceneBreakMenu.tsx
 #: src/app/dialogs/SplitChapterDialog.tsx
 #: src/app/export/AudioFooter.tsx
+#: src/app/indexing/IndexTermDialog.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
 #: src/editor/find/FindBar.tsx
@@ -1706,6 +1832,14 @@ msgstr "Codex schließen"
 #: src/app/comments/CommentsPanel.tsx
 msgid "Close comments"
 msgstr "Kommentare schließen"
+
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "Close glossary"
+msgstr "Glossar schließen"
+
+#: src/app/indexing/IndexPanel.tsx
+msgid "Close index"
+msgstr "Index schließen"
 
 #: src/app/shell/native/menuModel.ts
 msgid "Close Project"
@@ -1769,6 +1903,7 @@ msgstr "Impressum"
 msgid "Colour by"
 msgstr "Einfärben nach"
 
+#: src/app/indexing/IndexSettingsDialog.tsx
 #: src/editor/toolbar/TableCommands.tsx
 msgid "Columns"
 msgstr "Spalten"
@@ -2047,6 +2182,11 @@ msgstr "Wiederholen nicht möglich: {why}. Versuchen Sie es erneut oder stellen 
 msgid "Could not remove {0}: {1}. Try again."
 msgstr "{0} konnte nicht entfernt werden: {1}. Versuchen Sie es erneut."
 
+#. placeholder {0}: errText(e)
+#: src/state/project/indexing/marks.ts
+msgid "Could not remove the glossary term: {0}. Try again."
+msgstr "Der Glossarbegriff konnte nicht entfernt werden: {0}. Versuche es erneut."
+
 #. placeholder {0}: causeText(e)
 #: src/app/dialogs/snapshots/SnapshotRow.tsx
 msgid "Could not rename the snapshot ({0}). Your name is kept. Try again."
@@ -2090,6 +2230,11 @@ msgstr "Die Adresse konnte nicht gespeichert werden: {0}. Versuche es erneut."
 #: src/state/project/comments.ts
 msgid "Could not save the comments: {0}. Try again."
 msgstr "Die Kommentare konnten nicht gespeichert werden: {0}. Versuche es erneut."
+
+#. placeholder {0}: whyText(e)
+#: src/state/project/indexing/settings.ts
+msgid "Could not save the index settings: {0}. Try again."
+msgstr "Die Index-Einstellungen konnten nicht gespeichert werden: {0}. Versuche es erneut."
 
 #. placeholder {0}: whyText(e)
 #: src/state/project/references.ts
@@ -2188,6 +2333,10 @@ msgstr "Schnittmarken"
 msgid "Crop marks make the page larger than the trim size plus bleed. KDP does not accept them; use them only if your printer asks."
 msgstr "Schnittmarken machen die Seite größer als Seitenformat plus Beschnitt. KDP akzeptiert sie nicht; nutze sie nur, wenn deine Druckerei sie verlangt."
 
+#: src/app/indexing/IndexPanel.tsx
+msgid "Cross-refs"
+msgstr "Querverweise"
+
 #: src/lib/useIconChoices.ts
 msgid "Crown"
 msgstr "Krone"
@@ -2248,6 +2397,11 @@ msgstr "Standardformate"
 msgid "Default voice"
 msgstr "Standardstimme"
 
+#: src/app/indexing/GlossaryEntryDialog.tsx
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Definition"
+msgstr "Definition"
+
 #: src/editor/toolbar/useMenuOnlyItems.ts
 msgid "Definition list"
 msgstr "Definitionsliste"
@@ -2276,6 +2430,10 @@ msgstr "{0} von diesem Computer löschen?"
 msgid "Delete Column"
 msgstr "Spalte löschen"
 
+#: src/state/project/indexing/marks.ts
+msgid "Delete index term “{term}”"
+msgstr "Indexbegriff „{term}“ löschen"
+
 #: src/app/shell/native/menuModel.ts
 msgid "Delete Row"
 msgstr "Zeile löschen"
@@ -2288,9 +2446,22 @@ msgstr "Schnappschuss löschen"
 msgid "Delete Table"
 msgstr "Tabelle löschen"
 
+#: src/app/indexing/GlossaryEntryDialog.tsx
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Delete term"
+msgstr "Begriff löschen"
+
+#: src/app/indexing/GlossaryEntryDialog.tsx
+msgid "Delete this glossary term?"
+msgstr "Diesen Glossarbegriff löschen?"
+
 #: src/app/dialogs/snapshots/SnapshotControls.tsx
 msgid "Delete this snapshot?"
 msgstr "Diesen Schnappschuss löschen?"
+
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Delete this term?"
+msgstr "Diesen Begriff löschen?"
 
 #: src/app/settings/AudioSection.tsx
 msgid "Delete voices"
@@ -2455,6 +2626,10 @@ msgstr "Jedes Buch ist ein Ordner, der dir gehört. Kein Konto, keine Telemetrie
 msgid "Each book is a plain folder you own. Keep it in Dropbox, Google Drive or iCloud Drive to sync across devices."
 msgstr "Jedes Buch ist ein einfacher Ordner, der dir gehört. Lege ihn in Dropbox, Google Drive oder iCloud Drive ab, um ihn auf mehreren Geräten zu synchronisieren."
 
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "Each place a term is marked also appears in the index."
+msgstr "Jede markierte Stelle eines Begriffs erscheint auch im Index."
+
 #. placeholder {0}: p.max
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Each subject can have up to {0} characters."
@@ -2481,6 +2656,20 @@ msgstr "{title} bearbeiten"
 #: src/app/shell/Details.tsx
 msgid "Edit details"
 msgstr "Details bearbeiten"
+
+#. placeholder {0}: entry.term
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "Edit glossary entry {0}"
+msgstr "Glossareintrag {0} bearbeiten"
+
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Edit index entry"
+msgstr "Indexeintrag bearbeiten"
+
+#. placeholder {0}: x.term
+#: src/app/indexing/IndexTermCard.tsx
+msgid "Edit index entry {0}"
+msgstr "Indexeintrag {0} bearbeiten"
 
 #: src/app/export/parts/PrintPreviewParts.tsx
 #: src/app/export/TypstSpread.tsx
@@ -2614,6 +2803,11 @@ msgstr "Jedes Kapitel beginnt leer."
 msgid "Every language is already in this book."
 msgstr "Jede Sprache ist bereits in diesem Buch."
 
+#. placeholder {0}: term.term
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Every place marked with “{0}” leaves the index. The words stay in your pages. You can undo this with Undo book change."
+msgstr "Jede mit „{0}“ markierte Stelle verlässt den Index. Die Wörter bleiben in deinen Seiten. Du kannst das mit „Buchänderung rückgängig“ zurücknehmen."
+
 #: src/app/toc/TocPreview.tsx
 msgid "Exact pages from Typst"
 msgstr "Exakte Seiten von Typst"
@@ -2732,6 +2926,14 @@ msgstr "Kommentare filtern"
 #: src/app/scenes/SceneFilterBar.tsx
 msgid "Filter scenes"
 msgstr "Szenen filtern"
+
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "Filter the glossary"
+msgstr "Glossar filtern"
+
+#: src/app/indexing/IndexPanel.tsx
+msgid "Filter the index"
+msgstr "Index filtern"
 
 #: src/app/analysis/analysisModel.ts
 msgid "Filter words"
@@ -2931,6 +3133,68 @@ msgstr "Gib dem Buch einen Titel."
 msgid "Give the book an author."
 msgstr "Gib dem Buch einen Autor."
 
+#: src/app/indexing/GlossaryPanel.tsx
+#: src/app/shell/Drawers.tsx
+#: src/app/shell/header/IndexButtons.tsx
+#: src/app/shell/screens/SidePanel.tsx
+msgid "Glossary"
+msgstr "Glossar"
+
+#: src/app/indexing/GlossaryEntryDialog.tsx
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Glossary entry"
+msgstr "Glossareintrag"
+
+#: src/app/indexing/GlossaryPanel.tsx
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "Glossary settings"
+msgstr "Glossar-Einstellungen"
+
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Glossary term"
+msgstr "Glossarbegriff"
+
+#: src/editor/indexing/appMarkers.ts
+msgid "Glossary term that is not in the glossary any more"
+msgstr "Glossarbegriff, der nicht mehr im Glossar steht"
+
+#: src/editor/indexing/useIndexItems.ts
+msgid "Glossary term…"
+msgstr "Glossarbegriff …"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Glossary Term…"
+msgstr "Glossarbegriff …"
+
+#. placeholder {0}: entry.term
+#: src/editor/indexing/appMarkers.ts
+msgid "Glossary: {0} (no definition yet)"
+msgstr "Glossar: {0} (noch keine Definition)"
+
+#. placeholder {0}: entry.term
+#. placeholder {1}: entry.definition
+#: src/editor/indexing/appMarkers.ts
+msgid "Glossary: {0}. {1}"
+msgstr "Glossar: {0}. {1}"
+
+#: src/app/indexing/IndexLocations.tsx
+msgid "Go to"
+msgstr "Gehe zu"
+
+#. placeholder {0}: place.snippet
+#: src/app/indexing/IndexLocations.tsx
+msgid "Go to {0}"
+msgstr "Gehe zu {0}"
+
+#: src/app/indexing/GlossaryEntryDialog.tsx
+msgid "Go to first use"
+msgstr "Zur ersten Verwendung"
+
+#. placeholder {0}: x.term
+#: src/app/indexing/IndexTermCard.tsx
+msgid "Go to the first place of {0}"
+msgstr "Zur ersten Stelle von {0}"
+
 #: src/app/shell/header/GoalControl.tsx
 msgid "Goal met"
 msgstr "Ziel erreicht"
@@ -2951,6 +3215,11 @@ msgstr "Ziel: {0} Wörter"
 #: src/app/library/Library.tsx
 msgid "Group by series"
 msgstr "Nach Reihe gruppieren"
+
+#: src/app/indexing/GlossarySettingsDialog.tsx
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Heading"
+msgstr "Überschrift"
 
 #: src/app/dialogs/import/ImportSteps.tsx
 #: src/app/quicknav/QuickPicker.tsx
@@ -3005,6 +3274,10 @@ msgstr "Hilfe"
 msgid "Hidden"
 msgstr "Ausgeblendet"
 
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Hidden terms"
+msgstr "Ausgeblendete Begriffe"
+
 #: src/app/shell/native/menuModel.ts
 msgid "Hide CadabraCraft"
 msgstr "CadabraCraft ausblenden"
@@ -3030,6 +3303,10 @@ msgstr "Andere ausblenden"
 #: src/app/shell/entries/EntryRow.tsx
 msgid "Hide scenes of {0}"
 msgstr "Szenen von {0} ausblenden"
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Hide terms used once"
+msgstr "Einmal verwendete Begriffe ausblenden"
 
 #: src/app/shell/entries/RowMenu.tsx
 #: src/app/writing/WritingHistoryDialog.tsx
@@ -3188,6 +3465,14 @@ msgstr "In „{where}“: {0}"
 msgid "In the .cadabra/backups folder inside your book folder."
 msgstr "Im Ordner .cadabra/backups innerhalb deines Buchordners."
 
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "In the EPUB, the first use of a term in each chapter links to its entry."
+msgstr "Im EPUB verweist die erste Verwendung eines Begriffs in jedem Kapitel auf seinen Eintrag."
+
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "In the Glossary panel. They are never printed."
+msgstr "Im Glossar-Bereich. Sie werden nie gedruckt."
+
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "In this chapter"
 msgstr "In diesem Kapitel"
@@ -3216,6 +3501,35 @@ msgstr "Cover einbeziehen"
 #: src/app/settings/shortcutList.ts
 msgid "Indent list item"
 msgstr "Listenelement einrücken"
+
+#: src/app/indexing/IndexPanel.tsx
+#: src/app/shell/Drawers.tsx
+#: src/app/shell/header/IndexButtons.tsx
+#: src/app/shell/screens/SidePanel.tsx
+msgid "Index"
+msgstr "Index"
+
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "Index entry"
+msgstr "Indexeintrag"
+
+#: src/editor/indexing/useIndexItems.ts
+msgid "Index entry…"
+msgstr "Indexeintrag …"
+
+#: src/app/shell/native/menuModel.ts
+msgid "Index Entry…"
+msgstr "Indexeintrag …"
+
+#: src/app/indexing/IndexPanel.tsx
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Index settings"
+msgstr "Index-Einstellungen"
+
+#. placeholder {0}: sub ? `${term}, ${sub}` : term
+#: src/editor/indexing/appMarkers.ts
+msgid "Index: {0}"
+msgstr "Index: {0}"
 
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
@@ -3444,6 +3758,14 @@ msgstr "Leer lassen, um die erste Zeile zu verwenden."
 msgid "Leave Focus Mode"
 msgstr "Fokusmodus beenden"
 
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Leave out of the book's index"
+msgstr "Aus dem Index des Buchs ausschließen"
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Leaves out terms with one place and no sub-entries or cross-references."
+msgstr "Lässt Begriffe mit nur einer Stelle und ohne Untereinträge oder Querverweise weg."
+
 #: src/app/export/parts/AudioFieldParts.tsx
 msgid "Leaves them out of this audiobook; the list above says which."
 msgstr "Lässt sie in diesem Hörbuch weg; die Liste oben zeigt, welche."
@@ -3455,6 +3777,14 @@ msgstr "Lässt sie in diesem Export weg; die Liste oben zeigt, welche."
 #: src/app/dialogs/SplitChapterDialog.tsx
 msgid "Left as it is, the new chapter is named after its heading."
 msgstr "Bleibt es so, trägt das neue Kapitel den Namen seiner Überschrift."
+
+#: src/app/indexing/IndexTermCard.tsx
+msgid "Left out of the book's index"
+msgstr "Nicht im Index des Buchs"
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Letter headings"
+msgstr "Buchstabenüberschriften"
 
 #: src/app/library/Library.tsx
 msgid "Library"
@@ -3531,6 +3861,10 @@ msgstr "Links (einer pro Zeile)"
 msgid "List"
 msgstr "Liste"
 
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "List glossary terms in the index"
+msgstr "Glossarbegriffe im Index aufführen"
+
 #: src/app/analysis/AnalysisSummary.tsx
 msgid "List pending"
 msgstr "Liste ausstehend"
@@ -3552,6 +3886,10 @@ msgstr "Wird geladen…"
 #: src/app/home/Home.tsx
 msgid "Location"
 msgstr "Speicherort"
+
+#: src/app/indexing/IndexLocations.tsx
+msgid "Locations"
+msgstr "Stellen"
 
 #: src/app/library/Library.tsx
 msgid "Looking for books…"
@@ -3621,6 +3959,32 @@ msgstr "Karte"
 msgid "Margins (in/out)"
 msgstr "Ränder (innen/außen)"
 
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Mark"
+msgstr "Markieren"
+
+#: src/state/project/indexing/marks.ts
+msgid "Mark “{query}” in the index"
+msgstr "„{query}“ im Index markieren"
+
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "Mark all occurrences"
+msgstr "Alle Vorkommen markieren"
+
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "Mark first use"
+msgstr "Erste Verwendung markieren"
+
+#: src/app/indexing/GlossaryEntryDialog.tsx
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Mark first use in each chapter"
+msgstr "Erste Verwendung in jedem Kapitel markieren"
+
+#. placeholder {0}: entry.term
+#: src/state/project/indexing/marks.ts
+msgid "Mark glossary term “{0}”"
+msgstr "Glossarbegriff „{0}“ markieren"
+
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Markdown"
 msgstr "Markdown"
@@ -3636,6 +4000,10 @@ msgstr "Markdown hat dafür keine Syntax, daher werden sie als HTML-Tags geschri
 #: src/app/shell/native/menuModel.ts
 msgid "Markdown…"
 msgstr "Markdown…"
+
+#: src/app/indexing/GlossaryEntryDialog.tsx
+msgid "Marks the first time the term or one of its other names appears in each chapter."
+msgstr "Markiert das erste Auftreten des Begriffs oder eines seiner anderen Namen in jedem Kapitel."
 
 #. placeholder {0}: hits.at + 1
 #. placeholder {1}: current.page
@@ -3656,6 +4024,10 @@ msgstr "Treffer pro Sprache"
 msgid "Maybe later"
 msgstr "Vielleicht später"
 
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Merge"
+msgstr "Zusammenführen"
+
 #: src/app/dialogs/import/ImportChapterList.tsx
 msgid "Merge chapter {n} into the next one"
 msgstr "Kapitel {n} mit dem nächsten zusammenführen"
@@ -3663,6 +4035,10 @@ msgstr "Kapitel {n} mit dem nächsten zusammenführen"
 #: src/app/dialogs/import/ImportChapterList.tsx
 msgid "Merge chapter {n} into the previous one"
 msgstr "Kapitel {n} mit dem vorherigen zusammenführen"
+
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Merge into another term"
+msgstr "Mit anderem Begriff zusammenführen"
 
 #: src/app/shell/native/menuModel.ts
 msgid "Minimize"
@@ -3715,6 +4091,10 @@ msgstr "Meiste Wörter"
 msgid "Mountain"
 msgstr "Berg"
 
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Move"
+msgstr "Verschieben"
+
 #. placeholder {0}: deleting?.title ?? ""
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Move “{0}” to trash?"
@@ -3754,6 +4134,10 @@ msgstr "Nach unten"
 msgid "Move earlier"
 msgstr "Früher einordnen"
 
+#: src/state/project/indexing/marks.ts
+msgid "Move index term “{term}”"
+msgstr "Indexbegriff „{term}“ verschieben"
+
 #: src/app/board/CardMenu.tsx
 msgid "Move later"
 msgstr "Später einordnen"
@@ -3774,6 +4158,10 @@ msgstr "In Kapitel verschieben"
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Move to trash"
 msgstr "In den Papierkorb verschieben"
+
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Move under"
+msgstr "Unterordnen unter"
 
 #: src/app/references/ReferenceRow.tsx
 #: src/app/shell/entries/RowMenu.tsx
@@ -3832,6 +4220,14 @@ msgstr "Benannt"
 msgid "Narrow page"
 msgstr "Schmale Seite"
 
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "Needs a definition"
+msgstr "Braucht eine Definition"
+
+#: src/app/indexing/IndexPanel.tsx
+msgid "Needs attention"
+msgstr "Braucht Aufmerksamkeit"
+
 #: src/app/home/Home.tsx
 msgid "New book"
 msgstr "Neues Buch"
@@ -3849,6 +4245,7 @@ msgid "New comment"
 msgstr "Neuer Kommentar"
 
 #: src/app/codex/CodexDialog.tsx
+#: src/editor/indexing/GlossaryMarkDialog.tsx
 msgid "New entry"
 msgstr "Neuer Eintrag"
 
@@ -3943,6 +4340,10 @@ msgstr "Kein Inhaltswort wird in diesem Text oft wiederholt."
 msgid "No date"
 msgstr "Kein Datum"
 
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "No definition"
+msgstr "Ohne Definition"
+
 #: src/app/analysis/analysisModel.ts
 msgid "No dialogue tags found."
 msgstr "Keine Dialogmarkierung gefunden."
@@ -3976,6 +4377,10 @@ msgstr "Kein Ordner gewählt"
 msgid "No folder is chosen. Choose an empty folder for the new book."
 msgstr "Es ist kein Ordner ausgewählt. Wähle einen leeren Ordner für das neue Buch."
 
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "No glossary terms yet. Select a word in the text and choose Add term."
+msgstr "Noch keine Glossarbegriffe. Wähle ein Wort im Text und dann „Begriff hinzufügen“."
+
 #: src/app/quicknav/OutlineNavigator.tsx
 msgid "No heading or chapter matches “{q}”."
 msgstr "Keine Überschrift und kein Kapitel passt zu „{q}“."
@@ -3983,6 +4388,10 @@ msgstr "Keine Überschrift und kein Kapitel passt zu „{q}“."
 #: src/editor/paste/pasteFlow.ts
 msgid "No HTML found in the selection"
 msgstr "Kein HTML in der Auswahl gefunden"
+
+#: src/app/indexing/IndexPanel.tsx
+msgid "No index entries yet. Select words in the text and choose Add selection."
+msgstr "Noch keine Indexeinträge. Wähle Wörter im Text und dann „Auswahl hinzufügen“."
 
 #: src/app/settings/ShortcutsSection.tsx
 msgid "No key"
@@ -4077,6 +4486,15 @@ msgstr "Kein Status"
 msgid "No straight quotes or dashes to convert in the selection"
 msgstr "In der Auswahl gibt es keine geraden Anführungszeichen oder Striche zum Umwandeln"
 
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "No terms are hidden. Hide one from its entry in the Index panel."
+msgstr "Keine Begriffe sind ausgeblendet. Blende einen über seinen Eintrag im Index-Bereich aus."
+
+#: src/app/indexing/GlossaryPanel.tsx
+#: src/app/indexing/IndexPanel.tsx
+msgid "No terms match."
+msgstr "Keine passenden Begriffe."
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "No text yet"
 msgstr "Noch kein Text"
@@ -4153,6 +4571,10 @@ msgstr "Noch nicht übersetzt in {0}: {1}"
 #: src/state/project/output/narration/pick.ts
 msgid "Not translated yet in {language}: {names}. Translate them or skip them."
 msgstr "Noch nicht übersetzt in {language}: {names}. Übersetze sie oder überspringe sie."
+
+#: src/app/indexing/GlossaryEntryDialog.tsx
+msgid "Not used in the text yet"
+msgstr "Noch nicht im Text verwendet"
 
 #: src/app/dialogs/import/ImportReportDialog.tsx
 #: src/app/references/add/AddNoteDialog.tsx
@@ -4246,6 +4668,10 @@ msgstr "Älteste zuerst"
 #: src/app/export/Templates.tsx
 msgid "On"
 msgstr "An"
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "One column"
+msgstr "Eine Spalte"
 
 #: src/app/hooks/useAudioLabels.ts
 msgid "One file for the whole book with chapters and your cover, about 29 MB per hour. For audiobook apps and stores."
@@ -4352,9 +4778,14 @@ msgstr "Optional. Wird unter dem Bild angezeigt."
 msgid "Opus"
 msgstr "Opus"
 
+#: src/app/indexing/GlossarySettingsDialog.tsx
 #: src/app/timeline/Timeline.tsx
 msgid "Order"
 msgstr "Reihenfolge"
+
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "Order added"
+msgstr "Reihenfolge des Hinzufügens"
 
 #: src/app/dialogs/SceneBreakMenu.tsx
 msgid "Ornament by template"
@@ -4367,6 +4798,11 @@ msgstr "Andere"
 #: src/editor/toolbar/ToolbarDialogs.tsx
 msgid "Other (use the Language tag field)"
 msgstr "Andere (Feld Sprach-Tag verwenden)"
+
+#: src/app/indexing/GlossaryEntryDialog.tsx
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+msgid "Other spellings and plurals, separated by commas."
+msgstr "Andere Schreibweisen und Pluralformen, durch Kommas getrennt."
 
 #: src/app/settings/shortcutList.ts
 msgid "Outdent list item"
@@ -4608,7 +5044,12 @@ msgstr "Erzählperspektive"
 msgid "Point of view of {title}"
 msgstr "Erzählperspektive von {title}"
 
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "Point to a different term."
+msgstr "Verweise auf einen anderen Begriff."
+
 #: src/app/toc/AddEntryDialog.tsx
+#: src/editor/indexing/IndexMarkDialog.tsx
 msgid "Points to"
 msgstr "Verweist auf"
 
@@ -4676,6 +5117,10 @@ msgstr "Vorherige Seite: {0}"
 #: src/app/export/parts/SpreadControls.tsx
 msgid "Previous pages"
 msgstr "Vorherige Seiten"
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Print 12–15 instead of 12, 13, 14, 15."
+msgstr "Druckt 12–15 statt 12, 13, 14, 15."
 
 #: src/app/export/PdfPanel.tsx
 msgid "Print checks"
@@ -4786,6 +5231,11 @@ msgstr "Wird vorgelesen"
 msgid "Reading settings"
 msgstr "Leseeinstellungen"
 
+#: src/app/indexing/GlossaryPanel.tsx
+#: src/app/indexing/IndexPanel.tsx
+msgid "Reading the book…"
+msgstr "Buch wird gelesen …"
+
 #: src/app/shell/Details.tsx
 msgid "Reading time"
 msgstr "Lesezeit"
@@ -4883,6 +5333,7 @@ msgstr "Neu laden"
 msgid "Remember my choice"
 msgstr "Meine Wahl merken"
 
+#: src/app/indexing/IndexLocations.tsx
 #: src/app/toc/TocEditorParts.tsx
 msgid "Remove"
 msgstr "Entfernen"
@@ -4903,6 +5354,11 @@ msgstr "{0} aus den letzten Projekten entfernen"
 #: src/app/scenes/SceneRail.tsx
 msgid "Remove {0} from the cast"
 msgstr "{0} aus der Besetzung entfernen"
+
+#. placeholder {0}: place.snippet
+#: src/app/indexing/IndexLocations.tsx
+msgid "Remove {0} from the index"
+msgstr "{0} aus dem Index entfernen"
 
 #: src/app/library/Library.tsx
 msgid "Remove {title} from the Library"
@@ -4929,6 +5385,10 @@ msgstr "Eintrag entfernen"
 msgid "Remove from book"
 msgstr "Aus dem Buch entfernen"
 
+#: src/state/project/indexing/marks.ts
+msgid "Remove index place"
+msgstr "Indexstelle entfernen"
+
 #: src/app/shell/entries/RowMenu.tsx
 #: src/app/shell/sidebar/Sidebar.tsx
 msgid "Remove part"
@@ -4951,6 +5411,7 @@ msgid "Removed references ({removedCount})"
 msgstr "Entfernte Referenzen ({removedCount})"
 
 #: src/app/dialogs/snapshots/SnapshotRow.tsx
+#: src/app/indexing/IndexTermDialog.tsx
 #: src/app/shell/entries/RowMenu.tsx
 #: src/app/toc/TocRow.tsx
 msgid "Rename"
@@ -4966,6 +5427,10 @@ msgstr "{0} umbenennen"
 #: src/state/project/toc.ts
 msgid "Rename contents entry"
 msgstr "Eintrag des Inhaltsverzeichnisses umbenennen"
+
+#: src/state/project/indexing/marks.ts
+msgid "Rename index term “{from}”"
+msgstr "Indexbegriff „{from}“ umbenennen"
 
 #: src/app/toc/TocEditor.tsx
 msgid "Renamed, hidden, moved and custom entries are removed. The depth and the page-number setting stay."
@@ -5221,6 +5686,9 @@ msgid "same as now"
 msgstr "wie jetzt"
 
 #: src/app/dialogs/snapshots/SnapshotRow.tsx
+#: src/app/indexing/GlossaryEntryDialog.tsx
+#: src/app/indexing/GlossarySettingsDialog.tsx
+#: src/app/indexing/IndexSettingsDialog.tsx
 #: src/app/shell/header/AppHeader.tsx
 #: src/app/shell/native/menuModel.ts
 #: src/editor/toolbar/ToolbarDialogs.tsx
@@ -5374,9 +5842,22 @@ msgstr "Szenen suchen"
 msgid "Search shortcuts"
 msgstr "Tastenkürzel durchsuchen"
 
+#: src/app/indexing/GlossaryPanel.tsx
+#: src/app/indexing/IndexPanel.tsx
+msgid "Search terms"
+msgstr "Begriffe suchen"
+
 #: src/app/references/PdfSearch.tsx
 msgid "Search text"
 msgstr "Text suchen"
+
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "Search the glossary"
+msgstr "Glossar durchsuchen"
+
+#: src/app/indexing/IndexPanel.tsx
+msgid "Search the index"
+msgstr "Index durchsuchen"
 
 #: src/app/library/Library.tsx
 msgid "Search title, author or series"
@@ -5385,6 +5866,30 @@ msgstr "Titel, Autor oder Reihe suchen"
 #: src/app/shell/Details.tsx
 msgid "Section"
 msgstr "Abschnitt"
+
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "See"
+msgstr "Siehe"
+
+#: src/editor/indexing/appMarkers.ts
+msgid "See {see}"
+msgstr "Siehe {see}"
+
+#: src/app/indexing/IndexTermCard.tsx
+msgid "See {target}"
+msgstr "Siehe {target}"
+
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "See also"
+msgstr "Siehe auch"
+
+#: src/editor/indexing/appMarkers.ts
+msgid "See also {seeAlso}"
+msgstr "Siehe auch {seeAlso}"
+
+#: src/app/indexing/IndexTermCard.tsx
+msgid "See also {target}"
+msgstr "Siehe auch {target}"
 
 #: src/app/shell/native/menuModel.ts
 msgid "Select All"
@@ -5405,6 +5910,10 @@ msgstr "Wähle zuerst den Text aus."
 #: src/editor/toolbar/useToolbarItems.ts
 msgid "Select the text you want to link first."
 msgstr "Wähle zuerst den Text aus, den du verlinken möchtest."
+
+#: src/editor/indexing/useMarkDialogs.tsx
+msgid "Select the words you want to list in the index first."
+msgstr "Wähle zuerst die Wörter, die im Index erscheinen sollen."
 
 #: src/app/scenes/FacetMenu.tsx
 #: src/app/scenes/SceneFilterBar.tsx
@@ -5494,6 +6003,14 @@ msgstr "Tastenkürzel"
 msgid "Show"
 msgstr "Anzeigen"
 
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Show {h} in the index again"
+msgstr "{h} wieder im Index anzeigen"
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Show again"
+msgstr "Wieder anzeigen"
+
 #: src/app/shell/native/menuModel.ts
 msgid "Show All"
 msgstr "Alle einblenden"
@@ -5523,14 +6040,26 @@ msgstr "Eintrag des Inhaltsverzeichnisses einblenden"
 msgid "Show in contents"
 msgstr "Im Inhaltsverzeichnis anzeigen"
 
+#: src/app/indexing/IndexTermDialog.tsx
+msgid "Show in the book's index"
+msgstr "Im Index des Buchs anzeigen"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Show margins"
 msgstr "Ränder anzeigen"
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Show page ranges"
+msgstr "Seitenbereiche anzeigen"
 
 #. placeholder {0}: c.title
 #: src/app/shell/entries/EntryRow.tsx
 msgid "Show scenes of {0}"
 msgstr "Szenen von {0} anzeigen"
+
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "Show terms with no definition"
+msgstr "Begriffe ohne Definition anzeigen"
 
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "Showing an approximate layout, because the real one could not be typeset:"
@@ -5848,6 +6377,10 @@ msgstr "Durchgestrichen"
 msgid "Structure"
 msgstr "Struktur"
 
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "Sub-entry (optional)"
+msgstr "Untereintrag (optional)"
+
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Subjects"
 msgstr "Themen"
@@ -5919,6 +6452,10 @@ msgstr "Schnappschuss erstellen"
 msgid "Target"
 msgstr "Ziel"
 
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "Target term"
+msgstr "Zielbegriff"
+
 #: src/app/scenes/SceneRail.tsx
 msgid "Target words"
 msgstr "Zielwörter"
@@ -5962,6 +6499,13 @@ msgstr "Vorlagenstandard (an)"
 #: src/app/shell/App.tsx
 msgid "Templates"
 msgstr "Vorlagen"
+
+#: src/app/indexing/GlossaryEntryDialog.tsx
+#: src/app/indexing/IndexTermDialog.tsx
+#: src/editor/indexing/GlossaryMarkDialog.tsx
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "Term"
+msgstr "Begriff"
 
 #: src/editor/toolbar/AlignmentMenu.tsx
 msgid "Text alignment"
@@ -6060,6 +6604,14 @@ msgstr "Das Buch verwendet einen Textstil, den der EPUB-Export nicht schreiben k
 msgid "The book's cadabra.json is not a JSON object. Restore it from History or from a backup in .cadabra/backups."
 msgstr "Die cadabra.json des Buchs ist kein JSON-Objekt. Stellen Sie sie aus dem Verlauf oder aus einer Sicherung in .cadabra/backups wieder her."
 
+#: src/state/project/indexing/bookEdit.ts
+msgid "The change stopped: {why}. Nothing was changed."
+msgstr "Die Änderung wurde abgebrochen: {why}. Es wurde nichts geändert."
+
+#: src/state/project/indexing/bookEdit.ts
+msgid "The change stopped: {why}. Some pages kept the change; Undo restores them."
+msgstr "Die Änderung wurde abgebrochen: {why}. Einige Seiten behielten die Änderung; „Rückgängig“ stellt sie wieder her."
+
 #: src/state/project/pages/split.ts
 msgid "The chapter file is missing."
 msgstr "Die Kapiteldatei fehlt."
@@ -6140,6 +6692,10 @@ msgstr "Das Cover ist die erste Seite, mit einer leeren Seite dahinter, sofern d
 msgid "The deadline has passed with {0} words to go."
 msgstr "Die Frist ist vorbei, es fehlen noch {0} Wörter."
 
+#: src/lib/indexing/problemText.ts
+msgid "The definition is too long."
+msgstr "Die Definition ist zu lang."
+
 #: src/app/dialogs/BookDetailsDialog.tsx
 msgid "The details could not be saved: {why}. Try again; nothing was changed."
 msgstr "Die Angaben konnten nicht gespeichert werden: {why}. Versuchen Sie es erneut; es wurde nichts geändert."
@@ -6211,6 +6767,18 @@ msgstr "Die Schrift des Fließtexts. Sie wird mit dem Buch gespeichert; die Schr
 msgid "The font of titles and headings. Settings, Fonts has more."
 msgstr "Die Schrift für Titel und Überschriften. Einstellungen, Schriften bietet mehr."
 
+#: src/lib/indexing/problemText.ts
+msgid "The glossary already has this term."
+msgstr "Das Glossar enthält diesen Begriff bereits."
+
+#: src/state/project/indexing/settings.ts
+msgid "The glossary is full."
+msgstr "Das Glossar ist voll."
+
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "The glossary needs a heading."
+msgstr "Das Glossar braucht eine Überschrift."
+
 #: src/app/dialogs/GoalDialog.tsx
 msgid "The goal could not be cleared: {why}. Try again; nothing was changed."
 msgstr "Das Ziel konnte nicht gelöscht werden: {why}. Versuche es erneut; es wurde nichts geändert."
@@ -6218,6 +6786,10 @@ msgstr "Das Ziel konnte nicht gelöscht werden: {why}. Versuche es erneut; es wu
 #: src/app/dialogs/GoalDialog.tsx
 msgid "The goal could not be saved: {why}. Try again; nothing was changed."
 msgstr "Das Ziel konnte nicht gespeichert werden: {why}. Versuche es erneut; es wurde nichts geändert."
+
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "The heading the words are listed under."
+msgstr "Die Überschrift, unter der die Wörter aufgeführt werden."
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "The identifier cannot be empty."
@@ -6227,6 +6799,15 @@ msgstr "Die Kennung darf nicht leer sein."
 #: src/lib/projectError.ts
 msgid "The image {0} is outside the document's folder"
 msgstr "Das Bild {0} liegt außerhalb des Dokumentordners"
+
+#. placeholder {0}: errText(e)
+#: src/state/project/indexing/index.ts
+msgid "The index could not read the book: {0}."
+msgstr "Der Index konnte das Buch nicht lesen: {0}."
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "The index needs a heading."
+msgstr "Der Index braucht eine Überschrift."
 
 #: src/app/toc/TocEditorParts.tsx
 msgid "The list follows your chapters. Rename, hide, reorder or add entries here; exports and the print preview use this list."
@@ -6247,6 +6828,10 @@ msgstr "Das Einzige, was gesendet wird, ist die Update-Prüfung. Über deine Bü
 #: src/state/project/replace.ts
 msgid "The page changed while searching, so nothing was replaced. Try again."
 msgstr "Die Seite hat sich während der Suche geändert, daher wurde nichts ersetzt. Versuche es erneut."
+
+#: src/state/project/indexing/bookEdit.ts
+msgid "The page changed while the book was being read, so nothing was changed. Try again."
+msgstr "Die Seite hat sich beim Lesen des Buchs geändert, daher wurde nichts geändert. Versuche es erneut."
 
 #: src/state/project/travel/entries.ts
 #: src/state/project/travel/imports.ts
@@ -6284,6 +6869,14 @@ msgstr "Die Vorlage konnte nicht angewendet werden: {why}. Versuchen Sie es erne
 #: src/editor/pageview/PageFrame.tsx
 msgid "The template's print font is not installed here, so the bundled serif is used."
 msgstr "Die Druckschrift der Vorlage ist hier nicht installiert, daher wird die mitgelieferte Serifenschrift verwendet."
+
+#: src/lib/indexing/problemText.ts
+msgid "The term is too long."
+msgstr "Der Begriff ist zu lang."
+
+#: src/editor/indexing/IndexMarkDialog.tsx
+msgid "The term the reader is sent to."
+msgstr "Der Begriff, zu dem der Leser verwiesen wird."
 
 #: src/app/dialogs/SplitChapterDialog.tsx
 msgid "The text before the heading you pick stays in this chapter. The heading and everything after it become a new chapter right after it. Undo puts it back."
@@ -6344,6 +6937,10 @@ msgstr "Der Schreibverlauf konnte nicht gelesen werden; die alte Kopie wurde als
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Theme"
 msgstr "Design"
+
+#: src/lib/indexing/problemText.ts
+msgid "There are too many alternative spellings."
+msgstr "Es gibt zu viele alternative Schreibweisen."
 
 #: src/lib/export/epubcheckReport.ts
 msgid "There is no exported EPUB for this edition yet. Export it first, then check it."
@@ -6502,6 +7099,10 @@ msgstr "Dieses Bild ist dekorativ"
 msgid "This image path is not allowed: {0}"
 msgstr "Dieser Bildpfad ist nicht erlaubt: {0}"
 
+#: src/lib/indexing/problemText.ts
+msgid "This is too long."
+msgstr "Das ist zu lang."
+
 #: src/app/writing/WritingStats.tsx
 msgid "This month"
 msgstr "Diesen Monat"
@@ -6520,6 +7121,7 @@ msgstr "Diese Gliederung hat zu viele Kapitel oder Szenen, um sie sicher zu impo
 
 #: src/app/dialogs/HistoryDialog.tsx
 #: src/app/shell/Details.tsx
+#: src/editor/indexing/IndexMarkDialog.tsx
 msgid "This page"
 msgstr "Diese Seite"
 
@@ -6534,6 +7136,10 @@ msgstr "Dieser Schnappschuss enthält keine Kopie von „{title}“, es gibt als
 #: src/app/dialogs/snapshots/BookCompare.tsx
 msgid "This snapshot's copy of “{title}” could not be read as a chapter. Restoring the whole book may still work."
 msgstr "Die Kopie von „{title}“ in diesem Schnappschuss konnte nicht als Kapitel gelesen werden. Das ganze Buch wiederherzustellen kann trotzdem klappen."
+
+#: src/app/indexing/IndexLocations.tsx
+msgid "This term only points to other terms."
+msgstr "Dieser Begriff verweist nur auf andere Begriffe."
 
 #: src/app/dialogs/snapshots/Comparison.tsx
 msgid "This version has the same words as the current text."
@@ -6650,6 +7256,10 @@ msgstr "Download von {0} erneut versuchen"
 #: src/app/settings/SettingsSections.tsx
 msgid "Turns straight quotes, -- and ... into typographic ones as you type. Off by default."
 msgstr "Wandelt gerade Anführungszeichen, -- und ... beim Tippen in typografische Zeichen um. Standardmäßig aus."
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Two columns"
+msgstr "Zwei Spalten"
 
 #: src/app/quicknav/CommandPalette.tsx
 msgid "Type a command"
@@ -6780,6 +7390,10 @@ msgstr "Eintrag ohne Titel"
 msgid "Untitled scene"
 msgstr "Szene ohne Titel"
 
+#: src/app/indexing/GlossaryPanel.tsx
+msgid "Unused"
+msgstr "Unbenutzt"
+
 #: src/app/dialogs/UpdateDialog.tsx
 msgid "Update available"
 msgstr "Update verfügbar"
@@ -6826,9 +7440,19 @@ msgstr "Verwende Buchstaben, Ziffern und einzelne Bindestriche, höchstens 35 Ze
 msgid "Use newer text"
 msgstr "Neueren Text verwenden"
 
+#: src/lib/indexing/problemText.ts
+msgid "Use one line."
+msgstr "Verwende eine Zeile."
+
 #: src/app/export/Templates.tsx
 msgid "Use template"
 msgstr "Vorlage verwenden"
+
+#. placeholder {0}: use.count
+#. placeholder {1}: use.chapterIds.length
+#: src/app/indexing/GlossaryEntryDialog.tsx
+msgid "Used {0, plural, one {# time} other {# times}} in {1, plural, one {# chapter} other {# chapters}}"
+msgstr "{0, plural, one {# Mal} other {# Mal}} in {1, plural, one {# Kapitel} other {# Kapiteln}} verwendet"
 
 #. placeholder {0}: update.version
 #: src/app/dialogs/UpdateDialog.tsx
@@ -7001,6 +7625,10 @@ msgstr "Text in eine Szene einfassen"
 msgid "Write"
 msgstr "Schreiben"
 
+#: src/lib/indexing/problemText.ts
+msgid "Write a term first."
+msgstr "Schreibe zuerst einen Begriff."
+
 #: src/app/shell/header/AppHeader.tsx
 msgid "Write or read"
 msgstr "Schreiben oder lesen"
@@ -7060,6 +7688,14 @@ msgstr "Die Rich-Text-Datei wird geschrieben …"
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Writing the Word file…"
 msgstr "Word-Datei wird geschrieben…"
+
+#: src/app/indexing/IndexSettingsDialog.tsx
+msgid "Written after the back matter in the EPUB, PDF, Markdown, Word and Rich Text exports."
+msgstr "Wird in den Exporten EPUB, PDF, Markdown, Word und Rich Text nach dem Nachspann geschrieben."
+
+#: src/app/indexing/GlossarySettingsDialog.tsx
+msgid "Written after the index. Terms with no definition are left out."
+msgstr "Wird nach dem Index geschrieben. Begriffe ohne Definition werden weggelassen."
 
 #: src/editor/paste/PasteDialog.tsx
 msgid "You can change this later in Settings, Editor."

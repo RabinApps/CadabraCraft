@@ -5,6 +5,7 @@ import {
   resolveBookFonts,
   resolveTrimSize,
 } from "@cadabracraft/templates";
+import { indexingForExport } from "../../../lib/indexing/pageSpecs";
 import { bookContents, pdfToc } from "../../../lib/export/tocExport";
 import type { Ctx } from "../context";
 
@@ -28,11 +29,17 @@ export const createTypstBook = (ctx: Ctx) => {
             pages: await loadChaptersIn(source, only),
           };
     const open = get().draft ?? get().currentDoc;
-    const chapters =
+    const withOpen =
       open && currentId && (get().activeLanguage ?? source) === source
         ? pages.map((p) => (p.id === currentId ? { ...p, doc: open } : p))
         : pages;
+    // The index and glossary pages count in the book's pages (a measure of one page leaves them out).
+    const { pages: chapters, ...generated } =
+      only === undefined
+        ? indexingForExport(manifest, withOpen, edition.language)
+        : { pages: withOpen };
     return {
+      generated,
       templateId,
       edition,
       chapters,

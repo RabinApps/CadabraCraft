@@ -2,6 +2,8 @@ import { useLingui } from "@lingui/react/macro";
 import type { Manifest } from "@cadabracraft/format";
 import { cx } from "../../../ui/cx";
 import { useLayout } from "../../../state/view/layout";
+import { GlossaryPanel } from "../../indexing/GlossaryPanel";
+import { IndexPanel } from "../../indexing/IndexPanel";
 import { CommentsPanel } from "../../comments/CommentsPanel";
 import { ReferencesPanel } from "../../references/ReferencesPanel";
 import { SceneRail } from "../../scenes/SceneRail";
@@ -30,19 +32,33 @@ export function SidePanel({
   onEditDetails: () => void;
 }) {
   const { t } = useLingui();
-  const { references, comments, set: setLayout } = useLayout();
+  const { references, comments, index, glossary, set: setLayout } = useLayout();
   return (
     <aside
       aria-label={
-        scene ? t`Scene` : comments ? t`Comments` : references ? t`References` : t`Details`
+        scene
+          ? t`Scene`
+          : index
+            ? t`Index`
+            : glossary
+              ? t`Glossary`
+              : comments
+                ? t`Comments`
+                : references
+                  ? t`References`
+                  : t`Details`
       }
       className={cx(
         "hidden shrink-0 overflow-y-auto border-s border-border bg-surface xl:block",
-        scene || references || comments ? "w-80" : "w-70",
+        scene || references || comments || index || glossary ? "w-80" : "w-70",
       )}
     >
       {scene ? (
         <SceneRail />
+      ) : index ? (
+        <IndexPanel onClose={() => setLayout({ index: false })} />
+      ) : glossary ? (
+        <GlossaryPanel onClose={() => setLayout({ glossary: false })} />
       ) : comments ? (
         <CommentsPanel onClose={() => setLayout({ comments: false })} />
       ) : references ? (

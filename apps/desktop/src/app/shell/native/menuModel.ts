@@ -273,6 +273,9 @@ function insertMenu(b: Builder, _ctx: MenuContext): MenuEntry {
     cmd("editor.pageBreak", t`Page break`),
     cmd("editor.image", t`Image…`),
     cmd("editor.footnote", t`Footnote`),
+    // Not Shift+I: that is File > Import.
+    cmd("editor.indexEntry", t`Index Entry…`, "CmdOrCtrl+Alt+X"),
+    cmd("editor.glossaryTerm", t`Glossary Term…`, "CmdOrCtrl+Shift+G"),
     cmd("editor.link", t`Link…`),
     cmd("editor.codeBlock", t`Code Block`),
     cmd("editor.table", t`Table…`),

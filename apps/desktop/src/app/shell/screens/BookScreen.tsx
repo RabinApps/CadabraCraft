@@ -38,7 +38,14 @@ import { AppHeader } from "../header/AppHeader";
 import { StatusBar } from "../header/StatusBar";
 import { Sidebar } from "../sidebar/Sidebar";
 import { SidebarResizeHandle } from "../sidebar/SidebarResizeHandle";
-import { ChaptersDrawer, CommentsSheet, ReferencesSheet, ScenesSheet } from "../Drawers";
+import {
+  ChaptersDrawer,
+  CommentsSheet,
+  GlossarySheet,
+  IndexSheet,
+  ReferencesSheet,
+  ScenesSheet,
+} from "../Drawers";
 import { SidePanel } from "./SidePanel";
 import type { BookOverlays, ExportControl } from "./useScreenState";
 
@@ -233,6 +240,8 @@ function BookDialogs({
       />
       <ChaptersDrawer open={drawer} onOpenChange={setDrawer} />
       <CommentsSheet open={overlays.commentsSheet} onOpenChange={overlays.setCommentsSheet} />
+      <IndexSheet />
+      <GlossarySheet />
       <ScenesSheet open={overlays.scenesSheet} onOpenChange={overlays.setScenesSheet} />
       <BookDetailsDialog open={detailsOpen} onOpenChange={setDetailsOpen} />
       <AnalysisDialog />
@@ -270,7 +279,14 @@ export function BookScreen(props: BookScreenProps) {
   const currentDoc = useProject((s) => s.currentDoc);
   const language = useProject((s) => s.activeLanguage ?? s.manifest?.editions[0]?.language ?? "");
   const activeScene = useSceneView((s) => s.active);
-  const { details, references, comments, set: setLayout } = useLayout();
+  const {
+    details,
+    references,
+    comments,
+    index: indexOn,
+    glossary: glossaryOn,
+    set: setLayout,
+  } = useLayout();
   const reader = mode === "read";
   const { pages, index, section } = placeOf(manifest, currentId, language);
   // A scene the sidebar is pointing at takes the rail: its notes are what the author is working on.
@@ -318,19 +334,21 @@ export function BookScreen(props: BookScreenProps) {
           <PageBody manifest={manifest} reader={reader} focus={focus} />
           <PageFooter {...props} reader={reader} />
         </main>
-        {!focus && !reader && (scene || details || references || comments) && (
-          <SidePanel
-            scene={scene !== null}
-            manifest={manifest}
-            pageTitle={pages[index]?.title ?? null}
-            section={section}
-            words={props.words}
-            viewingId={overlays.viewingId}
-            setViewingId={overlays.setViewingId}
-            onChangeTemplate={() => setView("templates")}
-            onEditDetails={openDetails}
-          />
-        )}
+        {!focus &&
+          !reader &&
+          (scene || details || references || comments || indexOn || glossaryOn) && (
+            <SidePanel
+              scene={scene !== null}
+              manifest={manifest}
+              pageTitle={pages[index]?.title ?? null}
+              section={section}
+              words={props.words}
+              viewingId={overlays.viewingId}
+              setViewingId={overlays.setViewingId}
+              onChangeTemplate={() => setView("templates")}
+              onEditDetails={openDetails}
+            />
+          )}
       </div>
       <BookDialogs {...props} />
     </div>

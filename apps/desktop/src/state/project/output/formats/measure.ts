@@ -20,7 +20,16 @@ export const createMeasure = (gather: ReturnType<typeof createTypstBook>) => {
   ): Promise<PageReport> => {
     const { templateId, edition, chapters, trimSize, fonts, toc, assets: load } = book;
     const key = contentHash(
-      JSON.stringify([templateId, trimSize, fonts, edition.title, edition.language, chapters, toc]),
+      JSON.stringify([
+        templateId,
+        trimSize,
+        fonts,
+        edition.title,
+        edition.language,
+        chapters,
+        toc,
+        book.generated,
+      ]),
     );
     const last = measured.get(slot);
     if (last?.key === key) return last.report;
@@ -43,6 +52,7 @@ export const createMeasure = (gather: ReturnType<typeof createTypstBook>) => {
           ...(marks ? { blockMarks: true } : {}),
           ...(Object.keys(fonts).length ? { fonts } : {}),
           ...(toc ? { toc } : {}),
+          ...book.generated,
           assets: Object.fromEntries(assets),
         },
         createTauriRunner(bridge),

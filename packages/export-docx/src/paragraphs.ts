@@ -16,6 +16,8 @@ const MARK_TYPES: Mark["type"][] = [
   "link",
   "lang",
   "comment",
+  "indexEntry",
+  "glossaryTerm",
 ];
 
 export function para(inner: string, o: ParaOpts, ctx: Ctx): string {

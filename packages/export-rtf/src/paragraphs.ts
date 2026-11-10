@@ -20,6 +20,8 @@ const MARK_TYPES: Mark["type"][] = [
   "link",
   "lang",
   "comment",
+  "indexEntry",
+  "glossaryTerm",
 ];
 
 /** The paragraph-formatting control words of `o` (every one is written, so nothing depends on inherited state). Consumes a pending page break. */
