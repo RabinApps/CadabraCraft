@@ -437409,7 +437409,7 @@
                   "stroke": "$border",
                   "strokeWidth": 1,
                   "layout": "vertical",
-                  "gap": 14,
+                  "gap": 8,
                   "padding": 16,
                   "children": [
                     {
@@ -437446,60 +437446,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "Rdhnv",
-                      "name": "Ornament / Asterisk",
-                      "width": "fill_container",
-                      "fill": "$surface",
-                      "cornerRadius": "$radius",
-                      "gap": 8,
-                      "padding": [
-                        8,
-                        10
-                      ],
-                      "justifyContent": "space_between",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "JVjXK",
-                          "name": "Glyph and name",
-                          "gap": 8,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "icon",
-                              "id": "bhorP",
-                              "name": "Glyph Asterisk",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "asterisk",
-                              "library": "lucide",
-                              "fill": "$ink"
-                            },
-                            {
-                              "type": "text",
-                              "id": "h4qPs7",
-                              "name": "Name Asterisk",
-                              "fill": "$ink",
-                              "content": "Asterisk",
-                              "fontFamily": "$font-ui",
-                              "fontSize": "$type-body",
-                              "fontWeight": "normal"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "ye94r",
-                      "name": "Ornament / Flower",
+                      "id": "LtuGO",
+                      "name": "Ornament / Template default",
                       "width": "fill_container",
                       "fill": "$accent-soft",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -437507,27 +437461,25 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "AopHd",
+                          "id": "zPMTh",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "x78DE",
-                              "name": "Glyph Flower",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "flower-2",
-                              "library": "lucide",
-                              "fill": "$accent"
+                              "type": "frame",
+                              "id": "tM2rZ",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center"
                             },
                             {
                               "type": "text",
-                              "id": "S9ORe",
-                              "name": "Name Flower",
+                              "id": "M96zLO",
+                              "name": "Name",
                               "fill": "$accent",
-                              "content": "Flower",
+                              "content": "Template default",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "600"
@@ -437536,7 +437488,7 @@
                         },
                         {
                           "type": "icon",
-                          "id": "fXz68",
+                          "id": "XA93K",
                           "name": "Selected mark",
                           "width": 14,
                           "height": 14,
@@ -437548,14 +437500,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "w2Gtqr",
-                      "name": "Ornament / Sparkle",
+                      "id": "lX64V",
+                      "name": "Ornament / Asterism",
                       "width": "fill_container",
                       "fill": "$surface",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -437563,27 +437515,37 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "MTowt",
+                          "id": "cKMdu",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "V1hUlo",
-                              "name": "Glyph Sparkle",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "sparkle",
-                              "library": "lucide",
-                              "fill": "$ink"
+                              "type": "frame",
+                              "id": "hiIEh",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "X7Lvlv",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "⁂",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             },
                             {
                               "type": "text",
-                              "id": "t8aS1",
-                              "name": "Name Sparkle",
+                              "id": "wNUwI",
+                              "name": "Name",
                               "fill": "$ink",
-                              "content": "Sparkle",
+                              "content": "Asterism",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "normal"
@@ -437594,14 +437556,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "diDtm",
-                      "name": "Ornament / Star",
+                      "id": "psErs",
+                      "name": "Ornament / Three dots",
                       "width": "fill_container",
                       "fill": "$surface",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -437609,27 +437571,37 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "s295G6",
+                          "id": "S4CKFl",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "xT7ml",
-                              "name": "Glyph Star",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "star",
-                              "library": "lucide",
-                              "fill": "$ink"
+                              "type": "frame",
+                              "id": "sUttJ",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "mXSsx",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "*   *   *",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             },
                             {
                               "type": "text",
-                              "id": "xPZAo",
-                              "name": "Name Star",
+                              "id": "s14cO9",
+                              "name": "Name",
                               "fill": "$ink",
-                              "content": "Star",
+                              "content": "Three dots",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "normal"
@@ -437640,14 +437612,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "hk9Rt",
-                      "name": "Ornament / Diamond",
+                      "id": "byEYj",
+                      "name": "Ornament / Fleuron",
                       "width": "fill_container",
                       "fill": "$surface",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -437655,27 +437627,37 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "QwDHt",
+                          "id": "AKnDy",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "QucpC",
-                              "name": "Glyph Diamond",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "diamond",
-                              "library": "lucide",
-                              "fill": "$ink"
+                              "type": "frame",
+                              "id": "TtRgz",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "YMski",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "❦",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             },
                             {
                               "type": "text",
-                              "id": "tndcd",
-                              "name": "Name Diamond",
+                              "id": "IOoXf",
+                              "name": "Name",
                               "fill": "$ink",
-                              "content": "Diamond",
+                              "content": "Fleuron",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "normal"
@@ -437686,14 +437668,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "eRx3Q",
-                      "name": "Ornament / Leaf",
+                      "id": "j5f6Ja",
+                      "name": "Ornament / Dinkus",
                       "width": "fill_container",
                       "fill": "$surface",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -437701,27 +437683,37 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "Ds8mZ",
+                          "id": "eegeP",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "vaqDW",
-                              "name": "Glyph Leaf",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "leaf",
-                              "library": "lucide",
-                              "fill": "$ink"
+                              "type": "frame",
+                              "id": "VKjuz",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "CqqxJ",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "•",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             },
                             {
                               "type": "text",
-                              "id": "Cvmt1",
-                              "name": "Name Leaf",
+                              "id": "KmbEm",
+                              "name": "Name",
                               "fill": "$ink",
-                              "content": "Leaf",
+                              "content": "Dinkus",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "normal"
@@ -437729,10 +437721,118 @@
                           ]
                         }
                       ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "g3tTJo",
+                      "name": "Ornament / Em dash",
+                      "width": "fill_container",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "gap": 8,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "gXVfV",
+                          "name": "Glyph and name",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "f8kJK",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "jf9Ub",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "—",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "k3vG3a",
+                              "name": "Name",
+                              "fill": "$ink",
+                              "content": "Em dash",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "W5XKB1",
+                      "name": "Ornament / No mark",
+                      "width": "fill_container",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "gap": 8,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "f2k4e",
+                          "name": "Glyph and name",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "h9vhPI",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "text",
+                              "id": "aiOWt",
+                              "name": "Name",
+                              "fill": "$ink",
+                              "content": "No mark",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "N1nn25",
+                      "name": "Separator",
+                      "width": "fill_container",
+                      "height": 1,
+                      "fill": "$border"
                     },
                     {
                       "type": "text",
-                      "id": "vP4QV",
+                      "id": "g7Y5s",
                       "name": "Templates heading",
                       "fill": "$ink-muted",
                       "content": "Ornament by template",
@@ -437742,8 +437842,8 @@
                     },
                     {
                       "type": "frame",
-                      "id": "gspw2",
-                      "name": "Template / Classic",
+                      "id": "O9dsZ",
+                      "name": "Template / Classic Novel",
                       "width": "fill_container",
                       "gap": 8,
                       "justifyContent": "space_between",
@@ -437751,49 +437851,30 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "qJZRI",
+                          "id": "hip4E",
                           "name": "Template name",
                           "fill": "$ink",
-                          "content": "Classic",
+                          "content": "Classic Novel",
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-body",
                           "fontWeight": "600"
                         },
                         {
-                          "type": "frame",
-                          "id": "K0G3uP",
-                          "name": "Template ornament",
-                          "gap": 8,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "HPrF4",
-                              "name": "Template ornament name",
-                              "fill": "$ink-muted",
-                              "content": "Flower",
-                              "fontFamily": "$font-ui",
-                              "fontSize": "$type-caption",
-                              "fontWeight": "normal"
-                            },
-                            {
-                              "type": "icon",
-                              "id": "Vt37a",
-                              "name": "Template glyph",
-                              "width": 14,
-                              "height": 14,
-                              "icon": "flower-2",
-                              "library": "lucide",
-                              "fill": "$ink-muted"
-                            }
-                          ]
+                          "type": "text",
+                          "id": "AAZrE",
+                          "name": "Template mark",
+                          "fill": "$ink-muted",
+                          "content": "*   *   *",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
                     {
                       "type": "frame",
-                      "id": "PThUo",
-                      "name": "Template / Modern",
+                      "id": "H9F6kw",
+                      "name": "Template / Nonfiction",
                       "width": "fill_container",
                       "gap": 8,
                       "justifyContent": "space_between",
@@ -437801,48 +437882,60 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "UmzS0",
+                          "id": "n5x3QM",
                           "name": "Template name",
                           "fill": "$ink",
-                          "content": "Modern",
+                          "content": "Nonfiction",
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-body",
                           "fontWeight": "600"
                         },
                         {
-                          "type": "frame",
-                          "id": "N6Y1I1",
-                          "name": "Template ornament",
-                          "gap": 8,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "og5v4",
-                              "name": "Template ornament name",
-                              "fill": "$ink-muted",
-                              "content": "Diamond",
-                              "fontFamily": "$font-ui",
-                              "fontSize": "$type-caption",
-                              "fontWeight": "normal"
-                            },
-                            {
-                              "type": "icon",
-                              "id": "x2IrC",
-                              "name": "Template glyph",
-                              "width": 14,
-                              "height": 14,
-                              "icon": "diamond",
-                              "library": "lucide",
-                              "fill": "$ink-muted"
-                            }
-                          ]
+                          "type": "text",
+                          "id": "lIwg9",
+                          "name": "Template mark",
+                          "fill": "$ink-muted",
+                          "content": "⁂",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
                     {
                       "type": "frame",
-                      "id": "we4VJ",
+                      "id": "d3CTn",
+                      "name": "Template / Modern Memoir",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Ca2tD",
+                          "name": "Template name",
+                          "fill": "$ink",
+                          "content": "Modern Memoir",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "iQZ4N",
+                          "name": "Template mark",
+                          "fill": "$ink-muted",
+                          "content": "—",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Q3Wfe",
                       "name": "Template / Poetry",
                       "width": "fill_container",
                       "gap": 8,
@@ -437851,7 +437944,7 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "FkBss",
+                          "id": "p5iGh",
                           "name": "Template name",
                           "fill": "$ink",
                           "content": "Poetry",
@@ -437860,33 +437953,14 @@
                           "fontWeight": "600"
                         },
                         {
-                          "type": "frame",
-                          "id": "n4YS50",
-                          "name": "Template ornament",
-                          "gap": 8,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "e7XU2",
-                              "name": "Template ornament name",
-                              "fill": "$ink-muted",
-                              "content": "Leaf",
-                              "fontFamily": "$font-ui",
-                              "fontSize": "$type-caption",
-                              "fontWeight": "normal"
-                            },
-                            {
-                              "type": "icon",
-                              "id": "GdLNq",
-                              "name": "Template glyph",
-                              "width": 14,
-                              "height": 14,
-                              "icon": "leaf",
-                              "library": "lucide",
-                              "fill": "$ink-muted"
-                            }
-                          ]
+                          "type": "text",
+                          "id": "EEvnT",
+                          "name": "Template mark",
+                          "fill": "$ink-muted",
+                          "content": "*   *   *",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -437905,7 +437979,7 @@
                   "stroke": "$border",
                   "strokeWidth": 1,
                   "layout": "vertical",
-                  "gap": 14,
+                  "gap": 8,
                   "padding": 16,
                   "children": [
                     {
@@ -437942,60 +438016,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "QooDb",
-                      "name": "Ornament / Asterisk",
-                      "width": "fill_container",
-                      "fill": "$surface",
-                      "cornerRadius": "$radius",
-                      "gap": 8,
-                      "padding": [
-                        8,
-                        10
-                      ],
-                      "justifyContent": "space_between",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "mTSMH",
-                          "name": "Glyph and name",
-                          "gap": 8,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "icon",
-                              "id": "xrhMT",
-                              "name": "Glyph Asterisk",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "asterisk",
-                              "library": "lucide",
-                              "fill": "$ink"
-                            },
-                            {
-                              "type": "text",
-                              "id": "hVvBT",
-                              "name": "Name Asterisk",
-                              "fill": "$ink",
-                              "content": "Asterisk",
-                              "fontFamily": "$font-ui",
-                              "fontSize": "$type-body",
-                              "fontWeight": "normal"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "ZycUD",
-                      "name": "Ornament / Flower",
+                      "id": "B0aFxN",
+                      "name": "Ornament / Template default",
                       "width": "fill_container",
                       "fill": "$accent-soft",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -438003,27 +438031,25 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "PZDF6",
+                          "id": "v1lh3x",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "KU9PD",
-                              "name": "Glyph Flower",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "flower-2",
-                              "library": "lucide",
-                              "fill": "$accent"
+                              "type": "frame",
+                              "id": "lQAac",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center"
                             },
                             {
                               "type": "text",
-                              "id": "NPLbs",
-                              "name": "Name Flower",
+                              "id": "ePH4G",
+                              "name": "Name",
                               "fill": "$accent",
-                              "content": "Flower",
+                              "content": "Template default",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "600"
@@ -438032,7 +438058,7 @@
                         },
                         {
                           "type": "icon",
-                          "id": "gvmm3",
+                          "id": "rDuqs",
                           "name": "Selected mark",
                           "width": 14,
                           "height": 14,
@@ -438044,14 +438070,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "y4AZo",
-                      "name": "Ornament / Sparkle",
+                      "id": "urMyJ",
+                      "name": "Ornament / Asterism",
                       "width": "fill_container",
                       "fill": "$surface",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -438059,27 +438085,37 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "WGukB",
+                          "id": "K4fMo",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "O7WV3J",
-                              "name": "Glyph Sparkle",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "sparkle",
-                              "library": "lucide",
-                              "fill": "$ink"
+                              "type": "frame",
+                              "id": "a5YO9H",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Zxmj5",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "⁂",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             },
                             {
                               "type": "text",
-                              "id": "qYqgq",
-                              "name": "Name Sparkle",
+                              "id": "kVKAp",
+                              "name": "Name",
                               "fill": "$ink",
-                              "content": "Sparkle",
+                              "content": "Asterism",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "normal"
@@ -438090,14 +438126,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "RrDQF",
-                      "name": "Ornament / Star",
+                      "id": "ZptW7",
+                      "name": "Ornament / Three dots",
                       "width": "fill_container",
                       "fill": "$surface",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -438105,27 +438141,37 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "dLh0m",
+                          "id": "D2UDKR",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "wNkVP",
-                              "name": "Glyph Star",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "star",
-                              "library": "lucide",
-                              "fill": "$ink"
+                              "type": "frame",
+                              "id": "WdGfz",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "fo0mn",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "*   *   *",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             },
                             {
                               "type": "text",
-                              "id": "FZWJh",
-                              "name": "Name Star",
+                              "id": "s3OnC",
+                              "name": "Name",
                               "fill": "$ink",
-                              "content": "Star",
+                              "content": "Three dots",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "normal"
@@ -438136,14 +438182,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "H5Nmql",
-                      "name": "Ornament / Diamond",
+                      "id": "z0TaE",
+                      "name": "Ornament / Fleuron",
                       "width": "fill_container",
                       "fill": "$surface",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -438151,27 +438197,37 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "gCHUB",
+                          "id": "sNdER",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "mkfW1",
-                              "name": "Glyph Diamond",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "diamond",
-                              "library": "lucide",
-                              "fill": "$ink"
+                              "type": "frame",
+                              "id": "LXCy7",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Z4DSE",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "❦",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             },
                             {
                               "type": "text",
-                              "id": "Vlthq",
-                              "name": "Name Diamond",
+                              "id": "HRDOc",
+                              "name": "Name",
                               "fill": "$ink",
-                              "content": "Diamond",
+                              "content": "Fleuron",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "normal"
@@ -438182,14 +438238,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "yUZiv",
-                      "name": "Ornament / Leaf",
+                      "id": "qfBkj",
+                      "name": "Ornament / Dinkus",
                       "width": "fill_container",
                       "fill": "$surface",
                       "cornerRadius": "$radius",
                       "gap": 8,
                       "padding": [
-                        8,
+                        6,
                         10
                       ],
                       "justifyContent": "space_between",
@@ -438197,27 +438253,37 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "X9Aa1f",
+                          "id": "L6E0Jx",
                           "name": "Glyph and name",
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "klfiy",
-                              "name": "Glyph Leaf",
-                              "width": 16,
-                              "height": 16,
-                              "icon": "leaf",
-                              "library": "lucide",
-                              "fill": "$ink"
+                              "type": "frame",
+                              "id": "dKWzf",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "S0pWgx",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "•",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             },
                             {
                               "type": "text",
-                              "id": "X3QMU",
-                              "name": "Name Leaf",
+                              "id": "OjtTj",
+                              "name": "Name",
                               "fill": "$ink",
-                              "content": "Leaf",
+                              "content": "Dinkus",
                               "fontFamily": "$font-ui",
                               "fontSize": "$type-body",
                               "fontWeight": "normal"
@@ -438225,10 +438291,118 @@
                           ]
                         }
                       ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zrPol",
+                      "name": "Ornament / Em dash",
+                      "width": "fill_container",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "gap": 8,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "PVyIq",
+                          "name": "Glyph and name",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "cZ1n8",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "hhu1G",
+                                  "name": "Glyph",
+                                  "fill": "$ink",
+                                  "content": "—",
+                                  "fontFamily": "$font-book",
+                                  "fontSize": "$type-body",
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "s6i7P",
+                              "name": "Name",
+                              "fill": "$ink",
+                              "content": "Em dash",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "BpsqO",
+                      "name": "Ornament / No mark",
+                      "width": "fill_container",
+                      "fill": "$surface",
+                      "cornerRadius": "$radius",
+                      "gap": 8,
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "d9ieOa",
+                          "name": "Glyph and name",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "JreAj",
+                              "name": "Glyph slot",
+                              "width": 64,
+                              "height": 22,
+                              "alignItems": "center"
+                            },
+                            {
+                              "type": "text",
+                              "id": "A8bqmj",
+                              "name": "Name",
+                              "fill": "$ink",
+                              "content": "No mark",
+                              "fontFamily": "$font-ui",
+                              "fontSize": "$type-body",
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "iYgvy",
+                      "name": "Separator",
+                      "width": "fill_container",
+                      "height": 1,
+                      "fill": "$border"
                     },
                     {
                       "type": "text",
-                      "id": "iBP15",
+                      "id": "f89ilT",
                       "name": "Templates heading",
                       "fill": "$ink-muted",
                       "content": "Ornament by template",
@@ -438238,8 +438412,8 @@
                     },
                     {
                       "type": "frame",
-                      "id": "IaBHd",
-                      "name": "Template / Classic",
+                      "id": "oCqpx",
+                      "name": "Template / Classic Novel",
                       "width": "fill_container",
                       "gap": 8,
                       "justifyContent": "space_between",
@@ -438247,49 +438421,30 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "LYVLZ",
+                          "id": "E1UZZ",
                           "name": "Template name",
                           "fill": "$ink",
-                          "content": "Classic",
+                          "content": "Classic Novel",
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-body",
                           "fontWeight": "600"
                         },
                         {
-                          "type": "frame",
-                          "id": "i3NbKV",
-                          "name": "Template ornament",
-                          "gap": 8,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "q11H2n",
-                              "name": "Template ornament name",
-                              "fill": "$ink-muted",
-                              "content": "Flower",
-                              "fontFamily": "$font-ui",
-                              "fontSize": "$type-caption",
-                              "fontWeight": "normal"
-                            },
-                            {
-                              "type": "icon",
-                              "id": "shQmH",
-                              "name": "Template glyph",
-                              "width": 14,
-                              "height": 14,
-                              "icon": "flower-2",
-                              "library": "lucide",
-                              "fill": "$ink-muted"
-                            }
-                          ]
+                          "type": "text",
+                          "id": "U3j4pL",
+                          "name": "Template mark",
+                          "fill": "$ink-muted",
+                          "content": "*   *   *",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
                     {
                       "type": "frame",
-                      "id": "d51uE",
-                      "name": "Template / Modern",
+                      "id": "GENkY",
+                      "name": "Template / Nonfiction",
                       "width": "fill_container",
                       "gap": 8,
                       "justifyContent": "space_between",
@@ -438297,48 +438452,60 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "pZYks",
+                          "id": "dc8Dk",
                           "name": "Template name",
                           "fill": "$ink",
-                          "content": "Modern",
+                          "content": "Nonfiction",
                           "fontFamily": "$font-ui",
                           "fontSize": "$type-body",
                           "fontWeight": "600"
                         },
                         {
-                          "type": "frame",
-                          "id": "G7o59",
-                          "name": "Template ornament",
-                          "gap": 8,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "OkBEn",
-                              "name": "Template ornament name",
-                              "fill": "$ink-muted",
-                              "content": "Diamond",
-                              "fontFamily": "$font-ui",
-                              "fontSize": "$type-caption",
-                              "fontWeight": "normal"
-                            },
-                            {
-                              "type": "icon",
-                              "id": "VhVmm",
-                              "name": "Template glyph",
-                              "width": 14,
-                              "height": 14,
-                              "icon": "diamond",
-                              "library": "lucide",
-                              "fill": "$ink-muted"
-                            }
-                          ]
+                          "type": "text",
+                          "id": "kKsvG",
+                          "name": "Template mark",
+                          "fill": "$ink-muted",
+                          "content": "⁂",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
                         }
                       ]
                     },
                     {
                       "type": "frame",
-                      "id": "AntJT",
+                      "id": "f1Unz6",
+                      "name": "Template / Modern Memoir",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "REIF8",
+                          "name": "Template name",
+                          "fill": "$ink",
+                          "content": "Modern Memoir",
+                          "fontFamily": "$font-ui",
+                          "fontSize": "$type-body",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ZpdMv",
+                          "name": "Template mark",
+                          "fill": "$ink-muted",
+                          "content": "—",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "aGYgS",
                       "name": "Template / Poetry",
                       "width": "fill_container",
                       "gap": 8,
@@ -438347,7 +438514,7 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "o1ZoE",
+                          "id": "GsQfB",
                           "name": "Template name",
                           "fill": "$ink",
                           "content": "Poetry",
@@ -438356,33 +438523,14 @@
                           "fontWeight": "600"
                         },
                         {
-                          "type": "frame",
-                          "id": "E6lM3",
-                          "name": "Template ornament",
-                          "gap": 8,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "K47CW",
-                              "name": "Template ornament name",
-                              "fill": "$ink-muted",
-                              "content": "Leaf",
-                              "fontFamily": "$font-ui",
-                              "fontSize": "$type-caption",
-                              "fontWeight": "normal"
-                            },
-                            {
-                              "type": "icon",
-                              "id": "pFQJN",
-                              "name": "Template glyph",
-                              "width": 14,
-                              "height": 14,
-                              "icon": "leaf",
-                              "library": "lucide",
-                              "fill": "$ink-muted"
-                            }
-                          ]
+                          "type": "text",
+                          "id": "fOFiQ",
+                          "name": "Template mark",
+                          "fill": "$ink-muted",
+                          "content": "*   *   *",
+                          "fontFamily": "$font-book",
+                          "fontSize": "$type-body",
+                          "fontWeight": "normal"
                         }
                       ]
                     }
