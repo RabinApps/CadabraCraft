@@ -19,6 +19,17 @@ pnpm --filter @cadabracraft/website typecheck
 pnpm --filter @cadabracraft/website test   # locale paths, hreflang, MDX frontmatter and docs links
 ```
 
+## Screenshots
+Product screenshots are generated from the real UI (the app running in a browser against the in-memory fake backend used by the e2e specs, with the sample book "The Salt Orchard"), so they are reproducible and need no installed app:
+
+```bash
+pnpm --filter @cadabracraft/desktop screenshots:website                       # light and dark, into apps/website/public/screens
+SHOTS=editor,export pnpm --filter @cadabracraft/desktop screenshots:website   # only some shots
+SCREENSHOT_DIR=/tmp/shots SCALE=1 pnpm --filter @cadabracraft/desktop screenshots:website
+```
+
+Files are named `<shot>-<light|dark>.png` (1440x900 at 2x by default). The shots and the sample book are defined in `apps/desktop/e2e-screenshots/website.spec.ts`; add a shot by adding an entry to `SHOTS`. Reference them from `featureGroups[].shot` in `src/content/en/content.ts` and the Home hero, using a `<picture>` per colour scheme. Run it again whenever the UI changes; do not edit the PNGs by hand.
+
 ## Launch checklist (one-time)
 The deploy workflow is `.github/workflows/pages.yml`. It publishes `apps/website/out` on pushes to `main` that touch `apps/website/**`, or manually via "Run workflow". `public/CNAME` holds `cadabracraft.com`, so the site is served from the root with no `basePath`.
 
@@ -38,7 +49,7 @@ The deploy workflow is `.github/workflows/pages.yml`. It publishes `apps/website
 4. **Verify**: the workflow run is green, `https://cadabracraft.com` loads over HTTPS, and `www` redirects to the apex.
 
 ## Before announcing
-- Replace the HTML/CSS `EditorMockup` with real screenshots exported from `cadabracraft.pen` (put them in `public/screens/`), light and dark, and set `shot` on the entries in `featureGroups` (`src/content/en/content.ts`) to show them on `/features/`. The social card `public/og/cadabracraft-og.png` already exists; re-export it from the pen frame `Website / OG image` if the headline changes.
+- Regenerate the screenshots in `public/screens/` (see "Screenshots") after UI changes, and add more shots (import, audiobook, editions) and set `shot` on the matching entries in `featureGroups` (`src/content/en/content.ts`). The social card `public/og/cadabracraft-og.png` already exists; re-export it from the pen frame `Website / OG image` if the headline changes.
 - Confirm the repo URL in `src/app/page.tsx` (`REPO`) and the three funding links (GitHub Sponsors, Buy Me a Coffee, PayPal; same values as `.github/FUNDING.yml`).
 - Add a real download link once a GitHub Release exists; the hero currently says downloads are not available yet.
 - Check the page at phone, tablet and desktop widths in both themes.

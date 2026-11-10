@@ -1,3 +1,4 @@
+import { Screenshot } from "./Screenshot";
 import type { FeatureGroup } from "@/content/en/content";
 
 function Points({ points }: { points: readonly string[] }) {
@@ -37,14 +38,9 @@ export function FeatureRow({ group, flip }: { group: FeatureGroup; flip: boolean
         {shot ? (
           <>
             <div className={flip ? "lg:order-2" : ""}>{text}</div>
-            <img
-              src={shot.src}
-              alt={shot.alt}
-              width={shot.width}
-              height={shot.height}
-              loading="lazy"
-              className={`w-full rounded-lg border border-border ${flip ? "lg:order-1" : ""}`}
-            />
+            <div className={flip ? "lg:order-1" : ""}>
+              <Screenshot name={shot.name} alt={shot.alt} className="rounded-lg border border-border shadow-lg" />
+            </div>
           </>
         ) : (
           <>

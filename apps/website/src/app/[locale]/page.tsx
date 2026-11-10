@@ -1,7 +1,8 @@
 import { getContent } from "@/content";
 import { localePath } from "@/i18n/config";
 import { getLocale, type LocaleParams } from "@/lib/params";
-import { EditorMockup } from "@/components/EditorMockup";
+import { TrustPoints } from "@/components/TrustPoints";
+import { Screenshot } from "@/components/Screenshot";
 import { Faq } from "@/components/Faq";
 import { SponsorBand } from "@/components/SponsorBand";
 import { btnPrimary, btnSecondary, REPO } from "@/lib/site";
@@ -12,10 +13,7 @@ export default async function Home({ params }: LocaleParams) {
   const { competitors } = getContent(locale).competitors;
   return (
     <>
-      <section className="mx-auto max-w-6xl px-4 pb-16 pt-16 text-center sm:px-6 sm:pt-24">
-        <p className="mb-4 inline-block rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent">
-          Free and source-available · No account · Your files stay yours
-        </p>
+      <section className="mx-auto max-w-6xl px-4 pb-16 pt-14 text-center sm:px-6 sm:pt-20">
         <h1 className="mx-auto max-w-3xl font-book text-4xl font-medium leading-tight sm:text-6xl">
           Write your book. Format it beautifully.
         </h1>
@@ -31,9 +29,14 @@ export default async function Home({ params }: LocaleParams) {
             View on GitHub
           </a>
         </div>
-        <p className="mt-3 text-xs text-ink-muted">Early development. Downloads will appear on GitHub Releases.</p>
+        <TrustPoints locale={locale} />
         <div className="mx-auto mt-14 max-w-4xl text-left">
-          <EditorMockup />
+          <Screenshot
+            name="editor"
+            eager
+            alt="The CadabraCraft editor showing a chapter of a novel as a book page, with the chapter list on the left and book details on the right."
+            className="rounded-xl border border-border shadow-2xl shadow-black/10"
+          />
         </div>
       </section>
 

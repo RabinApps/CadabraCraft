@@ -93,6 +93,24 @@ body {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+/* Screenshots exist in both schemes; show the one that matches the theme (system, or the manual override). */
+.shot-dark {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .shot-light {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .shot-dark {
+    display: block;
+  }
+}
+:root[data-theme="dark"] .shot-light {
+  display: none;
+}
+:root[data-theme="dark"] .shot-dark {
+  display: block;
+}
 html {
   scroll-behavior: smooth;
 }

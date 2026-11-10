@@ -4,7 +4,7 @@ import { DocToc } from "@/components/docs/DocToc";
 import { DocsNav } from "@/components/docs/DocsNav";
 import { mdxComponents } from "@/components/docs/mdx";
 import { JsonLd } from "@/components/JsonLd";
-import { LOCALES } from "@/i18n/config";
+import { LOCALES, localePath } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 import { getEntry, listEntries } from "@/lib/docs/entries";
 import { loadContent } from "@/lib/docs/load";
@@ -41,6 +41,12 @@ export default async function DocPage({ params }: LocaleParams<{ slug: string }>
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_200px]">
         <DocsNav locale={locale} entries={entries} current={slug} m={m} />
         <article className="min-w-0 max-w-3xl">
+          <nav aria-label={m.docs.breadcrumb} className="mb-3 text-xs text-ink-muted">
+            <a href={localePath(locale, "/docs/")} className="hover:text-ink">
+              {m.nav.docs}
+            </a>{" "}
+            / {entry.group} / {entry.title}
+          </nav>
           <h1 className="font-book text-4xl font-medium leading-tight sm:text-5xl">{entry.title}</h1>
           <p className="mt-3 text-sm text-ink-muted">
             {m.docs.updated} <time dateTime={entry.updated}>{entry.updated}</time>

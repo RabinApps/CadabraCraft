@@ -46,8 +46,8 @@ export type FeatureGroup = {
   title: string;
   lead: string;
   points: readonly string[];
-  /** Path under /public of a real screenshot. Rows without one render as text only. */
-  shot?: { src: string; alt: string; width: number; height: number };
+  /** Name of a screenshot in /public/screens (`<name>-light.png` and `<name>-dark.png`). Rows without one render as text only. */
+  shot?: { name: string; alt: string };
 };
 
 export const featureGroups: readonly FeatureGroup[] = [
@@ -62,6 +62,10 @@ export const featureGroups: readonly FeatureGroup[] = [
       "Find and replace across the whole book, with regular expressions",
       "A session word goal and a status bar that stays quiet",
     ],
+    shot: {
+      name: "editor",
+      alt: "The CadabraCraft editor showing a chapter of a novel as a book page, with the chapter list on the left and book details on the right.",
+    },
   },
   {
     id: "import",
@@ -85,6 +89,10 @@ export const featureGroups: readonly FeatureGroup[] = [
       "Word (.docx) and Markdown export",
       "PDF export uses Typst, which comes with the app",
     ],
+    shot: {
+      name: "export",
+      alt: "The Export book dialog with a choice of EPUB 3, print PDF, Markdown, Word, Rich Text, audiobook and outline.",
+    },
   },
   {
     id: "listen",
