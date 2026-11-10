@@ -52,6 +52,13 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/fetch-epubcheck.sh
+      # The EPUB checker and trimmed Java runtime that ship in the app: stage them, build the runtime with jlink and run EPUBCheck with it on the sample EPUB.
+      - name: Bundled EPUB checker and Java runtime
+        if: runner.os != 'Windows'
+        run: |
+          pnpm --filter @cadabracraft/export-epub build:sample
+          bash scripts/stage-epubcheck.sh
+          bash scripts/build-jre.sh
       # Chromium plus its system libraries (libnss3, libatk-bridge2.0-0, libgbm1 ...). This runs before `pnpm test` on purpose:
       # the Ace test inside `pnpm test` starts Puppeteer's own Chrome, which needs the same libraries on Linux.
       - run: pnpm exec playwright install --with-deps chromium

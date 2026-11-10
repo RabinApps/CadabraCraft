@@ -56,6 +56,12 @@ jobs:
           targets: ${{ matrix.rust-targets }}
       - name: Bundled Typst and fonts
         run: bash scripts/fetch-typst.sh ${{ matrix.os == 'kinhin-xcode' && '--all' || '' }}
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with: { distribution: temurin, java-version: 17 }
+      - name: Bundled EPUB checker (EPUBCheck) and its Java runtime
+        run: |
+          bash scripts/stage-epubcheck.sh
+          bash scripts/build-jre.sh ${{ matrix.os == 'kinhin-xcode' && '--all' || '' }}
       - name: Bundled voice engine (sherpa-onnx)
         run: bash scripts/fetch-sherpa.sh ${{ matrix.os == 'kinhin-xcode' && '--all' || '' }}
       - name: MSYS2 toolchain for ffmpeg

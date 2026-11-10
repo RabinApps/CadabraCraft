@@ -156,7 +156,7 @@ export const formats = [
   {
     name: "EPUB3",
     use: "Ebooks",
-    lead: "Reflowable EPUB3 for ebook stores and e-readers. The format is checked with the standard EPUBCheck tool during development.",
+    lead: "Reflowable EPUB3 for ebook stores and e-readers. The app can check the exported file with the standard EPUBCheck validator, on your computer.",
     points: ["Language, cover and details come from your book details", "Front and back matter are included"],
   },
   {
@@ -248,7 +248,7 @@ export const faq = [
 export const formatFaq = [
   {
     q: "Is the EPUB validated?",
-    a: "The EPUB3 output is checked with the standard EPUBCheck tool during development. The app does not run EPUBCheck on your own file, so check it with your store's previewer too.",
+    a: "Yes. EPUBCheck, the standard EPUB validator, is built into the app: in the Export dialog, choose Check EPUB to run it on the file you exported, or turn on the switch to check after every export. It runs on your computer, so nothing is uploaded. It cannot promise that a store accepts the book, so look at it in your store's previewer too.",
   },
   {
     q: "Can I get my book back out?",

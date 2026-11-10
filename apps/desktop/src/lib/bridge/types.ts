@@ -130,3 +130,32 @@ export interface InstalledFont {
   source: "downloaded" | "imported";
   files: string[];
 }
+
+/** One EPUBCheck message (`Message` in src-tauri/src/epubcheck/report.rs). The text is EPUBCheck's own, in English. */
+export interface EpubcheckMessage {
+  severity: "fatal" | "error" | "warning" | "info" | "usage" | "suppressed";
+  /** EPUBCheck's message id, for example `RSC-005`. */
+  id: string;
+  message: string;
+  file: string | null;
+  line: number | null;
+  column: number | null;
+}
+
+/** EPUBCheck's report (`Report` in src-tauri/src/epubcheck/report.rs). */
+export interface EpubcheckReport {
+  version: string;
+  counts: { fatal: number; error: number; warning: number; usage: number };
+  messages: EpubcheckMessage[];
+  /** Messages left out of `messages` (the list is capped). */
+  omitted: number;
+}
+
+/** Why a check could not finish (`EpubcheckError` in src-tauri/src/epubcheck/error.rs). */
+export type EpubcheckFailure =
+  | { kind: "not_found"; message: string }
+  | { kind: "timeout"; seconds: number }
+  | { kind: "cancelled" }
+  | { kind: "no_epub" }
+  | { kind: "failed"; message: string }
+  | { kind: "other"; message: string };

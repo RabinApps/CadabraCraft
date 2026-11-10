@@ -11,6 +11,7 @@ import { useShowCheckedPage } from "./useShowCheckedPage";
 import { OUTLINE_FORMATS } from "@cadabracraft/outline";
 import { usePdfOptions } from "./PdfPanel";
 import { useAudioExport } from "./useAudioExport";
+import { raiseEpubCheck } from "./epubcheck/epubAutoCheck";
 import type { ExportFormat } from "./exportFormat";
 import {
   ExportStatus,
@@ -39,6 +40,12 @@ interface Props {
   /** Opens Settings, Fonts, where missing print fonts are downloaded. */
   onOpenFonts?: () => void;
 }
+
+/** After an export: offers the sponsor dialog for the file of the last edition. */
+const offerSponsor = (languages: string[], format: ExportFormat, outlineFile: string) =>
+  useSponsor
+    .getState()
+    .offer(`${exportDir(languages.at(-1)!)}/${exportedFile(format, outlineFile)}`);
 
 /** Export the book as EPUB 3, a print PDF (Typst), Markdown, Word, Rich Text or an audiobook. Each format's panel shows its checks or options before building. */
 export function ExportDialog({
@@ -89,9 +96,9 @@ export function ExportDialog({
         setExporting(l);
         await runExport(actions, format, scopeOf(l), { ...choices, pdf });
       }
-      const last = exportDir(languages.at(-1)!);
+      if (format === "epub" && raiseEpubCheck()) return; // stays open to show the EPUBCheck result
       change(false);
-      useSponsor.getState().offer(`${last}/${exportedFile(format, outlineFile)}`);
+      offerSponsor(languages, format, outlineFile);
     } catch (e) {
       setError(e instanceof PdfUiError ? e : new PdfUiError("other", errText(e)));
     } finally {

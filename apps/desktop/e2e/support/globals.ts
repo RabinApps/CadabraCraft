@@ -161,6 +161,12 @@ declare global {
     __imports?: string[];
     __typstError?: FakeError;
     __compileError?: FakeError;
+    /** EPUBCheck: the report `epubcheck_validate` answers with (a clean one when unset), or an error to throw; `__epubcheckHold` keeps the call pending until released. */
+    __epubcheck?: { report?: unknown; error?: FakeError };
+    __epubcheckHold?: Promise<void>;
+    /** The `{ root, path }` of each `epubcheck_validate` call. */
+    __epubcheckCalls?: { root: string; path: string }[];
+    __epubcheckCancels?: number;
     /** Pages in the PDF `typst_compile` answers with (default 6). */
     __typstPages?: number;
     /** The call lists are created by the first call, so they are declared present. */

@@ -7,6 +7,7 @@ mod import_docx;
 mod import_src;
 mod platform;
 mod project;
+mod epubcheck;
 mod typst;
 
 /// The app's command handlers. `extra` lets the dev-automation build add its own without duplicating the list.
@@ -58,6 +59,9 @@ macro_rules! app_handlers {
             commands::reference_stream_url,
             commands::watch_project,
             commands::unwatch_project,
+            epubcheck::commands::epubcheck_find,
+            epubcheck::commands::epubcheck_validate,
+            epubcheck::commands::epubcheck_cancel,
             typst::commands::typst_find,
             typst::commands::typst_list_fonts,
             typst::commands::typst_compile,
@@ -136,6 +140,7 @@ pub fn run() {
     let builder = tauri::Builder::default()
         .manage(platform::fs_watch::WatchState::default())
         .manage(audio::AudioJobs::default())
+        .manage(epubcheck::EpubcheckJob::default())
         .manage(commands::MediaRoots::default())
         .manage(commands::PickedPaths::default())
         .register_asynchronous_uri_scheme_protocol(commands::MEDIA_SCHEME, |ctx, req, responder| serve_media(ctx.app_handle(), req, responder))
@@ -160,6 +165,7 @@ pub fn run() {
             use tauri::Manager;
             if let Ok(dir) = app.path().resource_dir() {
                 typst::set_font_dir(dir.join("fonts"));
+                epubcheck::set_resource_dir(dir.clone());
             }
             if let Ok(dir) = app.path().app_data_dir() {
                 audio::set_voices_dir(dir.join("voices"));

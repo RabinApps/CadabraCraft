@@ -84,3 +84,11 @@ Then a clean-Mac check: on a Mac that has never run the app, download the `.dmg`
 - Windows is not in the first release: add `windows-latest` back to the `release.yml` matrix, the `windows-x86_64` updater entry and the website Windows card ("Coming soon") together when it ships.
 - Runner labels (`kinhin-container`, `kinhin-xcode`): see architecture.md, "Updates and releases", for what they must provide and the hosted-runner replacements.
 - A `.deb`, `.rpm` or `.msi` is not built; see the open question in the roadmap.
+
+## EPUB checker (EPUBCheck and its Java runtime)
+
+- Fill in the Temurin 17 download URLs and sha256 values in `pin_for` in `scripts/build-jre.sh` (aarch64 and x86_64 macOS, x86_64 Linux) before the first release; `--all` fails until they are set.
+- Confirm the bundle contains `epubcheck/epubcheck.jar`, `epubcheck/lib/` and `jre/<cpu>/bin/java` (macOS universal: both CPUs), and measure the installer sizes against the estimates in architecture.md ("EPUBCheck ships with the app").
+- macOS: every Mach-O file in `jre/` (the `java` launcher and the `.dylib` files) must be signed with the hardened runtime, and `java` needs the JIT entitlements (`com.apple.security.cs.allow-jit`, `com.apple.security.cs.allow-unsigned-executable-memory`, and `com.apple.security.cs.disable-library-validation` if the runtime loads its own libraries). Not set up or tested yet: install a notarized .dmg, export an EPUB and run **Check EPUB**; it must report a result, not "could not finish".
+- Linux: run the AppImage and **Check EPUB** on a machine without Java installed.
+- Run **Check EPUB** with the network off (it must not need one).

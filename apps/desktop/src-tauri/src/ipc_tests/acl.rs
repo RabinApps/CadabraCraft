@@ -11,7 +11,10 @@ const CONFIG: &str = include_str!("../../tauri.conf.json");
 
 /// Commands the JSON-argument table (`every_command`) cannot drive: raw-body writers (request headers), commands without arguments and the
 /// Typst commands (tested next to their definitions).
-const NOT_IN_THE_TABLE: [&str; 11] = [
+const NOT_IN_THE_TABLE: [&str; 14] = [
+    "epubcheck_find",
+    "epubcheck_validate",
+    "epubcheck_cancel",
     "write_project_bytes",
     "import_asset_bytes",
     "updates_supported",

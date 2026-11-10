@@ -441,6 +441,14 @@ msgstr "{clock} left"
 msgid "{clock} paused"
 msgstr "{clock} paused"
 
+#: src/lib/export/epubcheckReport.ts
+msgid "{e}, {w}"
+msgstr "{e}, {w}"
+
+#: src/lib/export/epubcheckReport.ts
+msgid "{errors, plural, one {# error} other {# errors}}"
+msgstr "{errors, plural, one {# error} other {# errors}}"
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr "{estimate, plural, one {About # page} other {About # pages}}"
@@ -497,6 +505,10 @@ msgstr "{missing, plural, one {“{name}” has # image without alt text} other 
 #: src/app/writing/WritingStats.tsx
 msgid "{n, plural, one {# day} other {# days}}"
 msgstr "{n, plural, one {# day} other {# days}}"
+
+#: src/lib/export/epubcheckReport.ts
+msgid "{n, plural, one {# more message is not shown} other {# more messages are not shown}}"
+msgstr "{n, plural, one {# more message is not shown} other {# more messages are not shown}}"
 
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
@@ -640,6 +652,10 @@ msgstr "{undated} without a story date."
 #: src/lib/export/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
+
+#: src/lib/export/epubcheckReport.ts
+msgid "{warning, plural, one {# warning} other {# warnings}}"
+msgstr "{warning, plural, one {# warning} other {# warnings}}"
 
 #: src/editor/paste/pasteFlow.ts
 msgid "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
@@ -1539,6 +1555,10 @@ msgstr "Chapters, front and back matter, footnotes, tables and images in a calm 
 msgid "Character"
 msgstr "Character"
 
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "Check EPUB"
+msgstr "Check EPUB"
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Check for updates on launch"
 msgstr "Check for updates on launch"
@@ -1546,6 +1566,18 @@ msgstr "Check for updates on launch"
 #: src/app/shell/native/menuModel.ts
 msgid "Check for Updates…"
 msgstr "Check for Updates…"
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "Check the EPUB after every export"
+msgstr "Check the EPUB after every export"
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "Check with EPUBCheck"
+msgstr "Check with EPUBCheck"
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "Checking with EPUBCheck. This takes a few seconds…"
+msgstr "Checking with EPUBCheck. This takes a few seconds…"
 
 #: src/app/export/EpubPanel.tsx
 msgid "Checks"
@@ -2542,6 +2574,19 @@ msgstr "EPUB 3 that passes EPUBCheck, and a print-ready PDF at your trim size."
 #: src/app/shell/native/menuModel.ts
 msgid "EPUB…"
 msgstr "EPUB…"
+
+#. placeholder {0}: state.report.version
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "EPUBCheck {0}. Its messages are in English."
+msgstr "EPUBCheck {0}. Its messages are in English."
+
+#: src/lib/export/epubcheckReport.ts
+msgid "EPUBCheck found no problems."
+msgstr "EPUBCheck found no problems."
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "EPUBCheck results"
+msgstr "EPUBCheck results"
 
 #: src/app/export/CheckList.tsx
 #: src/ui/feedback/Notice.tsx
@@ -3905,6 +3950,10 @@ msgstr "No dialogue tags found."
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
+
+#: src/lib/export/epubcheckReport.ts
+msgid "No errors or warnings."
+msgstr "No errors or warnings."
 
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "No file chosen"
@@ -5726,6 +5775,7 @@ msgstr "Status"
 msgid "Status of {title}"
 msgstr "Status of {title}"
 
+#: src/app/export/epubcheck/EpubValidation.tsx
 #: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Stop"
 msgstr "Stop"
@@ -6023,6 +6073,15 @@ msgstr "The chapter was not split: {0}. Nothing in the book was changed."
 msgid "The chapter you dropped it in already holds a scene with the same id."
 msgstr "The chapter you dropped it in already holds a scene with the same id."
 
+#. placeholder {0}: f.seconds
+#: src/lib/export/epubcheckReport.ts
+msgid "The check took longer than {0} seconds and was stopped."
+msgstr "The check took longer than {0} seconds and was stopped."
+
+#: src/lib/export/epubcheckReport.ts
+msgid "The check was stopped."
+msgstr "The check was stopped."
+
 #: src/state/codex.ts
 msgid "The codex could not be opened: it is not the shape a codex has. The file was left untouched."
 msgstr "The codex could not be opened: it is not the shape a codex has. The file was left untouched."
@@ -6114,6 +6173,19 @@ msgstr "The downloaded file was damaged and was deleted. Try the download again.
 #: src/app/toc/AddEntryDialog.tsx
 msgid "The entry has no title."
 msgstr "The entry has no title."
+
+#. placeholder {0}: f.message
+#: src/lib/export/epubcheckReport.ts
+msgid "The EPUB check could not finish: {0}"
+msgstr "The EPUB check could not finish: {0}"
+
+#: src/lib/export/epubcheckReport.ts
+msgid "The EPUB checker that comes with CadabraCraft was not found. Reinstall the app to get it back."
+msgstr "The EPUB checker that comes with CadabraCraft was not found. Reinstall the app to get it back."
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "The EPUB validator used by e-book stores. It runs on your computer and checks the file you exported."
+msgstr "The EPUB validator used by e-book stores. It runs on your computer and checks the file you exported."
 
 #: src/editor/toolbar/TableCommands.tsx
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
@@ -6272,6 +6344,10 @@ msgstr "The writing history could not be read; the old copy was kept as {backup}
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Theme"
 msgstr "Theme"
+
+#: src/lib/export/epubcheckReport.ts
+msgid "There is no exported EPUB for this edition yet. Export it first, then check it."
+msgstr "There is no exported EPUB for this edition yet. Export it first, then check it."
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts

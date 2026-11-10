@@ -1,6 +1,7 @@
 import { assetsBridge } from "./assets";
 import { audioBridge } from "./audio";
 import { dialogBridge } from "./dialog";
+import { epubcheckBridge } from "./epubcheck";
 import { exportBridge } from "./export";
 import { fontsBridge } from "./fonts";
 import { libraryBridge } from "./library";
@@ -20,6 +21,7 @@ export const bridge = {
   ...projectBridge,
   ...watchBridge,
   ...exportBridge,
+  ...epubcheckBridge,
   ...audioBridge,
   ...fontsBridge,
   ...libraryBridge,

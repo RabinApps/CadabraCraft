@@ -121,7 +121,13 @@ export default tseslint.config(
   },
   {
     // Tests may be longer, but not unbounded (scripts/check-size.mjs also enforces 800).
-    files: ["**/__tests__/**", "**/*.test.ts", "**/*.spec.ts", "**/e2e/**", "**/e2e-screenshots/**"],
+    files: [
+      "**/__tests__/**",
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "**/e2e/**",
+      "**/e2e-screenshots/**",
+    ],
     rules: {
       "max-lines": ["error", { max: 800, skipBlankLines: true, skipComments: true }],
       "max-lines-per-function": "off",

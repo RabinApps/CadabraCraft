@@ -12,7 +12,7 @@ A contents page appears in every format that has pages to put it on: EPUB, print
 
 ## EPUB (e-book)
 
-EPUB 3 works with most e-readers and stores. The dialog first checks what it can see, such as a book with no chapters or untitled chapters. The EPUB format itself is checked with the standard EPUBCheck tool during development; the app does not run EPUBCheck on your file. If a store rejects an EPUB, see [Troubleshooting](/docs/troubleshooting/).
+EPUB 3 works with most e-readers and stores. The dialog first checks what it can see, such as a book with no chapters or untitled chapters. Below those checks, **Check EPUB** runs EPUBCheck, the standard EPUB validator, on the file you exported (it takes a few seconds). It is built into the app and runs on your computer, so nothing is uploaded; its messages are in English. Turn on **Check the EPUB after every export** to run it automatically; the dialog then stays open to show the result. If a store rejects an EPUB, see [Troubleshooting](/docs/troubleshooting/).
 
 The contents page, when the book has one, is written as a nested list of links built from the same list you edit (renames, hidden entries, order and your own entries apply), and the e-reader's navigation menu uses it too. Without a contents page the navigation lists the chapters as before.
 

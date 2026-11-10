@@ -79,11 +79,15 @@ export const cleanPageZoom = (v: unknown): PageZoom =>
 /** A stored smart typography switch; off unless it is exactly true. */
 export const cleanSmartTypography = (v: unknown): boolean => v === true;
 
+/** A stored "check the EPUB with EPUBCheck after every export" switch; off unless it is exactly true. */
+export const cleanValidateEpub = (v: unknown): boolean => v === true;
+
 interface Prefs {
   /** Voice id preselected in the audiobook export; "" picks the first installed. */ audioVoice: string;
   /** Formats preselected in the audiobook export. */ audioFormats: AudioFormat[];
   typewriterScroll: boolean;
   /** Quotes, dashes and the ellipsis become their typographic glyphs as the author types (app-wide, off by default). */ smartTypography: boolean;
+  /** Run EPUBCheck on the file after every EPUB export (app-wide, off by default). */ validateEpub: boolean;
   /** Words to write per session; 0 turns the goal off. */ sessionGoal: number;
   /** What pasting text that contains HTML tags does. */ rawHtmlPaste: RawHtmlPaste;
   /** Snapshots kept per page. */ snapshotKeep: number;
@@ -96,6 +100,7 @@ interface Prefs {
 const defaults: Prefs = {
   typewriterScroll: false,
   smartTypography: false,
+  validateEpub: false,
   sessionGoal: 0,
   rawHtmlPaste: "ask",
   snapshotKeep: SNAPSHOT_KEEP_DEFAULT,
@@ -119,6 +124,7 @@ function parsePrefs(v: unknown): Prefs | null {
     return {
       typewriterScroll: o.typewriterScroll,
       smartTypography: cleanSmartTypography(o.smartTypography),
+      validateEpub: cleanValidateEpub(o.validateEpub),
       sessionGoal: cleanGoal(o.sessionGoal),
       rawHtmlPaste: cleanRawHtmlPaste(o.rawHtmlPaste),
       snapshotKeep: cleanSnapshotKeep(o.snapshotKeep),
@@ -142,6 +148,7 @@ export const useSettings = createPersistedStore<Prefs>({
   clean: (p) => ({
     typewriterScroll: p.typewriterScroll,
     smartTypography: cleanSmartTypography(p.smartTypography),
+    validateEpub: cleanValidateEpub(p.validateEpub),
     sessionGoal: cleanGoal(p.sessionGoal),
     rawHtmlPaste: cleanRawHtmlPaste(p.rawHtmlPaste),
     snapshotKeep: cleanSnapshotKeep(p.snapshotKeep),

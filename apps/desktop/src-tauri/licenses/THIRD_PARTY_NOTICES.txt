@@ -9,6 +9,18 @@ Typst 0.15.1 (the "typst" program used for print PDF export)
   Source: https://github.com/typst/typst
   License: Typst-LICENSE.txt    Notice: Typst-NOTICE.txt
 
+EPUBCheck 5.4.0 (the validator that checks an exported EPUB; it runs from the "epubcheck" folder next to the app)
+  Copyright (c) the EPUBCheck contributors and the W3C. Licensed under the BSD 3-Clause License.
+  Source: https://github.com/w3c/epubcheck
+  License: EPUBCheck-LICENSE.txt    Libraries it contains and their licenses: EPUBCheck-THIRD-PARTY.txt and the EPUBCheck-dep-*.txt files
+
+OpenJDK 17 runtime (Eclipse Temurin build, reduced with jlink to the modules EPUBCheck needs; the "jre" folder next to the app)
+  Copyright (c) Oracle and/or its affiliates and the OpenJDK contributors. Licensed under the GNU General Public License,
+  version 2, with the Classpath Exception.
+  Source: https://openjdk.org/ and https://adoptium.net/
+  License: OpenJDK-LICENSE.txt    Classpath Exception: OpenJDK-ASSEMBLY_EXCEPTION.txt
+  The runtime is only started to run EPUBCheck; CadabraCraft does not link to it.
+
 Inter 4.1 (Regular, Italic, Bold, Bold Italic; used by the "Modern Memoir" template)
   Copyright The Inter Project Authors. Licensed under the SIL Open Font License, Version 1.1.
   Source: https://github.com/rsms/inter

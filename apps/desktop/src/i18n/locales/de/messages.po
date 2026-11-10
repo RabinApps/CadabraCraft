@@ -441,6 +441,14 @@ msgstr "noch {clock}"
 msgid "{clock} paused"
 msgstr "{clock} pausiert"
 
+#: src/lib/export/epubcheckReport.ts
+msgid "{e}, {w}"
+msgstr ""
+
+#: src/lib/export/epubcheckReport.ts
+msgid "{errors, plural, one {# error} other {# errors}}"
+msgstr ""
+
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
 msgstr "{estimate, plural, one {Etwa # Seite} other {Etwa # Seiten}}"
@@ -497,6 +505,10 @@ msgstr "{missing, plural, one {„{name}“ hat # Bild ohne Alternativtext} othe
 #: src/app/writing/WritingStats.tsx
 msgid "{n, plural, one {# day} other {# days}}"
 msgstr "{n, plural, one {# Tag} other {# Tage}}"
+
+#: src/lib/export/epubcheckReport.ts
+msgid "{n, plural, one {# more message is not shown} other {# more messages are not shown}}"
+msgstr ""
 
 #: src/state/project/output/formats/shared.ts
 msgid "{n, plural, one {# untranslated page left out} other {# untranslated pages left out}}"
@@ -640,6 +652,10 @@ msgstr "{undated} ohne Datum in der Geschichte."
 #: src/lib/export/exportChecks.ts
 msgid "{untitled, plural, one {# chapter has no title} other {# chapters have no title}}"
 msgstr "{untitled, plural, one {# Kapitel hat keinen Titel} other {# Kapitel haben keinen Titel}}"
+
+#: src/lib/export/epubcheckReport.ts
+msgid "{warning, plural, one {# warning} other {# warnings}}"
+msgstr ""
 
 #: src/editor/paste/pasteFlow.ts
 msgid "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
@@ -1539,6 +1555,10 @@ msgstr "Kapitel, Vor- und Nachspann, Fußnoten, Tabellen und Bilder in einem ruh
 msgid "Character"
 msgstr "Figur"
 
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "Check EPUB"
+msgstr ""
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Check for updates on launch"
 msgstr "Beim Start nach Updates suchen"
@@ -1546,6 +1566,18 @@ msgstr "Beim Start nach Updates suchen"
 #: src/app/shell/native/menuModel.ts
 msgid "Check for Updates…"
 msgstr "Nach Updates suchen…"
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "Check the EPUB after every export"
+msgstr ""
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "Check with EPUBCheck"
+msgstr ""
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "Checking with EPUBCheck. This takes a few seconds…"
+msgstr ""
 
 #: src/app/export/EpubPanel.tsx
 msgid "Checks"
@@ -2542,6 +2574,19 @@ msgstr "EPUB 3, das EPUBCheck besteht, und ein druckfertiges PDF im gewählten F
 #: src/app/shell/native/menuModel.ts
 msgid "EPUB…"
 msgstr "EPUB…"
+
+#. placeholder {0}: state.report.version
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "EPUBCheck {0}. Its messages are in English."
+msgstr ""
+
+#: src/lib/export/epubcheckReport.ts
+msgid "EPUBCheck found no problems."
+msgstr ""
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "EPUBCheck results"
+msgstr ""
 
 #: src/app/export/CheckList.tsx
 #: src/ui/feedback/Notice.tsx
@@ -3905,6 +3950,10 @@ msgstr "Keine Dialogmarkierung gefunden."
 #: src/app/dialogs/HistoryDialog.tsx
 msgid "No earlier versions yet. One is kept each time you save over different text, at most every 10 minutes."
 msgstr "Noch keine früheren Versionen. Bei jedem Speichern über anderen Text wird eine behalten, höchstens alle 10 Minuten."
+
+#: src/lib/export/epubcheckReport.ts
+msgid "No errors or warnings."
+msgstr ""
 
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "No file chosen"
@@ -5726,6 +5775,7 @@ msgstr "Status"
 msgid "Status of {title}"
 msgstr "Status von {title}"
 
+#: src/app/export/epubcheck/EpubValidation.tsx
 #: src/editor/readAloud/ReadAloudBar.tsx
 msgid "Stop"
 msgstr "Stopp"
@@ -6023,6 +6073,15 @@ msgstr "Das Kapitel wurde nicht geteilt: {0}. Im Buch wurde nichts geändert."
 msgid "The chapter you dropped it in already holds a scene with the same id."
 msgstr "Das Kapitel, in das du sie gezogen hast, enthält bereits eine Szene mit derselben ID."
 
+#. placeholder {0}: f.seconds
+#: src/lib/export/epubcheckReport.ts
+msgid "The check took longer than {0} seconds and was stopped."
+msgstr ""
+
+#: src/lib/export/epubcheckReport.ts
+msgid "The check was stopped."
+msgstr ""
+
 #: src/state/codex.ts
 msgid "The codex could not be opened: it is not the shape a codex has. The file was left untouched."
 msgstr "Der Codex konnte nicht geöffnet werden: Er hat nicht die Form eines Codex. Die Datei blieb unverändert."
@@ -6114,6 +6173,19 @@ msgstr "Die heruntergeladene Datei war beschädigt und wurde gelöscht. Starte d
 #: src/app/toc/AddEntryDialog.tsx
 msgid "The entry has no title."
 msgstr "Der Eintrag hat keinen Titel."
+
+#. placeholder {0}: f.message
+#: src/lib/export/epubcheckReport.ts
+msgid "The EPUB check could not finish: {0}"
+msgstr ""
+
+#: src/lib/export/epubcheckReport.ts
+msgid "The EPUB checker that comes with CadabraCraft was not found. Reinstall the app to get it back."
+msgstr ""
+
+#: src/app/export/epubcheck/EpubValidation.tsx
+msgid "The EPUB validator used by e-book stores. It runs on your computer and checks the file you exported."
+msgstr ""
 
 #: src/editor/toolbar/TableCommands.tsx
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
@@ -6272,6 +6344,10 @@ msgstr "Der Schreibverlauf konnte nicht gelesen werden; die alte Kopie wurde als
 #: src/editor/reading/ReadingSettings.tsx
 msgid "Theme"
 msgstr "Design"
+
+#: src/lib/export/epubcheckReport.ts
+msgid "There is no exported EPUB for this edition yet. Export it first, then check it."
+msgstr ""
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts

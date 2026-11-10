@@ -144,7 +144,7 @@ export function FormatPanel({
 }) {
   const { font, htmlMarks, outlineFormat } = choices;
   if (format === "audiobook") return <AudioPanel audio={audio} />;
-  if (format === "epub") return <EpubPanel {...scope} />;
+  if (format === "epub") return <EpubPanel {...scope} disabled={running} />;
   if (format === "docx" || format === "rtf") {
     return (
       <ManuscriptPanel font={font} onFont={(f) => onChoices({ font: f })} disabled={running} />

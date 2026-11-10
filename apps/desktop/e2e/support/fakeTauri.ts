@@ -262,6 +262,25 @@ export async function fakeTauri(page: Page) {
               throw { kind: "unsupported_reference", name: a.url };
             (window.__opened ??= []).push(`url:${a.url}`);
             return null;
+          case "epubcheck_find":
+            if (window.__epubcheck?.error?.kind === "not_found") throw window.__epubcheck.error;
+            return { bundled: true };
+          case "epubcheck_validate": {
+            (window.__epubcheckCalls ??= []).push({ root: a.root, path: a.path });
+            await window.__epubcheckHold;
+            if (window.__epubcheck?.error) throw window.__epubcheck.error;
+            return (
+              window.__epubcheck?.report ?? {
+                version: "5.4.0",
+                counts: { fatal: 0, error: 0, warning: 0, usage: 0 },
+                messages: [],
+                omitted: 0,
+              }
+            );
+          }
+          case "epubcheck_cancel":
+            window.__epubcheckCancels = (window.__epubcheckCancels ?? 0) + 1;
+            return null;
           case "typst_list_fonts":
             if (window.__typstError) throw window.__typstError;
             return [
