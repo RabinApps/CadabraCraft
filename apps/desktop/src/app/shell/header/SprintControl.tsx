@@ -79,7 +79,7 @@ export function SprintControl() {
   return (
     <div className="relative flex items-center gap-1">
       {/* Announced once, when the sprint finishes: the text is empty at every other time. */}
-      <p role="status" className="sr-only">
+      <p aria-live="polite" className="sr-only">
         {done ? t`Sprint done. Nice work.` : ""}
       </p>
       <button
