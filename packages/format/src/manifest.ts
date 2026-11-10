@@ -10,10 +10,12 @@ import { FormatError } from "./errors";
 import { validateEditions } from "./editions";
 import { validateReferences } from "./references";
 import { validatePublishing, type Publishing } from "./publishing";
+import { validateGoal, type BookGoal } from "./goal";
+import { validateFonts, type BookFonts } from "./fonts";
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 12;
+export const CURRENT_FORMAT_VERSION = 13;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {
@@ -119,12 +121,6 @@ export interface NoteReference extends ReferenceBase {
 
 export type Reference = FileReference | LinkReference | NoteReference;
 
-/** Font family names the author picked; each is a family name, not a file. */
-export interface BookFonts {
-  body?: string;
-  heading?: string;
-}
-
 export interface Manifest {
   formatVersion: number;
   editions: Edition[];
@@ -139,6 +135,8 @@ export interface Manifest {
   chapters: EditionEntry[];
   backMatter: EditionEntry[];
   references: Reference[];
+  /** The author's writing goal (formatVersion 13); absent means none. */
+  goal?: BookGoal;
 }
 
 export function createManifest(init: {
@@ -426,37 +424,6 @@ export function validateToc(v: unknown, name = "toc"): TocSettings {
   };
 }
 
-const FONT_KEYS = ["body", "heading"] as const;
-// eslint-disable-next-line no-control-regex -- intentional: font names may not hold control characters
-const CONTROL = /[\u0000-\u001F\u007F-\u009F]/;
-
-function fontName(v: unknown, name: string): string {
-  if (
-    typeof v !== "string" ||
-    v.trim() === "" ||
-    v !== v.trim() ||
-    v.length > 100 ||
-    CONTROL.test(v)
-  )
-    throw new FormatError(
-      `manifest: "${name}" must be a trimmed font family name of 1 to 100 characters without control characters`,
-    );
-  return v;
-}
-
-/** Validates `manifest.fonts`: an object with only `body` and `heading`, each a plain family name. Returns only the keys that are set. */
-export function validateFonts(v: unknown): BookFonts {
-  if (typeof v !== "object" || v === null || Array.isArray(v))
-    throw new FormatError('manifest: "fonts" must be an object');
-  const o = v as Record<string, unknown>;
-  for (const k of Object.keys(o))
-    if (!(FONT_KEYS as readonly string[]).includes(k))
-      throw new FormatError(`manifest: unknown key "fonts.${k}"`);
-  const out: BookFonts = {};
-  for (const k of FONT_KEYS) if (o[k] !== undefined) out[k] = fontName(o[k], `fonts.${k}`);
-  return out;
-}
-
 /** Validates an already-migrated manifest object. Throws FormatError on any problem. */
 export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION): Manifest {
   const o = (raw ?? {}) as Record<string, unknown>;
@@ -482,6 +449,7 @@ export function validateManifest(raw: unknown, version = CURRENT_FORMAT_VERSION)
       throw new FormatError(`manifest: "dropCap" must be true or false`);
     m.dropCap = o.dropCap;
   }
+  if (o.goal !== undefined) m.goal = validateGoal(o.goal);
   validateEditions(m.editions, readingOrder(m));
   const seen = new Set<string>();
   for (const e of readingOrder(m)) {

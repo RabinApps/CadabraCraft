@@ -37,6 +37,8 @@ export const MIGRATIONS: Migration[] = [
   { from: 10, up: (raw) => ({ ...raw }) },
   // v11 -> v12: every reference gets `kind: "file"`; links and text notes are new kinds. No file moves.
   { from: 11, up: migrateV11ToV12 },
+  // v12 -> v13: a manifest `goal` (words and an optional deadline). Absent means no goal, so nothing changes and no file moves.
+  { from: 12, up: (raw) => ({ ...raw }) },
 ];
 
 export interface MigrationResult {
