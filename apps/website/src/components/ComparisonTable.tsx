@@ -1,6 +1,6 @@
-import { factRows, us, type Competitor } from "@/data/competitors";
+import type { Competitor, FactRow, Us } from "@/content/en/competitors";
 
-export function ComparisonTable({ c }: { c: Competitor }) {
+export function ComparisonTable({ c, rows, us }: { c: Competitor; rows: readonly FactRow[]; us: Us }) {
   return (
     <div className="overflow-x-auto rounded-lg border border-border bg-surface">
       <table className="w-full min-w-[560px] text-left text-sm">
@@ -19,7 +19,7 @@ export function ComparisonTable({ c }: { c: Competitor }) {
           </tr>
         </thead>
         <tbody>
-          {factRows.map((r) => (
+          {rows.map((r) => (
             <tr key={r.key} className="border-t border-border">
               <th scope="row" className="px-5 py-3 font-medium">
                 {r.label}

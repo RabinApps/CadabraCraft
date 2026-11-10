@@ -18,11 +18,12 @@ export const funding = [
 export const OG_IMAGE = "/og/cadabracraft-og.png";
 
 export const nav = [
-  { label: "Features", href: "/features/" },
-  { label: "Compare", href: "/compare/" },
-  { label: "Formats", href: "/formats/" },
-  { label: "Guides", href: "/guides/" },
-  { label: "Support", href: "/support/" },
+  { key: "features", href: "/features/" },
+  { key: "compare", href: "/compare/" },
+  { key: "formats", href: "/formats/" },
+  { key: "docs", href: "/docs/" },
+  { key: "guides", href: "/guides/" },
+  { key: "support", href: "/support/" },
 ] as const;
 
 export const btn =

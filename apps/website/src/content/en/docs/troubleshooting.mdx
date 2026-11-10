@@ -1,0 +1,28 @@
+---
+title: "Troubleshooting"
+description: "Fixes for common problems."
+group: "Reference"
+order: 15
+updated: "2026-11-10"
+---
+
+**PDF export says Typst is missing.** Print PDF is built by a program called Typst. Packaged installers are meant to include it, so a release build needs nothing else. If you built the app from source, run `scripts/fetch-typst.sh` once before building (see the [README](https://github.com/RabinApps/cadabracraft/blob/main/README.md)). The app always uses the Typst it ships with; there is no field for choosing another one.
+
+**PDF export says a font is missing.** The font chosen for the book (or the template's own font) is not on this computer. Click **Open Fonts** to download it or import a file, or pick another font in the Export dialog. The Modern template uses Inter, which ships with the app. If you pointed the app at your own Typst, make sure the fonts of the template you chose are installed on your computer.
+
+**A store rejects my EPUB.** Check the title, author, language and cover in Book Details. If you still have trouble, see [the project README](https://github.com/RabinApps/cadabracraft/blob/main/README.md) for how to run the EPUBCheck validator and send the output with a bug report.
+
+**Some text vanished after an import.** Open the report (it is also shown right after the import) and look for warnings. Your original file is untouched, so you can import again with a different heading level.
+
+**A chapter is shown as unavailable or "still downloading".** Your sync service has not finished downloading that file. Wait, then reopen the book.
+
+**Where did my files go?**
+
+- `manuscript/`, `front-matter/`, `back-matter/`: the text of your book
+- `assets/`: images and your cover
+- `exports/`: EPUB, PDF and Markdown you have made
+- `.cadabra/trash/`: pages you moved to the trash
+- `.cadabra/backups/`: History snapshots and the copy made before a format upgrade
+- `*.conflict-*.json`: the other version of a chapter that changed in two places
+
+**I lost some text.** Open the chapter's History and restore an earlier version. For a removed chapter, look in the Trash, then in `.cadabra/trash/`.

@@ -1,0 +1,73 @@
+---
+title: "Organising your book"
+description: "Chapters, parts, the contents page, front and back matter, and where pages start."
+group: "Write"
+order: 3
+updated: "2026-11-10"
+---
+
+The list on the left has three parts: front matter, chapters and back matter. Reading order is simply the order of this list.
+
+On a window at least 1024 px wide you can widen or narrow the list by dragging the divider between it and the page; it stops at its minimum and maximum widths. Focus the divider and use the left and right arrows to change the width, or Home and End for the limits. The app remembers the width. On a narrower window the list opens as a sheet, which has its own fixed width and no divider.
+
+- **Add chapter** adds a new one at the end. **Add page** adds front or back matter: title page, copyright page, dedication, epigraph, contents, foreword, preface (front), and acknowledgments, about the author, also by, colophon (back), or a custom page. A book has at most one title page, one copyright page and one contents page (see [Contents page](/docs/organising/#contents-page)). The arrow beside **Front matter** or **Back matter** collapses that section in the list and shows it again; it does not change the book.
+- The `...` menu next to each entry lets you **Rename**, **Change icon**, **Move up**, **Move down** or **Move to trash**. Chapters also have a **First letter** choice, and front and back matter pages (except contents and copyright) have a **Vertical position** choice (see [Vertical position of front and back matter](/docs/organising/#vertical-position-of-front-and-back-matter)). Front and back matter pages also have a **Page start** choice (see [Blank pages and where a page starts](/docs/organising/#blank-pages-and-where-a-page-starts)).
+- **Trash** (bottom of the list) shows pages you moved to the trash. **Restore** puts one back at the end of its section. Nothing is ever permanently deleted by the app; trashed files stay in `.cadabra/trash/` inside your book folder until you delete them yourself.
+- **Book undo and redo** (the arrows at the bottom of the list, or Edit > Undo ... / Redo ..., Cmd/Ctrl+Alt+Z and Cmd/Ctrl+Alt+Shift+Z) reverse changes to the structure: adding, renaming, moving, trashing and restoring. The button says what it will undo. They do not undo typing (normal Cmd/Ctrl+Z does that) and they start fresh each time you open the book.
+
+## Parts
+
+**Add part** puts a divider in the chapters list: the chapters after it, up to the next part, belong to it, and the list indents them under the part with a chapter count. **Start part here** in an existing chapter's `...` menu puts the divider before that chapter instead, so the chapter and the pages after it start the new part. A part is a real page in the book, so it opens on a right-hand page with its title centred between the margins, no running head and no page number; in the print PDF, EPUB, Word, RTF and Markdown it is its own page. The audiobook and outline exports skip it.
+
+Choose the part in the list and type its title as you would a chapter's. The arrow at the start of a part row hides its chapters in the list and shows them again; it changes only the list, not the book. Its `...` menu has **Rename** (the sidebar label), **Move part up** and **Move part down** (the part and all its chapters move together) and **Remove part**. Removing a part removes only the divider; its chapters stay in the book under the part before it, and the divider page goes to the project trash. A part cannot be dragged with the grip, because dragging the divider alone would silently regroup its chapters.
+
+## Contents page
+
+**Add page, Contents** adds a contents page to the front matter. You do not type its list: it is built from your book and follows it. Add, rename, move or trash a chapter and the list changes with it. Select the page in the list and the editor is replaced by the list itself:
+
+- **Chapters, +H1, +H1-H2, +H1-H3** choose how much to list: only the chapters, or also the headings inside them down to that level.
+- **Page numbers** switches the numbers (and, in print, the dot leaders) on or off. They show the page the PDF will print: from the real layout when the book has been typeset, otherwise an estimate from the word counts marked with "≈". Heading numbers need the real layout and show a dash until it is known. The numbers apply to the print PDF only; an e-book has none.
+- **Include parts** lists your part dividers at the top level of the contents, with their chapters nested under them (on by default). Switch it off to leave the part rows out without losing the renames or hidden choices you made on them; the chapters then sit flat, and switching it back on restores both the part rows and the nesting.
+- Each entry has a **grip** (drag to reorder) and a `...` menu: **Rename** (or double-click the title), **Move up**, **Move down** (the keyboard and touch way to reorder), **Hide from contents** / **Show in contents** and, for an entry you changed, **Reset this entry**. Moving a part row takes its chapters, headings and custom entries with it; a chapter stays inside its part. Your changes are layered on top of the generated list; the chapter itself is never renamed or moved.
+- **Add custom entry** adds a line of your own (for example a part title): where it goes, and which entry it points at, which is where its page number comes from.
+- **Reset to outline** (after a confirmation) removes every rename, hidden entry, custom entry and new order, and keeps the depth, page-number and **Include parts** switches.
+- A change that points at a chapter or heading that is gone or was edited is kept and listed under **Changes that no longer match**, with a **Remove** button; a custom entry whose target is gone shows a **Stale** badge. Nothing is dropped without you removing it.
+- **Preview** shows the contents page as it will be printed, at your book's trim size, next to the list (on a window at least 1280 px wide) or behind an **Edit | Preview** switch under the title (on narrower windows; the app remembers which one you left open). It follows every change you make a moment after you make it. The heading says where it comes from: **Exact pages from Typst** means it is the real page from the same layout as the PDF, so the numbers and line breaks match (roman numerals in the front matter, arabic in the body, no numbers or dot leaders when **Page numbers** is off, more pages when the list is long). Without Typst on your computer the preview says **Approximate: Typst is not available** and draws the same list itself: numbers marked "≈" are estimates and the line breaks are only close. **Could not draw the preview** has a **Retry** button and keeps the last page on screen. Nothing is made while the preview is hidden.
+
+Changes to the contents page are part of **Book undo and redo**. In a translation edition each entry has its own title for that language. Read mode draws the contents page the way the preview does: the same entries in the same order (renames, hidden entries and depth applied), dot leaders and page numbers (Typst's when the book has been measured, marked "≈" when estimated, none when **Page numbers** is off), mirrored in a right-to-left book. Each entry is a link: choose it (or press Enter on it) and the reader scrolls to that chapter or heading. The list also appears in the print preview and in every export (see [Exporting](/docs/exporting/)); Page view shows the page's own title only.
+
+Book details (File > Book Details…, or the book icon at the top) hold the title, author, language, ISBN, identifier and cover image. The cover is a PNG, JPEG or WebP image up to 25 MB; portrait and about 1600 x 2400 pixels works best. Change the look of the printed book on the **Templates** page (Change template in the details panel). The Novel, Nonfiction and Modern templates are included.
+
+## Vertical position of front and back matter
+
+Short pages look best in the middle of the page. The title page, dedication and epigraph are **centred** by default: their text sits halfway between the top and bottom margins, in the editor's page view, in Read mode, in the print PDF and in the EPUB. Every other page starts at the top, like the first page of a chapter.
+
+To change one page, open its `...` menu in the list and choose **Vertical position**:
+
+- **Default** follows the template (the Templates page lists "Pages centred on the page" for each template).
+- **Centred** puts the page's text in the middle of the page, for example a short foreword or an "About the author" page.
+- **Top** keeps it at the top, for example a long epigraph or a title page you want at the top.
+
+The choice goes through book undo and redo, and the screen reader hears it ("Dedication: centred on the page"). A page that is longer than one page is never centred, so nothing is pushed off the page; it simply starts at the top. In the PDF the text sits exactly between the margins. An EPUB is reflowable, so the e-reader decides: most readers centre the page on the screen, and the others leave a margin above the text. On a phone-sized window the editor shows plain reading text, which is never centred. Word, RTF and Markdown exports have no page layout, so this choice does not change them.
+
+## Blank pages and where a page starts
+
+A printed book opens its title page, contents page, dedication and epigraph on a right-hand page, and it starts the page after a dedication or an epigraph on a right-hand page too. To make that happen the book puts a blank left-hand page in between when it needs one. Those blanks are part of the book, not pages you wrote: you cannot type in them, rename them or delete them, and in the PDF they are blank.
+
+Two quotes in a row, or a dedication followed by a short epigraph, can therefore leave blank pages between front matter pages. Every front and back matter page has a **Page start** choice in its `...` menu, with three answers:
+
+- **Follows the book** (the default) lets the rules above decide, blank pages included.
+- **Start on the next page** makes the page follow the one before it, left-hand or right-hand, so no blank page goes before it.
+- **Start on a right-hand page** gives the page a blank left-hand page when it would otherwise land on a left-hand one, for example a disclaimer or a quote page that should open on the right.
+
+All three change the page view, Read mode and the exported PDF. The choice goes through book undo and redo, and the screen reader hears it ("Epigraph: starts on the next page", "Disclaimer: starts on a right-hand page").
+
+Every page can be given a blank page or have one taken away, whatever the rules above would do with it: a page that already follows on can be put on a right-hand page this way, and a page whose blank you no longer want can be told to start on the next page. Chapters have no such choice.
+
+A blank page of your own is a page like any other: choose **Add page**, then **Blank page** at the top of the menu (or **Insert**, then **Blank page**), and it is added straight after the page you have open, wherever that page is: in the front matter, between two chapters, or in the back matter. Move it with the grip or **Move up** and **Move down** to put it where you want it; an open page puts it next to itself, so to add one between chapters open the chapter before it. It holds no text, so there is nothing to type into it and nothing to translate; it prints no page number and no running head, and it is left out of the contents page and of the EPUB, Word, RTF and Markdown exports, which have no fixed pages. It is a page in Page view, in Read mode and in the printed PDF, and two of them put two empty pages between the pages on either side of them.
+
+A **page break** puts the next paragraph on a fresh page without adding a page of its own: choose **Insert**, then **Page break** (or **Page break** in the More formatting menu at the end of the toolbar), and the block after it starts at the top of the next page. It prints nothing but the break, so two in a row leave an empty page inside the chapter — the same two sides of the paper apply, and the second break is what makes the empty page. A break that lands where the page already ended asks for nothing. The break itself shows in Write view as a thin **PAGE BREAK** rule, which you can click and delete like any other block; Page view shows the page ending there, with no line on the paper. Word and Rich Text get a real page break, the EPUB breaks there for readers that paginate, and the Markdown export leaves it out because it has no pages.
+
+In a printed book a sheet of paper has two sides, so blank pages come in pairs: two blank pages are one blank leaf. A page that has to open on a right-hand side after them needs an even number of them, and the book still inserts its own blank page if the rules call for one.
+
+Chapter openings follow the template's own setting instead (the Templates page says whether chapters open on a right-hand page); a chapter always starts exactly where its page cards say it does.

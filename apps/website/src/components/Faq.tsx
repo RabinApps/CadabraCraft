@@ -1,9 +1,8 @@
-import { faq } from "@/data/content";
 import { JsonLd } from "./JsonLd";
 
 type Item = { readonly q: string; readonly a: string };
 
-export function Faq({ items = faq, title = "Questions" }: { items?: readonly Item[]; title?: string }) {
+export function Faq({ items, title = "Questions" }: { items: readonly Item[]; title?: string }) {
   return (
     <section className="border-y border-border bg-surface">
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">

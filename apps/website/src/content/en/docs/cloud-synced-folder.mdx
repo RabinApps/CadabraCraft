@@ -1,0 +1,17 @@
+---
+title: "Using a cloud-synced folder"
+description: "Keep a book in Google Drive, Dropbox or iCloud Drive."
+group: "More"
+order: 13
+updated: "2026-11-10"
+---
+
+You can keep the book folder inside Dropbox, Google Drive or iCloud Drive to use it on more than one computer. The app is built for that: writes are safe, files that have not finished downloading are reported as "still downloading" instead of looking empty, and if both sides changed a chapter the app keeps both copies.
+
+Be honest with yourself about the limits:
+
+- The sync rules are tested with simulated sync clients. The checklist for the real clients ([sync-testing.md](https://github.com/RabinApps/cadabracraft/blob/main/docs/sync-testing.md)) **has not been run yet**. Treat sync as experimental.
+- History and the recovery offer help if an older file reappears, but they are also untested on real sync folders. Use the book on one computer at a time, and let the sync client finish before you open it on another.
+- Keep a separate backup copy of the folder.
+- Tell your sync client to skip the `.cadabra/` folder: it holds this computer's snapshots and trash.
+- If you see a `.conflict-` file, open both versions and copy over what you want to keep.

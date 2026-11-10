@@ -1,0 +1,38 @@
+---
+title: "History, backups and keeping your work safe"
+description: "Snapshots, the History dialog, backups and recovery."
+group: "Safety"
+order: 7
+updated: "2026-11-10"
+---
+
+## Snapshots and the History dialog
+
+Each time a save is about to replace a chapter's text with different text, the app first keeps the old text as a **snapshot**. To avoid clutter it keeps at most one per chapter every 10 minutes. This covers every kind of change, including Replace all.
+
+To look at earlier versions, open the `...` menu next to a chapter (or front or back matter page) and choose **History**.
+
+- The list shows the earlier versions with their word count and how many words were added or removed compared with the current text. The newest 50 are listed.
+- Pick one to see a word-by-word comparison with the current text. Green marks words only in that version; red marks words only in the current text. The comparison looks at words, not formatting.
+- **Restore this version** puts it back. The text it replaces is kept as a new snapshot first, so you can undo a restore the same way.
+
+## Backups settings
+
+Settings, **Backups** sets how many snapshots to keep per chapter: 5 to 500, 50 by default. Older ones are removed, but the app never removes a snapshot younger than 30 days. Pruning happens when a book opens, and the app deletes nothing else on its own.
+
+## Where snapshots live
+
+In the `.cadabra/backups/` folder inside your book folder. They belong to this computer: keep `.cadabra` out of cloud sync. They are safe to delete by hand, and nothing in your chapters refers to them. The same folder also holds the copy of `cadabra.json` made before a format upgrade.
+
+## Recovery offer
+
+When you open a book, the app checks each page. If its newest snapshot is clearly newer than the saved file, or the file is empty, which is what a sync folder putting an older file back looks like, it asks whether to **Use newer text** or **Keep saved text**. Either way your saved text is kept as a snapshot. This only catches a chapter rolled back to older text; it cannot recover typing that was never saved. If you choose Keep saved text it will ask again next time until the page is saved again.
+
+## Other safety nets
+
+- **Autosave** writes about two seconds after you stop typing. Each save goes to a temporary file first and is then swapped in, so a crash cannot leave a half-written chapter.
+- **The trash** keeps every chapter or page you removed (see above).
+- **Conflicts.** If the same chapter changed in the app and elsewhere (a sync service, say) before the app could save, the other version is kept next to it as `<name>.conflict-DATE-TIME.json`.
+- **Your own backups.** A book is a folder, so copying it is a complete backup. Do this before big changes.
+
+Settings > Shortcuts lists every key and lets you change them (see "Keyboard shortcuts" below).

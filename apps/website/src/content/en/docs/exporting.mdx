@@ -1,0 +1,45 @@
+---
+title: "Exporting"
+description: "Export EPUB, print PDF, Markdown and outline files."
+group: "Import and export"
+order: 10
+updated: "2026-11-10"
+---
+
+File > Export opens the Export dialog (or use the shortcuts below). Files are saved in the `exports/` folder of your book as `book.epub`, `book.pdf` and `book.md`. Exporting again replaces the previous file of the same name, so move one elsewhere if you want to keep it. The `exports/` folder is safe to delete; the app can always make the files again.
+
+A contents page appears in every format that has pages to put it on: EPUB, print PDF, Markdown, and the Word and Rich Text manuscripts (the manuscripts list the titles indented by level, with a part's chapters nested under it, without page numbers or links). The audiobook skips it.
+
+## EPUB (e-book)
+
+EPUB 3 works with most e-readers and stores. The dialog first checks what it can see, such as a book with no chapters or untitled chapters. The EPUB format itself is checked with the standard EPUBCheck tool during development; the app does not run EPUBCheck on your file. If a store rejects an EPUB, see [Troubleshooting](/docs/troubleshooting/).
+
+The contents page, when the book has one, is written as a nested list of links built from the same list you edit (renames, hidden entries, order and your own entries apply), and the e-reader's navigation menu uses it too. Without a contents page the navigation lists the chapters as before.
+
+## Print PDF
+
+The **trim size** (page size) is a setting of the book: you pick it when you create the book (4.25 x 6.87, 5 x 8, 5.25 x 8, 5.5 x 8.5, 6 x 9, 7 x 10 or 8.5 x 11 inches) and change it any time in Book details; the status bar shows the estimated page count at that size. The dialog shows it with a **Change** link. Choose a **template**, whether to make an archival **PDF/A**, and whether to include the cover as the first page. Printers usually want the cover as a separate file, so turn the cover off for a print-ready interior.
+
+Above the options a list of **Print checks** compares your book with Amazon KDP paperback rules: a page count of 24 to 828, the minimum inside (gutter) margin for your page count and a 0.25 inch minimum outer margin (0.375 inch when bleed is on). These use an estimated page count, so treat them as early warnings, not a guarantee. KDP's own previewer has the final say. Turn on **Add bleed (0.125 in)** when your artwork or images run to the page edge: every page grows by 0.125 inch on the top, bottom and outside edges and your margins stay measured from the trim, so the text does not move. **Crop marks** draw trim marks outside the bleed and make the page larger on every side; KDP does not accept them, so use them only if another printer asks. **Print preview** shows an approximate layout; it is not the PDF.
+
+Below the template, **Body font** and **Heading font** let you pick the fonts of the PDF. "Template default" uses the template's own font, and "Same as body" sets headings in the body font. The choice is saved with the book. The font file is not: if you open the book on a computer that does not have the font, the export stops and says so, with an **Open Fonts** button that takes you to Settings, Fonts (see [Fonts](/docs/fonts/)). CadabraCraft never swaps in a different font for you.
+
+A contents page is typeset as a list with dot leaders and the printed page numbers (roman numerals in the front matter, then arabic), indented by depth: a part's chapters sit under it and their headings below them. Turn **Page numbers** off on the contents page for a plain list. The numbers come from the same layout as the PDF, so they match its pages.
+
+The PDF is built by Typst. Installers are meant to ship with it (see Troubleshooting for builds from source).
+
+## Markdown
+
+Writes the whole book as one Markdown file in reading order. A contents page becomes a nested list of links to the chapters and headings. Underline, small caps, superscript and subscript have no Markdown form, so by default the export stops and names the chapter; tick **Keep underline and small caps** to write them as HTML tags instead.
+
+## Outline
+
+Writes the structure of the book without its text: each chapter with its scenes, and for every scene the title, synopsis, point of view, status, label, target, word count, story date and the names of the cast (from the codex). Pick **Outline** in the Export dialog, then a file type:
+
+- **OPML (.opml)** opens in outliners such as OmniOutliner or Bike. The synopsis is the note of each row, and the other fields travel as extra attributes that a plain outliner ignores.
+- **Markdown (.md)** has a heading for each chapter and scene with the synopsis below it, and a line of fields.
+- **CSV (.csv)** has one row per scene (and one row for a chapter without scenes), for a spreadsheet. A cell that starts with `=`, `+`, `-` or `@` gets a leading apostrophe so a spreadsheet cannot run it as a formula. It is a generic spreadsheet shape, not a format of any particular planning app.
+
+The file is `outline.opml`, `outline.md` or `outline.csv` in `exports/<language>/`. Front and back matter are left out. To read an outline back in, see [Importing an outline](/docs/importing-an-outline/).
+
+After an export finishes the app may offer a sponsor dialog; you can say "Maybe later" or "Don't show again".

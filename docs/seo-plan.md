@@ -60,7 +60,7 @@ Ordered by value. Each item maps to a file.
 6. **Performance (Core Web Vitals).** Static export and self-hosted fonts already help. Replace the `EditorMockup` with exported screenshots using explicit `width` and `height` (no layout shift), `loading="lazy"` below the fold, `fetchPriority="high"` on the hero image, modern formats (AVIF or WebP) pre-generated at build because `images.unoptimized` is set. Budget: LCP under 2.5 s on a mid-range phone, CLS under 0.05, total JS under 150 kB gzipped on the home page. Verify with Lighthouse (the `web-perf` skill) before each launch milestone.
 7. **Internal links.** Home links to Features, Formats, Compare, Download. Footer lists Features, Compare, Formats, Guides, Support (drawn in the pen). Every guide links to a feature or format page and to Download; every compare page links to the other comparisons and to the matching guide.
 8. **Accessibility as SEO.** One H1 per page, meaningful heading order, descriptive link text ("Read the full comparison"), alt text on screenshots, visible focus. These are in the designs and in `docs/design.md`.
-9. **i18n.** No `hreflang` until translated pages exist. When they do, use `/<lang>/` paths with reciprocal `hreflang`. The app supports language editions, but the site is English only for now.
+9. **i18n.** Every page lives under `/<locale>/` (today only `/en/`). `pageMetadata` emits a canonical URL and reciprocal `hreflang` for every locale plus `x-default`, and the sitemap lists each page with its alternates, so adding a language needs no SEO work. Pages without a translation fall back to English with a visible notice. Old unprefixed URLs are static redirect stubs (see `docs/architecture.md`, "Website languages and docs").
 
 ## 5. Content plan
 

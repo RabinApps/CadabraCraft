@@ -34,7 +34,7 @@ Once releases exist, they will be published on GitHub Releases for macOS and Lin
 
 ## Your book is a folder
 
-A book is a plain folder you choose: one file per chapter, your images, and a `cadabra.json` with the title and chapter order. You can copy it, back it up or keep it in Dropbox, Google Drive or iCloud Drive (sync with real clients is not yet tested, see the [user guide](docs/user-guide.md#using-a-cloud-synced-folder)). Exports go to its `exports/` folder, and removed chapters go to `.cadabra/trash/` rather than being deleted. Earlier versions of each chapter are kept in `.cadabra/backups/`, which belongs to your computer, so keep `.cadabra` out of cloud sync. Details are in [docs/file-format.md](docs/file-format.md).
+A book is a plain folder you choose: one file per chapter, your images, and a `cadabra.json` with the title and chapter order. You can copy it, back it up or keep it in Dropbox, Google Drive or iCloud Drive (sync with real clients is not yet tested, see the [user guide](https://cadabracraft.com/en/docs/cloud-synced-folder/)). Exports go to its `exports/` folder, and removed chapters go to `.cadabra/trash/` rather than being deleted. Earlier versions of each chapter are kept in `.cadabra/backups/`, which belongs to your computer, so keep `.cadabra` out of cloud sync. Details are in [docs/file-format.md](docs/file-format.md).
 
 ## Features
 

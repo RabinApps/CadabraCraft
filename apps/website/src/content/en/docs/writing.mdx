@@ -1,0 +1,65 @@
+---
+title: "Writing"
+description: "Formatting, footnotes, images, focus mode, find and replace, reading mode and page view."
+group: "Write"
+order: 2
+updated: "2026-11-10"
+---
+
+Click a chapter in the list on the left to edit it. Changes are saved automatically about two seconds after you stop typing, and the app waits for the save when you close the window. **File > Save** (Cmd/Ctrl+S) saves right away.
+
+## Formatting
+
+The toolbar and the **Format** and **Insert** menus offer:
+
+- Bold, italic, underline, small caps, strikethrough, code, superscript and subscript
+- Language of selection (the **More formatting** button at the end of the toolbar, the **Format** menu or the command palette): marks a passage in another language than the book's, such as a French phrase in an English book, so screen readers pronounce it right and the exports carry it. Pick a language or type any tag such as `fr-CA`; **Clear language** removes it. Markdown carries it only when the HTML marks option is on; the audiobook reads every passage with the edition's voice
+- Heading 1, 2 and 3
+- Text alignment (the align button in the toolbar, Format > Alignment, or Cmd/Ctrl+Shift+L, +C and +R): **Align to Start**, **Centre**, **Align to End** and **Template Default**. It applies to the paragraph or heading where the cursor is, or to every paragraph you have selected, including paragraphs in quotes, lists and table cells. The wording is start and end because that is what it does in a right-to-left book: start is the left in an English book and the right in a Hebrew or Arabic one. A centred or aligned paragraph is set without the first-line indent and without justification, as in the finished book, and an aligned first paragraph of a chapter has no large first letter. **Template Default** puts the block back to what the template does (indented, justified body text). Markdown has no way to say it: the alignment appears in a Markdown export only when you turn on HTML marks
+- Block quote, bulleted list and numbered list
+- Links (http, https or mailto addresses only)
+- Task lists (Format > Task List; click a box to tick it) and definition lists (Insert > Definition List: a term line, then its description)
+- Tables (Insert > Table…, then Format > Table to add or remove rows and columns)
+- Code blocks (Insert > Code Block)
+
+## Chapter headings and scene breaks
+
+Use **Heading 1** for a chapter title; headings 2 and 3 are for sections inside a chapter. A **scene break** (Insert > Scene Break, or **More formatting** at the end of the toolbar) marks a shift in time or place. In the finished book it is shown with the template's own ornament, so you never have to type rows of asterisks.
+
+## Footnotes
+
+Insert > Footnote (or the Fn button) adds a note at the cursor. Type the note's text in place. In an EPUB they are gathered as notes at the end of the chapter; in the PDF they sit at the foot of the page and are numbered per chapter.
+
+## Images
+
+Insert > Image… lets you pick a picture (png, jpg, gif, webp or svg, up to 25 MB). Add a description for screen readers and, if you like, a caption. A copy of the picture goes into the book's `assets/` folder, so the original can stay where it is.
+
+## Focus mode, typewriter scrolling and a word goal
+
+- **Focus mode** (View > Focus Mode, Cmd/Ctrl+Shift+F) hides everything but the page. Press Escape or click the button at the top right to leave.
+- **Typewriter scrolling** keeps the line you are writing in the middle of the screen: the text moves up under the caret as you type, press Enter or use the arrow keys. Turn it on in View > Typewriter Scrolling (Cmd/Ctrl+Alt+T), in the command palette, or in Settings, Editor. It is off by default and is a setting of the app, not of the book. Clicking with the mouse, scrolling with the wheel or the trackpad, Find and the outline never move the page by themselves; the next key you type brings the line back to the middle. The first lines of a chapter stay near the top (the page cannot scroll above its start), and extra space at the end lets the last line reach the middle. Nothing animates, so the page does not glide when you have asked your system for less motion.
+- **Smart quotes and dashes** (Settings, Editor) is off by default and is a setting of the app, not of the book. When it is on, typing a straight quote makes a curly one in the style of your book's language (a passage marked as another language uses that language's style), `--` becomes an en dash, `---` an em dash and `...` an ellipsis. Press Backspace right after a change to get the characters you typed back. Nothing changes inside code. To tidy text you already wrote, select it and choose Format > Convert Quotes and Dashes (one Undo puts it back); code and passages in another language are left alone. Find treats straight and curly quotes as the same.
+- **Session word goal** (Settings, Editor) is the number of words you want to write each time you open a book. While it is above 0, a small progress bar at the bottom of the window shows how many words you have written since you opened the book. Set it to 0 to turn it off.
+- Settings, Editor also has the manuscript font, the width of the writing column and what to do when you paste text that contains HTML tags.
+
+## Find and replace
+
+Edit > Find… (Cmd/Ctrl+F) opens the find bar; Edit > Find and Replace… (Cmd/Ctrl+Alt+F) adds the replace field. Options:
+
+- **Match case** and **Whole word**
+- **All chapters** searches the whole book, front and back matter included, and lists the results by page so you can jump to them
+- **Regex** treats your search as a regular expression. The flavour is RE2, so character classes, groups and the usual repeats work, but backreferences such as `\1` and lookahead or lookbehind do not (they show "Invalid pattern"). In the replacement, `$1` to `$9` insert the groups you captured.
+
+Replacing works on text within one paragraph at a time; a match cannot run across a paragraph break.
+
+## Reading mode
+
+Use the **Read** switch at the top to see your book the way a reader would, without the toolbar. You can change the text size, page width and theme from the reading settings button, and move between chapters with the buttons at the bottom. Reading mode is for looking, not editing; switch back to **Write** to change the text. (Find is available in Write mode only.)
+
+## Page view
+
+Turn on **Page view** (the page button in the header, or View, Page View, Cmd/Ctrl+Shift+P) to see the open chapter as pages at your book's trim size, with the template's margins, running heads (the book title on left-hand pages, the chapter title on right-hand pages, none on a chapter's first page), page numbers and a chapter opening that starts on a new page (a blank left-hand page appears first where your template starts chapters on the right). You keep typing in the same text; nothing about the pages is saved in your chapter. Choose **Fit width**, 75%, 100% or 125% in the status bar. The status bar also shows "Page 3 of ≈ 12" for the page your cursor is on.
+
+Page breaks are approximate, which is why the chip above the pages says so: the PDF is the reference, and its breaks can differ by a line or two (and a few pages in a long book). The pages are set in your template's print font when that font is on this computer; otherwise your manuscript font is used, and the chip's tooltip tells you which. Page numbers count from the word counts of the chapters before this one. Page view is for Write mode on a computer-sized window, not on a phone and not in Read mode.
+
+Write mode scrolls on through the book: when you reach the last page of the open front matter page, chapter or back matter page and keep scrolling, the next one opens at its first page. Scrolling up at its first page goes back to the previous one and shows its last page. Each page is still its own file, so undo, find, the word counts and page breaks stay per page; only the scrolling carries on from one to the next. A page that fits on the screen hands over with one wheel notch at its end. The phone's plain reading text does the same.

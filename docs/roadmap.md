@@ -102,10 +102,17 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 
 - Task lists and definition lists are done (schema nodes `taskList` / `taskItem` / `definitionList` / `definitionTerm` / `definitionDescription`, editor commands under Format and Insert, every importer and exporter). Task lists are in the Format menu and the toolbar's More formatting menu. No toolbar button, by decision (2026-11-09): the formatting bar must stay on one row at 1280 px, and the pen was changed to match. RTF and the MCP DOCX/RTF tools write both list kinds (RTF: ballot box and bold term, see `export-rtf`).
 
+### Website docs and languages
+
+- Add a second website language: add the code to `src/i18n/config.ts`, a messages file, `src/content/<locale>/` (data modules and `docs/`, `guides/` MDX), and a name in `LocaleSwitcher`. Marketing page copy that is still written inline in the page TSX (home, features, formats, download, support) has to move into the content modules first.
+- Docs search (needs a build-time index; no network, so a small static index and client-side filter).
+- Screenshots in the docs pages.
+- Add `apps/website` to the root lint and size checks once it passes them (it is skipped today).
+
 ### Website (marketing and SEO pass)
 
 - Export real light/dark editor screenshots from the pen's `Website / ...` frames (or the running app) into `apps/website/public/screens`, then set `shot` on the `featureGroups` entries and replace `EditorMockup` on Home. The OG image is done (`public/og/cadabracraft-og.png`).
-- Verify every competitor fact in `apps/website/src/data/competitors.ts` against its source and update `checkedOn`; several fields say "See vendor" until confirmed.
+- Verify every competitor fact in `apps/website/src/content/en/competitors.ts` against its source and update `checkedOn`; several fields say "See vendor" until confirmed.
 - Link the LICENSE once the licensing question is settled; add a real download link once a GitHub Release exists.
 - Download page: switch the platform cards to real links, version and size when the first GitHub Release exists (drawn as the "released" variant in the pen), and add `SoftwareApplication` structured data at the same time.
 - Run Lighthouse (the `web-perf` skill) against the built site and check the budgets in [seo-plan.md](seo-plan.md), section 4; verify `www` to apex, HTTPS and Search Console and Bing verification by DNS.

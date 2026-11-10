@@ -1,12 +1,22 @@
 # CadabraCraft website
 
-Marketing site for [cadabracraft.com](https://cadabracraft.com). Next.js (App Router), static export, Tailwind v4. Tokens come from [docs/design.md](../../docs/design.md). The site makes no runtime network calls and has no analytics.
+Marketing site and docs for [cadabracraft.com](https://cadabracraft.com). Next.js (App Router), static export, Tailwind v4, MDX for docs and guides, multi-language ready (English only for now). Tokens come from [docs/design.md](../../docs/design.md). The site makes no runtime network calls and has no analytics.
 
 ## Develop
 ```bash
 pnpm --filter @cadabracraft/website dev        # http://localhost:3000
 pnpm --filter @cadabracraft/website build      # static output in apps/website/out
 pnpm --filter @cadabracraft/website typecheck
+```
+
+## Content and languages
+- Every page is under `/<locale>/` (today `/en/`). Old unprefixed URLs are redirect stubs in `src/app/(legacy)/`.
+- Docs are MDX files in `src/content/en/docs/` and guides in `src/content/en/guides/`. Each starts with frontmatter (`title`, `description`, `group`, `order`, `updated`; guides also `tag`, `summary`, `readMinutes`). Links to other docs pages use `/docs/<slug>/#heading` and are checked by `pnpm --filter @cadabracraft/website test`. Components available in MDX: `Callout` and `Kbd`.
+- UI strings are in `src/i18n/messages/<locale>.ts`; marketing data in `src/content/<locale>/*.ts`.
+- **Add a language:** add the code to `LOCALES` in `src/i18n/config.ts` (and its name in `components/LocaleSwitcher.tsx`), add `src/i18n/messages/<locale>.ts` and register it in `src/i18n/messages.ts`, add `src/content/<locale>/` with the data modules and register it in `src/content/index.ts`, then translate MDX files into `src/content/<locale>/docs/` and `guides/`. Untranslated pages fall back to English with a notice. The inline copy in the marketing page TSX needs moving into the content modules first (see `docs/roadmap.md`).
+
+```bash
+pnpm --filter @cadabracraft/website test   # locale paths, hreflang, MDX frontmatter and docs links
 ```
 
 ## Launch checklist (one-time)
@@ -28,7 +38,7 @@ The deploy workflow is `.github/workflows/pages.yml`. It publishes `apps/website
 4. **Verify**: the workflow run is green, `https://cadabracraft.com` loads over HTTPS, and `www` redirects to the apex.
 
 ## Before announcing
-- Replace the HTML/CSS `EditorMockup` with real screenshots exported from `cadabracraft.pen` (put them in `public/screens/`), light and dark, and set `shot` on the entries in `featureGroups` (`src/data/content.ts`) to show them on `/features/`. The social card `public/og/cadabracraft-og.png` already exists; re-export it from the pen frame `Website / OG image` if the headline changes.
+- Replace the HTML/CSS `EditorMockup` with real screenshots exported from `cadabracraft.pen` (put them in `public/screens/`), light and dark, and set `shot` on the entries in `featureGroups` (`src/content/en/content.ts`) to show them on `/features/`. The social card `public/og/cadabracraft-og.png` already exists; re-export it from the pen frame `Website / OG image` if the headline changes.
 - Confirm the repo URL in `src/app/page.tsx` (`REPO`) and the three funding links (GitHub Sponsors, Buy Me a Coffee, PayPal; same values as `.github/FUNDING.yml`).
 - Add a real download link once a GitHub Release exists; the hero currently says downloads are not available yet.
 - Check the page at phone, tablet and desktop widths in both themes.

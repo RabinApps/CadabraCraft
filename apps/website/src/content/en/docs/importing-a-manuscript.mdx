@@ -1,0 +1,20 @@
+---
+title: "Importing a manuscript"
+description: "Start a book from a Word, Markdown or HTML file."
+group: "Import and export"
+order: 8
+updated: "2026-11-10"
+---
+
+File > Import… (Cmd/Ctrl+Shift+I) or **Import…** on the start screen creates a **new** book from:
+
+- a Word file (`.docx`)
+- a Markdown file (`.md`)
+- an HTML file (`.html` or `.htm`)
+- an outline (`.opml`, `.csv` or a Markdown outline), see [Importing an outline](/docs/importing-an-outline/)
+
+Choose the file, a title, an author and an empty folder for the new book. The next step shows the chapters the app found. You can choose which heading level starts a new chapter (Heading 1, 2 or 3), rename chapters and leave some out. Your original file is never changed.
+
+After the import an **Import report** lists anything that could not be kept exactly, grouped by kind with a few examples, for instance unsupported Word features or an image that could not be read. "Warning" means something was lost or changed and is worth a look; "Note" means a routine adjustment. Use **Copy report** if you want to keep it or send it with a bug report. "Nothing was lost or changed" means just that. The full list of mappings and warnings is in [import.md](https://github.com/RabinApps/cadabracraft/blob/main/docs/import.md).
+
+You cannot import into a book that is already open; import into a new book, then copy over what you need.

@@ -1,4 +1,4 @@
-import type { FeatureGroup } from "@/data/content";
+import type { FeatureGroup } from "@/content/en/content";
 
 function Points({ points }: { points: readonly string[] }) {
   return (
