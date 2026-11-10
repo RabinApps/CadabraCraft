@@ -72,6 +72,66 @@ jobs:
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: bash scripts/fetch-ffmpeg.sh
+      - name: Apple signing and notarization setup
+        if: matrix.os == 'kinhin-xcode'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_PRIVATE_KEY: ${{ secrets.APPLE_API_PRIVATE_KEY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          # Exports to later steps through GITHUB_ENV only the variables that are set, and only the notarization
+          # variables of the one mode in use. Tauri takes the Apple ID path when APPLE_ID, APPLE_PASSWORD and
+          # APPLE_TEAM_ID are all present, even when empty, so an unset secret must never reach it. Secret values
+          # are never printed; error messages name variables only.
+          set -euo pipefail
+          set_env() { printf '%s=%s\n' "$1" "$2" >> "$GITHUB_ENV"; }
+          missing=""
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          mode=none
+          if [ -n "$APPLE_API_ISSUER" ] && [ -n "$APPLE_API_KEY" ] && [ -n "$APPLE_API_PRIVATE_KEY" ]; then
+            mode=api
+          elif [ -n "$APPLE_ID" ] && [ -n "$APPLE_PASSWORD" ] && [ -n "$APPLE_TEAM_ID" ]; then
+            mode=apple-id
+          fi
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            if [ -n "$missing" ]; then
+              echo "::error::Tagged release is missing Apple signing secrets:$missing" >&2
+              exit 1
+            fi
+            if [ "$mode" = none ]; then
+              echo "::error::Tagged release needs notarization secrets: APPLE_API_ISSUER, APPLE_API_KEY and APPLE_API_PRIVATE_KEY, or APPLE_ID, APPLE_PASSWORD and APPLE_TEAM_ID" >&2
+              exit 1
+            fi
+          fi
+          if [ -n "$missing" ]; then
+            echo "Apple signing secrets are incomplete (missing:$missing), so this build is not signed or notarized."
+            mode=none
+          fi
+          if [ "$mode" != none ]; then
+            set_env APPLE_CERTIFICATE "$APPLE_CERTIFICATE"
+            set_env APPLE_CERTIFICATE_PASSWORD "$APPLE_CERTIFICATE_PASSWORD"
+            set_env APPLE_SIGNING_IDENTITY "$APPLE_SIGNING_IDENTITY"
+          fi
+          if [ "$mode" = api ]; then
+            key_path="$RUNNER_TEMP/AuthKey_$APPLE_API_KEY.p8"
+            (umask 077 && printf '%s\n' "$APPLE_API_PRIVATE_KEY" > "$key_path")
+            set_env APPLE_API_ISSUER "$APPLE_API_ISSUER"
+            set_env APPLE_API_KEY "$APPLE_API_KEY"
+            set_env APPLE_API_KEY_PATH "$key_path"
+          elif [ "$mode" = apple-id ]; then
+            set_env APPLE_ID "$APPLE_ID"
+            set_env APPLE_PASSWORD "$APPLE_PASSWORD"
+            set_env APPLE_TEAM_ID "$APPLE_TEAM_ID"
+          fi
+          set_env APPLE_NOTARY_MODE "$mode"
       - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -84,6 +144,30 @@ jobs:
           releaseName: CadabraCraft ${{ github.ref_name }}
           releaseDraft: true
           includeUpdaterJson: true
+      - name: Sign, notarize and staple the dmg
+        # tauri-action notarizes the .app; the .dmg is also submitted here so that it is notarized and stapled.
+        if: matrix.os == 'kinhin-xcode' && env.APPLE_NOTARY_MODE != 'none'
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          dmgs=(apps/desktop/src-tauri/target/**/bundle/dmg/*.dmg)
+          if [ "${#dmgs[@]}" -ne 1 ]; then
+            echo "::error::Expected one .dmg under target/**/bundle/dmg, found ${#dmgs[@]}" >&2
+            exit 1
+          fi
+          dmg="${dmgs[0]}"
+          codesign --force --sign "$APPLE_SIGNING_IDENTITY" --timestamp "$dmg"
+          if [ "$APPLE_NOTARY_MODE" = api ]; then
+            auth=(--key "$APPLE_API_KEY_PATH" --key-id "$APPLE_API_KEY" --issuer "$APPLE_API_ISSUER")
+          else
+            auth=(--apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID")
+          fi
+          xcrun notarytool submit "$dmg" "${auth[@]}" --wait
+          xcrun stapler staple "$dmg"
+          xcrun stapler validate "$dmg"
+      - name: Remove Apple API key file
+        if: always() && matrix.os == 'kinhin-xcode' && env.APPLE_API_KEY_PATH != ''
+        run: rm -f "$APPLE_API_KEY_PATH"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: github.event_name == 'workflow_dispatch'
         with:

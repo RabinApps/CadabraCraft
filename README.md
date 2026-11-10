@@ -30,7 +30,7 @@ CadabraCraft is for authors who want to write a whole book in one place and publ
 
 There is **no release yet**, so there is no installer to download. Today you can build the app from source (the commands are under [Quick start](#quick-start): install the prerequisites, run `scripts/fetch-typst.sh` and `scripts/fetch-sherpa.sh` once, then `pnpm install` and `pnpm tauri dev`).
 
-Once releases exist, they will be published on GitHub Releases for macOS and Linux (AppImage); Windows is coming soon (the code runs there and CI tests it, but no Windows installer is released yet). Be aware that macOS notarization is **not set up yet**, so the first releases will make your operating system warn that the app is from an unidentified developer, and you will have to confirm that you want to open it. The app checks GitHub Releases for newer versions at launch (switchable in Settings); that is its only network request.
+Once releases exist, they will be published on GitHub Releases for macOS and Linux (AppImage); Windows is coming soon (the code runs there and CI tests it, but no Windows installer is released yet). The macOS builds are signed and notarized by the release workflow, so they should open without an "unidentified developer" warning; the first dry run checks this (see `docs/release-checklist.md`). The app checks GitHub Releases for newer versions at launch (switchable in Settings); that is its only network request.
 
 ## Your book is a folder
 

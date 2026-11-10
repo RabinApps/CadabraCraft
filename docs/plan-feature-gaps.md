@@ -130,7 +130,7 @@ Continuous, one cycle per area. The detail for each is in [roadmap.md](roadmap.m
 
 Do this when a release is wanted. Nothing above blocks on it.
 
-- First release dry run: sign, notarise, `.dmg`, updater round trip, GitHub Release ([release-checklist.md](release-checklist.md)).
+- First release dry run: check the macOS signing and notarization (API key, decided in architecture.md, "Updates and releases"; not yet run), `.dmg`, updater round trip, GitHub Release ([release-checklist.md](release-checklist.md)).
 - Linux: AppImage signing and install, one `latest.json` per platform. ⚑ `.deb`, `.rpm`, `.msi`?
 - Pin the empty veraPDF SHA256 in `scripts/fetch-verapdf.sh`, run veraPDF, Ace and `scripts/a11y.sh --tools` in CI for the first time, then make the `webdriver` and WebKit jobs required.
 - `pnpm test:e2e:webdriver`: the first green run against a real Linux driver, then PDF export, references and find added to the covered flows.

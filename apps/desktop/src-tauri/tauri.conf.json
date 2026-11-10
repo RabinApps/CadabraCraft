@@ -55,6 +55,10 @@
     "icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"],
     "externalBin": ["binaries/typst", "binaries/sherpa-onnx-offline-tts", "binaries/ffmpeg"],
     "resources": { "binaries/fonts/*": "fonts/", "binaries/licenses/*": "licenses/", "licenses/*": "licenses/", "../../../LICENSE": "licenses/LICENSE.txt", "../../../NOTICE": "licenses/NOTICE.txt", "../../../LICENSE-CLARIFICATIONS.md": "licenses/LICENSE-CLARIFICATIONS.md" },
+    "macOS": {
+      "signingIdentity": null,
+      "hardenedRuntime": true
+    },
     "windows": { "webviewInstallMode": { "type": "embedBootstrapper" } }
   },
   "plugins": {
