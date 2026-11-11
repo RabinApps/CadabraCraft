@@ -7,7 +7,6 @@ import { Chip } from "../../ui/feedback/Chip";
 import { Field } from "../../ui/forms/Input";
 import { useMarkAnchor } from "../../lib/indexing/anchor";
 import { filterGlossary, type GlossaryFilter } from "../../lib/indexing/panelModel";
-import { useProject } from "../../state/project/index";
 import { GlossaryEntryDialog } from "./GlossaryEntryDialog";
 import { GlossarySettingsDialog } from "./GlossarySettingsDialog";
 import { useBookIndex } from "./useIndexData";
@@ -17,7 +16,6 @@ import { useGoTo } from "./useGoTo";
 export function GlossaryPanel({ onClose, onJump }: { onClose?: () => void; onJump?: () => void }) {
   const { t } = useLingui();
   const { data } = useBookIndex(true);
-  const showUndefined = useProject((s) => s.manifest?.glossary?.showUndefined ?? false);
   const openGlossary = useMarkAnchor((s) => s.openGlossary);
   const goTo = useGoTo();
   const [query, setQuery] = useState("");
@@ -25,14 +23,8 @@ export function GlossaryPanel({ onClose, onJump }: { onClose?: () => void; onJum
   const [editing, setEditing] = useState<string | null>(null);
   const [settings, setSettings] = useState(false);
   const items = data?.glossary.items ?? [];
-  // Entries with no definition are listed when the author asked for them, and always under a filter.
-  const listed = useMemo(
-    () =>
-      filterGlossary(items, query, filter).filter(
-        (i) => showUndefined || filter !== "all" || i.entry.definition.trim() !== "",
-      ),
-    [items, query, filter, showUndefined],
-  );
+  // Every entry is listed, with a badge on the ones that have no definition; "show terms with no definition" is about the printed page.
+  const listed = useMemo(() => filterGlossary(items, query, filter), [items, query, filter]);
   const editingItem = items.find((i) => i.entry.id === editing) ?? null;
   return (
     <section aria-label={t`Glossary`} className="flex h-full min-h-0 flex-col gap-3 p-4">

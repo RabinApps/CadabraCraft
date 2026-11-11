@@ -148,8 +148,9 @@ test.describe("glossary", () => {
     const d = dialog(page, "Glossary term");
     await d.getByLabel("Term").fill("Gloom");
     await d.getByRole("button", { name: "Add term" }).click();
-    // Terms with no definition stay out of the list until the author asks for them, or filters for them.
-    await expect(panel(page).getByText("Gloom")).toHaveCount(0);
+    // A term with no definition is listed under All with its badge, so a term just added never seems to vanish.
+    await expect(panel(page).getByRole("listitem").first()).toContainText("Gloom");
+    await expect(panel(page).getByRole("listitem").first()).toContainText("Needs a definition");
     await panel(page).getByRole("button", { name: "No definition" }).click();
     await expect(panel(page).getByRole("listitem").first()).toContainText("Needs a definition");
     await panel(page).getByRole("button", { name: "Unused" }).click();

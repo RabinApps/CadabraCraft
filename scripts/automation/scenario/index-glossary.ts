@@ -1,0 +1,128 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { assert, type Context } from "./context.ts";
+
+/** The back-of-book index and the glossary, through the real window: panels, dialogs, marks in the chapter file, settings in the manifest. */
+export async function indexGlossarySteps({ app, book, shot, step }: Context) {
+  const manifest = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
+  /** Every chapter file of the book, joined: the open page is whichever the earlier steps left. */
+  const chapterText = () =>
+    ["manuscript", "front-matter", "back-matter"]
+      .flatMap((d) => readdirSync(join(book, d)).map((f) => join(book, d, f)))
+      .map((f) => readFileSync(f, "utf8"))
+      .join("\n");
+  /** Waits (the autosave runs a moment after the edit) until the chapter files say `needle`. */
+  const onDisk = async (needle: string) => {
+    for (let i = 0; i < 20 && !chapterText().includes(needle); i++) await app.sleep(500);
+    return chapterText().includes(needle);
+  };
+
+  /** Types into a React-controlled field: the native setter plus an input event. */
+  const typeInto = (selector: string, value: string) =>
+    app.js(
+      `(() => { const el = document.querySelector(${JSON.stringify(selector)}); if (!el) throw new Error("no field: ${selector}");
+      const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+      Object.getOwnPropertyDescriptor(proto, "value").set.call(el, ${JSON.stringify(value)});
+      el.dispatchEvent(new Event("input", { bubbles: true })); return "typed"; })()`,
+    );
+  /** Clicks the visible button (the header has one per breakpoint) with this text or label, inside `scope`. */
+  const click = (scope: string, text: string) =>
+    app.js(
+      `(() => { const b = [...document.querySelectorAll(${JSON.stringify(scope + " button")})].filter((b) => b.offsetParent && (b.textContent.trim() === ${JSON.stringify(text)} || b.getAttribute("aria-label") === ${JSON.stringify(text)})).pop(); if (!b) throw new Error("no control: ${text}"); b.click(); return "clicked"; })()`,
+    );
+  /** The open dialog whose text starts with `title`. */
+  const dialogJs = (title: string) =>
+    `[...document.querySelectorAll("[role=dialog]")].find((d) => d.innerText.startsWith(${JSON.stringify(title)}))`;
+  const dialogClick = (title: string, text: string) =>
+    app.js(
+      `(() => { const b = [...${dialogJs(title)}.querySelectorAll("button")].find((b) => b.textContent.trim() === ${JSON.stringify(text)}); if (!b) throw new Error("no button: ${text}"); b.click(); return "clicked"; })()`,
+    );
+  /** Puts a sentence at the end of the open page and selects `words` in it, the way the mouse would. */
+  const selectWords = (words: string) =>
+    app.js(
+      `(() => { const e = document.querySelector(".ProseMirror").editor;
+      if (!e.state.doc.textContent.includes("Magic lived")) { e.commands.focus("end"); e.commands.insertContent(" The orchard wall stood. Magic lived in the orchard."); }
+      let at = -1; e.state.doc.descendants((n, p) => { const i = n.isText ? n.text.indexOf(${JSON.stringify(words)}) : -1; if (i >= 0) at = p + i; });
+      e.commands.setTextSelection({ from: at, to: at + ${JSON.stringify(words)}.length }); return e.state.doc.textBetween(e.state.selection.from, e.state.selection.to); })()`,
+    );
+
+  const closeSheet = (label: string) =>
+    app.js(
+      `[...document.querySelectorAll("button")].find((b) => b.getAttribute("aria-label") === ${JSON.stringify(label)})?.click() ?? "none"`,
+    );
+
+  await step(
+    "index: add an entry from the selection and save the mark in the chapter",
+    async () => {
+      assert((await selectWords("orchard")) === "orchard", "the words were not selected");
+      await click("header", "Index");
+      await app.sleep(600);
+      await click('section[aria-label="Index"]', "Add selection");
+      await app.sleep(600);
+      await dialogClick("Index entry", "Add");
+      await app.sleep(1500);
+      assert(
+        (await onDisk('"term": "orchard"')) && chapterText().includes('"indexEntry"'),
+        "no indexEntry mark on disk",
+      );
+      const panelText = await app.js<string>(
+        `document.querySelector('section[aria-label="Index"]')?.innerText ?? ""`,
+      );
+      assert(
+        panelText.includes("1 term") && panelText.includes("orchard"),
+        "the term is not listed",
+      );
+      const bar = await app.js<string>(
+        `(() => { const m = document.querySelector("[data-index-entry]"); return m ? getComputedStyle(m).boxShadow : "none"; })()`,
+      );
+      assert(bar !== "none" && bar.includes("inset"), `no bar under the marked words: ${bar}`);
+      await shot("14-index-panel");
+      return "orchard marked, listed, and drawn with a bar";
+    },
+  );
+
+  await step("index: settings are saved in the manifest", async () => {
+    await click('section[aria-label="Index"]', "Index settings");
+    await app.sleep(600);
+    await app.js(
+      `(() => { const d = ${dialogJs("Index settings")}; const l = [...d.querySelectorAll("label")].find((l) => l.textContent.trim() === "Add an index to the book"); const c = d.querySelector("#" + CSS.escape(l.htmlFor)); if (!c.checked) c.click(); return "on"; })()`,
+    );
+    await dialogClick("Index settings", "Save");
+    await app.sleep(1500);
+    const m = manifest();
+    assert(
+      m.formatVersion === 14 && m.index?.enabled === true,
+      `index settings: ${JSON.stringify(m.index)}`,
+    );
+    await closeSheet("Close index");
+    await app.sleep(500);
+    return "index.enabled in cadabra.json";
+  });
+
+  await step(
+    "glossary: add a term with a definition, mark it, save it in the manifest",
+    async () => {
+      assert((await selectWords("Magic")) === "Magic", "the word was not selected");
+      await click("header", "Glossary");
+      await app.sleep(600);
+      await click('section[aria-label="Glossary"]', "Add term");
+      await app.sleep(600);
+      await typeInto("[role=dialog] textarea", "What the orchard remembers.");
+      await dialogClick("Glossary term", "Add and mark");
+      await app.sleep(1500);
+      const g = manifest().glossary;
+      assert(
+        g?.entries?.length === 1 && g.entries[0].definition === "What the orchard remembers.",
+        `glossary: ${JSON.stringify(g)}`,
+      );
+      assert(await onDisk('"glossaryTerm"'), "no glossaryTerm mark on disk");
+      const panelText = await app.js<string>(
+        `document.querySelector('section[aria-label="Glossary"]')?.innerText ?? ""`,
+      );
+      assert(panelText.includes("Magic"), `the term is not listed: ${panelText}`);
+      await shot("15-glossary-panel");
+      await closeSheet("Close glossary");
+      return "entry and mark saved, term listed";
+    },
+  );
+}

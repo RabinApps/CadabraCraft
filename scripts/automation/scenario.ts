@@ -23,6 +23,7 @@ import { referencesSteps } from "./scenario/references.ts";
 import { chapterIconsSteps } from "./scenario/chapter-icons.ts";
 import { moreFormattingSteps } from "./scenario/more-formatting.ts";
 import { osA11ySteps } from "./scenario/os-a11y.ts";
+import { indexGlossarySteps } from "./scenario/index-glossary.ts";
 
 const ctx = await createContext(process.argv.slice(2));
 const { app, child, out, results } = ctx;
@@ -36,6 +37,7 @@ try {
   await pdfAndDetailsSteps(ctx);
   await publishingDetailsSteps(ctx);
   await findAndHistorySteps(ctx);
+  await indexGlossarySteps(ctx);
   await chapterIconsSteps(ctx);
   await editionsSteps(ctx);
   // A second book for the newer features; the first one has a French edition by now, which turns splitting off.

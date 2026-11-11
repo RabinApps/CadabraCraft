@@ -238,7 +238,7 @@ async function exportPart3(ctx: Context) {
       const manifest = JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
       assert(
         manifest.editions[0].cover === "assets/pixel.png" &&
-          manifest.editions[0].isbn === "978-3-16-148410-0",
+          manifest.editions[0].isbn === "9783161484100",
         `manifest wrong: cover=${manifest.editions[0].cover} isbn=${manifest.editions[0].isbn}`,
       );
       assert(
