@@ -177,6 +177,8 @@ const tails = (page: Page) =>
 test("a page that begins inside a table row begins in each cell that runs onto it, at that cell's own word, on the next page", async ({
   page,
 }) => {
+  // Tall enough that the word after the spacer scrolls clear of the status bar (at the end of the book it cannot scroll further).
+  await page.setViewportSize({ width: 1280, height: 1100 });
   await newProject(page);
   await answerWith(page, rowReport);
   await seedChapters(page, [rowDoc() as never]);
@@ -216,7 +218,7 @@ test("a page that begins inside a table row begins in each cell that runs onto i
   // A click on the first word after cell A's spacer: the caret is past the break, in a cell whose neighbour was cut elsewhere.
   const tail = await page.evaluate(() => {
     const next = document.querySelector("td .pv-gap")!.nextSibling!;
-    (next.parentElement ?? document.body).scrollIntoView({ block: "center" });
+    (next.parentElement ?? document.body).scrollIntoView({ block: "center", behavior: "instant" });
     // The text after the spacer may be wrapped (a left-hand page shifts it).
     const text = document.createTreeWalker(next, NodeFilter.SHOW_TEXT).nextNode() ?? next;
     const range = document.createRange();

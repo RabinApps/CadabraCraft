@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject } from "./support/helpers";
+import { focusEnd, newProject } from "./support/helpers";
 
 // The app shell: menu commands (the dev build exposes what each native menu item runs), window close, update check,
 // header, sidebar, details panel and the media-query drawer.
@@ -107,8 +107,7 @@ const alerts = (page: Page) => page.getByRole("alert").filter({ hasText: /./ });
 test("book menu commands act on the open book", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await newProject(page);
-  await editor(page).click();
-  await page.keyboard.press("ControlOrMeta+End");
+  await focusEnd(page);
   await page.keyboard.type(" words");
   await expect(page.getByText("Unsaved")).toBeVisible();
   await menu(page, "file.save");
