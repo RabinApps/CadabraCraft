@@ -71,7 +71,7 @@ describe("verticalCenter in the manifest", () => {
     const back = reopen(JSON.parse(serializeManifest(m)));
     expect(back.frontMatter.find((e) => e.kind === "dedication")!.verticalCenter).toBe(false);
     expect(back.backMatter[0]!.verticalCenter).toBe(true);
-    expect(back.formatVersion).toBe(14);
+    expect(back.formatVersion).toBe(15);
   });
 
   it("refuses a value that is not true or false", () => {
@@ -126,7 +126,7 @@ describe("migration v8 -> current", () => {
     for (const e of expected.frontMatter) if (e.toc) e.toc.parts = true;
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
       ...kinded(expected),
-      formatVersion: 14,
+      formatVersion: 15,
     });
   });
 });

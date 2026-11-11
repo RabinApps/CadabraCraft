@@ -85,9 +85,38 @@ const titleDoc = (title: string): PdfChapter["doc"] => ({
   content: [{ type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: title }] }],
 });
 
+interface Lists {
+  index: IndexPageSpec | undefined;
+  glossary: GlossaryPageSpec | undefined;
+  indexTail: string;
+  glossaryTail: string;
+}
+
+/** The two lists of the book (a list with nothing to show is undefined) and the Typst source that goes under their titles. */
+function listsOf(book: PdfBook, options: PdfOptions): Lists {
+  const index = options.index && options.index.tree.groups.length > 0 ? options.index : undefined;
+  const glossary =
+    options.glossary && options.glossary.items.length > 0 ? options.glossary : undefined;
+  const [see, seeAlso] = seeWords(book.language);
+  return {
+    index,
+    glossary,
+    indexTail: index
+      ? `#index-list(${indexEntries(index)}, ${index.ranges}, ${index.letterHeadings}, ${typstString(see)}, ${typstString(seeAlso)}, ${index.columns})`
+      : "",
+    glossaryTail: (glossary?.items ?? [])
+      .map(
+        ({ entry }) =>
+          `#glossary-entry(${typstString(entry.term)}, ${typstString(entry.definition)})`,
+      )
+      .join("\n"),
+  };
+}
+
 /**
- * The index and glossary pages for the end of the book (index first), and their source under the title (stored in `ctx`). A page with
- * nothing to list is left out. Throws when a page of the book already uses one of the reserved ids.
+ * The book's pages with the index and glossary in place, and their source under the title (stored in `ctx`). A page the author put in
+ * the back matter (`kind: "index"` or `"glossary"`) holds the list where it sits; a book without one gets the page at the end of the
+ * book (index first). A page with nothing to list is left out. Throws when a page of the book already uses one of the reserved ids.
  */
 export function generatedPages(
   book: PdfBook,
@@ -97,33 +126,27 @@ export function generatedPages(
 ): PdfChapter[] {
   const clash = chapters.find((c) => c.id === INDEX_PAGE || c.id === GLOSSARY_PAGE);
   if (clash) throw new PdfExportError(`Page id "${clash.id}" is reserved for a generated page`);
-  const pages: PdfChapter[] = [];
+  const lists = listsOf(book, options);
   const tails = new Map<string, string>();
+  const out: PdfChapter[] = [];
+  const placed = { index: false, glossary: false };
+  for (const c of chapters) {
+    const which =
+      c.section === "back" && (c.kind === "index" || c.kind === "glossary") ? c.kind : null;
+    if (which === null) out.push(c);
+    else if (lists[which]) {
+      placed[which] = true;
+      tails.set(c.id, which === "index" ? lists.indexTail : lists.glossaryTail);
+      out.push({ ...c, doc: titleDoc(c.title) });
+    }
+  }
   const add = (id: string, title: string, tail: string) => {
-    pages.push({ id, title, doc: titleDoc(title), section: "back", kind: "custom" });
+    out.push({ id, title, doc: titleDoc(title), section: "back", kind: "custom" });
     tails.set(id, tail);
   };
-  const index = options.index;
-  if (index && index.tree.groups.length > 0) {
-    const [see, seeAlso] = seeWords(book.language);
-    add(
-      INDEX_PAGE,
-      index.heading,
-      `#index-list(${indexEntries(index)}, ${index.ranges}, ${index.letterHeadings}, ${typstString(see)}, ${typstString(seeAlso)}, ${index.columns})`,
-    );
-  }
-  const glossary: GlossaryPageSpec | undefined = options.glossary;
-  if (glossary && glossary.items.length > 0)
-    add(
-      GLOSSARY_PAGE,
-      glossary.heading,
-      glossary.items
-        .map(
-          ({ entry }) =>
-            `#glossary-entry(${typstString(entry.term)}, ${typstString(entry.definition)})`,
-        )
-        .join("\n"),
-    );
+  if (lists.index && !placed.index) add(INDEX_PAGE, lists.index.heading, lists.indexTail);
+  if (lists.glossary && !placed.glossary)
+    add(GLOSSARY_PAGE, lists.glossary.heading, lists.glossaryTail);
   if (tails.size > 0) ctx.generatedTails = tails;
-  return pages;
+  return out;
 }

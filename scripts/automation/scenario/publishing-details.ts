@@ -23,7 +23,7 @@ const WANT = {
   published: "2026-03-15",
 };
 
-/** Book details, "Publishing details": fill, save, check cadabra.json (formatVersion 14), export EPUB, check the OPF and EPUBCheck. */
+/** Book details, "Publishing details": fill, save, check cadabra.json (formatVersion 15), export EPUB, check the OPF and EPUBCheck. */
 export async function publishingDetailsSteps(ctx: Context) {
   await publishingDetailsPart1(ctx);
   await publishingDetailsPart2(ctx);
@@ -86,7 +86,7 @@ async function publishingDetailsPart1(ctx: Context) {
   );
 
   await step(
-    "Book details: Publishing details saved to cadabra.json as formatVersion 14",
+    "Book details: Publishing details saved to cadabra.json as formatVersion 15",
     async () => {
       await openDetails();
       for (const [label, value] of Object.entries(FIELDS)) await setField(label, value);
@@ -105,7 +105,7 @@ async function publishingDetailsPart1(ctx: Context) {
         "dialog did not close",
       );
       const m = manifest();
-      assert(m.formatVersion === 14, `formatVersion is ${m.formatVersion}, expected 14`);
+      assert(m.formatVersion === 15, `formatVersion is ${m.formatVersion}, expected 15`);
       const got = m.editions[0].publishing;
       assert(
         got &&
@@ -113,7 +113,7 @@ async function publishingDetailsPart1(ctx: Context) {
             JSON.stringify(Object.entries(WANT).sort()),
         `publishing wrong: ${JSON.stringify(got)}`,
       );
-      return "formatVersion 14, editions[0].publishing has the 7 trimmed values";
+      return "formatVersion 15, editions[0].publishing has the 7 trimmed values";
     },
   );
 }

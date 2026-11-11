@@ -5,7 +5,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { listTemplates } from "@cadabracraft/templates";
-import { buildEpub } from "../index";
+import {
+  buildGlossary,
+  buildIndex,
+  collectGlossaryUses,
+  collectIndexMarks,
+  type ChapterDoc,
+} from "@cadabracraft/shared";
+import { buildEpub, type EpubChapter } from "../index";
 import { matterBook } from "./matterBook";
 
 const jar = fileURLToPath(
@@ -345,6 +352,64 @@ describe.skipIf(!existsSync(jar) && !process.env.REQUIRE_EPUBCHECK)("EPUBCheck",
       expect(check("he.epub", buildEpub(metaOf("he"), matterBook()))).toContain(
         "No errors or warnings detected",
       );
+    },
+    JVM_TIMEOUT,
+  );
+
+  it(
+    "validates an index and a glossary page placed in the back matter, and the same lists at the end",
+    () => {
+      const mark = (type: string, attrs: Record<string, string>) => ({ type, attrs });
+      const para = (...content: unknown[]) => ({ type: "paragraph", content });
+      const chapter = {
+        type: "doc",
+        content: [
+          { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "One" }] },
+          para(
+            {
+              type: "text",
+              text: "wall",
+              marks: [mark("indexEntry", { id: "a", term: "Orchard" })],
+            },
+            { type: "text", text: " " },
+            { type: "text", text: "quay", marks: [mark("glossaryTerm", { id: "quay" })] },
+          ),
+        ],
+      } as ChapterDoc;
+      const sources = [{ id: "ch-1", doc: chapter }];
+      const lists = {
+        index: {
+          heading: "Index",
+          letterHeadings: true,
+          ranges: true,
+          columns: 2 as const,
+          tree: buildIndex(collectIndexMarks(sources)),
+        },
+        glossary: {
+          heading: "Glossary",
+          markFirstUse: true,
+          items: buildGlossary(
+            [{ id: "quay", term: "Quay", definition: "A landing place." }],
+            collectGlossaryUses(sources),
+          ).items,
+        },
+      };
+      const empty = { type: "doc", content: [] } as ChapterDoc;
+      const placed: EpubChapter[] = [
+        { id: "ch-1", title: "One", doc: chapter },
+        { id: "bm-1", title: "Index", doc: empty, section: "back", kind: "index" },
+        { id: "bm-2", title: "Glossary", doc: empty, section: "back", kind: "glossary" },
+      ];
+      for (const language of ["en", "he"]) {
+        for (const [name, pages] of [
+          ["placed", placed],
+          ["appended", placed.slice(0, 1)],
+        ] as const)
+          expect(
+            check(`index-${name}-${language}.epub`, buildEpub(metaOf(language), pages, lists)),
+            `${name} ${language}`,
+          ).toContain("No errors or warnings detected");
+      }
     },
     JVM_TIMEOUT,
   );

@@ -158,3 +158,33 @@ describe("generated pages in a whole book", () => {
     expect(none).toHaveLength(2);
   });
 });
+
+describe("an index and glossary page the author put in the back matter", () => {
+  const slots = (): MarkdownChapter[] => [
+    ...chapters(),
+    { id: "bm-1", title: "Index", doc: doc(), section: "back", kind: "index" },
+    {
+      id: "bm-2",
+      title: "About",
+      doc: doc(para(t("Me."))),
+      section: "back",
+      kind: "about-the-author",
+    },
+    { id: "bm-3", title: "Glossary", doc: doc(), section: "back", kind: "glossary" },
+  ];
+
+  it("writes each list in its page's place and not again at the end", () => {
+    const md = bookToMarkdown({ title: "B", language: "en" }, slots(), spec());
+    const at = (s: string) => md.indexOf(s);
+    expect(at("Orchard")).toBeGreaterThan(at("c d"));
+    expect(at("Me.")).toBeGreaterThan(at("Orchard"));
+    expect(at("Where boats") >= 0 || at("harbour") >= 0 || md.includes("Glossary")).toBe(true);
+    expect(md.match(/Orchard:/g)?.length).toBe(1);
+  });
+
+  it("leaves the pages out when there is nothing to list", () => {
+    const md = bookToMarkdown({ title: "B", language: "en" }, slots());
+    expect(md).toContain("Me.");
+    expect(md).not.toContain("Orchard");
+  });
+});

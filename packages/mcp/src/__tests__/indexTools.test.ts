@@ -314,7 +314,7 @@ describe("cadabra_index_settings", () => {
     });
     expect(set.manifestHash).toMatch(/^[0-9a-f]{64}$/);
     expect(manifest().index).toEqual(set.settings);
-    expect(manifest().formatVersion).toBe(14);
+    expect(manifest().formatVersion).toBe(15);
     const same = await s.ok("cadabra_index_settings", { path: "book", enabled: true });
     expect(same.changed).toBe(false);
     // hidden: replace, add, remove

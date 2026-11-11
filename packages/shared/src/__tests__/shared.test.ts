@@ -75,7 +75,13 @@ describe("matter kind predicates", () => {
   it("has a front-only, single-use contents kind", () => {
     expect(isFrontMatterKind("contents")).toBe(true);
     expect(isBackMatterKind("contents")).toBe(false);
-    expect(SINGLE_USE_KINDS).toEqual(["title-page", "copyright", "contents"]);
+    expect(SINGLE_USE_KINDS).toEqual(["title-page", "copyright", "contents", "index", "glossary"]);
+  });
+  it("has back-only, single-use index and glossary kinds", () => {
+    for (const k of ["index", "glossary"] as const) {
+      expect(isBackMatterKind(k)).toBe(true);
+      expect(isFrontMatterKind(k)).toBe(false);
+    }
   });
   it("share only the custom kind", () => {
     expect(

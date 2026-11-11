@@ -70,6 +70,8 @@ export const BACK: MatterKind[] = [
   "about-the-author",
   "also-by",
   "colophon",
+  "index",
+  "glossary",
   "custom",
 ];
 

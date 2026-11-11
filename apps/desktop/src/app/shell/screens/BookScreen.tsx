@@ -8,6 +8,7 @@ import {
 } from "@cadabracraft/format";
 import { Minimize2, Plus } from "lucide-react";
 import { Editor } from "../../../editor/Editor";
+import { GeneratedPage } from "./GeneratedPage";
 import { TocEditor } from "../../toc/TocEditor";
 import { ReadingBook } from "../../../editor/reading/ReadingBook";
 import { ReadingFooter } from "../../../editor/reading/ReadingFooter";
@@ -131,6 +132,10 @@ function PageBody({
   if (reader && pages.length)
     // Keyed on the book, not the chapter: the open chapter follows the scroll without remounting the reader.
     return <ReadingBook key={`${root}:${language}:${reloadCount}`} />;
+  // An index or glossary page holds a generated list, shown as it is written.
+  const generatedKind = readingOrder(manifest).find((e) => e.id === currentId)?.kind;
+  if (currentId && (generatedKind === "index" || generatedKind === "glossary") && !reader)
+    return <GeneratedPage pageId={currentId} language={language} reloadCount={reloadCount} />;
   if (contents && currentDoc && !reader) return <TocEditor key={contents.id} entry={contents} />;
   if (currentDoc && currentId && !reader)
     return (

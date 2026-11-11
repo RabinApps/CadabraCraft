@@ -462,11 +462,11 @@ msgstr "{clock} en pause"
 
 #: src/lib/export/epubcheckReport.ts
 msgid "{e}, {w}"
-msgstr ""
+msgstr "{e}, {w}"
 
 #: src/lib/export/epubcheckReport.ts
 msgid "{errors, plural, one {# error} other {# errors}}"
-msgstr ""
+msgstr "{errors, plural, one {# erreur} other {# erreurs}}"
 
 #: src/app/export/parts/PrintPreviewParts.tsx
 msgid "{estimate, plural, one {About # page} other {About # pages}}"
@@ -531,7 +531,7 @@ msgstr "{n, plural, one {# jour} other {# jours}}"
 
 #: src/lib/export/epubcheckReport.ts
 msgid "{n, plural, one {# more message is not shown} other {# more messages are not shown}}"
-msgstr ""
+msgstr "{n, plural, one {# message de plus n’est pas affiché} other {# messages de plus ne sont pas affichés}}"
 
 #: src/state/project/indexing/marks.ts
 msgid "{n, plural, one {# more place marked in the index} other {# more places marked in the index}}"
@@ -698,7 +698,7 @@ msgstr "{untitled, plural, one {# chapitre n’a pas de titre} other {# chapitre
 
 #: src/lib/export/epubcheckReport.ts
 msgid "{warning, plural, one {# warning} other {# warnings}}"
-msgstr ""
+msgstr "{warning, plural, one {# avertissement} other {# avertissements}}"
 
 #: src/editor/paste/pasteFlow.ts
 msgid "{warnings, plural, one {Converted, with # thing that could not be kept} other {Converted, with # things that could not be kept}}"
@@ -1674,7 +1674,7 @@ msgstr "Personnage"
 
 #: src/app/export/epubcheck/EpubValidation.tsx
 msgid "Check EPUB"
-msgstr ""
+msgstr "Vérifier l’EPUB"
 
 #: src/app/settings/SettingsSections.tsx
 msgid "Check for updates on launch"
@@ -1686,15 +1686,15 @@ msgstr "Rechercher les mises à jour…"
 
 #: src/app/export/epubcheck/EpubValidation.tsx
 msgid "Check the EPUB after every export"
-msgstr ""
+msgstr "Vérifier l’EPUB après chaque export"
 
 #: src/app/export/epubcheck/EpubValidation.tsx
 msgid "Check with EPUBCheck"
-msgstr ""
+msgstr "Vérifier avec EPUBCheck"
 
 #: src/app/export/epubcheck/EpubValidation.tsx
 msgid "Checking with EPUBCheck. This takes a few seconds…"
-msgstr ""
+msgstr "Vérification avec EPUBCheck. Cela prend quelques secondes…"
 
 #: src/app/export/EpubPanel.tsx
 msgid "Checks"
@@ -2767,15 +2767,15 @@ msgstr "EPUB…"
 #. placeholder {0}: state.report.version
 #: src/app/export/epubcheck/EpubValidation.tsx
 msgid "EPUBCheck {0}. Its messages are in English."
-msgstr ""
+msgstr "EPUBCheck {0}. Ses messages sont en anglais."
 
 #: src/lib/export/epubcheckReport.ts
 msgid "EPUBCheck found no problems."
-msgstr ""
+msgstr "EPUBCheck n’a trouvé aucun problème."
 
 #: src/app/export/epubcheck/EpubValidation.tsx
 msgid "EPUBCheck results"
-msgstr ""
+msgstr "Résultats d’EPUBCheck"
 
 #: src/app/export/CheckList.tsx
 #: src/ui/feedback/Notice.tsx
@@ -3136,7 +3136,9 @@ msgstr "Donnez un auteur au livre."
 #: src/app/indexing/GlossaryPanel.tsx
 #: src/app/shell/Drawers.tsx
 #: src/app/shell/header/IndexButtons.tsx
+#: src/app/shell/native/menuModel.ts
 #: src/app/shell/screens/SidePanel.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Glossary"
 msgstr "Glossaire"
 
@@ -3505,7 +3507,9 @@ msgstr "Augmenter le retrait de l’élément de liste"
 #: src/app/indexing/IndexPanel.tsx
 #: src/app/shell/Drawers.tsx
 #: src/app/shell/header/IndexButtons.tsx
+#: src/app/shell/native/menuModel.ts
 #: src/app/shell/screens/SidePanel.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Index"
 msgstr "Index"
 
@@ -4354,7 +4358,7 @@ msgstr "Pas encore de versions antérieures. Une est conservée à chaque enregi
 
 #: src/lib/export/epubcheckReport.ts
 msgid "No errors or warnings."
-msgstr ""
+msgstr "Aucune erreur ni avertissement."
 
 #: src/app/dialogs/import/ImportSteps.tsx
 msgid "No file chosen"
@@ -6628,11 +6632,11 @@ msgstr "Le chapitre où vous l’avez déposée contient déjà une scène avec 
 #. placeholder {0}: f.seconds
 #: src/lib/export/epubcheckReport.ts
 msgid "The check took longer than {0} seconds and was stopped."
-msgstr ""
+msgstr "La vérification a duré plus de {0} secondes et a été arrêtée."
 
 #: src/lib/export/epubcheckReport.ts
 msgid "The check was stopped."
-msgstr ""
+msgstr "La vérification a été arrêtée."
 
 #: src/state/codex.ts
 msgid "The codex could not be opened: it is not the shape a codex has. The file was left untouched."
@@ -6733,15 +6737,15 @@ msgstr "L’entrée n’a pas de titre."
 #. placeholder {0}: f.message
 #: src/lib/export/epubcheckReport.ts
 msgid "The EPUB check could not finish: {0}"
-msgstr ""
+msgstr "La vérification de l’EPUB n’a pas pu se terminer : {0}"
 
 #: src/lib/export/epubcheckReport.ts
 msgid "The EPUB checker that comes with CadabraCraft was not found. Reinstall the app to get it back."
-msgstr ""
+msgstr "Le vérificateur d’EPUB fourni avec CadabraCraft est introuvable. Réinstallez l’application pour le récupérer."
 
 #: src/app/export/epubcheck/EpubValidation.tsx
 msgid "The EPUB validator used by e-book stores. It runs on your computer and checks the file you exported."
-msgstr ""
+msgstr "Le validateur d’EPUB utilisé par les librairies numériques. Il s’exécute sur votre ordinateur et vérifie le fichier exporté."
 
 #: src/editor/toolbar/TableCommands.tsx
 msgid "The first row is a header. Up to {MAX_TABLE_ROWS} rows."
@@ -6944,7 +6948,7 @@ msgstr "Il y a trop d'autres graphies."
 
 #: src/lib/export/epubcheckReport.ts
 msgid "There is no exported EPUB for this edition yet. Export it first, then check it."
-msgstr ""
+msgstr "Cette édition n’a pas encore d’EPUB exporté. Exportez-le d’abord, puis vérifiez-le."
 
 #. placeholder {0}: e.path
 #: src/lib/projectError.ts

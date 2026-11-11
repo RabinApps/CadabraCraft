@@ -3,6 +3,7 @@ import {
   buildIndex,
   collectGlossaryUses,
   collectIndexMarks,
+  placeGeneratedDocPages,
   type ChapterDoc,
   type DocNode,
   type GlossaryEntry,
@@ -99,4 +100,24 @@ export function indexingForExport<P extends { id: string; doc: ChapterDoc }>(
     };
   }
   return out;
+}
+
+/**
+ * `pages` as the reader and the page measure show them: a page of kind `index` or `glossary` (the author put it in the back matter)
+ * holds the generated list in place of its own text, so the list can be read in the app. Pages without such a page come back as given,
+ * and a page with nothing to list keeps its own text.
+ */
+export function withGeneratedPages<
+  P extends { id: string; title: string; doc: ChapterDoc; kind?: string | undefined },
+>(manifest: Manifest, pages: readonly P[], language: string): P[] {
+  if (!pages.some((p) => p.kind === "index" || p.kind === "glossary")) return [...pages];
+  const spec = indexingForExport(manifest, pages, language);
+  const titles = new Map(pages.map((p) => [p.id, p.title.trim()]));
+  const filled = new Map(
+    placeGeneratedDocPages(spec.pages, spec, titles, language).map((p) => [p.id, p.doc]),
+  );
+  return pages.map((p) => {
+    const doc = p.kind === "index" || p.kind === "glossary" ? filled.get(p.id) : undefined;
+    return doc ? { ...p, doc } : p;
+  });
 }

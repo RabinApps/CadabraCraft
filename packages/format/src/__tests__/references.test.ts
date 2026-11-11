@@ -64,7 +64,7 @@ describe("migration v4 -> v5", () => {
     const r = parseManifest(v4);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(4);
-    expect(r.manifest.formatVersion).toBe(14);
+    expect(r.manifest.formatVersion).toBe(15);
     expect(r.manifest.references).toEqual([]);
     expect(r.manifest.editions).toEqual(before.editions);
     expect(r.manifest.chapters).toEqual(before.chapters);
@@ -372,7 +372,7 @@ describe("migration v11 -> v12", () => {
     const r = parseManifest(json);
     expect(r.migrated).toBe(true);
     expect(r.fromVersion).toBe(11);
-    expect(r.manifest.formatVersion).toBe(14);
+    expect(r.manifest.formatVersion).toBe(15);
     expect(before.references.length).toBeGreaterThan(0);
     expect(r.manifest.references).toEqual(
       before.references.map((x: object) => ({ kind: "file", ...x })),

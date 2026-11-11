@@ -110,21 +110,43 @@ export function chaptersToMarkdown(
         pages.set(c.id, { id: c.id, ...(file === undefined ? {} : { file }), anchors, added });
     }
   }
+  // The index and the glossary: a page of that kind in the back matter holds the list where the author put it.
+  const { indexText, glossaryText, placedIndex, placedGlossary } = generatedText(
+    docs.map(({ c }) => c),
+    opts,
+    book.language,
+  );
   const out = docs.map(({ c, doc }) => {
+    if (c.kind === "index") return indexText ?? "";
+    if (c.kind === "glossary") return glossaryText ?? "";
     const r = renderChapter(doc, { ...opts, footnoteOffset: offset });
     offset += r.footnotes;
     if (contents === undefined || c.kind !== "contents") return r.markdown;
     const list = contentsMarkdown(contents, pages);
     return list === "" ? r.markdown : `${r.markdown === "" ? "" : `${r.markdown}\n`}${list}\n`;
   });
-  // The index and the glossary are generated from the marks, after the author's pages; one with nothing to list is left out.
-  if (opts.index && opts.index.tree.groups.length > 0) {
-    const titles = new Map<string, string>();
-    for (const { c } of docs) if (c.id !== undefined) titles.set(c.id, c.title.trim());
-    out.push(indexMarkdown(opts.index, titles, book.language));
-  }
-  if (opts.glossary && opts.glossary.items.length > 0) out.push(glossaryMarkdown(opts.glossary));
+  // Without such a page, they follow the author's pages; one with nothing to list is left out.
+  if (indexText !== undefined && !placedIndex) out.push(indexText);
+  if (glossaryText !== undefined && !placedGlossary) out.push(glossaryText);
   return out;
+}
+
+/** The index and glossary as Markdown (undefined when there is nothing to list), and whether the author put each in a page of its own. */
+function generatedText(
+  pages: readonly MarkdownChapter[],
+  opts: MarkdownOptions,
+  language: string | undefined,
+) {
+  const titles = new Map<string, string>();
+  for (const c of pages) if (c.id !== undefined) titles.set(c.id, c.title.trim());
+  const index = opts.index && opts.index.tree.groups.length > 0 ? opts.index : undefined;
+  const glossary = opts.glossary && opts.glossary.items.length > 0 ? opts.glossary : undefined;
+  return {
+    indexText: index && indexMarkdown(index, titles, language),
+    glossaryText: glossary && glossaryMarkdown(glossary),
+    placedIndex: pages.some((c) => c.kind === "index"),
+    placedGlossary: pages.some((c) => c.kind === "glossary"),
+  };
 }
 
 /** A one-line YAML scalar: JSON strings are valid double-quoted YAML. */

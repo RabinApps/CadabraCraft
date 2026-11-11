@@ -374,7 +374,7 @@ describe("project store", () => {
       useProject.setState({ manifest: null, currentId: null, currentDoc: null, hashes: {} });
       await a().openProject("/p");
       expect(s().notice).toMatch(/upgraded from format 1/);
-      expect(manifestOnDisk().formatVersion).toBe(14);
+      expect(manifestOnDisk().formatVersion).toBe(15);
     });
   });
   describe("book details and cover", () => {

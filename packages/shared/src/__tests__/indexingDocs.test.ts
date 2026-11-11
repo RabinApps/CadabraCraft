@@ -7,6 +7,7 @@ import {
   collectGlossaryUses,
   collectIndexMarks,
   generatedDocPages,
+  placeGeneratedDocPages,
   placePages,
   seeWords,
   seeWordsFor,
@@ -176,5 +177,34 @@ describe("seeWords", () => {
     expect(seeWords(undefined)).toEqual(["See", "See also"]);
     expect(seeWordsFor("xx")).toBeUndefined();
     expect(seeWordsFor("ja")).toEqual(["参照", "関連項目"]);
+  });
+});
+
+describe("placeGeneratedDocPages", () => {
+  const doc = (t: string) => ({ type: "doc", content: [para(text(t))] }) as never;
+  const page = (id: string, kind?: string) => ({ id, title: id, doc: doc(id), kind });
+  const pages = [
+    page("ch"),
+    page("i", "index"),
+    page("x", "about-the-author"),
+    page("g", "glossary"),
+  ];
+
+  it("fills the pages of kind index and glossary where they sit and adds nothing at the end", () => {
+    const out = placeGeneratedDocPages(pages, { index: index(), glossary }, titles, "en");
+    expect(out.map((p) => p.id)).toEqual(["ch", "i", "x", "g"]);
+    expect(JSON.stringify(out[1]!.doc)).toContain("Orchard");
+    expect(JSON.stringify(out[3]!.doc)).toContain("Harbour");
+    expect(out[2]).toBe(pages[2]);
+  });
+
+  it("drops a page with nothing to list", () => {
+    const out = placeGeneratedDocPages(pages, {}, titles, "en");
+    expect(out.map((p) => p.id)).toEqual(["ch", "x"]);
+  });
+
+  it("appends a list that has no page, index first", () => {
+    const out = placeGeneratedDocPages([pages[0]!], { index: index(), glossary }, titles, "en");
+    expect(out.map((p) => p.id)).toEqual(["ch", GENERATED_INDEX_ID, GENERATED_GLOSSARY_ID]);
   });
 });

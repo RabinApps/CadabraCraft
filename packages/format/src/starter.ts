@@ -27,6 +27,8 @@ interface Words {
   /** `{author}` is replaced by the author name. */
   alsoBy: string;
   colophon: string;
+  index: string;
+  glossary: string;
   newPage: string;
   blank: string;
   rights: string;
@@ -52,6 +54,8 @@ const WORDS: Record<string, Words> = {
     aboutTheAuthor: "About the Author",
     alsoBy: "Also by {author}",
     colophon: "Colophon",
+    index: "Index",
+    glossary: "Glossary",
     newPage: "New Page",
     blank: "Blank page",
     rights: "All rights reserved.",
@@ -71,6 +75,8 @@ const WORDS: Record<string, Words> = {
     aboutTheAuthor: "על המחבר",
     alsoBy: "עוד מאת {author}",
     colophon: "קולופון",
+    index: "אינדקס",
+    glossary: "מילון מונחים",
     newPage: "עמוד חדש",
     blank: "עמוד ריק",
     rights: "כל הזכויות שמורות.",
@@ -88,6 +94,8 @@ const WORDS: Record<string, Words> = {
     aboutTheAuthor: "عن المؤلف",
     alsoBy: "مؤلفات أخرى لـ {author}",
     colophon: "بيانات الإنتاج",
+    index: "الفهرس",
+    glossary: "مسرد المصطلحات",
     newPage: "صفحة جديدة",
     blank: "صفحة فارغة",
     rights: "جميع الحقوق محفوظة.",
@@ -105,6 +113,8 @@ const WORDS: Record<string, Words> = {
     aboutTheAuthor: "Sull’autore",
     alsoBy: "Altri libri di {author}",
     colophon: "Colophon",
+    index: "Indice analitico",
+    glossary: "Glossario",
     newPage: "Nuova pagina",
     blank: "Pagina bianca",
     rights: "Tutti i diritti riservati.",
@@ -122,6 +132,8 @@ const WORDS: Record<string, Words> = {
     aboutTheAuthor: "著者紹介",
     alsoBy: "{author}の他の作品",
     colophon: "奥付",
+    index: "索引",
+    glossary: "用語集",
     newPage: "新しいページ",
     blank: "空白のページ",
     rights: "無断転載を禁じます。",
@@ -139,6 +151,8 @@ const WORDS: Record<string, Words> = {
     aboutTheAuthor: "Об авторе",
     alsoBy: "Другие книги автора: {author}",
     colophon: "Выходные данные",
+    index: "Предметный указатель",
+    glossary: "Глоссарий",
     newPage: "Новая страница",
     blank: "Пустая страница",
     rights: "Все права защищены.",
@@ -156,6 +170,8 @@ const WORDS: Record<string, Words> = {
     aboutTheAuthor: "À propos de l’auteur",
     alsoBy: "Autres livres de {author}",
     colophon: "Colophon",
+    index: "Index",
+    glossary: "Glossaire",
     newPage: "Nouvelle page",
     blank: "Page blanche",
     rights: "Tous droits réservés.",
@@ -173,6 +189,8 @@ const WORDS: Record<string, Words> = {
     aboutTheAuthor: "Über den Autor",
     alsoBy: "Weitere Bücher von {author}",
     colophon: "Kolophon",
+    index: "Register",
+    glossary: "Glossar",
     newPage: "Neue Seite",
     blank: "Leere Seite",
     rights: "Alle Rechte vorbehalten.",
@@ -190,6 +208,8 @@ const WORDS: Record<string, Words> = {
     aboutTheAuthor: "Sobre el autor",
     alsoBy: "Otros libros de {author}",
     colophon: "Colofón",
+    index: "Índice analítico",
+    glossary: "Glosario",
     newPage: "Nueva página",
     blank: "Página en blanco",
     rights: "Todos los derechos reservados.",
@@ -226,6 +246,10 @@ export function starterTitle(kind: MatterKind, language: string): string {
       return w.alsoBy.replace(/\s*\{author\}\s*/, " ").trim();
     case "colophon":
       return w.colophon;
+    case "index":
+      return w.index;
+    case "glossary":
+      return w.glossary;
     case "custom":
       return w.newPage;
     case "blank":

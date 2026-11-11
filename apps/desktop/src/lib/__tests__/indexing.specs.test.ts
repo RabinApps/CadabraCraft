@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { defaultGlossarySettings, defaultIndexSettings, type Manifest } from "@cadabracraft/format";
 import type { ChapterDoc, GlossaryEntry, Mark } from "@cadabracraft/shared";
 import { deriveIndexData } from "../indexing/indexData";
-import { indexingForExport, withGlossaryInIndex } from "../indexing/pageSpecs";
+import { indexingForExport, withGeneratedPages, withGlossaryInIndex } from "../indexing/pageSpecs";
 import { indexMark } from "../indexing/termOps";
 import {
   danglingTargets,
@@ -238,5 +238,45 @@ describe("the editor's side of the panels", () => {
       openGlossary: null,
       hasSelection: false,
     });
+  });
+});
+
+describe("withGeneratedPages", () => {
+  const slot = (id: string, kind: string) => ({
+    id,
+    title: id,
+    kind,
+    doc: { type: "doc", content: [] } as ChapterDoc,
+  });
+  const book = [
+    ...pages.map((p) => ({ ...p, title: p.id })),
+    slot("bm-1", "index"),
+    slot("bm-2", "glossary"),
+  ];
+  const on = manifest({
+    index: { ...defaultIndexSettings(), enabled: true },
+    glossary: {
+      ...defaultGlossarySettings(),
+      enabled: true,
+      entries: [entry("g1", "Orb")],
+    },
+  });
+
+  it("returns the pages as they are when none is an index or glossary page", () => {
+    const plain = pages.map((p) => ({ ...p, title: p.id }));
+    expect(withGeneratedPages(on, plain, "en")).toEqual(plain);
+  });
+
+  it("fills an index and a glossary page with the generated list", () => {
+    const out = withGeneratedPages(on, book, "en");
+    expect(out[0]).toBe(book[0]);
+    expect(JSON.stringify(out[2]!.doc)).toContain("Wizards");
+    expect(JSON.stringify(out[3]!.doc)).toContain("Orb");
+  });
+
+  it("keeps the page's own text when there is nothing to list", () => {
+    const out = withGeneratedPages(manifest({}), book, "en");
+    expect(out[2]).toBe(book[2]);
+    expect(out[3]).toBe(book[3]);
   });
 });

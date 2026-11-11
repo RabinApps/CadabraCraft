@@ -400,6 +400,15 @@ describe("cadabra_toc_update actions", () => {
     expect((await get()).stale).toEqual([]);
   });
 
+  it("indents the chapters that follow a part", async () => {
+    await book();
+    const m = manifest();
+    m.chapters[0].kind = "part";
+    writeFileSync(manifestPath(), JSON.stringify(m, null, 2));
+    const items = (await get()).items;
+    expect(items.find((i) => i.key === m.chapters[1].id)!.indent).toBe(1);
+  });
+
   it("hides and shows items", async () => {
     await book();
     const h = await update({ action: "hide", key: "ch-3" });

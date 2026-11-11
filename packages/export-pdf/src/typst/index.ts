@@ -59,7 +59,7 @@ export function buildTypstDocument(
   const head = preamble(book, t, options, { fonts: resolved, margins, hasFront });
   const cover = options.cover === undefined ? "" : coverPage(options.cover, ctx);
   const body = bodyOf(
-    [...chapters, ...generatedPages(book, chapters, options, ctx)],
+    generatedPages(book, chapters, options, ctx),
     ctx,
     t.print.chapterOpening.dropCap,
     t.print.paragraph.style === "indent" ? t.print.paragraph.indentEm : 0,

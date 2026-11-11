@@ -59,7 +59,15 @@ const FRONT: MatterKind[] = [
   "preface",
   "custom",
 ];
-const BACK: MatterKind[] = ["acknowledgments", "about-the-author", "also-by", "colophon", "custom"];
+const BACK: MatterKind[] = [
+  "acknowledgments",
+  "about-the-author",
+  "also-by",
+  "colophon",
+  "index",
+  "glossary",
+  "custom",
+];
 
 function kindLabel(kind: MatterKind): string {
   switch (kind) {
@@ -77,6 +85,10 @@ function kindLabel(kind: MatterKind): string {
       return t`Foreword`;
     case "preface":
       return t`Preface`;
+    case "index":
+      return t`Index`;
+    case "glossary":
+      return t`Glossary`;
     case "custom":
       return t`Custom page`;
     case "blank":

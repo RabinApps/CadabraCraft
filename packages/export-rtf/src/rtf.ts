@@ -4,7 +4,7 @@ import {
   GENERATED_INDEX_ID,
   countWords,
   dropLeadingPageBreak,
-  generatedDocPages,
+  placeGeneratedDocPages,
   textDirection,
   type ChapterDoc,
   type Section,
@@ -204,13 +204,9 @@ export function buildRtf(book: RtfBook, chapters: RtfChapter[], options: RtfOpti
   for (const c of pages) if (c.id !== undefined) titles.set(c.id, c.title.trim());
   const clash = pages.find((c) => c.id === GENERATED_INDEX_ID || c.id === GENERATED_GLOSSARY_ID);
   if (clash) throw new RtfExportError(`Page id "${clash.id}" is reserved for a generated page`);
-  const generated = generatedDocPages(options, titles, language).map((g) => ({
-    ...g,
-    section: "back" as const,
-    kind: "custom" as const,
-  }));
+  const placed = placeGeneratedDocPages(pages, options, titles, language);
   let first = true;
-  for (const c of [...pages, ...generated]) {
+  for (const c of placed) {
     // The generated manuscript title page replaces a "title-page" matter page (which only holds the title and author).
     // A blank page has no text; Rich Text has no page layout of its own here, so it is left out.
     if (c.kind === "title-page" || c.kind === "blank") continue;

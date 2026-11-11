@@ -94,3 +94,33 @@ describe("the index and glossary in a Word file", () => {
       ).toThrow(DocxExportError);
   });
 });
+
+describe("an index and glossary page the author put in the back matter", () => {
+  const slots = (): DocxChapter[] => [
+    ...chapters(),
+    { id: "bm-1", title: "Terms", doc: doc(), section: "back", kind: "index" },
+    {
+      id: "bm-2",
+      title: "About",
+      doc: doc(para(t("Me."))),
+      section: "back",
+      kind: "about-the-author",
+    },
+    { id: "bm-3", title: "Words", doc: doc(), section: "back", kind: "glossary" },
+  ];
+
+  it("writes each list in its page's place, and not again at the end", () => {
+    const xml = documentXml(slots());
+    expect(xml.indexOf(">Index<")).toBeGreaterThan(xml.indexOf(">Two<"));
+    expect(xml.indexOf(">Me.<")).toBeGreaterThan(xml.indexOf(">Index<"));
+    expect(xml.indexOf(">Glossary<")).toBeGreaterThan(xml.indexOf(">Me.<"));
+    expect(xml.match(/Where boats tie up\./g)).toHaveLength(1);
+  });
+
+  it("leaves the pages out when there is nothing to list", () => {
+    const xml = documentXml(slots(), {} as ReturnType<typeof options>);
+    expect(xml).not.toContain(">Index<");
+    expect(xml).not.toContain(">Glossary<");
+    expect(xml).toContain(">Me.<");
+  });
+});

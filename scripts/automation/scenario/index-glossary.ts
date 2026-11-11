@@ -1,4 +1,5 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
@@ -91,7 +92,7 @@ export async function indexGlossarySteps({ app, book, shot, step }: Context) {
     await app.sleep(1500);
     const m = manifest();
     assert(
-      m.formatVersion === 14 && m.index?.enabled === true,
+      m.formatVersion === 15 && m.index?.enabled === true,
       `index settings: ${JSON.stringify(m.index)}`,
     );
     await closeSheet("Close index");
@@ -123,6 +124,80 @@ export async function indexGlossarySteps({ app, book, shot, step }: Context) {
       await shot("15-glossary-panel");
       await closeSheet("Close glossary");
       return "entry and mark saved, term listed";
+    },
+  );
+}
+
+/** The generated Index and Glossary pages in the back matter, through the real window: read-only pages, kinds in the manifest, the EPUB. */
+export async function indexGlossaryPagesSteps({
+  app,
+  book,
+  repo,
+  shot,
+  step,
+  openMenu,
+  pickItem,
+  exportVia,
+}: Context) {
+  const manifest = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
+  await step(
+    "index and glossary pages: add both to the back matter, read them in the page, export the EPUB",
+    async () => {
+      const kinds = () => manifest().backMatter.map((e: { kind: string }) => e.kind);
+      const h1 = () =>
+        app.js<string>(`document.querySelector(".ProseMirror h1")?.textContent ?? ""`);
+      for (const kind of ["Index", "Glossary"]) {
+        await openMenu("Add page");
+        await app.sleep(400);
+        await pickItem(kind);
+        await app.sleep(1500);
+        assert((await h1()) === kind, `the ${kind} page did not open: "${await h1()}"`);
+        assert(
+          (await app.js<string>(
+            `document.querySelector(".ProseMirror").getAttribute("contenteditable")`,
+          )) === "false",
+          `the ${kind} page can be typed into`,
+        );
+        assert(
+          (await app.js<string>(`document.querySelector(".ProseMirror").innerText`)).trim().length >
+            kind.length,
+          `the ${kind} page shows no list`,
+        );
+      }
+      await shot("16-index-glossary-pages");
+      assert(kinds().slice(-2).join() === "index,glossary", `back matter kinds: ${kinds().join()}`);
+      const epub = join(book, "exports/en/book.epub");
+      rmSync(epub, { force: true });
+      await exportVia("EPUB 3");
+      for (let i = 0; i < 40 && !existsSync(epub); i++) await app.sleep(1000);
+      assert(existsSync(epub), "the EPUB was not written");
+      await app.sleep(500);
+      const listing = execFileSync("unzip", ["-l", epub], { encoding: "utf8" });
+      const ids = manifest()
+        .backMatter.filter((e: { kind: string }) => e.kind === "index" || e.kind === "glossary")
+        .map((e: { id: string }) => e.id);
+      assert(
+        ids.every((id: string) => listing.includes(`OEBPS/${id}.xhtml`)) &&
+          !listing.includes("generated-index"),
+        `the EPUB does not hold the pages in place: ${ids}`,
+      );
+      // Leave the first chapter open: the next steps type into the open page, and these two cannot be typed into.
+      const first = Object.values(manifest().chapters[0].titles)[0] as string;
+      await app.js(
+        `(() => { const b = [...document.querySelectorAll('nav[aria-label="Chapters"] :is(button, a, [role=button], [role=link], [role=option])')].find((b) => b.textContent.includes(${JSON.stringify(first)})); if (!b) throw new Error("no chapter row: ${first}"); b.click(); return "opened"; })()`,
+      );
+      await app.sleep(800);
+      assert(
+        (await app.js<string>(
+          `document.querySelector(".ProseMirror").getAttribute("contenteditable")`,
+        )) === "true",
+        "the first chapter did not open for editing",
+      );
+      const jar = join(repo, "tools/epubcheck-5.4.0/epubcheck.jar");
+      if (!existsSync(jar)) return "exported (EPUBCheck jar not installed, validation skipped)";
+      const o = execFileSync("java", ["-jar", jar, epub], { encoding: "utf8" });
+      assert(o.includes("No errors or warnings detected"), o.slice(-300));
+      return "both pages added, read-only in the page, in the EPUB in place, EPUBCheck clean";
     },
   );
 }

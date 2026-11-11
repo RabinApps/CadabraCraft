@@ -122,7 +122,7 @@ describe("migration v6 -> v7", () => {
     return { ...JSON.parse(JSON.stringify(m)), formatVersion: 6 };
   };
   it("is registered after v5 -> v6 and the current version is 12", () => {
-    expect(CURRENT_FORMAT_VERSION).toBe(14);
+    expect(CURRENT_FORMAT_VERSION).toBe(15);
     expect(MIGRATIONS.find((x) => x.from === 6)?.up).toBe(migrateV6ToV7);
   });
   it("copies the manifest without changing any key", () => {
@@ -140,7 +140,7 @@ describe("migration v6 -> v7", () => {
     expect(r.fromVersion).toBe(6);
     expect(JSON.parse(serializeManifest(r.manifest))).toEqual({
       ...kinded(raw),
-      formatVersion: 14,
+      formatVersion: 15,
     });
     expect(entryOf(r.manifest, "fm-2").toc).toBeUndefined();
   });

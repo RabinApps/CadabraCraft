@@ -170,3 +170,36 @@ describe("reserved ids and cross-reference words", () => {
     expect(seeWords(undefined)).toEqual(["See", "See also"]);
   });
 });
+
+describe("an index and glossary page the author put in the back matter", () => {
+  const slots = (): PdfChapter[] => [
+    ...chapters(),
+    { id: "bm-1", title: "Terms", doc: doc(), section: "back", kind: "index" },
+    {
+      id: "bm-2",
+      title: "About",
+      doc: doc(para(t("Me."))),
+      section: "back",
+      kind: "about-the-author",
+    },
+    { id: "bm-3", title: "Words", doc: doc(), section: "back", kind: "glossary" },
+  ];
+
+  it("holds each list in its page, under that page's title, and writes no page at the end", () => {
+    const src = buildTypst(book, slots(), options());
+    expect(src).not.toContain("generated-index");
+    expect(src).not.toContain("generated-glossary");
+    expect(src.match(/#index-list\(\(/g)).toHaveLength(1);
+    expect(src.match(/#glossary-entry\(/g)).toHaveLength(1);
+    expect(src.indexOf("#index-list((")).toBeGreaterThan(src.indexOf('id: "ch-2"'));
+    expect(src.indexOf("#index-list((")).toBeLessThan(src.indexOf('id: "bm-2"'));
+    expect(src.indexOf("#glossary-entry(")).toBeGreaterThan(src.indexOf('id: "bm-2"'));
+  });
+
+  it("leaves the pages out when there is nothing to list", () => {
+    const src = buildTypst(book, slots());
+    expect(src).not.toContain('id: "bm-1"');
+    expect(src).not.toContain('id: "bm-3"');
+    expect(src).toContain('id: "bm-2"');
+  });
+});

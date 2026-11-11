@@ -21,7 +21,7 @@ export { validateFonts, type BookFonts };
 
 export { FormatError, isSafeRelativePath } from "./errors";
 
-export const CURRENT_FORMAT_VERSION = 14;
+export const CURRENT_FORMAT_VERSION = 15;
 
 /** One language version of the book (formatVersion 4). The first edition is the source. */
 export interface Edition {

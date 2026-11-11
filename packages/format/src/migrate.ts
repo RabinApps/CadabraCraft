@@ -41,6 +41,9 @@ export const MIGRATIONS: Migration[] = [
   { from: 12, up: (raw) => ({ ...raw }) },
   // v13 -> v14: a manifest `index` and `glossary` (settings and glossary entries). Absent means none, so nothing changes and no file moves.
   { from: 13, up: (raw) => ({ ...raw }) },
+  // v14 -> v15: back matter may carry the generated pages \`kind: "index"\` and \`kind: "glossary"\`. Existing books have none (their
+  // index and glossary are still written after the back matter), so nothing changes and no file moves.
+  { from: 14, up: (raw) => ({ ...raw }) },
 ];
 
 export interface MigrationResult {

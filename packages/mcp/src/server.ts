@@ -10,6 +10,7 @@ import { importTools } from "./tools/import";
 import { settingsTools } from "./tools/indexSettings";
 import { projectTools } from "./tools/project";
 import { referenceTools } from "./tools/references";
+import { matterTools } from "./tools/matter";
 import { tocTools } from "./tools/toc";
 import { errMsg } from "@cadabracraft/shared";
 
@@ -65,6 +66,7 @@ export function createServer(opts: ServerOptions): McpServer {
     ...importTools,
     ...referenceTools,
     ...tocTools,
+    ...matterTools,
     ...bookIndexTools,
     ...glossaryTools,
     ...settingsTools,

@@ -61,6 +61,7 @@ export function navBody(
   const listed = chapters.filter(listedInToc);
   // The generated index and glossary pages follow the contents list the author arranged.
   const generated = chapters.filter((c) => c.id === INDEX_PAGE || c.id === GLOSSARY_PAGE);
+  const placed = chapters.filter((c) => c.kind === "index" || c.kind === "glossary");
   const extra = generated
     .map((c) => `<li><a href="${c.id}.xhtml">${esc(c.title)}</a></li>`)
     .join("");
@@ -84,10 +85,10 @@ export function navBody(
     start
       ? `<li><a epub:type="bodymatter" href="${start.id}.xhtml">${esc(startOfContentLabel(meta.language))}</a></li>`
       : ""
-  }<li><a epub:type="toc" href="nav.xhtml#toc">${esc(contents)}</a></li>${generated
+  }<li><a epub:type="toc" href="nav.xhtml#toc">${esc(contents)}</a></li>${[...generated, ...placed]
     .map(
       (c) =>
-        `<li><a epub:type="${c.id === INDEX_PAGE ? "index" : "glossary"}" href="${c.id}.xhtml">${esc(c.title)}</a></li>`,
+        `<li><a epub:type="${c.id === INDEX_PAGE || c.kind === "index" ? "index" : "glossary"}" href="${c.id}.xhtml">${esc(c.title)}</a></li>`,
     )
     .join("")}</ol></nav>`;
   return `<nav epub:type="toc" role="doc-toc" id="toc"><h1>${esc(contents)}</h1>${toc}</nav>${landmarks}`;

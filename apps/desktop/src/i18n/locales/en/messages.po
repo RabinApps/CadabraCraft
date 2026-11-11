@@ -3136,7 +3136,9 @@ msgstr "Give the book an author."
 #: src/app/indexing/GlossaryPanel.tsx
 #: src/app/shell/Drawers.tsx
 #: src/app/shell/header/IndexButtons.tsx
+#: src/app/shell/native/menuModel.ts
 #: src/app/shell/screens/SidePanel.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Glossary"
 msgstr "Glossary"
 
@@ -3505,7 +3507,9 @@ msgstr "Indent list item"
 #: src/app/indexing/IndexPanel.tsx
 #: src/app/shell/Drawers.tsx
 #: src/app/shell/header/IndexButtons.tsx
+#: src/app/shell/native/menuModel.ts
 #: src/app/shell/screens/SidePanel.tsx
+#: src/app/shell/useKindLabels.ts
 msgid "Index"
 msgstr "Index"
 

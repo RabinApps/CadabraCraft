@@ -80,3 +80,32 @@ describe("the index and glossary in a Rich Text file", () => {
       ).toThrow(RtfExportError);
   });
 });
+
+describe("an index and glossary page the author put in the back matter", () => {
+  const slots = (): RtfChapter[] => [
+    ...chapters(),
+    { id: "bm-1", title: "Terms", doc: doc(), section: "back", kind: "index" },
+    {
+      id: "bm-2",
+      title: "About",
+      doc: doc(para(t("Me."))),
+      section: "back",
+      kind: "about-the-author",
+    },
+    { id: "bm-3", title: "Words", doc: doc(), section: "back", kind: "glossary" },
+  ];
+
+  it("writes each list in its page's place and not again at the end", () => {
+    const rtf = buildRtf(book, slots(), options());
+    expect(rtf.indexOf("Orchard: One")).toBeGreaterThan(rtf.indexOf("Terms"));
+    expect(rtf.indexOf("Me.")).toBeGreaterThan(rtf.indexOf("Orchard: One"));
+    expect(rtf.indexOf("Where boats tie up.")).toBeGreaterThan(rtf.indexOf("Me."));
+    expect(rtf.match(/Where boats tie up\./g)).toHaveLength(1);
+  });
+
+  it("leaves the pages out when there is nothing to list", () => {
+    const rtf = buildRtf(book, slots());
+    expect(rtf).not.toContain("Terms");
+    expect(rtf).toContain("Me.");
+  });
+});

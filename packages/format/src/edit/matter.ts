@@ -8,6 +8,8 @@ import {
 } from "@cadabracraft/shared";
 import { chapterFileName, matterFileName } from "../names";
 import { unlinkEntry } from "../references";
+import { defaultGlossarySettings } from "../book/glossarySettings";
+import { defaultIndexSettings } from "../book/indexSettings";
 import type { Manifest, EditionEntry } from "../manifest";
 import { allEntries, sourceOf, usedFiles } from "./shared";
 
@@ -75,7 +77,14 @@ function addMatter(
           )
         : -1;
   list.splice(at < 0 ? list.length : at, 0, entry);
-  return { manifest: { ...m, [section]: list }, entry };
+  // The index and glossary pages hold the generated list, so adding one switches that list on.
+  const on: Partial<Manifest> =
+    kind === "index"
+      ? { index: { ...(m.index ?? defaultIndexSettings()), enabled: true } }
+      : kind === "glossary"
+        ? { glossary: { ...(m.glossary ?? defaultGlossarySettings()), enabled: true } }
+        : {};
+  return { manifest: { ...m, ...on, [section]: list }, entry };
 }
 
 /**

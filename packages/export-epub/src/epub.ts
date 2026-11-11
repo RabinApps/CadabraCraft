@@ -291,13 +291,75 @@ function chapterPage(c: EpubChapter, pc: PageContext): string {
   return page(c.title, body, ` epub:type="${type}" class="${cls}"`);
 }
 
+/** False for a page the book leaves out: a blank one, and an index or glossary page whose list is empty. */
+function keepPage(c: EpubChapter, options: BuildOptions): boolean {
+  if (c.kind === "blank") return false;
+  if (c.kind === "index") return !!options.index?.tree.groups.length;
+  if (c.kind === "glossary") return !!options.glossary?.items.length;
+  return true;
+}
+
+/**
+ * Writes the index and glossary pages. A page the author put in the back matter holds its list where it sits; a list with no such page
+ * becomes a page after the author's own (returned, for the navigation and the package). A list with nothing to show is left out.
+ */
+function writeGenerated(
+  files: Record<string, Uint8Array | [Uint8Array, { level: 0 }]>,
+  pc: PageContext,
+  chapters: readonly EpubChapter[],
+  glossaryLinks: GlossaryLinks | undefined,
+): EpubChapter[] {
+  const { meta, options, page } = pc;
+  const index = options.index?.tree.groups.length ? options.index : undefined;
+  const glossary = options.glossary?.items.length ? options.glossary : undefined;
+  const lists = [
+    index && {
+      kind: "index",
+      id: INDEX_PAGE,
+      heading: index.heading,
+      body: () => indexBody(index, meta.language),
+      type: "backmatter index",
+    },
+    glossary &&
+      glossaryLinks && {
+        kind: "glossary",
+        id: GLOSSARY_PAGE,
+        heading: glossary.heading,
+        body: () => glossaryBody(glossary, glossaryLinks, meta.language),
+        type: "backmatter glossary",
+      },
+  ];
+  const generated: EpubChapter[] = [];
+  for (const list of lists) {
+    if (!list) continue;
+    const slot = chapters.find((c) => c.kind === list.kind);
+    const id = slot?.id ?? list.id;
+    const title = slot?.title ?? list.heading;
+    files[`OEBPS/${id}.xhtml`] = strToU8(
+      page(title, list.body(), ` epub:type="${list.type}" class="generated-${list.kind}"`),
+    );
+    if (!slot)
+      generated.push({
+        id,
+        title,
+        doc: { type: "doc", content: [] },
+        section: "back",
+        kind: "custom",
+      });
+  }
+  return generated;
+}
+
 export function buildEpub(
   meta: BookMetadata,
   chapters: EpubChapter[],
   options: BuildOptions = {},
 ): Uint8Array {
-  // A blank page the author added has nothing to reflow: an e-reader has no pages to leave empty, so it is left out.
-  chapters = chapters.filter((c) => c.kind !== "blank");
+  // A blank page the author added has nothing to reflow: an e-reader has no pages to leave empty, so it is left out. An index or
+  // glossary page the author placed in the back matter is left out too when there is nothing to list.
+  chapters = chapters.filter((c) => keepPage(c, options));
+  const indexSlot = chapters.find((c) => c.kind === "index");
+  const glossarySlot = chapters.find((c) => c.kind === "glossary");
   checkIds(chapters);
   const page = pageWrapper(meta.language);
 
@@ -322,43 +384,15 @@ export function buildEpub(
   const glossaryLinks: GlossaryLinks | undefined = glossary && {
     ids: new Set(glossary.items.map((i) => i.entry.id)),
     markFirstUse: glossary.markFirstUse,
-    page: GLOSSARY_PAGE,
+    page: glossarySlot?.id ?? GLOSSARY_PAGE,
     written: new Map(),
   };
   const pc: PageContext = { meta, options, shown, known, page, glossary: glossaryLinks };
   for (const c of chapters) files[`OEBPS/${c.id}.xhtml`] = strToU8(chapterPage(c, pc));
-  // The index and glossary are generated from the marks, after the author's pages; one with nothing to list is left out.
-  const generated: EpubChapter[] = [];
-  const addGenerated = (id: string, title: string, body: string, cls: string, type: string) => {
-    generated.push({
-      id,
-      title,
-      doc: { type: "doc", content: [] },
-      section: "back",
-      kind: "custom",
-    });
-    files[`OEBPS/${id}.xhtml`] = strToU8(page(title, body, ` epub:type="${type}" class="${cls}"`));
-  };
-  const index = options.index?.tree.groups.length ? options.index : undefined;
-  if (index)
-    addGenerated(
-      INDEX_PAGE,
-      index.heading,
-      indexBody(index, meta.language),
-      "generated-index",
-      "backmatter index",
-    );
-  if (glossary && glossaryLinks)
-    addGenerated(
-      GLOSSARY_PAGE,
-      glossary.heading,
-      glossaryBody(glossary, glossaryLinks, meta.language),
-      "generated-glossary",
-      "backmatter glossary",
-    );
+  const generated = writeGenerated(files, pc, chapters, glossaryLinks);
   const all = [...chapters, ...generated];
   // The style for the generated pages goes after the scene-break rule, and only into books that have them.
-  if (generated.length > 0)
+  if (generated.length > 0 || indexSlot || glossarySlot)
     files["OEBPS/style.css"] = strToU8(
       `${options.css ?? CSS}\n${ALIGN_CSS}${sceneBreakCss(options.sceneBreak)}${GENERATED_CSS}`,
     );

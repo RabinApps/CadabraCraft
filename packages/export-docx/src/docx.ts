@@ -5,7 +5,7 @@ import {
   GENERATED_INDEX_ID,
   countWords,
   dropLeadingPageBreak,
-  generatedDocPages,
+  placeGeneratedDocPages,
   textDirection,
   type ChapterDoc,
   type Section,
@@ -245,13 +245,9 @@ export function buildDocx(
   for (const c of pages) if (c.id !== undefined) titles.set(c.id, c.title.trim());
   const clash = pages.find((c) => c.id === GENERATED_INDEX_ID || c.id === GENERATED_GLOSSARY_ID);
   if (clash) throw new DocxExportError(`Page id "${clash.id}" is reserved for a generated page`);
-  const generated = generatedDocPages(options, titles, language).map((g) => ({
-    ...g,
-    section: "back" as const,
-    kind: "custom" as const,
-  }));
+  const placed = placeGeneratedDocPages(pages, options, titles, language);
   let first = true;
-  for (const c of [...pages, ...generated]) {
+  for (const c of placed) {
     // A blank page has no text; Word paginates itself, so it is left out (as in the RTF and Markdown exports).
     if (c.kind === "title-page" || c.kind === "blank") continue;
     body.push(...pageBlocks(c, s, !first, options, language));

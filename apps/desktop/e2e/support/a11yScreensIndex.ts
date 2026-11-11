@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 import { dialogOf, shown, type Screen } from "./a11yScreenHelpers";
-import { newProject, seedChapters } from "./helpers";
+import { addPage, newProject, seedChapters } from "./helpers";
 
 const text = (t: string, marks?: unknown[]) => ({
   type: "text" as const,
@@ -138,4 +138,12 @@ export const indexScreens: Screen[] = [
       await shown(dialogOf(p, "Glossary settings"));
     },
   },
+  ...(["Index", "Glossary"] as const).map((kind): Screen => ({
+    name: `${kind} page in the back matter`,
+    open: async (p) => {
+      await withMarks(p);
+      await addPage(p, kind);
+      await shown(p.locator(".ProseMirror h1").filter({ hasText: kind }));
+    },
+  })),
 ];

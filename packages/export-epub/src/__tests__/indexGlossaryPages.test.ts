@@ -247,3 +247,60 @@ describe("the words of the generated index", () => {
     expect(() => seeLabel("xx")).toThrow(/no "See" translation/);
   });
 });
+
+describe("an index and glossary page the author put in the back matter", () => {
+  const slot = (id: string, title: string, kind: EpubChapter["kind"]): EpubChapter => ({
+    id,
+    title,
+    doc: doc(),
+    section: "back",
+    kind,
+  });
+  const placed = (): EpubChapter[] => [
+    ...chapters(),
+    slot("bm-1", "Index of terms", "index"),
+    slot("bm-2", "About", "about-the-author"),
+    slot("bm-3", "Word list", "glossary"),
+  ];
+
+  it("holds each list where it sits, with the page's own title, and writes no page at the end", () => {
+    const f = files(specs(), placed());
+    expect(f[`OEBPS/${INDEX_PAGE}.xhtml`]).toBeUndefined();
+    expect(f[`OEBPS/${GLOSSARY_PAGE}.xhtml`]).toBeUndefined();
+    expect(text(f, "OEBPS/bm-1.xhtml")).toContain('epub:type="index" role="doc-index"');
+    expect(text(f, "OEBPS/bm-3.xhtml")).toContain('epub:type="glossary"');
+    const opf = text(f, "OEBPS/content.opf");
+    expect([...opf.matchAll(/<itemref idref="([^"]+)"/g)].map((m) => m[1])).toEqual([
+      "ch-1",
+      "ch-2",
+      "bm-1",
+      "bm-2",
+      "bm-3",
+      "nav",
+    ]);
+    const nav = text(f, "OEBPS/nav.xhtml");
+    expect(nav).toContain('<a epub:type="index" href="bm-1.xhtml">Index of terms</a>');
+    expect(nav).toContain('<a epub:type="glossary" href="bm-3.xhtml">Word list</a>');
+    expect(text(f, "OEBPS/ch-1.xhtml")).toContain("bm-3.xhtml#");
+  });
+
+  it("leaves a page out when its list is empty", () => {
+    const f = files({}, placed());
+    expect(f["OEBPS/bm-1.xhtml"]).toBeUndefined();
+    expect(f["OEBPS/bm-3.xhtml"]).toBeUndefined();
+    expect(f["OEBPS/bm-2.xhtml"]).toBeDefined();
+  });
+
+  it("leaves a page out when its list has no entries, and a blank page too", () => {
+    const f = files(
+      {
+        index: { ...specs().index, tree: { groups: [], problems: [] } },
+        glossary: { ...specs().glossary, items: [] },
+      },
+      [...placed(), slot("bm-4", "Blank", "blank")],
+    );
+    expect(f["OEBPS/bm-1.xhtml"]).toBeUndefined();
+    expect(f["OEBPS/bm-3.xhtml"]).toBeUndefined();
+    expect(f["OEBPS/bm-4.xhtml"]).toBeUndefined();
+  });
+});

@@ -148,9 +148,15 @@ describe("menu structure", () => {
       ].map((k) => `insert.front.${k}`),
     );
     expect(back.map((e) => (e as { id: string }).id)).toEqual(
-      ["acknowledgments", "about-the-author", "also-by", "colophon", "custom"].map(
-        (k) => `insert.back.${k}`,
-      ),
+      [
+        "acknowledgments",
+        "about-the-author",
+        "also-by",
+        "colophon",
+        "index",
+        "glossary",
+        "custom",
+      ].map((k) => `insert.back.${k}`),
     );
   });
 });

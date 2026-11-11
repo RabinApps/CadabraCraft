@@ -18,6 +18,8 @@ export function useKindLabels() {
     "about-the-author": t`About the author`,
     "also-by": t`Also by`,
     colophon: t`Colophon`,
+    index: t`Index`,
+    glossary: t`Glossary`,
   };
   return labels;
 }

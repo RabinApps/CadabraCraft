@@ -116,3 +116,34 @@ export function generatedDocPages(
     pages.push({ id: GENERATED_GLOSSARY_ID, title: glossary.heading, doc: glossaryDoc(glossary) });
   return pages;
 }
+
+/**
+ * `pages` with the index and glossary in place: a page of kind `index` or `glossary` in the back matter holds the list where the author
+ * put it (keeping its own title), and is dropped when there is nothing to list; a list with no such page goes at the end of the book
+ * (index first), as `generatedDocPages` writes it. The marks and titles are read from `pages` as they are, so a page's own title is what
+ * the index names it by.
+ */
+export function placeGeneratedDocPages<
+  P extends { id?: string | undefined; title: string; doc: ChapterDoc; kind?: string | undefined },
+>(
+  pages: readonly P[],
+  spec: { index?: IndexPageSpec | undefined; glossary?: GlossaryPageSpec | undefined },
+  titles: ReadonlyMap<string, string>,
+  language: string | undefined,
+): (P | (GeneratedDocPage & { section: "back"; kind: "custom" }))[] {
+  const built = new Map(generatedDocPages(spec, titles, language).map((g) => [g.id, g]));
+  const out: (P | (GeneratedDocPage & { section: "back"; kind: "custom" }))[] = [];
+  const slot = (c: P, id: string): boolean => {
+    const g = built.get(id);
+    if (g) out.push({ ...c, doc: g.doc });
+    built.delete(id);
+    return true;
+  };
+  for (const c of pages) {
+    if (c.kind === "index" && slot(c, GENERATED_INDEX_ID)) continue;
+    if (c.kind === "glossary" && slot(c, GENERATED_GLOSSARY_ID)) continue;
+    out.push(c);
+  }
+  for (const g of built.values()) out.push({ ...g, section: "back", kind: "custom" });
+  return out;
+}

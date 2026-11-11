@@ -1,4 +1,4 @@
-/** Front and back matter page kinds (`kind` on manifest entries, formatVersion 2; `contents` since 7). */
+/** Front and back matter page kinds (`kind` on manifest entries, formatVersion 2; `contents` since 7; the generated back matter `index` and `glossary` since 15). */
 export const FRONT_MATTER_KINDS = [
   "title-page",
   "copyright",
@@ -15,6 +15,8 @@ export const BACK_MATTER_KINDS = [
   "about-the-author",
   "also-by",
   "colophon",
+  "index",
+  "glossary",
   "custom",
   "blank",
 ] as const;
@@ -36,7 +38,13 @@ export const isPartKind = (v: unknown): v is "part" => v === "part";
 export type Section = "front" | "chapter" | "back";
 
 /** Kinds a book can have at most once. */
-export const SINGLE_USE_KINDS: readonly MatterKind[] = ["title-page", "copyright", "contents"];
+export const SINGLE_USE_KINDS: readonly MatterKind[] = [
+  "title-page",
+  "copyright",
+  "contents",
+  "index",
+  "glossary",
+];
 
 export const isFrontMatterKind = (v: unknown): v is FrontMatterKind =>
   (FRONT_MATTER_KINDS as readonly unknown[]).includes(v);

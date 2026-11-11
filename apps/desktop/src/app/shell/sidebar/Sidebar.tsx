@@ -37,6 +37,8 @@ const BACK_PRESETS: MatterKind[] = [
   "about-the-author",
   "also-by",
   "colophon",
+  "index",
+  "glossary",
   "custom",
 ];
 

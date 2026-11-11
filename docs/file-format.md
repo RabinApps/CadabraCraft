@@ -1,4 +1,4 @@
-# CadabraCraft project file format (formatVersion 14)
+# CadabraCraft project file format (formatVersion 15)
 
 A project is a folder of readable files. Nothing here requires CadabraCraft to open.
 
@@ -159,8 +159,9 @@ MyBook/
 ## Front and back matter
 
 - Entries in `frontMatter` and `backMatter` have the same shape as chapters plus an optional `kind` (added in formatVersion 2). A chapter has no `kind` unless it is a part divider (`kind: "part"`, formatVersion 11; see [Parts](#parts-formatversion-11)).
-- Front kinds: `title-page`, `copyright`, `dedication`, `epigraph`, `contents`, `foreword`, `preface`, `custom`. Back kinds: `acknowledgments`, `about-the-author`, `also-by`, `colophon`, `custom`. An entry without a `kind` (every entry migrated from version 1) is treated as `custom`.
+- Front kinds: `title-page`, `copyright`, `dedication`, `epigraph`, `contents`, `foreword`, `preface`, `custom`. Back kinds: `acknowledgments`, `about-the-author`, `also-by`, `colophon`, `index`, `glossary`, `custom`. An entry without a `kind` (every entry migrated from version 1) is treated as `custom`.
 - A book has at most one `title-page`, one `copyright` and one `contents` page. The app enforces this when adding pages; a hand-edited manifest with more is still opened and exported.
+- **Index and glossary pages** (`kind: "index"` and `kind: "glossary"`, back matter only, at most one of each, added in formatVersion 15). The page holds no text of its own: the list is generated from the marks (index) and the manifest's `glossary` entries, and written where the page sits in the back matter, in every export; the preview in the app shows it too. The page's own title names it in the contents and navigation. Adding the page switches `index.enabled` / `glossary.enabled` on. A page whose list is empty is left out of exports. A book with the list switched on but no page of this kind still gets it at the end of the book, after the back matter (index, then glossary), as in version 14. Older apps refuse a version 15 manifest.
 - **Contents page** (`kind: "contents"`, front matter only, added in formatVersion 7). Its file is an ordinary chapter file that holds only a heading; the list itself is never stored. It is generated from the book's outline at preview and export time: every chapter, part divider (unless `toc.parts` is false) and listed matter page in reading order (the title page, copyright, dedication, epigraph, colophon and contents pages are left out), plus the headings of each chapter down to `toc.depth`. The entry may carry `toc`, the author's changes on top of that live list; absent means the defaults (`depth` 0, `pageNumbers` true, `parts` true, no overrides). A key that is not listed below, a wrong type, or `toc` on any other kind of entry is refused.
   - `depth`: 0 lists pages only; 1, 2 or 3 add headings up to that level.
   - `pageNumbers`: whether the printed page numbers are shown (PDF; formats without pages ignore it).

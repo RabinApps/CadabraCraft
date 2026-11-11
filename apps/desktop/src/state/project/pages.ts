@@ -1,5 +1,6 @@
 import type { PageActions } from "./types";
 import type { Ctx } from "./context";
+import { withGeneratedPages } from "../../lib/indexing/pageSpecs";
 import { createAddActions } from "./pages/add";
 import { createEditActions } from "./pages/edit";
 import { createSplitActions } from "./pages/split";
@@ -15,7 +16,8 @@ export const createPageActions = (ctx: Ctx): PageActions => {
     ...createSplitActions(ctx),
     async readPages(language) {
       await flush();
-      return loadChaptersIn(language ?? langOf(need().manifest));
+      const lang = language ?? langOf(need().manifest);
+      return withGeneratedPages(need().manifest, await loadChaptersIn(lang), lang);
     },
     async bookWords() {
       return countBook();

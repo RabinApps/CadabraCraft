@@ -42,6 +42,7 @@ const EXPECTED = [
   "cadabra_list_templates",
   "cadabra_set_template",
   "cadabra_edition_add",
+  "cadabra_matter_add",
 ];
 const READ_ONLY = [
   "project_info",
