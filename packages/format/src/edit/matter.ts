@@ -71,9 +71,7 @@ function addMatter(
       ? after + 1
       : front
         ? list.findIndex(
-            (e) =>
-              order.indexOf(e.kind === "part" ? "custom" : (e.kind ?? "custom")) >
-              order.indexOf(kind),
+            (e) => order.indexOf((e.kind ?? "custom") as MatterKind) > order.indexOf(kind),
           )
         : -1;
   list.splice(at < 0 ? list.length : at, 0, entry);

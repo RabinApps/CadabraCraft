@@ -128,7 +128,6 @@ export function moveTocItem(
     const at = target > from ? destination.end - block.length : destination.start;
     const next = keys.filter((_, i) => i < source.start || i >= source.end);
     next.splice(at, 0, ...block);
-    if (next.every((k, i) => k === keys[i])) return m;
     keys.length = 0;
     keys.push(...next);
   }

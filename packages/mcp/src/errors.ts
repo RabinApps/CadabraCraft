@@ -47,6 +47,7 @@ export type ErrorCode =
   | "reference_not_found"
   | "toc_no_contents_page"
   | "toc_page_exists"
+  | "matter_page_exists"
   | "toc_item_not_found"
   | "text_not_found"
   | "index_entry_not_found"

@@ -9,6 +9,7 @@ import {
   removePart,
   moveTocItem,
   resolveToc,
+  tocSettingsOf,
   validateToc,
   type Manifest,
 } from "../index";
@@ -87,5 +88,44 @@ describe("parts and contents edge cases", () => {
     };
     const next = addFrontMatter(m, "title-page", "Title").manifest;
     expect(next.frontMatter[0]!.titles.en).toBe("Title");
+  });
+
+  it("moves rows in a contents list whose saved order puts a chapter before its own part row", () => {
+    let m = addChapter(addChapter(start(), "One").manifest, "Two").manifest;
+    m = addPart(m, "P1", "ch-1").manifest;
+    m = addChapter(m, "Three").manifest;
+    m = addFrontMatter(m, "contents", "Contents").manifest;
+    const c = m.frontMatter.find((e) => e.kind === "contents")!;
+    const pt = m.chapters.find((e) => e.kind === "part")!.id;
+    const ordered: Manifest = {
+      ...m,
+      frontMatter: m.frontMatter.map((e) =>
+        e.id === c.id
+          ? { ...e, toc: { ...tocSettingsOf(e), order: ["ch-2", pt, "ch-3", "ch-1"] } }
+          : e,
+      ),
+    };
+    const items = resolveToc(
+      ordered,
+      ordered.frontMatter.find((e) => e.id === c.id)!,
+      "en",
+      {},
+    );
+    expect(items.map((i) => i.key)).toEqual(["ch-2", pt, "ch-3", "ch-1"]);
+    expect(moveTocItem(ordered, c.id, items, "ch-2", 0)).toBe(ordered);
+    const moved = moveTocItem(ordered, c.id, items, "ch-2", 2);
+    expect(moved).not.toBe(ordered);
+    expect(moveTocItem(ordered, c.id, items, "ch-1", 0)).not.toBe(ordered);
+    expect(moveTocItem(ordered, c.id, items, "ch-1", 2)).toBeDefined();
+    expect(moveTocItem(ordered, c.id, items, "ch-3", 3)).toBeDefined();
+  });
+
+  it("gives a new part a file name that is free when an earlier part's file is still taken", () => {
+    let m = addPart(start(), "A").manifest;
+    m = addPart(m, "B").manifest;
+    m = removePart(m, m.chapters[0]!.id).manifest;
+    const next = addPart(m, "B").manifest;
+    const files = next.chapters.map((e) => Object.values(e.files)[0]);
+    expect(new Set(files).size).toBe(files.length);
   });
 });
