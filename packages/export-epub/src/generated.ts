@@ -103,4 +103,4 @@ export function glossaryBody(
 }
 
 /** Style for the generated pages, added to the book's stylesheet. */
-export const GENERATED_CSS = `body.generated-index ul,body.generated-glossary dl{margin:0}body.generated-index ul{list-style:none;padding-left:0}body.generated-index li ul{padding-left:1.2em}body.generated-index h2{margin:1em 0 .3em}body.generated-index a,body.generated-glossary a.glossary-term{text-decoration:none}body.generated-index li a{margin-right:.2em}em.xref{font-style:italic}body.generated-glossary dd{margin:0 0 .6em 0}body.generated-glossary dt{font-weight:bold;margin-top:.8em}`;
+export const GENERATED_CSS = `body.generated-index ul,body.generated-glossary dl{margin:0}body.generated-index ul{list-style:none;padding-left:0}body.generated-index li ul{padding-left:1.2em}body.generated-index h2{margin:1em 0 .3em}body.generated-glossary a.glossary-term{text-decoration:none}body.generated-index li a{margin-right:.2em}em.xref{font-style:italic}body.generated-glossary dd{margin:0 0 .6em 0}body.generated-glossary dt{font-weight:bold;margin-top:.8em}`;
