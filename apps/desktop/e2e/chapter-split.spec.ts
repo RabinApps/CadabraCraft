@@ -91,6 +91,18 @@ test("a chapter with no heading to cut at says so", async ({ page }) => {
   await expect(dialog).toHaveCount(0);
 });
 
+test("a chapter file that cannot be read says so and changes nothing", async ({ page }) => {
+  await bookWithSections(page);
+  await page.evaluate(() => {
+    delete window.__disk["manuscript/001-chapter-one.json"];
+  });
+  await chapterAction(page, "Chapter One", "Split at heading…");
+  const dialog = page.getByRole("dialog", { name: /^Split/ });
+  await expect(dialog.getByRole("alert")).toContainText("Could not read this chapter");
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await expect(dialog).toHaveCount(0);
+});
+
 test("a book with translations refuses to split, with a notice in the dialog", async ({ page }) => {
   await fakeTauri(page);
   await newProject(page);

@@ -243,6 +243,19 @@ test("library: removing a book takes it off the list but not off the disk", asyn
   expect(await page.evaluate(() => window.__disk["cadabra.json"])).toContain("E2E Book");
 });
 
+test("library: removing books, one with a cover, until none are left goes back to the start", async ({
+  page,
+}) => {
+  await seed(page, [
+    book("/b/solo", "Solo Book", { cover: "assets/cover.png" }),
+    book("/b/two", "Second Book"),
+  ]);
+  await openLibrary(page);
+  await page.getByRole("button", { name: "Remove Solo Book from the Library" }).click();
+  await page.getByRole("button", { name: "Remove Second Book from the Library" }).click();
+  await expect(page.getByRole("heading", { name: "Write your first book" })).toBeVisible();
+});
+
 test("library: opening a book from it opens the book", async ({ page }) => {
   await newProject(page);
   await page.reload();
