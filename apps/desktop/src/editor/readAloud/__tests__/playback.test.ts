@@ -123,4 +123,77 @@ describe("startPlayback", () => {
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onError).toHaveBeenCalledWith(failure);
   });
+
+  const opts = (over: Partial<Parameters<typeof startPlayback>[2]> = {}) => ({
+    synthesize: async () => new Uint8Array([1]),
+    onSentence: vi.fn(),
+    onEnd: vi.fn(),
+    onError: vi.fn(),
+    ...over,
+  });
+
+  it("drops a clip that arrives after stop", async () => {
+    let finish!: (b: Uint8Array) => void;
+    const slow = new Promise<Uint8Array>((r) => (finish = r));
+    const playback = startPlayback([sentence("One.", true)], 0, opts({ synthesize: () => slow }));
+    playback.stop();
+    finish(new Uint8Array([1]));
+    await flush();
+    expect(created()).toHaveLength(0);
+  });
+
+  it("makes a clip but does not play it while paused before it arrived", async () => {
+    let finish!: (b: Uint8Array) => void;
+    const slow = new Promise<Uint8Array>((r) => (finish = r));
+    const playback = startPlayback([sentence("One.", true)], 0, opts({ synthesize: () => slow }));
+    playback.pause();
+    finish(new Uint8Array([1]));
+    await flush();
+    expect(created()[0]!.plays).toBe(0);
+    playback.resume();
+    await flush();
+    expect(created()[0]!.plays).toBe(1);
+  });
+
+  it("reports a clip that cannot play and a clip that errors, once", async () => {
+    const onError = vi.fn();
+    vi.spyOn(FakeAudio.prototype, "play").mockRejectedValueOnce(new Error("blocked"));
+    startPlayback([sentence("One.", true)], 0, opts({ onError }));
+    await flush();
+    expect(onError).toHaveBeenCalledTimes(1);
+    created()[0]!.onerror!();
+    expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports a clip element that errors", async () => {
+    const onError = vi.fn();
+    startPlayback([sentence("One.", true)], 0, opts({ onError }));
+    await flush();
+    created()[0]!.onerror!();
+    expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports a resume that the platform refuses, and ignores pause and resume after stop", async () => {
+    const onError = vi.fn();
+    const playback = startPlayback([sentence("One.", true)], 0, opts({ onError }));
+    await flush();
+    playback.pause();
+    vi.spyOn(FakeAudio.prototype, "play").mockRejectedValueOnce(new Error("refused"));
+    playback.resume();
+    await flush();
+    expect(onError).toHaveBeenCalledTimes(1);
+    playback.pause();
+    playback.resume();
+    expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores pause and resume once it has been stopped", async () => {
+    const playback = startPlayback([sentence("One.", true)], 0, opts());
+    await flush();
+    playback.stop();
+    const clipPlays = created()[0]!.plays;
+    playback.pause();
+    playback.resume();
+    expect(created()[0]!.plays).toBe(clipPlays);
+  });
 });

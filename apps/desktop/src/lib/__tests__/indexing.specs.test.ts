@@ -118,6 +118,28 @@ describe("indexingForExport", () => {
     expect(ids).toEqual([["p0"], ["p0"], [], ["p1"], []]);
     expect(withGlossaryInIndex(d, new Map(), "p")).toEqual(d);
   });
+
+  it("passes over nodes with no content, marks with no id and text with no marks", () => {
+    const entries = new Map([["g1", entry("g1", "Orb")]]);
+    const d = {
+      type: "doc",
+      content: [
+        { type: "horizontalRule" },
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "plain" },
+            { type: "text", text: "x", marks: [{ type: "glossaryTerm" }, { type: "bold" }] },
+            { type: "hardBreak" },
+            tx("orb", [gl("g1")]),
+          ],
+        },
+      ],
+    } as unknown as ChapterDoc;
+    const out = withGlossaryInIndex(d, entries, "p");
+    expect(JSON.stringify(out)).toContain('"p0"');
+    expect(JSON.stringify(out).match(/indexEntry/g)).toHaveLength(1);
+  });
 });
 
 describe("panel model", () => {

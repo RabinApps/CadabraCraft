@@ -87,4 +87,19 @@ describe("useLayout", () => {
     expect(fresh.getState()).toMatchObject({ focus: true, details: false });
     expect(fresh.getState().sidebarWidth).toBe(SIDEBAR_DEFAULT_WIDTH);
   });
+  it("reads a stored sidebar width and clamps it", async () => {
+    for (const [stored, expected] of [
+      [SIDEBAR_MIN_WIDTH + 10, SIDEBAR_MIN_WIDTH + 10],
+      [SIDEBAR_MAX_WIDTH * 10, SIDEBAR_MAX_WIDTH],
+      ["wide", SIDEBAR_DEFAULT_WIDTH],
+    ] as const) {
+      store.set(
+        "cadabracraft.layout",
+        JSON.stringify({ focus: false, details: true, sidebarWidth: stored }),
+      );
+      vi.resetModules();
+      const { useLayout: fresh } = await import("../view/layout");
+      expect(fresh.getState().sidebarWidth).toBe(expected);
+    }
+  });
 });
