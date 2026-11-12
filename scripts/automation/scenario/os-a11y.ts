@@ -139,12 +139,27 @@ async function focusSteps({ app }: Context, { step, where }: Helpers) {
   await step(
     "focus: web content has focus after launch (a control or the page, not nothing)",
     async () => {
-      const w = await where();
+      // The app is started from a script, so it is often not the frontmost application and the window is not key; that says
+      // nothing about the app. Bring it to the front first (as a person clicking its icon would), then check the web content.
+      let w = await where();
+      let how = "already key";
+      if (!w.hasFocus) {
+        const front = switchBack();
+        assert(
+          front.ok,
+          `the window is not key and could not be brought to the front: ${front.ok ? "" : front.why}`,
+        );
+        how = `brought to the front (${front.how})`;
+        for (let i = 0; i < 10 && !w.hasFocus; i++) {
+          await app.sleep(300);
+          w = await where();
+        }
+      }
       assert(
         w.hasFocus,
-        "document.hasFocus() is false: the window is not key (is the app in front?)",
+        `document.hasFocus() is false even after the window was brought to the front (${how})`,
       );
-      return `hasFocus; active ${w.tag} "${w.label}"${w.inBody ? " (the page body)" : ""}`;
+      return `hasFocus (${how}); active ${w.tag} "${w.label}"${w.inBody ? " (the page body)" : ""}`;
     },
   );
 

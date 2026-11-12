@@ -16,11 +16,26 @@ function editionHelpers({ app, book }: Context) {
     app.js(
       `(() => { const b = ${switcher}; if (!b) throw new Error("no edition switcher"); b.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerType: "mouse" })); return b.getAttribute("aria-label"); })()`,
     );
-  // The switcher's items show a name and "N of M chapters", so match the start of the text.
-  const pick = (start: string) =>
-    app.js(
-      `(() => { const i = [...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim().startsWith(${JSON.stringify(start)})); if (!i) throw new Error("no menu item: ${start}; menu items: " + JSON.stringify([...document.querySelectorAll('[role="menuitem"]')].map((x) => x.textContent.trim())) + "; menus: " + document.querySelectorAll('[role="menu"]').length); i.click(); return "picked"; })()`,
+  // The switcher's items show a name and "N of M chapters", so match the start of the text. The menu opens a moment after the
+  // pointer event (more slowly on a cold start), so wait for the item instead of sleeping a fixed time, and open the menu
+  // again if it is still not there after a second (only when no menu is open, since the same event would close one).
+  const pick = async (start: string) => {
+    const probe = `(() => { const items = [...document.querySelectorAll('[role="menuitem"]')]; const i = items.find((i) => i.textContent.trim().startsWith(${JSON.stringify(start)})); return JSON.stringify({ found: !!i, menus: document.querySelectorAll('[role="menu"]').length, items: items.map((x) => x.textContent.trim()) }); })()`;
+    let seen = { found: false, menus: 0, items: [] as string[] };
+    for (let i = 0; i < 24; i++) {
+      seen = JSON.parse(await app.js<string>(probe));
+      if (seen.found) break;
+      if (i === 4 && seen.menus === 0) await openSwitcher();
+      await app.sleep(250);
+    }
+    if (!seen.found)
+      throw new Error(
+        `no menu item: ${start}; menu items: ${JSON.stringify(seen.items)}; menus: ${seen.menus}`,
+      );
+    return app.js(
+      `(() => { const i = [...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim().startsWith(${JSON.stringify(start)})); i.click(); return "picked"; })()`,
     );
+  };
   const label = () => app.js<string>(`${switcher}?.getAttribute("aria-label") ?? ""`);
   const editorText = () =>
     app.js<string>(`document.querySelector(".ProseMirror")?.textContent ?? ""`);
