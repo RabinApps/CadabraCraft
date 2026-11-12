@@ -42,7 +42,7 @@ A book is a plain folder you choose: one file per chapter, your images, and a `c
 - **Front and back matter:** title page, copyright, dedication, epigraph, foreword, preface, acknowledgments, about the author, also by, colophon.
 - **Import:** Word (`.docx`), Markdown, HTML and plain-text manuscripts, with a report of anything that could not be kept. See [docs/import.md](docs/import.md).
 - **Export:** EPUB 3 (passes EPUBCheck), print PDF through Typst (trim sizes, templates, PDF/A, cover, footnotes), Markdown, and Word (`.docx`) and Rich Text (`.rtf`) in standard manuscript format for agents and editors.
-- **Back-of-book index and glossary:** select words and add them as an index entry (Cmd/Ctrl+Alt+X, or Insert > Index Entry) or a glossary term (Cmd/Ctrl+Shift+G, or Insert > Glossary Term); the Index and Glossary panels list, edit, merge and jump to them, and every export can write both pages after the back matter (page numbers in the print PDF, links in the EPUB).
+- **Back-of-book index and glossary:** select words and add them as an index entry (Cmd/Ctrl+Alt+X, or Insert > Index Entry) or a glossary term (Cmd/Ctrl+Alt+G, or Insert > Glossary Term); the Index and Glossary panels list, edit, merge and jump to them, and every export can write both pages after the back matter (page numbers in the print PDF, links in the EPUB).
 - **Templates and settings:** novel, nonfiction and modern templates, an approximate print preview, and a Settings page.
 - **Book details:** title, author, language, ISBN, identifier and cover image.
 - **Headless MCP server:** create, edit, import and export books (EPUB, PDF, Markdown) from an AI agent or script. See [docs/mcp.md](docs/mcp.md).

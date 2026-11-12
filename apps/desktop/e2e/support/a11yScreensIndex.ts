@@ -118,7 +118,7 @@ export const indexScreens: Screen[] = [
     open: async (p) => {
       await withMarks(p);
       await selectWords(p, "and");
-      await p.keyboard.press("ControlOrMeta+Shift+G");
+      await p.keyboard.press("ControlOrMeta+Alt+G");
       await shown(dialogOf(p, "Glossary term"));
     },
   },

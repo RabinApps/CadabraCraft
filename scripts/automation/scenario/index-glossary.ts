@@ -3,21 +3,8 @@ import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
-/** The back-of-book index and the glossary, through the real window: panels, dialogs, marks in the chapter file, settings in the manifest. */
-export async function indexGlossarySteps({ app, book, shot, step }: Context) {
-  const manifest = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
-  /** Every chapter file of the book, joined: the open page is whichever the earlier steps left. */
-  const chapterText = () =>
-    ["manuscript", "front-matter", "back-matter"]
-      .flatMap((d) => readdirSync(join(book, d)).map((f) => join(book, d, f)))
-      .map((f) => readFileSync(f, "utf8"))
-      .join("\n");
-  /** Waits (the autosave runs a moment after the edit) until the chapter files say `needle`. */
-  const onDisk = async (needle: string) => {
-    for (let i = 0; i < 20 && !chapterText().includes(needle); i++) await app.sleep(500);
-    return chapterText().includes(needle);
-  };
-
+/** The page helpers the Index and Glossary steps share: they drive the real window's DOM. */
+function helpers(app: Context["app"]) {
   /** Types into a React-controlled field: the native setter plus an input event. */
   const typeInto = (selector: string, value: string) =>
     app.js(
@@ -46,7 +33,29 @@ export async function indexGlossarySteps({ app, book, shot, step }: Context) {
       let at = -1; e.state.doc.descendants((n, p) => { const i = n.isText ? n.text.indexOf(${JSON.stringify(words)}) : -1; if (i >= 0) at = p + i; });
       e.commands.setTextSelection({ from: at, to: at + ${JSON.stringify(words)}.length }); return e.state.doc.textBetween(e.state.selection.from, e.state.selection.to); })()`,
     );
+  return { typeInto, click, dialogJs, dialogClick, selectWords };
+}
 
+/** The back-of-book index and the glossary, through the real window: panels, dialogs, marks in the chapter file, settings in the manifest. */
+export async function indexGlossarySteps({ app, book, shot, step }: Context) {
+  const manifest = () => JSON.parse(readFileSync(join(book, "cadabra.json"), "utf8"));
+  /** Every chapter file of the book, joined: the open page is whichever the earlier steps left. */
+  const chapterText = () =>
+    ["manuscript", "front-matter", "back-matter"]
+      .flatMap((d) =>
+        readdirSync(join(book, d))
+          .filter((f) => f.endsWith(".json") && !f.startsWith("."))
+          .map((f) => join(book, d, f)),
+      )
+      .map((f) => readFileSync(f, "utf8"))
+      .join("\n");
+  /** Waits (the autosave runs a moment after the edit) until the chapter files say `needle`. */
+  const onDisk = async (needle: string) => {
+    for (let i = 0; i < 20 && !chapterText().includes(needle); i++) await app.sleep(500);
+    return chapterText().includes(needle);
+  };
+
+  const { typeInto, click, dialogJs, dialogClick, selectWords } = helpers(app);
   const closeSheet = (label: string) =>
     app.js(
       `[...document.querySelectorAll("button")].find((b) => b.getAttribute("aria-label") === ${JSON.stringify(label)})?.click() ?? "none"`,
@@ -198,6 +207,56 @@ export async function indexGlossaryPagesSteps({
       const o = execFileSync("java", ["-jar", jar, epub], { encoding: "utf8" });
       assert(o.includes("No errors or warnings detected"), o.slice(-300));
       return "both pages added, read-only in the page, in the EPUB in place, EPUBCheck clean";
+    },
+  );
+}
+
+/** The native menu accelerators of Index entry and Glossary term, typed through System Events into the real window. */
+export async function acceleratorSteps({ app, shot, step }: Context) {
+  const { dialogJs, dialogClick, selectWords } = helpers(app);
+  /** Brings the app to the front and types a key combination into it through System Events (the OS, not the page). */
+  const osKey = (key: string, modifiers: string) => {
+    execFileSync(
+      "osascript",
+      [
+        "-e",
+        'tell application "System Events" to set frontmost of (first process whose name is "cadabracraft") to true',
+        "-e",
+        "delay 0.6",
+        "-e",
+        `tell application "System Events" to keystroke ${JSON.stringify(key)} using {${modifiers}}`,
+      ],
+      { stdio: "pipe", timeout: 15000 },
+    );
+  };
+  const dialogOpen = (title: string) => app.js<boolean>(`!!${dialogJs(title)}`);
+
+  await step(
+    "menu accelerators: Cmd+Alt+X opens Index entry and Cmd+Alt+G opens Glossary term",
+    async () => {
+      assert((await selectWords("wall")) === "wall", "the word was not selected");
+      await app.js(`document.querySelector(".ProseMirror").editor.commands.focus()`);
+      osKey("x", "command down, option down");
+      await app.sleep(1200);
+      assert(await dialogOpen("Index entry"), "Cmd+Alt+X did not open the Index entry dialog");
+      await shot("16-accelerator-index-entry");
+      await dialogClick("Index entry", "Cancel");
+      await app.sleep(600);
+      assert(!(await dialogOpen("Index entry")), "the Index entry dialog did not close");
+      assert((await selectWords("wall")) === "wall", "the word was not selected again");
+      await app.js(`document.querySelector(".ProseMirror").editor.commands.focus()`);
+      osKey("g", "command down, option down");
+      await app.sleep(1200);
+      if (!(await dialogOpen("Glossary term"))) {
+        const state = await app.js<string>(
+          `JSON.stringify({ dialogs: [...document.querySelectorAll("[role=dialog]")].map((d) => d.innerText.slice(0, 40)), focus: document.hasFocus(), active: document.activeElement?.tagName, selection: document.querySelector(".ProseMirror").editor.state.selection.empty })`,
+        );
+        assert(false, "Cmd+Alt+G did not open the Glossary term dialog: " + state);
+      }
+      await shot("17-accelerator-glossary-term");
+      await dialogClick("Glossary term", "Cancel");
+      await app.sleep(600);
+      return "both accelerators reach the app through the native menu";
     },
   );
 }

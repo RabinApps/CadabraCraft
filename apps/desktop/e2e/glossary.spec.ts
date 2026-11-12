@@ -20,7 +20,7 @@ interface Editor {
   commands: { setTextSelection: (r: { from: number; to: number }) => void; focus: () => void };
 }
 
-const SHORTCUT = "ControlOrMeta+Shift+G";
+const SHORTCUT = "ControlOrMeta+Alt+G";
 const panel = (page: Page) => page.getByRole("region", { name: "Glossary" });
 const glossaryButton = (page: Page) =>
   page.getByRole("button", { name: "Glossary", exact: true }).first();

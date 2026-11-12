@@ -23,7 +23,11 @@ import { referencesSteps } from "./scenario/references.ts";
 import { chapterIconsSteps } from "./scenario/chapter-icons.ts";
 import { moreFormattingSteps } from "./scenario/more-formatting.ts";
 import { osA11ySteps } from "./scenario/os-a11y.ts";
-import { indexGlossaryPagesSteps, indexGlossarySteps } from "./scenario/index-glossary.ts";
+import {
+  acceleratorSteps,
+  indexGlossaryPagesSteps,
+  indexGlossarySteps,
+} from "./scenario/index-glossary.ts";
 
 const ctx = await createContext(process.argv.slice(2));
 const { app, child, out, results } = ctx;
@@ -38,6 +42,7 @@ try {
   await publishingDetailsSteps(ctx);
   await findAndHistorySteps(ctx);
   await indexGlossarySteps(ctx);
+  await acceleratorSteps(ctx);
   await indexGlossaryPagesSteps(ctx);
   await chapterIconsSteps(ctx);
   await editionsSteps(ctx);
