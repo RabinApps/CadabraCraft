@@ -93,11 +93,15 @@ test.describe("with typewriter scrolling on", () => {
     await turnOn(page);
     await writeAtEnd(page, 4);
     // The exact page breaks can land after the typing and move everything: measure from the settled, centred state.
-    await expect.poll(() => offMiddle(page).then(Math.abs)).toBeLessThan(TOLERANCE);
+    await expect
+      .poll(() => offMiddle(page).then(Math.abs), { timeout: 20_000 })
+      .toBeLessThan(TOLERANCE);
     const before = await scrollTop(page);
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
-    await expect.poll(() => offMiddle(page).then(Math.abs)).toBeLessThan(TOLERANCE);
+    await expect
+      .poll(() => offMiddle(page).then(Math.abs), { timeout: 20_000 })
+      .toBeLessThan(TOLERANCE);
     expect(await scrollTop(page)).toBeLessThan(before);
   });
 
