@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Installs veraPDF (the PDF/UA and PDF/A validator) into tools/verapdf (gitignored). Usage: ./scripts/fetch-verapdf.sh
 # Needs curl, unzip and Java 11+. CI runs it on Linux; locally you can use it or install veraPDF yourself.
-# Status: ran locally on 2026-11-02 (veraPDF 1.28.2 installed and validated PDFs); it has not run in CI. SHA256 below is
-# still empty (NOT pinned): a run prints the archive's hash and continues with a warning; copy that hash into SHA256 (after
-# checking it against software.verapdf.org) to pin it.
+# Status: ran locally on 2026-11-02 (veraPDF 1.28.2 installed and validated PDFs); it has not run in CI. SHA256 below was
+# pinned on 2026-11-12: the installer was downloaded from software.verapdf.org and from downloads.verapdf.org and both gave
+# this hash. veraPDF publishes no checksum, so this is first-download trust over HTTPS, not a comparison with a published value.
 set -euo pipefail
 V=1.28.2
-SHA256=""
+SHA256="d1693a5f0bf0997180f6d97e8a5568b0cf39e27eee338d439c8adb58435c1e89"
 cd "$(dirname "$0")/.."
 [ -x tools/verapdf/verapdf ] && exit 0
 

@@ -21,7 +21,10 @@ sha256() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | cut -d
 # cpu | Temurin 17 archive URL | pinned sha256 (the release's published checksum)
 pin_for() {
   case "$1" in
-    # PIN_REQUIRED: fill in the archive URL and sha256 of the current Temurin 17 release for each CPU (and OS) before using --all.
+    # Temurin 17.0.21+9 for macOS (the only place --all runs; Linux builds with the JDK that setup-java installs). The sha256 values
+    # were computed from the downloaded files on 2026-11-12 and match the digests GitHub publishes for the release assets.
+    aarch64) echo "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.21_9.tar.gz 78b08c7f5a0598242d5719c022e19479cb4a3aa45c37c19726a757a469ed1c15" ;;
+    x86_64) echo "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_x64_mac_hotspot_17.0.21_9.tar.gz 868f5c672b3389fdbe48e44f94ae170f01668b1401360944fc7159d7cc9772cc" ;;
     *) echo "No pinned Temurin JDK for $1 yet (see scripts/build-jre.sh)" >&2; return 1 ;;
   esac
 }
@@ -63,7 +66,7 @@ fetch_jdk() { # fetch_jdk <cpu> -> prints the extracted JDK home
   mkdir -p "$TMP/jdk-$cpu"
   tar -xzf "$TMP/jdk-$cpu.tar.gz" -C "$TMP/jdk-$cpu"
   local home
-  home=$(find "$TMP/jdk-$cpu" -maxdepth 3 -type d -name jmods -print -quit)
+  home=$(find "$TMP/jdk-$cpu" -maxdepth 4 -type d -name jmods -print -quit)
   [ -n "$home" ] || { echo "no jmods folder in the $cpu JDK archive" >&2; return 1; }
   dirname "$home"
 }

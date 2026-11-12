@@ -4,7 +4,14 @@ import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { ChapterDoc } from "@cadabracraft/shared";
+import {
+  buildGlossary,
+  buildIndex,
+  collectGlossaryUses,
+  collectIndexMarks,
+  type ChapterDoc,
+  type Mark,
+} from "@cadabracraft/shared";
 import { accessibilityMetadata, buildEpub, type A11yFacts } from "../index";
 import { matterBook } from "./matterBook";
 
@@ -156,6 +163,63 @@ describe.skipIf(!existsSync(ace) && !process.env.REQUIRE_ACE)("Ace by DAISY", ()
           ]),
         }),
         { images: 2, imagesMissingAlt: 0, hasCover: false, hasGif: false, hasSvg: false },
+      );
+    },
+    ACE_TIMEOUT,
+  );
+
+  it(
+    "finds none in a book with an index and a glossary page (links must not rely on colour alone)",
+    () => {
+      const t = (text: string, ...marks: Mark[]) => ({ type: "text", text, marks });
+      const ix = (id: string, term: string, extra: Record<string, string> = {}): Mark => ({
+        type: "indexEntry",
+        attrs: { id, term, ...extra },
+      });
+      const gl = (id: string): Mark => ({ type: "glossaryTerm", attrs: { id } });
+      const p = (...content: unknown[]) => ({ type: "paragraph", content });
+      const chapter = (id: string, title: string, ...content: unknown[]) => ({
+        id,
+        title,
+        doc: { type: "doc", content: [p(...content)] } as ChapterDoc,
+      });
+      const chapters = [
+        chapter(
+          "ch-1",
+          "One",
+          t("The orchard wall", ix("a", "Orchard", { sub: "wall" })),
+          t(" and the "),
+          t("grafting knife", gl("knife")),
+        ),
+        chapter(
+          "ch-2",
+          "Two",
+          t("the cider press", ix("b", "Cider press", { seeAlso: "Orchard" })),
+          t(" "),
+          t("ledger", ix("c", "Ledger")),
+        ),
+      ];
+      const ids = chapters.map((c) => ({ id: c.id, doc: c.doc }));
+      check(
+        "index.epub",
+        buildEpub(meta, chapters, {
+          index: {
+            heading: "Index",
+            letterHeadings: true,
+            ranges: true,
+            columns: 2,
+            tree: buildIndex(collectIndexMarks(ids)),
+          },
+          glossary: {
+            heading: "Glossary",
+            markFirstUse: true,
+            items: buildGlossary(
+              [{ id: "knife", term: "Grafting knife", definition: "A short curved blade." }],
+              collectGlossaryUses(ids),
+            ).items,
+          },
+        }),
+        { images: 0, imagesMissingAlt: 0, hasCover: false, hasGif: false, hasSvg: false },
       );
     },
     ACE_TIMEOUT,
