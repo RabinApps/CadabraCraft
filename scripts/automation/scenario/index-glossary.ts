@@ -254,7 +254,7 @@ export async function acceleratorSteps({ app, shot, step }: Context) {
         "-e",
         'tell application "System Events" to set frontmost of (first process whose name is "cadabracraft") to true',
         "-e",
-        "delay 0.6",
+        "delay 0.3",
         "-e",
         `tell application "System Events" to keystroke ${JSON.stringify(key)} using {${modifiers}}`,
       ],
@@ -262,24 +262,37 @@ export async function acceleratorSteps({ app, shot, step }: Context) {
     );
   };
   const dialogOpen = (title: string) => app.js<boolean>(`!!${dialogJs(title)}`);
+  /**
+   * Types the shortcut and waits up to 3 s for its dialog, then tries once more. The window needs a moment to become key after the
+   * app is fronted (longer on a busy machine), and a keystroke sent before that goes nowhere, so one try is not enough to tell a
+   * missing shortcut from a slow window; a shortcut that is really missing fails both tries.
+   */
+  const pressAndWait = async (key: string, title: string) => {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      await app.js(`document.querySelector(".ProseMirror").editor.commands.focus()`);
+      osKey(key, "command down, option down");
+      for (let i = 0; i < 12; i++) {
+        if (await dialogOpen(title)) return true;
+        await app.sleep(250);
+      }
+    }
+    return false;
+  };
 
   await step(
     "menu accelerators: Cmd+Alt+X opens Index entry and Cmd+Alt+G opens Glossary term",
     async () => {
       assert((await selectWords("wall")) === "wall", "the word was not selected");
-      await app.js(`document.querySelector(".ProseMirror").editor.commands.focus()`);
-      osKey("x", "command down, option down");
-      await app.sleep(1200);
-      assert(await dialogOpen("Index entry"), "Cmd+Alt+X did not open the Index entry dialog");
+      assert(
+        await pressAndWait("x", "Index entry"),
+        "Cmd+Alt+X did not open the Index entry dialog",
+      );
       await shot("16-accelerator-index-entry");
       await dialogClick("Index entry", "Cancel");
       await app.sleep(600);
       assert(!(await dialogOpen("Index entry")), "the Index entry dialog did not close");
       assert((await selectWords("wall")) === "wall", "the word was not selected again");
-      await app.js(`document.querySelector(".ProseMirror").editor.commands.focus()`);
-      osKey("g", "command down, option down");
-      await app.sleep(1200);
-      if (!(await dialogOpen("Glossary term"))) {
+      if (!(await pressAndWait("g", "Glossary term"))) {
         const state = await app.js<string>(
           `JSON.stringify({ dialogs: [...document.querySelectorAll("[role=dialog]")].map((d) => d.innerText.slice(0, 40)), focus: document.hasFocus(), active: document.activeElement?.tagName, selection: document.querySelector(".ProseMirror").editor.state.selection.empty })`,
         );
