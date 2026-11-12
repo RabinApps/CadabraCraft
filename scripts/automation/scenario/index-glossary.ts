@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { assert, type Context } from "./context.ts";
 
 /** The page helpers the Index and Glossary steps share: they drive the real window's DOM. */
@@ -137,6 +137,35 @@ export async function indexGlossarySteps({ app, book, shot, step }: Context) {
   );
 }
 
+/**
+ * Runs Ace by DAISY on an EPUB the app exported, when tools/ace is installed (scripts/fetch-ace.sh). Fails on anything but the one
+ * finding the repo accepts (docs/testing.md: epub:type on <body> asks for a role ARIA does not allow there).
+ */
+function aceOnExport(epub: string, repo: string): string {
+  const ace = join(repo, "tools/ace/node_modules/.bin/ace");
+  if (!existsSync(ace)) return "Ace not installed, accessibility check skipped";
+  const outdir = join(dirname(epub), "ace");
+  execFileSync(ace, ["--force", "--outdir", outdir, epub], { stdio: "pipe", timeout: 180000 });
+  const report = JSON.parse(readFileSync(join(outdir, "report.json"), "utf8"));
+  const findings: { rule: string; html: string }[] = report.assertions.flatMap(
+    (a: {
+      assertions?: { "earl:test": { "dct:title": string }; "earl:result": { html?: string } }[];
+    }) =>
+      (a.assertions ?? []).map((x) => ({
+        rule: x["earl:test"]["dct:title"],
+        html: x["earl:result"].html ?? "",
+      })),
+  );
+  const unexpected = findings.filter(
+    (f) => !(f.rule === "epub-type-has-matching-role" && f.html.startsWith("<body ")),
+  );
+  assert(
+    unexpected.length === 0,
+    `Ace findings in the app's EPUB: ${[...new Set(unexpected.map((f) => f.rule))].join(", ")}`,
+  );
+  return `Ace: ${findings.length} accepted finding(s), none else`;
+}
+
 /** The generated Index and Glossary pages in the back matter, through the real window: read-only pages, kinds in the manifest, the EPUB. */
 export async function indexGlossaryPagesSteps({
   app,
@@ -203,10 +232,13 @@ export async function indexGlossaryPagesSteps({
         "the first chapter did not open for editing",
       );
       const jar = join(repo, "tools/epubcheck-5.4.0/epubcheck.jar");
-      if (!existsSync(jar)) return "exported (EPUBCheck jar not installed, validation skipped)";
-      const o = execFileSync("java", ["-jar", jar, epub], { encoding: "utf8" });
-      assert(o.includes("No errors or warnings detected"), o.slice(-300));
-      return "both pages added, read-only in the page, in the EPUB in place, EPUBCheck clean";
+      let checked = "EPUBCheck jar not installed, validation skipped";
+      if (existsSync(jar)) {
+        const o = execFileSync("java", ["-jar", jar, epub], { encoding: "utf8" });
+        assert(o.includes("No errors or warnings detected"), o.slice(-300));
+        checked = "EPUBCheck clean";
+      }
+      return `both pages added, read-only in the page, in the EPUB in place, ${checked}; ${aceOnExport(epub, repo)}`;
     },
   );
 }
