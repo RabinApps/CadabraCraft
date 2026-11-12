@@ -102,9 +102,15 @@ function uiHelpers(app: App) {
   const openMenu = (label: string) =>
     app.js(`(() => { const b = [...document.querySelectorAll("button")].find((b) => (b.textContent.trim() || b.getAttribute("aria-label")) === ${JSON.stringify(label)});
     if (!b) throw new Error("no button: ${label}"); b.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerType: "mouse" })); return "opened"; })()`);
-  const pickItem = (label: string) =>
-    app.js(`(() => { const i = [...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim() === ${JSON.stringify(label)});
-    if (!i) throw new Error("no menu item: ${label}"); i.click(); return "picked"; })()`);
+  // A menu opens a moment after its pointer event (more slowly on a cold start or a busy machine), so wait for the item to
+  // appear instead of failing on the first look.
+  const pickItem = async (label: string) => {
+    const find = `[...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim() === ${JSON.stringify(label)})`;
+    for (let i = 0; i < 24 && !(await app.js<boolean>(`!!(${find})`)); i++) await app.sleep(250);
+    return app.js(
+      `(() => { const i = ${find}; if (!i) throw new Error("no menu item: ${label}"); i.click(); return "picked"; })()`,
+    );
+  };
   // The Export dialog (M2): the header button opens it, a Format control picks EPUB or PDF, the dialog's submit button runs it.
   const dlg = <T = unknown>(body: string) =>
     app.js<T>(
