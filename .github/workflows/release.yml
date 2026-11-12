@@ -138,6 +138,33 @@ jobs:
             set_env APPLE_TEAM_ID "$APPLE_TEAM_ID"
           fi
           set_env APPLE_NOTARY_MODE "$mode"
+      - name: Sign the bundled Java runtime
+        # tauri-action imports the certificate only when it builds, after the runtime exists, so the runtime is signed here
+        # with the certificate in a temporary keychain that is removed before tauri-action runs (a second copy of the same
+        # identity in the search list would make codesign ambiguous). APPLE_* come from the setup step through GITHUB_ENV.
+        if: matrix.os == 'kinhin-xcode' && env.APPLE_NOTARY_MODE != 'none'
+        run: |
+          set -euo pipefail
+          kc="$RUNNER_TEMP/jre-signing.keychain-db"
+          kc_pass=$(uuidgen)
+          p12="$RUNNER_TEMP/jre-signing.p12"
+          previous=$(security list-keychains -d user | tr -d '"' | xargs)
+          cleanup() {
+            # shellcheck disable=SC2086
+            security list-keychains -d user -s $previous || true
+            security delete-keychain "$kc" 2>/dev/null || true
+            rm -f "$p12"
+          }
+          trap cleanup EXIT
+          (umask 077 && printf '%s' "$APPLE_CERTIFICATE" | base64 --decode > "$p12")
+          security create-keychain -p "$kc_pass" "$kc"
+          security set-keychain-settings -lut 3600 "$kc"
+          security unlock-keychain -p "$kc_pass" "$kc"
+          security import "$p12" -k "$kc" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$kc_pass" "$kc" >/dev/null
+          # shellcheck disable=SC2086
+          security list-keychains -d user -s "$kc" $previous
+          bash scripts/sign-jre.sh "$APPLE_SIGNING_IDENTITY"
       - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

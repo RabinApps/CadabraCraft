@@ -19,7 +19,7 @@ function editionHelpers({ app, book }: Context) {
   // The switcher's items show a name and "N of M chapters", so match the start of the text.
   const pick = (start: string) =>
     app.js(
-      `(() => { const i = [...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim().startsWith(${JSON.stringify(start)})); if (!i) throw new Error("no menu item: ${start}"); i.click(); return "picked"; })()`,
+      `(() => { const i = [...document.querySelectorAll('[role="menuitem"]')].find((i) => i.textContent.trim().startsWith(${JSON.stringify(start)})); if (!i) throw new Error("no menu item: ${start}; menu items: " + JSON.stringify([...document.querySelectorAll('[role="menuitem"]')].map((x) => x.textContent.trim())) + "; menus: " + document.querySelectorAll('[role="menu"]').length); i.click(); return "picked"; })()`,
     );
   const label = () => app.js<string>(`${switcher}?.getAttribute("aria-label") ?? ""`);
   const editorText = () =>
