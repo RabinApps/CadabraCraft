@@ -78,7 +78,13 @@ mod tests {
         std::fs::write(dir.path().join("cadabra.json"), "{}").unwrap();
         std::fs::write(dir.path().join("book.epub"), "x").unwrap();
         let flag = Arc::new(AtomicBool::new(true));
-        let r = tauri::async_runtime::block_on(validate_job(dir.path().to_string_lossy().into_owned(), "book.epub".into(), flag.clone(), missing(), Duration::from_secs(1)));
+        let r = tauri::async_runtime::block_on(validate_job(
+            dir.path().to_string_lossy().into_owned(),
+            "book.epub".into(),
+            flag.clone(),
+            missing(),
+            Duration::from_secs(1),
+        ));
         assert!(matches!(r, Err(EpubcheckError::NotFound { .. })));
         assert!(!flag.load(Ordering::Relaxed), "a new check starts with the cancel flag cleared");
     }
@@ -87,7 +93,13 @@ mod tests {
     fn a_not_a_book_folder_is_refused() {
         let dir = tempfile::tempdir().unwrap();
         let flag = Arc::new(AtomicBool::new(false));
-        let r = tauri::async_runtime::block_on(validate_job(dir.path().to_string_lossy().into_owned(), "book.epub".into(), flag, missing(), Duration::from_secs(1)));
+        let r = tauri::async_runtime::block_on(validate_job(
+            dir.path().to_string_lossy().into_owned(),
+            "book.epub".into(),
+            flag,
+            missing(),
+            Duration::from_secs(1),
+        ));
         assert!(matches!(r, Err(EpubcheckError::Other { .. })));
     }
 }

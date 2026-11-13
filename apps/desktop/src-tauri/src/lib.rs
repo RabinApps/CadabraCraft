@@ -2,12 +2,12 @@ mod audio;
 #[cfg(feature = "dev-automation")]
 mod automation;
 mod commands;
+mod epubcheck;
 mod fonts;
 mod import_docx;
 mod import_src;
 mod platform;
 mod project;
-mod epubcheck;
 mod typst;
 
 /// The app's command handlers. `extra` lets the dev-automation build add its own without duplicating the list.

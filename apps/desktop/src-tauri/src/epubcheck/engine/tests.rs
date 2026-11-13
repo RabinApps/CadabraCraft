@@ -62,7 +62,8 @@ fn a_debug_build_honours_the_environment_then_path() {
 #[cfg(unix)]
 fn fake_java(dir: &Path, report: &str, code: i32) -> Runtime {
     let java = dir.join("java");
-    let body = format!("while [ $# -gt 0 ]; do if [ \"$1\" = \"--json\" ]; then out=\"$2\"; fi; shift; done\ncat > \"$out\" <<'EOF'\n{report}\nEOF\nexit {code}");
+    let body =
+        format!("while [ $# -gt 0 ]; do if [ \"$1\" = \"--json\" ]; then out=\"$2\"; fi; shift; done\ncat > \"$out\" <<'EOF'\n{report}\nEOF\nexit {code}");
     script(&java, &body);
     Runtime { java, jar: dir.join("epubcheck.jar"), bundled: false }
 }
@@ -71,7 +72,11 @@ fn fake_java(dir: &Path, report: &str, code: i32) -> Runtime {
 #[test]
 fn a_failing_exit_status_still_returns_the_report() {
     let dir = tempfile::tempdir().unwrap();
-    let rt = fake_java(dir.path(), r#"{"messages":[{"ID":"RSC-005","severity":"ERROR","message":"bad","locations":[]}],"checker":{"checkerVersion":"5.4.0","nError":1}}"#, 1);
+    let rt = fake_java(
+        dir.path(),
+        r#"{"messages":[{"ID":"RSC-005","severity":"ERROR","message":"bad","locations":[]}],"checker":{"checkerVersion":"5.4.0","nError":1}}"#,
+        1,
+    );
     let r = validate(&rt, &dir.path().join("book.epub"), Duration::from_secs(20), &AtomicBool::new(false)).unwrap();
     assert_eq!((r.counts.error, r.messages.len(), r.version.as_str()), (1, 1, "5.4.0"));
 }

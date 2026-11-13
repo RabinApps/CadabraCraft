@@ -7,14 +7,22 @@ use serde::Serialize;
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum EpubcheckError {
     /// The bundled checker or its Java runtime is missing.
-    NotFound { message: String },
-    Timeout { seconds: u64 },
+    NotFound {
+        message: String,
+    },
+    Timeout {
+        seconds: u64,
+    },
     Cancelled,
     /// There is no EPUB at that path in the book folder.
     NoEpub,
     /// The checker ran but left no report (its output tail is in `message`).
-    Failed { message: String },
-    Other { message: String },
+    Failed {
+        message: String,
+    },
+    Other {
+        message: String,
+    },
 }
 
 pub(crate) fn other(m: impl std::fmt::Display) -> EpubcheckError {
