@@ -29,9 +29,9 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
-          # The standalone pnpm binary needs libatomic, which the container image lacks; jlink (--strip-debug) runs objcopy, from binutils.
+          # The standalone pnpm binary needs libatomic, which the container image lacks; jlink (--strip-debug) runs objcopy, from binutils; unzip unpacks the veraPDF installer.
           for i in 1 2 3 4 5; do
-            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 binutils && exit 0
+            $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 binutils unzip && exit 0
             sleep $((i * 5))
           done
           exit 1
