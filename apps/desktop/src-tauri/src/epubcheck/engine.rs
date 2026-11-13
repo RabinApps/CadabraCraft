@@ -69,7 +69,11 @@ pub fn find_runtime_in(
     let mut java_dirs: Vec<PathBuf> = Vec::new();
     if dev {
         if let Some(j) = nonempty(env_java) {
-            return if is_executable(&j) { Ok(Runtime { java: j, jar, bundled: false }) } else { Err(EpubcheckError::NotFound { message: format!("No runnable java at {} (from JAVA_BIN).", j.display()) }) };
+            return if is_executable(&j) {
+                Ok(Runtime { java: j, jar, bundled: false })
+            } else {
+                Err(EpubcheckError::NotFound { message: format!("No runnable java at {} (from JAVA_BIN).", j.display()) })
+            };
         }
     }
     java_dirs.extend(resources.map(|r| jre_dir(r, arch).join("bin")));

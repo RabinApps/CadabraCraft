@@ -95,7 +95,17 @@ mod tests {
           ],"checker":{"checkerVersion":"5.4.0","nFatal":0,"nError":1,"nWarning":1,"nUsage":1}}"#;
         let r = parse_report(json).unwrap();
         assert_eq!(r.counts, Counts { fatal: 0, error: 1, warning: 1, usage: 1 });
-        assert_eq!(r.messages[0], Message { severity: "error".into(), id: "RSC-005".into(), message: "Duplicate ID \"x\"".into(), file: Some("OEBPS/a.xhtml".into()), line: Some(3), column: Some(466) });
+        assert_eq!(
+            r.messages[0],
+            Message {
+                severity: "error".into(),
+                id: "RSC-005".into(),
+                message: "Duplicate ID \"x\"".into(),
+                file: Some("OEBPS/a.xhtml".into()),
+                line: Some(3),
+                column: Some(466)
+            }
+        );
         assert_eq!((r.messages[1].line, r.messages[1].column), (None, None));
         assert_eq!((r.messages[2].file.clone(), r.messages[2].severity.as_str()), (None, "usage"));
     }
