@@ -29,12 +29,6 @@ allow = [
 [advisories]
 # Each ignore needs a reason and gets reviewed when Tauri is bumped (Dependabot opens that PR).
 ignore = [
-  # zip 4.6.1 comes from tauri-plugin-updater, which unpacks only the update archive it has just verified against
-  # our minisign public key, so an attacker would need our signing key; the extract() flaws (SUID bits, symlinks)
-  # are not reachable with an archive we did not sign. Remove when the updater moves to a fixed zip.
-  { id = "RUSTSEC-2026-0367", reason = "zip extract of a signature-verified update archive only" },
-  { id = "RUSTSEC-2026-0368", reason = "zip extract of a signature-verified update archive only" },
-  { id = "RUSTSEC-2026-0369", reason = "zip extract of a signature-verified update archive only" },
   # Unmaintained crates under Tauri's Linux GTK/zbus stack; no safe upgrade exists, Tauri must move off them.
   { id = "RUSTSEC-2024-0370", reason = "proc-macro-error: build-time macro under Tauri's gtk3 stack" },
   { id = "RUSTSEC-2026-0370", reason = "zvariant: unmaintained, under Tauri's Linux stack" },
