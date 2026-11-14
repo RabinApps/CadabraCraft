@@ -3,9 +3,9 @@ import { useLingui } from "@lingui/react/macro";
 import { ExternalLink } from "lucide-react";
 import { bridge } from "../../lib/bridge";
 import {
-  FORM_DEFAULT_HEIGHT,
   FORM_LOAD_TIMEOUT_MS,
   formHeightFrom,
+  frameHeight,
   supportFormUrl,
   type SupportForm,
 } from "../../lib/support/supportForm";
@@ -47,7 +47,7 @@ function FormFrame({
   const frame = useRef<HTMLIFrameElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(() => !navigator.onLine);
-  const [height, setHeight] = useState(FORM_DEFAULT_HEIGHT);
+  const [height, setHeight] = useState<number | null>(null);
   const [openError, setOpenError] = useState("");
   const url = supportFormUrl(form);
 
@@ -93,11 +93,11 @@ function FormFrame({
           onLoad={() => setLoaded(true)}
           referrerPolicy="no-referrer"
           sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
-          style={{ height }}
+          style={{ height: frameHeight(form, height) }}
           className="w-full rounded-md border-0"
         />
       )}
-      <p className="text-xs leading-relaxed text-ink-muted">{t`The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you press Send.`}</p>
+      <p className="text-xs leading-relaxed text-ink-muted">{t`The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you submit the form.`}</p>
       <div className="flex justify-end">
         <Button onClick={onClose}>{t`Close`}</Button>
       </div>

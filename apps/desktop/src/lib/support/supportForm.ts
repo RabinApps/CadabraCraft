@@ -11,6 +11,19 @@ export const FORM_MIN_HEIGHT = 240;
 export const FORM_MAX_HEIGHT = 1600;
 /** Used until the form reports its own height (the embed snippet asks for 520). */
 export const FORM_DEFAULT_HEIGHT = 520;
+/**
+ * The least height each form's frame gets, whatever height the form reports: the feedback form asks for 520 but is
+ * taller, so its Send button would sit below the frame.
+ */
+export const FORM_FRAME_FLOOR: Record<SupportForm, number> = {
+  contact: FORM_DEFAULT_HEIGHT,
+  feedback: 700,
+};
+
+/** The height of a form's frame: what the form reported (if anything), but not below that form's floor. */
+export const frameHeight = (form: SupportForm, reported: number | null): number =>
+  Math.max(FORM_FRAME_FLOOR[form], reported ?? 0);
+
 /** How long the form may take to load before the dialog offers the browser instead. */
 export const FORM_LOAD_TIMEOUT_MS = 12_000;
 

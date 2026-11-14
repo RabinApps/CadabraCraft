@@ -6804,7 +6804,7 @@ msgid "The font of titles and headings. Settings, Fonts has more."
 msgstr "خط العناوين والعناوين الفرعية. في الإعدادات، الخطوط المزيد."
 
 #: src/app/settings/SupportFormDialog.tsx
-msgid "The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you press Send."
+msgid "The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you submit the form."
 msgstr ""
 
 #: src/app/settings/SupportFormDialog.tsx

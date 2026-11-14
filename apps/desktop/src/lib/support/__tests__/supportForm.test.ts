@@ -4,6 +4,7 @@ import {
   FORM_MIN_HEIGHT,
   SUPPORT_ORIGIN,
   formHeightFrom,
+  frameHeight,
   supportFormUrl,
 } from "../supportForm";
 
@@ -50,5 +51,14 @@ describe("formHeightFrom", () => {
       { type: "supdesk:height", height: NaN },
     ])
       expect(formHeightFrom(msg({ data }), frame)).toBeNull();
+  });
+});
+
+describe("frameHeight", () => {
+  it("never goes below the form's floor, and follows a taller report", () => {
+    expect(frameHeight("contact", null)).toBe(520);
+    expect(frameHeight("feedback", 520)).toBe(700);
+    expect(frameHeight("feedback", 900)).toBe(900);
+    expect(frameHeight("contact", 700)).toBe(700);
   });
 });

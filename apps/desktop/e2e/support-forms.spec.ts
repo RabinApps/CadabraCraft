@@ -40,13 +40,13 @@ test("nothing is requested from the support desk until a form is opened", async 
   await expect(page.getByRole("button", { name: "Contact", exact: true })).toBeFocused();
 });
 
-test("the feedback form opens in its own dialog and the form can set its height", async ({
+test("the feedback form opens in its own dialog and the form is taller than the height it reports", async ({
   page,
 }) => {
   await page.route("https://support.cadabracraft.com/**", (route) =>
     route.fulfill({
       contentType: "text/html",
-      body: `${FORM("Feedback")}<script>parent.postMessage({type:"supdesk:height",height:700},"*")</script>`,
+      body: `${FORM("Feedback")}<script>parent.postMessage({type:"supdesk:height",height:520},"*")</script>`,
     }),
   );
   await openHelp(page);
