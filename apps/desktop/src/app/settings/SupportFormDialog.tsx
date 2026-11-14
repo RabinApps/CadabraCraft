@@ -94,7 +94,7 @@ function FormFrame({
           referrerPolicy="no-referrer"
           sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
           style={{ height: frameHeight(form, height) }}
-          className="w-full rounded-md border-0"
+          className="mx-auto block w-full rounded-md border-0"
         />
       )}
       <p className="text-xs leading-relaxed text-ink-muted">{t`The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you submit the form.`}</p>

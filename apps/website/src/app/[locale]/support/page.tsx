@@ -41,7 +41,7 @@ export default async function Support({ params }: LocaleParams) {
           ))}
         </ul>
       </div>
-      <div id="contact" className="mx-auto mt-14 max-w-xl scroll-mt-24 text-left">
+      <div id="contact" className="mx-auto mt-14 max-w-[40rem] scroll-mt-24 text-center">
         <h2 className="font-book text-2xl">Contact us</h2>
         <p className="mt-3 text-ink-muted">
           Questions, bug reports or ideas? Send a message and I will reply. The form comes from

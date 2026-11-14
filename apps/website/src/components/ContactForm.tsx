@@ -26,7 +26,7 @@ export function ContactForm() {
     };
   }, []);
   return (
-    <div ref={box} className="mt-6">
+    <div ref={box} className="mx-auto mt-6 w-full text-left">
       <noscript>
         <iframe
           src={`${SUPPORT_ORIGIN}/embed/contact`}
