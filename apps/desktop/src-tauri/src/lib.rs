@@ -225,10 +225,7 @@ mod navigation_tests {
 
     #[test]
     fn the_support_forms_may_be_framed() {
-        for ok in [
-            "https://support.cadabracraft.com/embed/contact",
-            "https://support.cadabracraft.com/embed/feedback?x=1",
-        ] {
+        for ok in ["https://support.cadabracraft.com/embed/contact", "https://support.cadabracraft.com/embed/feedback?x=1"] {
             assert!(allowed(ok, false) && allowed(ok, true), "{ok}");
         }
     }
