@@ -23,6 +23,9 @@ jobs:
     env:
       REQUIRE_EPUBCHECK: "1"
       REQUIRE_ENWIK8: "1"
+      # Puppeteer (Ace) keeps its Chrome per job: the Linux runners share /root, and two jobs unpacking into the same
+      # ~/.cache/puppeteer at once failed with ENOENT. /tools is gitignored.
+      PUPPETEER_CACHE_DIR: ${{ github.workspace }}/tools/puppeteer
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Linux pnpm deps
@@ -121,6 +124,8 @@ jobs:
   a11y:
     runs-on: kinhin-container
     timeout-minutes: 60
+    env:
+      PUPPETEER_CACHE_DIR: ${{ github.workspace }}/tools/puppeteer # see the js job
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Linux deps (pnpm binary, LibreOffice, unzip for veraPDF)
