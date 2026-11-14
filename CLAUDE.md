@@ -5,7 +5,7 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 ## Rules
 
 - Work milestone by milestone; no features outside the current one (ideas go in `docs/roadmap.md`).
-- No backend, accounts, telemetry, cloud or account-based AI features, or network calls in v1 (small models that run on the author's computer, like the audiobook voices, are allowed), except the update check against GitHub Releases (see docs/architecture.md, "Updates and releases") the audiobook voice download and the font download, which only run when the author asks for them (see docs/architecture.md, "Voice download" and "Font download").
+- No backend, accounts, telemetry, cloud or account-based AI features, or network calls in v1 (small models that run on the author's computer, like the audiobook voices, are allowed), except the update check against GitHub Releases (see docs/architecture.md, "Updates and releases") the audiobook voice download, the font download, and the Contact and Feedback forms from support.cadabracraft.com (loaded in a dialog, and on the website's Support page), which only run when the author asks for them (see docs/architecture.md, "Voice download", "Font download" and "Contact and feedback forms").
 - Never overwrite user files without a backup; writes are temp file + rename. Never store absolute paths in project files.
 - Store TipTap JSON on disk, never HTML. The schema in `packages/editor-schema` is the editor/exporter contract; exporters must throw on unknown nodes, never drop them.
 - `packages/*` must not import from `apps/desktop`. Use `workspace:*` for internal deps.

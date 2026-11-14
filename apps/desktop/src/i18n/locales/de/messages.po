@@ -1187,6 +1187,10 @@ msgstr "Anwenden"
 msgid "Approximate: Typst is not available"
 msgstr "Ungefähr: Typst ist nicht verfügbar"
 
+#: src/app/settings/HelpSection.tsx
+msgid "Ask a question or report a problem."
+msgstr ""
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Ask each time"
 msgstr "Jedes Mal fragen"
@@ -1816,6 +1820,7 @@ msgstr "Klischees"
 #: src/app/indexing/IndexTermDialog.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/settings/SupportFormDialog.tsx
 #: src/editor/find/FindBar.tsx
 #: src/editor/reading/ReadFindBar.tsx
 msgid "Close"
@@ -1955,6 +1960,15 @@ msgstr "Vergleich von „{title}“ mit dem Schnappschuss"
 #: src/lib/useIconChoices.ts
 msgid "Compass"
 msgstr "Kompass"
+
+#: src/app/settings/HelpSection.tsx
+msgid "Contact"
+msgstr ""
+
+#: src/app/settings/HelpSection.tsx
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Contact CadabraCraft"
+msgstr ""
 
 #: src/app/analysis/analysisModel.ts
 msgid "Content word of four or more letters, not a common function word; used four or more times"
@@ -2124,6 +2138,10 @@ msgstr "{SPONSOR_URL} konnte nicht geöffnet werden: {why}. Kopieren Sie die Adr
 #: src/app/references/Previews.tsx
 msgid "Could not open {title}: {error}"
 msgstr "{title} konnte nicht geöffnet werden: {error}"
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Could not open {url}. Copy the address into your browser instead."
+msgstr ""
 
 #. placeholder {0}: causeText(e)
 #: src/app/dialogs/import/useImportPicker.ts
@@ -2891,6 +2909,10 @@ msgstr "Schnell und klar."
 msgid "Feather"
 msgstr "Feder"
 
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Feedback for CadabraCraft"
+msgstr ""
+
 #. placeholder {0}: fmt(Math.round(perThousand * 10) / 10)
 #: src/app/analysis/analysisModel.ts
 msgid "felt, saw, heard, noticed and similar. {0} per 1,000 words"
@@ -3125,6 +3147,10 @@ msgstr "Loslegen"
 msgid "Ghost"
 msgstr "Geist"
 
+#: src/app/settings/HelpSection.tsx
+msgid "Give feedback"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Give the book a title."
 msgstr "Gib dem Buch einen Titel."
@@ -3267,6 +3293,7 @@ msgstr "Hörprobe anhören"
 msgid "Heart"
 msgstr "Herz"
 
+#: src/app/settings/Settings.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
 msgid "Help"
@@ -4732,6 +4759,7 @@ msgstr "Schriften öffnen"
 #: src/app/references/ReferenceRow.tsx
 #: src/app/references/ReferenceViewer.tsx
 #: src/app/references/TextReferenceViews.tsx
+#: src/app/settings/SupportFormDialog.tsx
 msgid "Open in browser"
 msgstr "Im Browser öffnen"
 
@@ -5739,6 +5767,10 @@ msgstr "{dir}/manuscript.docx wird gespeichert…"
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Saving {dir}/manuscript.rtf…"
 msgstr "{dir}/manuscript.rtf wird gespeichert …"
+
+#: src/app/settings/HelpSection.tsx
+msgid "Say what works and what does not."
+msgstr ""
 
 #: src/state/project/scenes.ts
 msgid "scene"
@@ -6770,6 +6802,14 @@ msgstr "Die Schrift des Fließtexts. Sie wird mit dem Buch gespeichert; die Schr
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "The font of titles and headings. Settings, Fonts has more."
 msgstr "Die Schrift für Titel und Überschriften. Einstellungen, Schriften bietet mehr."
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you press Send."
+msgstr ""
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "The form could not load. Check your connection, or open it in your browser."
+msgstr ""
 
 #: src/lib/indexing/problemText.ts
 msgid "The glossary already has this term."

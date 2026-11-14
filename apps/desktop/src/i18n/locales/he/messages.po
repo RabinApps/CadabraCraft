@@ -1187,6 +1187,10 @@ msgstr "החלה"
 msgid "Approximate: Typst is not available"
 msgstr "משוער: Typst אינו זמין"
 
+#: src/app/settings/HelpSection.tsx
+msgid "Ask a question or report a problem."
+msgstr ""
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Ask each time"
 msgstr "לשאול בכל פעם"
@@ -1816,6 +1820,7 @@ msgstr "קלישאות"
 #: src/app/indexing/IndexTermDialog.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/settings/SupportFormDialog.tsx
 #: src/editor/find/FindBar.tsx
 #: src/editor/reading/ReadFindBar.tsx
 msgid "Close"
@@ -1955,6 +1960,15 @@ msgstr "השוואה של “{title}” לגרסה השמורה"
 #: src/lib/useIconChoices.ts
 msgid "Compass"
 msgstr "מצפן"
+
+#: src/app/settings/HelpSection.tsx
+msgid "Contact"
+msgstr ""
+
+#: src/app/settings/HelpSection.tsx
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Contact CadabraCraft"
+msgstr ""
 
 #: src/app/analysis/analysisModel.ts
 msgid "Content word of four or more letters, not a common function word; used four or more times"
@@ -2124,6 +2138,10 @@ msgstr "לא ניתן היה לפתוח את {SPONSOR_URL}: {why}. העתיקו 
 #: src/app/references/Previews.tsx
 msgid "Could not open {title}: {error}"
 msgstr "לא ניתן היה לפתוח את {title}: {error}"
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Could not open {url}. Copy the address into your browser instead."
+msgstr ""
 
 #. placeholder {0}: causeText(e)
 #: src/app/dialogs/import/useImportPicker.ts
@@ -2891,6 +2909,10 @@ msgstr "מהיר וברור."
 msgid "Feather"
 msgstr "נוצה"
 
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Feedback for CadabraCraft"
+msgstr ""
+
 #. placeholder {0}: fmt(Math.round(perThousand * 10) / 10)
 #: src/app/analysis/analysisModel.ts
 msgid "felt, saw, heard, noticed and similar. {0} per 1,000 words"
@@ -3125,6 +3147,10 @@ msgstr "בואו נתחיל"
 msgid "Ghost"
 msgstr "רוח רפאים"
 
+#: src/app/settings/HelpSection.tsx
+msgid "Give feedback"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Give the book a title."
 msgstr "תן לספר כותרת."
@@ -3267,6 +3293,7 @@ msgstr "האזנה לדוגמה"
 msgid "Heart"
 msgstr "לב"
 
+#: src/app/settings/Settings.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
 msgid "Help"
@@ -4732,6 +4759,7 @@ msgstr "פתיחת גופנים"
 #: src/app/references/ReferenceRow.tsx
 #: src/app/references/ReferenceViewer.tsx
 #: src/app/references/TextReferenceViews.tsx
+#: src/app/settings/SupportFormDialog.tsx
 msgid "Open in browser"
 msgstr "פתיחה בדפדפן"
 
@@ -5739,6 +5767,10 @@ msgstr "שומר את {dir}/manuscript.docx…"
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Saving {dir}/manuscript.rtf…"
 msgstr "שומר {dir}/manuscript.rtf…"
+
+#: src/app/settings/HelpSection.tsx
+msgid "Say what works and what does not."
+msgstr ""
 
 #: src/state/project/scenes.ts
 msgid "scene"
@@ -6770,6 +6802,14 @@ msgstr "גופן הטקסט הרץ. הוא נשמר עם הספר; קובץ הג
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "The font of titles and headings. Settings, Fonts has more."
 msgstr "גופן הכותרות והכותרות המשנה. בהגדרות, גופנים יש עוד."
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you press Send."
+msgstr ""
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "The form could not load. Check your connection, or open it in your browser."
+msgstr ""
 
 #: src/lib/indexing/problemText.ts
 msgid "The glossary already has this term."

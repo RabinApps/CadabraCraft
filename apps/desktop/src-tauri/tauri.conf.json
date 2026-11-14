@@ -31,7 +31,7 @@
         "object-src": "'none'",
         "base-uri": "'none'",
         "form-action": "'none'",
-        "frame-src": "'none'"
+        "frame-src": "https://support.cadabracraft.com"
       },
       "devCsp": {
         "default-src": "'self'",
@@ -44,7 +44,7 @@
         "object-src": "'none'",
         "base-uri": "'none'",
         "form-action": "'none'",
-        "frame-src": "'none'"
+        "frame-src": "https://support.cadabracraft.com"
       },
       "dangerousDisableAssetCspModification": ["style-src"]
     }

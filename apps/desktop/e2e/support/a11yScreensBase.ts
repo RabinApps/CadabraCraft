@@ -131,6 +131,18 @@ export const baseScreens: Screen[] = [
       await shown(p.locator("#backups"));
     },
   },
+  {
+    // Offline, so the dialog shows its own controls: keys pressed while the form frame has focus go to the form.
+    name: "settings, Help section and Contact dialog when the form cannot load",
+    open: async (p) => {
+      await p.addInitScript(() => Object.defineProperty(navigator, "onLine", { value: false }));
+      await settings(p);
+      await p.getByRole("button", { name: "Contact", exact: true }).click();
+      await shown(
+        dialogOf(p, "Contact CadabraCraft").getByRole("button", { name: "Open in browser" }),
+      );
+    },
+  },
   { name: "export dialog", open: exportPanel("EPUB 3") },
   { name: "export dialog, PDF options", open: exportPanel("Print PDF") },
   { name: "export dialog, audiobook panel", open: exportPanel("Audiobook") },

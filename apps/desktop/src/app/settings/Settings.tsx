@@ -9,6 +9,7 @@ import { AudioSection } from "./AudioSection";
 import { FontsSection } from "./FontsSection";
 import { ShortcutsSection } from "./ShortcutsSection";
 import { BackupsSection } from "./BackupsSection";
+import { HelpSection } from "./HelpSection";
 import { AppearanceSection, EditorSection, GeneralSection } from "./SettingsSections";
 
 const sections = [
@@ -19,6 +20,7 @@ const sections = [
   "audio",
   "backups",
   "shortcuts",
+  "help",
 ] as const;
 
 /** Preferences page. Every control saves immediately, so there is no primary action. */
@@ -40,6 +42,7 @@ export function Settings({
     audio: t`Audio`,
     backups: t`Backups`,
     shortcuts: t`Shortcuts`,
+    help: t`Help`,
   };
   const [active, setActive] = useState<(typeof sections)[number]>(initialSection ?? "appearance");
   const mainRef = useRef<HTMLElement>(null);
@@ -123,6 +126,7 @@ export function Settings({
             <BackupsSection title={navLabels.backups} />
             <p className="-mt-4 text-xs text-ink-muted">{t`Open a chapter's History from its menu in the chapter list to compare and restore. Keep .cadabra out of cloud sync: snapshots belong to this computer.`}</p>
             <ShortcutsSection title={navLabels.shortcuts} />
+            <HelpSection title={navLabels.help} />
           </div>
         </main>
       </div>

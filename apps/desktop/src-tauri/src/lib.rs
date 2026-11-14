@@ -108,13 +108,16 @@ fn serve_media<R: tauri::Runtime>(app: &tauri::AppHandle<R>, req: tauri::http::R
 }
 
 /// Whether the webview may navigate to `url`: only the app's own origin (`tauri://localhost`, or
-/// `http://tauri.localhost` on Windows and Android), plus the Vite dev server in debug builds. Everything else (any
-/// remote page, `file:`, `data:`, `javascript:`) is refused, so a link or script cannot turn the window into a browser
-/// that carries the app's IPC and picked-path rights.
+/// `http://tauri.localhost` on Windows and Android), plus the Vite dev server in debug builds, plus the support desk's
+/// embeddable forms (`https://support.cadabracraft.com/embed/...`: the Contact and Feedback dialogs put them in a frame,
+/// and macOS reports a frame's navigation here too). Everything else (any remote page, `file:`, `data:`, `javascript:`)
+/// is refused, so a link or script cannot turn the window into a browser that carries the app's IPC and picked-path
+/// rights.
 fn navigation_allowed(url: &tauri::Url, dev: bool) -> bool {
     match (url.scheme(), url.host_str(), url.port()) {
         ("tauri", Some("localhost"), None) | ("http", Some("tauri.localhost"), None) => true,
         ("http", Some("localhost"), Some(1420)) => dev,
+        ("https", Some("support.cadabracraft.com"), None) => url.path().starts_with("/embed/"),
         _ => false,
     }
 }
@@ -197,6 +200,11 @@ mod navigation_tests {
             "https://example.com",
             "http://example.com/tauri://localhost",
             "https://tauri.localhost",
+            "https://support.cadabracraft.com/",
+            "https://support.cadabracraft.com/embedded",
+            "https://support.cadabracraft.com:8443/embed/contact",
+            "http://support.cadabracraft.com/embed/contact",
+            "https://support.cadabracraft.com.evil.com/embed/contact",
             "tauri://evil",
             "tauri://localhost.evil.com",
             "http://tauri.localhost.evil.com",
@@ -212,6 +220,16 @@ mod navigation_tests {
         ] {
             assert!(!allowed(bad, true), "{bad}");
             assert!(!allowed(bad, false), "{bad}");
+        }
+    }
+
+    #[test]
+    fn the_support_forms_may_be_framed() {
+        for ok in [
+            "https://support.cadabracraft.com/embed/contact",
+            "https://support.cadabracraft.com/embed/feedback?x=1",
+        ] {
+            assert!(allowed(ok, false) && allowed(ok, true), "{ok}");
         }
     }
 

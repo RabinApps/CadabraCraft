@@ -1187,6 +1187,10 @@ msgstr "Appliquer"
 msgid "Approximate: Typst is not available"
 msgstr "Approximatif : Typst n’est pas disponible"
 
+#: src/app/settings/HelpSection.tsx
+msgid "Ask a question or report a problem."
+msgstr ""
+
 #: src/app/settings/SettingsSections.tsx
 msgid "Ask each time"
 msgstr "Demander à chaque fois"
@@ -1816,6 +1820,7 @@ msgstr "Clichés"
 #: src/app/indexing/IndexTermDialog.tsx
 #: src/app/quicknav/QuickPicker.tsx
 #: src/app/settings/FontsCatalogDialog.tsx
+#: src/app/settings/SupportFormDialog.tsx
 #: src/editor/find/FindBar.tsx
 #: src/editor/reading/ReadFindBar.tsx
 msgid "Close"
@@ -1955,6 +1960,15 @@ msgstr "Comparaison de « {title} » avec l'instantané"
 #: src/lib/useIconChoices.ts
 msgid "Compass"
 msgstr "Boussole"
+
+#: src/app/settings/HelpSection.tsx
+msgid "Contact"
+msgstr ""
+
+#: src/app/settings/HelpSection.tsx
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Contact CadabraCraft"
+msgstr ""
 
 #: src/app/analysis/analysisModel.ts
 msgid "Content word of four or more letters, not a common function word; used four or more times"
@@ -2124,6 +2138,10 @@ msgstr "Impossible d’ouvrir {SPONSOR_URL} : {why}. Copiez plutôt l’adresse 
 #: src/app/references/Previews.tsx
 msgid "Could not open {title}: {error}"
 msgstr "Impossible d’ouvrir {title} : {error}"
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Could not open {url}. Copy the address into your browser instead."
+msgstr ""
 
 #. placeholder {0}: causeText(e)
 #: src/app/dialogs/import/useImportPicker.ts
@@ -2891,6 +2909,10 @@ msgstr "Rapide et clair."
 msgid "Feather"
 msgstr "Plume"
 
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Feedback for CadabraCraft"
+msgstr ""
+
 #. placeholder {0}: fmt(Math.round(perThousand * 10) / 10)
 #: src/app/analysis/analysisModel.ts
 msgid "felt, saw, heard, noticed and similar. {0} per 1,000 words"
@@ -3125,6 +3147,10 @@ msgstr "Commencer"
 msgid "Ghost"
 msgstr "Fantôme"
 
+#: src/app/settings/HelpSection.tsx
+msgid "Give feedback"
+msgstr ""
+
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Give the book a title."
 msgstr "Donnez un titre au livre."
@@ -3267,6 +3293,7 @@ msgstr "Écouter un échantillon"
 msgid "Heart"
 msgstr "Cœur"
 
+#: src/app/settings/Settings.tsx
 #: src/app/settings/shortcutList.ts
 #: src/app/shell/native/menuModel.ts
 msgid "Help"
@@ -4732,6 +4759,7 @@ msgstr "Ouvrir les polices"
 #: src/app/references/ReferenceRow.tsx
 #: src/app/references/ReferenceViewer.tsx
 #: src/app/references/TextReferenceViews.tsx
+#: src/app/settings/SupportFormDialog.tsx
 msgid "Open in browser"
 msgstr "Ouvrir dans le navigateur"
 
@@ -5739,6 +5767,10 @@ msgstr "Enregistrement de {dir}/manuscript.docx…"
 #: src/app/export/parts/ExportDialogParts.tsx
 msgid "Saving {dir}/manuscript.rtf…"
 msgstr "Enregistrement de {dir}/manuscript.rtf…"
+
+#: src/app/settings/HelpSection.tsx
+msgid "Say what works and what does not."
+msgstr ""
 
 #: src/state/project/scenes.ts
 msgid "scene"
@@ -6770,6 +6802,14 @@ msgstr "La police du texte courant. Elle est enregistrée avec le livre ; le fic
 #: src/app/export/parts/PdfPanelParts.tsx
 msgid "The font of titles and headings. Settings, Fonts has more."
 msgstr "La police des titres et intertitres. Réglages, Polices en propose d’autres."
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you press Send."
+msgstr ""
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "The form could not load. Check your connection, or open it in your browser."
+msgstr ""
 
 #: src/lib/indexing/problemText.ts
 msgid "The glossary already has this term."
