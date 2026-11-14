@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-// Export the designs for OpenPencil (https://openpencil.dev): one .fig (or .png) file per top-level
-// section, after preparePen() has fixed what OpenPencil's .pen reader leaves out.
+// One-time conversion of the archived pen file (design/archive/cadabracraft.pen) for OpenPencil
+// (https://openpencil.dev). The result, design/cadabracraft.fig, is now the design source and is edited in
+// OpenPencil; this script only reproduces the conversion and never writes into design/ unless told to.
 //
-//   node scripts/design/export-pen.mjs [--in cadabracraft.pen] [--out out/design] [--format fig|png] [--single]
+//   node scripts/design/export-pen.mjs [--in <pen file>] [--out out/design] [--format fig|png] [--single]
 //
-// --single writes the whole document as one cadabracraft.fig (the design source) instead of one file per section.
-//
-// Needs @open-pencil/core (see docs/design.md, "Exporting the pen for OpenPencil").
-// Never writes next to the pen file and never modifies it.
+// Default: one .fig (or .png) per top-level section. --single: the whole document as one cadabracraft.fig.
+// See docs/design.md, "Editing the designs in OpenPencil", and docs/architecture.md.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {

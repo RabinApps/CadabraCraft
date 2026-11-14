@@ -144,7 +144,7 @@ src/
     search/             match, find helpers, book-wide search (pure, no UI)
   ui/                   primitives: Button, Dialog, Input, Select, Segmented, Switch, ...
   i18n/                 Lingui setup and the `en` and `pseudo` PO catalogs
-  styles/tokens.css     design tokens (mirrors cadabracraft.pen, see docs/design.md)
+  styles/tokens.css     design tokens (mirrors design/cadabracraft.fig, see docs/design.md)
   test/                 shared test helpers (`fakeBridge.ts`, `bigBook.ts`)
 ```
 
@@ -198,7 +198,7 @@ tests, see [Tests](#tests).
 
 Tailwind CSS v4 with Radix primitives (dialog, dropdown menu, toggle group, tooltip) and lucide
 icons, wrapped in `ui/`. Design tokens are CSS variables in `styles/tokens.css` that mirror
-`cadabracraft.pen`; `docs/design.md` must always match the pen file.
+`design/cadabracraft.fig`; `docs/design.md` must always match the design file.
 
 ## Rust backend (`src-tauri/`)
 
@@ -444,8 +444,8 @@ details are in [docs/agent-testing.md](../../docs/agent-testing.md).
 - **Layering:** downward imports only; `packages/*` never import this app.
 - **Formatting and lint:** Prettier and ESLint from the repo root (`pnpm format`, `pnpm lint`).
   typescript-eslint runs on its own TypeScript 6 (see `.pnpmfile.cjs`) because the repo compiles on 7.
-- **Design:** `cadabracraft.pen` is the UI source of truth. After any change to it run `/sync-design`
-  so `docs/design.md` matches. The pen file is encrypted: use the Pencil tools only.
+- **Design:** `design/cadabracraft.fig` is the UI source of truth (OpenPencil). After any change to it run
+  `/sync-design` so `docs/design.md` matches. Edit it through OpenPencil only.
 - **Scope:** work milestone by milestone; ideas go in `docs/roadmap.md`. Record architecture
   decisions, with rejected alternatives, in `docs/architecture.md` (`/record-decision`).
 - **Pinned versions:** Tauri stays on 2.x on purpose (3.x is alpha). pnpm 11 fails installs on

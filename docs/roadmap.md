@@ -21,7 +21,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 - Pen: typewriter mode in Page view, with the caret line at the middle and the end slack (see architecture.md, "Typewriter mode"). The Settings switch, the View menu item and the palette row are drawn.
 - Accessibility (WCAG 2.2 AA, EPUB Accessibility 1.1, PDF/UA-1): the full plan and open items are in [accessibility.md](accessibility.md). Built so far: jsx-a11y lint, an axe e2e spec for the home screen, New book dialog and editor, a token contrast test, and focus return to the opener for every `Modal`.
 
-UI is designed in `cadabracraft.pen`, see [design.md](design.md).
+UI is designed in `design/cadabracraft.fig`, see [design.md](design.md).
 
 - M2 follow-ups: (EPUBCheck from the app is built, see "EPUBCheck ships with the app" in architecture.md.) (Bleed and crop marks in the PDF are built, see "Bleed and crop marks in the print PDF" in architecture.md.)
 - Story structures follow-ups (S03, see architecture.md, "Story-structure templates"): translate the beat titles and summaries (about 120 strings per locale; they are English in every interface language today), create one chapter per act as well as scenes, a way to add the author's own structures, and a `/drive-app` run on the native app.

@@ -21,7 +21,7 @@
     "perf:huge-book": "node scripts/perf/huge-book.ts",
     "perf:leaks": "bash scripts/perf/leaks.sh",
     "perf:fuzz": "bash scripts/perf/fuzz.sh",
-    "design:export": "node scripts/design/export-pen.mjs",
+    "design:from-pen": "node scripts/design/export-pen.mjs --single --out out/design",
     "licenses:update": "pnpm licenses:npm && pnpm licenses:rust",
     "licenses:npm": "node scripts/npm-licenses.mjs",
     "licenses:rust": "cd apps/desktop/src-tauri && cargo about generate about.hbs --fail -o licenses/THIRD_PARTY_NOTICES-rust.txt && node ../../../scripts/to-lf.mjs licenses/THIRD_PARTY_NOTICES-rust.txt",
@@ -45,6 +45,7 @@
   "devDependencies": {
     "@eleven-hits/a11ylens": "1.0.1",
     "@eslint/js": "^10.0.1",
+    "@open-pencil/cli": "^0.16.0",
     "@open-pencil/core": "^0.16.0",
     "@types/node": "^26.6.6",
     "@vitest/coverage-v8": "^5.1.0",

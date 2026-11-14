@@ -1,6 +1,6 @@
 # M1 UI implementation plan
 
-Design: `cadabracraft.pen`, tokens in `docs/design.md` (keep in sync with `/sync-design`). Stack: Tailwind CSS v4 + Radix UI + lucide-react, all in `apps/desktop` only. Dependency additions approved by the user.
+Design: `design/cadabracraft.fig` (originally `cadabracraft.pen`), tokens in `docs/design.md` (keep in sync with `/sync-design`). Stack: Tailwind CSS v4 + Radix UI + lucide-react, all in `apps/desktop` only. Dependency additions approved by the user.
 
 ## Scope
 
@@ -47,4 +47,4 @@ Out (roadmap): details panel, focus mode, anything needing new Rust commands.
 
 ## Verification
 
-`pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `cargo test` (unchanged), manual pass in `pnpm dev` at 1280, 820 and 390 widths in light and dark against `cadabracraft.pen`.
+`pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `cargo test` (unchanged), manual pass in `pnpm dev` at 1280, 820 and 390 widths in light and dark against `design/cadabracraft.fig`.

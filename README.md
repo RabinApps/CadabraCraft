@@ -125,7 +125,7 @@ Start at the [docs index](docs/README.md). Highlights:
 - [User guide](docs/user-guide.md): writing, organising, importing, exporting and troubleshooting, for authors.
 - [File format](docs/file-format.md): the project folder layout. Deleting a chapter moves it to `.cadabra/trash/`; the app never permanently deletes.
 - [Architecture](docs/architecture.md): decisions and the alternatives we rejected.
-- [Design](docs/design.md): tokens, screens and breakpoints, mirrored from `cadabracraft.pen`.
+- [Design](docs/design.md): tokens, screens and breakpoints, mirrored from `design/cadabracraft.fig`.
 - [MCP server](docs/mcp.md) and [Import](docs/import.md).
 
 ## Support CadabraCraft

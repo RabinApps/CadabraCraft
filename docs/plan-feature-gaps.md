@@ -11,7 +11,7 @@ Open follow-ups that already exist are not repeated here. They stay in [roadmap.
 - **One PR per item**, with the item's ID in the title (`G01: comments`).
 - **Depends on** is binding. The order inside a phase is a suggestion.
 - Sizes assume one developer: **S** 1-2 days, **M** 3-5 days, **L** 1-2 weeks, **XL** 2+ weeks.
-- **Any UI** is drawn in `cadabracraft.pen` first (light and dark; desktop, tablet and phone), then `/sync-design` in the same PR.
+- **Any UI** is drawn in `design/cadabracraft.fig` (OpenPencil) first (light and dark; desktop, tablet and phone), then `/sync-design` in the same PR.
 - **Any on-disk change** runs `/change-file-format`: `docs/file-format.md` first, a version bump, a migration, a test opening the previous version, and a test proving no content is lost.
 - **Any architecture choice** runs `/record-decision` with the rejected alternatives.
 - Every item runs the gates at the end of this file before it is called done.

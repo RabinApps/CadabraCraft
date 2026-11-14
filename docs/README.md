@@ -15,10 +15,10 @@ Back to the [project README](../README.md).
 
 ## Design and architecture
 
-| Doc                                | What it covers                                                                                               |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [architecture.md](architecture.md) | Decisions with rejected alternatives, grouped by area (foundations, desktop app, export, platform, website)  |
-| [design.md](design.md)             | Tokens, theming, breakpoints, screens. Mirrors `cadabracraft.pen`; run `/sync-design` after changing the pen |
+| Doc                                | What it covers                                                                                                         |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [architecture.md](architecture.md) | Decisions with rejected alternatives, grouped by area (foundations, desktop app, export, platform, website)            |
+| [design.md](design.md)             | Tokens, theming, breakpoints, screens. Mirrors `design/cadabracraft.fig`; run `/sync-design` after changing the design |
 
 ## Development and testing
 

@@ -1,16 +1,5 @@
 {
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "mcp__pencil__execute",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"cadabracraft.pen may have changed. Before finishing this turn, run /sync-design so docs/design.md matches the pen file.\"}}'"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "ExitPlanMode",
