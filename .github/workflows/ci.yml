@@ -32,6 +32,8 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          # The runner image already has these; skip apt then, so jobs on one machine do not race on its caches.
+          if dpkg -s libatomic1 binutils unzip >/dev/null 2>&1; then echo "system packages already installed"; exit 0; fi
           # The standalone pnpm binary needs libatomic, which the container image lacks; jlink (--strip-debug) runs objcopy, from binutils; unzip unpacks the veraPDF installer.
           for i in 1 2 3 4 5; do
             $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 binutils unzip && exit 0
@@ -42,6 +44,8 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          # The runner image already has these; skip apt then, so jobs on one machine do not race on its caches.
+          if dpkg -s libreoffice-writer >/dev/null 2>&1; then echo "system packages already installed"; echo "REQUIRE_SOFFICE=1" >> "$GITHUB_ENV"; exit 0; fi
           for i in 1 2 3 4 5; do
             $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends libreoffice-writer && echo "REQUIRE_SOFFICE=1" >> "$GITHUB_ENV" && exit 0
             sleep $((i * 5))
@@ -131,6 +135,8 @@ jobs:
       - name: Linux deps (pnpm binary, LibreOffice, unzip for veraPDF)
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          # The runner image already has these; skip apt then, so jobs on one machine do not race on its caches.
+          if dpkg -s libatomic1 unzip libreoffice-writer >/dev/null 2>&1; then echo "system packages already installed"; exit 0; fi
           for i in 1 2 3 4 5; do
             $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 unzip && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends libreoffice-writer && exit 0
             sleep $((i * 5))
@@ -184,6 +190,8 @@ jobs:
       - name: Linux pnpm deps
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          # The runner image already has these; skip apt then, so jobs on one machine do not race on its caches.
+          if dpkg -s libatomic1 build-essential >/dev/null 2>&1; then echo "system packages already installed"; exit 0; fi
           for i in 1 2 3 4 5; do
             $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 build-essential && exit 0
             sleep $((i * 5))
@@ -218,6 +226,8 @@ jobs:
       - name: Linux deps (webview, WebKitWebDriver, virtual display)
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          # The runner image already has these; skip apt then, so jobs on one machine do not race on its caches.
+          if dpkg -s libatomic1 build-essential pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libayatana-appindicator3-dev zlib1g-dev webkit2gtk-driver xvfb >/dev/null 2>&1; then echo "system packages already installed"; exit 0; fi
           for i in 1 2 3 4 5; do
             $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 build-essential pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libayatana-appindicator3-dev zlib1g-dev webkit2gtk-driver xvfb && exit 0
             sleep $((i * 5))
@@ -238,7 +248,14 @@ jobs:
       - run: bash scripts/fetch-sherpa.sh
       - run: bash scripts/fetch-ffmpeg.sh
       # Pinned like the other cargo tools; --locked uses the crate's own lockfile.
-      - run: cargo install --locked tauri-driver@2.1.0
+      # The runner image has tauri-driver 2.1.0 on PATH; install it into this job's cargo home only on a machine without it.
+      - run: command -v tauri-driver || cargo install --locked tauri-driver@2.1.0
+      - name: Check the WebDriver tools
+        run: |
+          PATH="$CARGO_HOME/bin:$PATH"
+          command -v tauri-driver && tauri-driver --version
+          command -v xvfb-run
+          command -v WebKitWebDriver
       - name: Build the app (debug, dev-automation bridge for the dialog answers)
         run: pnpm --filter @cadabracraft/desktop build:native
       - name: WebDriver e2e
@@ -259,6 +276,8 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+          # The runner image already has these; skip apt then, so jobs on one machine do not race on its caches.
+          if dpkg -s build-essential pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libayatana-appindicator3-dev zlib1g-dev >/dev/null 2>&1; then echo "system packages already installed"; exit 0; fi
           # Parallel jobs can share one machine: wait for the dpkg lock and retry if another apt clobbers our downloads.
           for i in 1 2 3 4 5; do
             $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y build-essential pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libayatana-appindicator3-dev zlib1g-dev && exit 0

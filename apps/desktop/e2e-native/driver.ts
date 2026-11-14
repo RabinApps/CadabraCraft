@@ -1,7 +1,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { join, resolve } from "node:path";
+import { delimiter, join, resolve } from "node:path";
 import { Builder, By, Key, until, type WebDriver, type WebElement } from "selenium-webdriver";
 
 const PORT = 4444;
@@ -26,15 +26,19 @@ export function nativeSupport(): string | null {
 
 export type Session = { driver: WebDriver; stop: () => Promise<void> };
 
+/** Where tauri-driver is: TAURI_DRIVER, else this job's cargo home, else the PATH (the CI image has it in /usr/local/bin). */
+export function tauriDriverPath(env: NodeJS.ProcessEnv = process.env): string {
+  if (env.TAURI_DRIVER) return env.TAURI_DRIVER;
+  const exe = process.platform === "win32" ? "tauri-driver.exe" : "tauri-driver";
+  const dirs = [
+    join(env.CARGO_HOME ?? join(homedir(), ".cargo"), "bin"),
+    ...(env.PATH ?? "").split(delimiter).filter(Boolean),
+  ];
+  return dirs.map((d) => join(d, exe)).find((f) => existsSync(f)) ?? exe;
+}
+
 export async function startSession(): Promise<Session> {
-  const bin =
-    process.env.TAURI_DRIVER ??
-    join(
-      homedir(),
-      ".cargo",
-      "bin",
-      process.platform === "win32" ? "tauri-driver.exe" : "tauri-driver",
-    );
+  const bin = tauriDriverPath();
   const proc: ChildProcess = spawn(bin, ["--port", String(PORT)], {
     stdio: ["ignore", process.stdout, process.stderr],
   });
