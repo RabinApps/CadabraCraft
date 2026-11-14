@@ -15,6 +15,8 @@ import {
   initCanvasKit,
   parsePenFile,
 } from "@open-pencil/core/io";
+import { iconNames, replaceIcons } from "./icons.mjs";
+import { loadLucideShapes } from "./lucide.mjs";
 import { detachInstance, failingInstanceId, resolveFontSizes } from "./resolve-sizes.mjs";
 
 function arg(name, fallback) {
@@ -29,7 +31,14 @@ if (!["fig", "png"].includes(format)) throw new Error(`--format must be fig or p
 
 const fileName = (name) => `${name.replace(/[^A-Za-z0-9._-]+/g, "_")}.${format}`;
 
-const graph = parsePenFile(readFileSync(input, "utf8"));
+// OpenPencil does not know the pen's "icon" nodes (they become empty squares), so swap in lucide paths.
+const doc = JSON.parse(readFileSync(input, "utf8"));
+const shapes = await loadLucideShapes("apps/desktop", iconNames(doc));
+const icons = replaceIcons(doc, (name) => shapes.get(name));
+console.log(
+  `replaced ${icons.replaced} icons${icons.missing.length ? `, unknown: ${icons.missing.join(", ")}` : ""}`,
+);
+const graph = parsePenFile(JSON.stringify(doc));
 const { fixed, missing } = resolveFontSizes(graph);
 console.log(
   `resolved ${fixed} text sizes${missing.length ? `, unresolved: ${missing.join(", ")}` : ""}`,

@@ -253,8 +253,9 @@ pnpm design:export -- --in other.pen --out some/dir
 ```
 
 - Output: one file per `Section / ...` frame plus `manifest.json` (written, failed and detached names). `out/` is git-ignored. The command exits 1 when any frame failed (none do today).
+- The pen's `icon` nodes (lucide) are not known to OpenPencil and would be empty squares, so the script replaces each with a frame holding a stroked path built from the `lucide-react` icon shapes (2002 icons today). Overrides that change an icon inside an instance are not applied.
 - The script resolves the text sizes (`$type-body` and similar) that OpenPencil's `.pen` reader leaves unresolved; without that, text does not render.
-- Known gaps: one instance (`The Harbour`, Contents section) is detached to a plain frame because the .fig writer cannot address children authored inside an instance; icons render as squares in PNG output; Inter replaces EB Garamond, JetBrains Mono, Libre Baskerville and Lora unless installed. Check a frame in OpenPencil before relying on it.
+- Known gaps: one instance (`The Harbour`, Contents section) is detached to a plain frame because the .fig writer cannot address children authored inside an instance; the one `github` icon is an empty frame (lucide no longer ships brand icons); Inter replaces EB Garamond, JetBrains Mono, Libre Baskerville and Lora unless installed. Check a frame in OpenPencil before relying on it.
 - Changing the pen still needs Pencil (or the `pen` CLI) and `/sync-design`; this export changes no tokens, so `docs/design.md` tokens are unaffected.
 
 ## Menu bar
