@@ -2375,3 +2375,17 @@ The UI is the EPUB panel of the Export dialog (`app/export/EpubValidation.tsx`):
 | A separate list of generated pages next to the back matter | A second ordering to move, rename and undo; the back-matter list already does all of it.             |
 | Storing the list in the page file                          | It would go stale on every edit; the page file stays an ordinary, empty chapter file.                |
 | Editing the generated text in the page                     | Typing there would be lost on the next export; the list is changed in the Index and Glossary panels. |
+
+## Exporting the pen for OpenPencil (2026-11-13)
+
+**Decision:** `pnpm design:export` (`scripts/design/export-pen.mjs`) writes one `.fig` file per top-level section of `cadabracraft.pen` (or `--format png`) into `out/design/`, so the designs can be opened in OpenPencil (MIT, https://openpencil.dev). `cadabracraft.pen` stays the source of truth: the export is one-way, never written back and never committed (`out/` is ignored). The script uses `@open-pencil/core` (root dev dependency, MIT, not shipped in any app). It reads the pen with OpenPencil's own `.pen` reader and first resolves the 16,513 text sizes that the reader leaves as unresolved variable strings such as `"$type-body"` (otherwise text does not render); `scripts/design/resolve-sizes.mjs` is unit tested. A section that cannot be written whole is retried frame by frame, so one broken frame loses only itself.
+
+**Why:** the Pencil app and the `pen` CLI have a plan usage limit and need an account; OpenPencil reads the file without either. A spike (2026-11-13) showed the encrypted `.pen` opens in OpenPencil's CLI (51,404 nodes, 26 components, all variables) and that a per-section export takes about 8 s.
+
+| Rejected                                               | Why not                                                                                                                                    |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Converting the whole file with `openpencil convert`    | It fails on a text override inside a component instance ("Missing instance geometry address").                                             |
+| Switching the source of truth to `.fig` now            | OpenPencil reads `.pen` read-only and saves `.fig`; round-tripping is unproven, and CLAUDE.md, the hook and `/sync-design` assume the pen. |
+| Patching the pen file itself to resolve the text sizes | The pen is only edited through Pencil; the fix is applied in memory on the loaded copy.                                                    |
+
+**Trade-offs and caveats:** the .fig writer cannot address children authored inside an instance, so such an instance (one today, `The Harbour` in the Contents section) is detached to a plain frame, keeping its look but no longer a component instance. Icons render as plain squares in PNG output (not investigated); fidelity beyond the Sponsor dialog PNG is unchecked and no `.fig` has been opened in the OpenPencil app yet. OpenPencil substitutes Inter for EB Garamond, JetBrains Mono, Libre Baskerville and Lora unless they are installed.

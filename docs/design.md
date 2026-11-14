@@ -242,6 +242,21 @@ When the Pencil desktop app is not running, the Pencil MCP cannot connect ("not 
 
 Do not use `pen --prompt ...` (that sends the design to an AI agent) unless asked.
 
+## Exporting the pen for OpenPencil
+
+[OpenPencil](https://openpencil.dev) (MIT) can open the designs without Pencil or a pen.dev account. The export is one-way: `cadabracraft.pen` stays the source of truth and is never edited from the export (decision in `docs/architecture.md`, "Exporting the pen for OpenPencil").
+
+```bash
+pnpm design:export                      # .fig per top-level section -> out/design/
+pnpm design:export -- --format png      # PNG per section instead
+pnpm design:export -- --in other.pen --out some/dir
+```
+
+- Output: one file per `Section / ...` frame plus `manifest.json` (written, failed and detached names). `out/` is git-ignored. The command exits 1 when any frame failed (none do today).
+- The script resolves the text sizes (`$type-body` and similar) that OpenPencil's `.pen` reader leaves unresolved; without that, text does not render.
+- Known gaps: one instance (`The Harbour`, Contents section) is detached to a plain frame because the .fig writer cannot address children authored inside an instance; icons render as squares in PNG output; Inter replaces EB Garamond, JetBrains Mono, Libre Baskerville and Lora unless installed. Check a frame in OpenPencil before relying on it.
+- Changing the pen still needs Pencil (or the `pen` CLI) and `/sync-design`; this export changes no tokens, so `docs/design.md` tokens are unaffected.
+
 ## Menu bar
 
 The native application menu (the operating system draws it, so it has no tokens of its own; `Section / Native menus` holds reference sketches of the two menus whose new items need their states shown, built from the pen's menu tokens, not a design for the OS). Source: `app/menuModel.ts` (structure as plain data), `app/nativeMenu.ts` (turns it into the native menu), `app/useAppMenu.ts` (registers what each command does).
