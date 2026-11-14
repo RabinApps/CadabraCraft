@@ -62,10 +62,25 @@ test("replaceIcons swaps icon nodes anywhere in the tree and reports unknown nam
     ],
   };
   assert.deepEqual(iconNames(doc), ["x", "nope"]);
+  assert.deepEqual(
+    iconNames({
+      type: "ref",
+      id: "r",
+      descendants: { a: { icon: "italic" }, b: { fill: "#fff" } },
+    }),
+    ["italic"],
+  );
   const result = replaceIcons(doc, (name) =>
     name === "x" ? [["path", { d: "m1 1" }]] : undefined,
   );
-  assert.deepEqual(result, { replaced: 2, missing: ["nope"] });
+  assert.deepEqual(result, {
+    replaced: 2,
+    missing: ["nope"],
+    ids: new Map([
+      ["i1", "x"],
+      ["i2", "nope"],
+    ]),
+  });
   assert.equal(doc.children[0].children[0].type, "frame");
   assert.equal(doc.children[1].type, "frame");
   assert.equal(doc.children[2].type, "icon");

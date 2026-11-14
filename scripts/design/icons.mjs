@@ -102,11 +102,12 @@ export function iconToFrame(icon, shapes) {
  * Replaces every lucide icon node in a parsed pen document (in place) and returns what it did.
  * @param {unknown} doc parsed .pen JSON
  * @param {(name: string) => Array<[string, Record<string, string>]> | undefined} loadShapes (e.g. `(name) => map.get(name)`)
- * @returns {{ replaced: number, missing: string[] }}
+ * @returns {{ replaced: number, missing: string[], ids: Map<string, string> }}
  */
 export function replaceIcons(doc, loadShapes) {
   let replaced = 0;
   const missing = new Set();
+  const ids = new Map(); // icon node id -> icon name
   const visit = (parent) => {
     for (const [key, value] of Object.entries(parent)) {
       if (!value || typeof value !== "object") continue;
@@ -114,6 +115,7 @@ export function replaceIcons(doc, loadShapes) {
         const shapes = loadShapes(value.icon);
         if (!shapes) missing.add(value.icon);
         parent[key] = iconToFrame(value, shapes);
+        ids.set(value.id, value.icon);
         replaced++;
       } else {
         visit(value);
@@ -121,18 +123,54 @@ export function replaceIcons(doc, loadShapes) {
     }
   };
   visit({ root: doc });
-  return { replaced, missing: [...missing] };
+  return { replaced, missing: [...missing], ids };
 }
 
-/** The lucide icon names used in a parsed pen document. */
+/** The lucide icon names used in a parsed pen document: icon nodes and icons chosen by instance overrides. */
 export function iconNames(doc) {
   const names = new Set();
   const visit = (value) => {
     if (!value || typeof value !== "object") return;
     if (value.type === "icon" && value.icon && (value.library ?? "lucide") === "lucide")
       names.add(value.icon);
+    if (value.type === "ref" && value.descendants && typeof value.descendants === "object") {
+      for (const props of Object.values(value.descendants)) {
+        if (props && typeof props.icon === "string") names.add(props.icon);
+      }
+    }
     for (const child of Object.values(value)) visit(child);
   };
   visit(doc);
   return [...names];
+}
+
+/**
+ * Overrides on instances that change an icon (`icon`) or its colour (`fill`): a `ref` node whose `descendants`
+ * name one of the replaced icon nodes.
+ * @param {unknown} doc parsed .pen JSON
+ * @param {Map<string, string>} iconIds ids of the icon nodes replaceIcons replaced (and their icon names)
+ * @returns {Array<{ instanceId: string, key: string, icon?: string, fill?: unknown }>}
+ */
+export function collectIconOverrides(doc, iconIds) {
+  const found = [];
+  const visit = (value) => {
+    if (!value || typeof value !== "object") return;
+    if (
+      value.type === "ref" &&
+      value.id &&
+      value.descendants &&
+      typeof value.descendants === "object"
+    ) {
+      for (const [key, props] of Object.entries(value.descendants)) {
+        if (!iconIds.has(key) || !props || typeof props !== "object") continue;
+        const icon = typeof props.icon === "string" ? props.icon : undefined;
+        if (icon !== undefined || props.fill !== undefined) {
+          found.push({ instanceId: value.id, key, icon, fill: props.fill });
+        }
+      }
+    }
+    for (const child of Object.values(value)) visit(child);
+  };
+  visit(doc);
+  return found;
 }
