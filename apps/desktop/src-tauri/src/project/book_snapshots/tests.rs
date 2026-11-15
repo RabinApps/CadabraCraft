@@ -220,6 +220,26 @@ fn a_listed_snapshot_whose_full_text_cannot_be_read_is_not_restored() {
     assert!(read(d.path(), "manuscript/001-a.json") == "A1", "nothing was touched");
 }
 
+#[test]
+fn a_listed_snapshot_whose_full_text_cannot_be_read_is_not_renamed_or_pinned() {
+    let d = book();
+    let path = ".cadabra/snapshots/20261027-1000.json";
+    put(d.path(), path, "{\"version\":1,\"name\":\"x\",\"automatic\":false,\"pages\":{},\"assets\":[]}");
+    let cannot = ProjectError::CannotRestore { path: path.to_string() };
+    assert_eq!(pin_book_snapshot(d.path(), path, true).unwrap_err(), cannot);
+    assert_eq!(rename_book_snapshot(d.path(), path, "New name").unwrap_err(), cannot);
+}
+
+#[test]
+fn a_poisoned_snapshot_lock_is_still_taken() {
+    let _ = std::thread::spawn(|| {
+        let _held = FILES.lock().unwrap();
+        panic!("poisoned on purpose");
+    })
+    .join();
+    drop(files_lock());
+}
+
 pub(super) fn put_old_format(d: &Path, stamp: &str, name: &str) -> String {
     let rel = format!("{SNAPSHOTS_DIR}/{stamp}.json");
     put(d, &rel, &format!("{{\"version\":1,\"name\":\"{name}\",\"automatic\":false,\"manifest\":\"{{}}\",\"pages\":{{\"manuscript/001-a.json\":\"A\"}},\"assets\":[\"assets/a.png\"]}}"));

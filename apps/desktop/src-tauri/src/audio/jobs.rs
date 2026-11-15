@@ -108,6 +108,27 @@ mod tests {
         assert!(!jobs.flag("a").load(Ordering::Relaxed));
     }
 
+    fn poison<T: Send>(m: &std::sync::Mutex<T>) {
+        let _ = std::thread::scope(|s| {
+            s.spawn(|| {
+                let _held = m.lock().unwrap();
+                panic!("poisoned on purpose");
+            })
+            .join()
+        });
+    }
+
+    #[test]
+    fn a_poisoned_table_is_still_used() {
+        let jobs = AudioJobs::default();
+        poison(&jobs.0);
+        poison(&jobs.2);
+        jobs.cancel("early"); // no flag yet: remembered in the poisoned list
+        assert!(jobs.flag("early").load(Ordering::Relaxed));
+        jobs.cancel("early");
+        assert!(jobs.flag("early").load(Ordering::Relaxed));
+    }
+
     #[test]
     fn the_flag_table_is_bounded_and_drops_idle_flags_first() {
         let jobs = AudioJobs::default();

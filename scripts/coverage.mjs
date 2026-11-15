@@ -202,9 +202,12 @@ if (mode !== "--js-only") {
   const rustReport = JSON.parse(rustJsonText);
   const rustTotals = { lines: { covered: 0, total: 0 }, functions: { covered: 0, total: 0 } };
   const rustFileSummaries = new Map();
+  // A whole-file exclusion (no `:line`) is out of the totals as well as out of the lcov file, as docs/testing.md says.
+  const rustExcludedFiles = new Set(rustExcluded.filter((excluded) => !excluded.includes(":")));
   for (const file of rustReport.data.flatMap((chunk) => chunk.files)) {
     const source = file.filename.replace(/^.*\/src\//, "src/");
-    if (!source.startsWith("src/") || source === "src/lib.rs" || source === "src/main.rs") continue;
+    if (!source.startsWith("src/") || source === "src/main.rs" || rustExcludedFiles.has(source))
+      continue;
     rustFileSummaries.set(source, file.summary);
     const lines = file.summary.lines;
     const functions = file.summary.functions;

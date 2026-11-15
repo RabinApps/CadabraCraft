@@ -231,6 +231,17 @@ fn a_program_that_fails_is_an_error_with_its_message_for_version_fonts_and_compi
 
 #[cfg(unix)]
 #[test]
+fn an_unknown_font_warning_fails_the_compile_and_names_the_family() {
+    let d = tempfile::tempdir().unwrap();
+    let base = tempfile::tempdir().unwrap();
+    let warns = fake(d.path(), "echo 'warning: unknown font family: Zalgo Sans' >&2; echo pdf > out.pdf");
+    let r = compile(&warns, base.path(), "x", &[], false, false, COMPILE_TIMEOUT);
+    assert!(matches!(r, Err(TypstError::Font { ref family }) if family == "Zalgo Sans"), "{r:?}");
+    assert_eq!(leftovers(base.path()), 0);
+}
+
+#[cfg(unix)]
+#[test]
 fn compile_passes_the_pdf_standard_and_reports_a_missing_output() {
     let d = tempfile::tempdir().unwrap();
     let base = tempfile::tempdir().unwrap();

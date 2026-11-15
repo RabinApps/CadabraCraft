@@ -246,6 +246,17 @@ mod tests {
     }
 
     #[test]
+    fn a_scan_stops_at_the_folder_limit_and_says_so() {
+        let d = tempfile::tempdir().unwrap();
+        for i in 0..=MAX_FOLDERS {
+            std::fs::create_dir(d.path().join(format!("f{i}"))).unwrap();
+        }
+        let scan = scan_library(d.path()).unwrap();
+        assert!(scan.truncated);
+        assert!(scan.books.is_empty());
+    }
+
+    #[test]
     fn a_missing_or_file_root_is_an_error() {
         let d = tempfile::tempdir().unwrap();
         assert!(matches!(scan_library(&d.path().join("gone")), Err(ProjectError::NotFound { .. })));

@@ -140,6 +140,13 @@ mod tests {
     use super::*;
     use std::fs;
 
+    #[test]
+    fn a_header_value_that_cannot_be_sent_makes_an_empty_500_not_a_panic() {
+        let r = reply(StatusCode::OK, &[(header::CONTENT_TYPE, "bad\nvalue".to_string())], vec![1, 2, 3]);
+        assert_eq!(r.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert!(r.body().is_empty());
+    }
+
     fn get(roots: &MediaRoots, path: &str, range: Option<&str>) -> Response<Vec<u8>> {
         let mut b = Request::builder().method(Method::GET).uri(format!("{MEDIA_SCHEME}://localhost{path}"));
         if let Some(r) = range {

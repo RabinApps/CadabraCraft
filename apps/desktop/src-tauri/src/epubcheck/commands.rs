@@ -13,6 +13,14 @@ use std::time::Duration;
 #[derive(Default)]
 pub struct EpubcheckJob(Arc<AtomicBool>);
 
+#[cfg(test)]
+impl EpubcheckJob {
+    /// Whether a cancel is pending (tests of the command layer read it).
+    pub(crate) fn cancel_requested(&self) -> bool {
+        self.0.load(Ordering::Relaxed)
+    }
+}
+
 #[derive(Serialize, Debug, PartialEq)]
 pub struct EpubcheckInfo {
     /// True when the Java runtime is the one bundled with the app (always so in a release build).
@@ -58,6 +66,26 @@ mod tests {
 
     fn missing() -> Finder {
         Box::new(|| Err(EpubcheckError::NotFound { message: "none".into() }))
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn epubcheck_find_reports_a_runtime_from_the_environment_as_not_bundled() {
+        use std::os::unix::fs::PermissionsExt;
+        if !cfg!(debug_assertions) {
+            return; // release builds ignore the environment on purpose
+        }
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(dir.path().join("epubcheck.jar"), "x").unwrap();
+        let java = dir.path().join("java");
+        std::fs::write(&java, "#!/bin/sh\nexit 0\n").unwrap();
+        std::fs::set_permissions(&java, std::fs::Permissions::from_mode(0o755)).unwrap();
+        std::env::set_var("EPUBCHECK_DIR", dir.path());
+        std::env::set_var("JAVA_BIN", &java);
+        let info = tauri::async_runtime::block_on(epubcheck_find());
+        std::env::remove_var("EPUBCHECK_DIR");
+        std::env::remove_var("JAVA_BIN");
+        assert_eq!(info, Ok(EpubcheckInfo { bundled: false }));
     }
 
     #[test]

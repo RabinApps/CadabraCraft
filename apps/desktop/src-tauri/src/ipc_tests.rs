@@ -18,11 +18,16 @@ fn mock_app() -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     build_app(true)
 }
 
-/// `with_state: false` leaves `WatchState`, `AudioJobs`, `MediaRoots` and `PickedPaths` unmanaged, as a build that forgot `.manage` would be.
+/// `with_state: false` leaves `WatchState`, `AudioJobs`, `MediaRoots`, `PickedPaths` and `EpubcheckJob` unmanaged, as a build that forgot `.manage` would be.
 fn build_app(with_state: bool) -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     let builder = mock_builder();
     let builder = if with_state {
-        builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()).manage(commands::PickedPaths::default())
+        builder
+            .manage(WatchState::default())
+            .manage(AudioJobs::default())
+            .manage(commands::MediaRoots::default())
+            .manage(commands::PickedPaths::default())
+            .manage(crate::epubcheck::EpubcheckJob::default())
     } else {
         builder
     };
@@ -376,6 +381,20 @@ fn typst_commands_work_through_the_ipc() {
     assert_eq!(kind_of(call(&w, "typst_compile", json!({}))), "other");
     assert_eq!(kind_of(get_ipc_response(&w, request("typst_query", InvokeBody::Raw(vec![1, 2]), &[]))), "other");
     assert_eq!(kind_of(call(&w, "typst_query", json!({}))), "other");
+}
+
+#[test]
+fn epubcheck_commands_work_through_the_ipc() {
+    let (app, w) = mock_app();
+    let job = app.state::<crate::epubcheck::EpubcheckJob>();
+    // Cancelling raises the flag the running check polls.
+    call(&w, "epubcheck_cancel", json!({})).unwrap();
+    assert!(job.cancel_requested());
+    // Starting a check clears the flag again; a folder that is not a book is refused before any Java runs.
+    let dir = tempfile::tempdir().unwrap();
+    let r = call(&w, "epubcheck_validate", json!({ "root": dir.path().to_string_lossy(), "path": "book.epub" }));
+    assert_eq!(kind_of(r), "other");
+    assert!(!job.cancel_requested());
 }
 
 #[test]

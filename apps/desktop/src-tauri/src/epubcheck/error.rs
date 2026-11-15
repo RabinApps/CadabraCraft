@@ -64,6 +64,18 @@ mod tests {
     }
 
     #[test]
+    fn a_tauri_error_becomes_an_other_error_with_its_message() {
+        let e = EpubcheckError::from(tauri::Error::AssetNotFound("missing.html".into()));
+        assert!(matches!(e, EpubcheckError::Other { ref message } if message.contains("missing.html")), "{e:?}");
+    }
+
+    #[test]
+    fn a_project_error_becomes_an_other_error() {
+        let e = EpubcheckError::from(ProjectError::NotFound { path: "exports/book.epub".into() });
+        assert!(matches!(e, EpubcheckError::Other { ref message } if !message.is_empty()), "{e:?}");
+    }
+
+    #[test]
     fn run_errors_map_onto_their_kinds() {
         assert_eq!(EpubcheckError::from(RunError::Timeout { seconds: 3 }), EpubcheckError::Timeout { seconds: 3 });
         assert_eq!(EpubcheckError::from(RunError::Cancelled), EpubcheckError::Cancelled);
