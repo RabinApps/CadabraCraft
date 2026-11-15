@@ -19,10 +19,11 @@ import { snapshotSteps } from "./scenario/snapshots.ts";
 import { filterSteps } from "./scenario/filters.ts";
 import { typographySteps } from "./scenario/typography.ts";
 import { importAndCloseSteps } from "./scenario/import-and-close.ts";
-import { referencesSteps } from "./scenario/references.ts";
+import { referencesSteps } from "./scenario/references/index.ts";
 import { chapterIconsSteps } from "./scenario/chapter-icons.ts";
 import { moreFormattingSteps } from "./scenario/more-formatting.ts";
 import { osA11ySteps } from "./scenario/os-a11y.ts";
+import { helpDialogsSteps } from "./scenario/help-dialogs.ts";
 import {
   acceleratorSteps,
   indexGlossaryPagesSteps,
@@ -36,6 +37,7 @@ try {
   await editingSteps(ctx);
   await moreFormattingSteps(ctx);
   await osA11ySteps(ctx);
+  await helpDialogsSteps(ctx);
   await referencesSteps(ctx);
   await exportSteps(ctx);
   await pdfAndDetailsSteps(ctx);

@@ -67,12 +67,16 @@ export function activeOrPressed(): Element | null {
 
 export type ModalSize = "sm" | "md" | "wide" | "xl" | "full";
 
+// A dialog taller than the window scrolls; a classic scrollbar would take room on the right only and push the content
+// off centre, so the same room is kept on the left.
+const scrolls = "overflow-y-auto [scrollbar-gutter:stable_both-edges]";
+
 const sizeClass: Record<ModalSize, string> = {
-  sm: "max-h-[92dvh] w-[min(92vw,460px)] overflow-y-auto",
-  md: "max-h-[92dvh] w-[min(92vw,560px)] overflow-y-auto",
-  wide: "max-h-[92dvh] w-[min(92vw,680px)] overflow-y-auto",
-  xl: "max-h-[92dvh] w-[min(94vw,860px)] overflow-y-auto",
-  full: "max-h-[92dvh] w-[min(96vw,1120px)] overflow-y-auto",
+  sm: `max-h-[92dvh] w-[min(92vw,460px)] ${scrolls}`,
+  md: `max-h-[92dvh] w-[min(92vw,560px)] ${scrolls}`,
+  wide: `max-h-[92dvh] w-[min(92vw,680px)] ${scrolls}`,
+  xl: `max-h-[92dvh] w-[min(94vw,860px)] ${scrolls}`,
+  full: `max-h-[92dvh] w-[min(96vw,1120px)] ${scrolls}`,
 };
 
 export const overlayClass = "motion-overlay fixed inset-0 z-(--z-overlay) bg-scrim";
