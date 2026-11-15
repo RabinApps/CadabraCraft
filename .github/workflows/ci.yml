@@ -118,7 +118,12 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           pnpm test:coverage:unit
-          pnpm --filter @cadabracraft/desktop test:e2e:coverage
+          # The Playwright run merges the V8 data of ~3000 tests in one process at the end (globalTeardown), which needed
+          # more than Node's default 2 GB heap (run #164 died in it); give it 60% of the machine's memory, at most 8 GB.
+          mem_mb=$(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)
+          heap_mb=$((mem_mb * 6 / 10)); [ "$heap_mb" -gt 8192 ] && heap_mb=8192
+          echo "cores: $(nproc), memory: ${mem_mb} MB, Node heap for the e2e coverage run: ${heap_mb} MB"
+          NODE_OPTIONS="--max-old-space-size=${heap_mb}" pnpm --filter @cadabracraft/desktop test:e2e:coverage
           pnpm coverage:report:js
       - name: Upload JavaScript coverage (Linux)
         if: runner.os == 'Linux'
