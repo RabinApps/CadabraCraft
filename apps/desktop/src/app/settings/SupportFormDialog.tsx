@@ -15,8 +15,10 @@ import { Notice } from "../../ui/feedback/Notice";
 
 /**
  * The Contact and Feedback forms from the support desk, in a dialog. The page behind the frame is requested only once
- * the dialog is open, never at start-up. If it does not load (no connection, blocked), the dialog says so and offers
- * the same form in the author's browser.
+ * the dialog is open, never at start-up. The frame's own `load` event is not trusted: a page the desk refuses to put
+ * in a frame (for example, a `frame-ancestors` list that does not match the app's origin) still fires it, with an
+ * empty page. The form counts as shown once it sends its height message; if none arrives in time (no connection,
+ * blocked), the dialog says so and offers the same form in the author's browser.
  */
 export function SupportFormDialog({
   form,
@@ -54,7 +56,10 @@ function FormFrame({
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       const h = formHeightFrom(e, frame.current?.contentWindow);
-      if (h !== null) setHeight(h);
+      if (h === null) return;
+      // The form reports its height as soon as it renders, so this also proves it was not blocked from framing.
+      setLoaded(true);
+      setHeight(h);
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
@@ -90,7 +95,6 @@ function FormFrame({
           ref={frame}
           src={url}
           title={title}
-          onLoad={() => setLoaded(true)}
           referrerPolicy="no-referrer"
           sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
           style={{ height: frameHeight(form, height) }}

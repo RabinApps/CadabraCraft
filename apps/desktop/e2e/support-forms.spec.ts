@@ -4,6 +4,8 @@ import { fakeTauri } from "./support/fakeTauri";
 // Settings > Help: the Contact and Feedback forms from the support desk, shown in a dialog.
 
 const FORM = (name: string) => `<!doctype html><title>${name}</title><body><h1>${name} form</h1>`;
+// What the real form does on render: it tells the dialog how tall it is.
+const REPORT_HEIGHT = `<script>parent.postMessage({type:"supdesk:height",height:520},"*")</script>`;
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -22,7 +24,7 @@ test("nothing is requested from the support desk until a form is opened", async 
   const requests: string[] = [];
   await page.route("https://support.cadabracraft.com/**", (route) => {
     requests.push(route.request().url());
-    return route.fulfill({ contentType: "text/html", body: FORM("Contact") });
+    return route.fulfill({ contentType: "text/html", body: FORM("Contact") + REPORT_HEIGHT });
   });
   await openHelp(page);
   expect(requests).toEqual([]);
@@ -46,7 +48,7 @@ test("the feedback form opens in its own dialog and the form is taller than the 
   await page.route("https://support.cadabracraft.com/**", (route) =>
     route.fulfill({
       contentType: "text/html",
-      body: `${FORM("Feedback")}<script>parent.postMessage({type:"supdesk:height",height:520},"*")</script>`,
+      body: FORM("Feedback") + REPORT_HEIGHT,
     }),
   );
   await openHelp(page);
@@ -69,4 +71,21 @@ test("a form that cannot load says so and offers the browser", async ({ page }) 
   await expect(dialog.getByRole("alert")).toContainText("could not load");
   await expect(dialog.locator("iframe")).toHaveCount(0);
   await dialog.getByRole("button", { name: "Open in browser" }).click();
+});
+
+test("a form page that loads but never reports its height (blocked from framing) offers the browser", async ({
+  page,
+}) => {
+  await page.clock.install();
+  // A page that refuses to be framed still fires the frame's load event with an empty document.
+  await page.route("https://support.cadabracraft.com/**", (route) =>
+    route.fulfill({ contentType: "text/html", body: "<!doctype html><title>blocked</title>" }),
+  );
+  await openHelp(page);
+  await page.getByRole("button", { name: "Contact", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Contact CadabraCraft" });
+  await expect(dialog.locator("iframe")).toBeVisible();
+  await page.clock.fastForward(13_000);
+  await expect(dialog.getByRole("alert")).toContainText("could not load");
+  await expect(dialog.getByRole("button", { name: "Open in browser" })).toBeVisible();
 });
