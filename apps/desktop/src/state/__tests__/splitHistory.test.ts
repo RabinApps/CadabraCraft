@@ -281,7 +281,7 @@ describe("splitting a chapter at a heading", () => {
         ...st.history,
         redo: st.history.redo.map((h) => ({
           ...h,
-          imported: h.imported.map((i) => ({ path: i.path })),
+          imported: (h.imported ?? []).map((i) => ({ path: i.path })),
         })),
       },
     }));
