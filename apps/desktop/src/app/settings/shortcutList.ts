@@ -102,7 +102,7 @@ const MODIFIERS = ["Mod", "Alt", "Shift"] as const;
  */
 export function comboFromTiptapKey(key: string): string | null {
   const parts = key.split("-");
-  const last = parts.pop() ?? "";
+  const last = parts.pop() as string; // split always gives at least one part
   if (last === "" || /[^\u0020-\u007e]/.test(last)) return null;
   const mods = MODIFIERS.filter((m) => parts.includes(m));
   return [...mods, last.length === 1 ? last.toUpperCase() : last].join("+");
@@ -250,7 +250,7 @@ function keyFor(part: string, mac: boolean): Key {
 export function keysFor(combo: string, mac: boolean): Key[] {
   // A combo's last part is the key; "+" never is one (the key "," and the brackets are, so splitting on "+" is safe).
   const parts = combo.split("+");
-  const key = parts.pop() ?? "";
+  const key = parts.pop() as string; // split always gives at least one part
   const mods = (mac ? ["Alt", "Shift", "Mod"] : ["Mod", "Alt", "Shift"]).filter((m) =>
     parts.includes(m),
   );

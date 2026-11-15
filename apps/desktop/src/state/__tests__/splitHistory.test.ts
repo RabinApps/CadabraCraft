@@ -3,21 +3,36 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { disk, trashMethods, writeFile } from "../../test/fakeBridge";
 
 let failFile: string | null = null;
+/** More paths whose writes fail, and the paths whose nth write fails (the manifest is written twice in a failed split). */
+const failAlso = new Set<string>();
+const failOnNth = new Map<string, number>();
+const writes = new Map<string, number>();
+/** Paths whose write the disk answers with a conflict copy (the file had changed outside the app). */
+const conflictOn = new Set<string>();
 let failTrash = false;
+let failList = false;
 /** Every write of a file the split touches and every trash, in order. */
 const log: string[] = [];
 vi.mock("../../lib/bridge", async () =>
   (await import("../../test/fakeBridge")).fakeBridge({
     ...trashMethods,
+    listTrash: async () => {
+      if (failList) throw new Error("cannot list the trash");
+      return trashMethods.listTrash();
+    },
     trashFile: async (r: string, p: string) => {
       if (failTrash) throw new Error("trash is locked");
       log.push(`trash ${p}`);
       return trashMethods.trashFile(r, p);
     },
     writeFile: async (r: string, p: string, c: string) => {
-      if (p === failFile) throw new Error("disk full");
+      const nth = (writes.get(p) ?? 0) + 1;
+      writes.set(p, nth);
+      if (p === failFile || failAlso.has(p) || failOnNth.get(p) === nth)
+        throw new Error("disk full");
       log.push(`write ${p}`);
-      return writeFile(r, p, c);
+      const w = await writeFile(r, p, c);
+      return conflictOn.has(p) ? { ...w, conflict_copy: `${p}.conflict` } : w;
     },
   }),
 );
@@ -72,7 +87,12 @@ beforeEach(async () => {
   disk.clear();
   log.length = 0;
   failFile = null;
+  failAlso.clear();
+  failOnNth.clear();
+  writes.clear();
+  conflictOn.clear();
   failTrash = false;
+  failList = false;
   useProject.setState({
     activeLanguage: null,
     root: null,
@@ -196,6 +216,89 @@ describe("splitting a chapter at a heading", () => {
     expect(disk.get(FILE)).toBe(text(doc));
     expect(s().history.undo).toEqual([]);
     expect(trashed()).toHaveLength(1); // the half-written new chapter went to the trash
+  });
+
+  it("tells the author about every file that had changed outside the app, and still splits", async () => {
+    conflictOn.add(FILE);
+    conflictOn.add("comments/ch-1.json");
+    conflictOn.add("manuscript/002-second-half.json");
+    const id = await a().splitChapter("ch-1", 2, "");
+    expect(titles()).toEqual(["Chapter One", "Second half"]);
+    expect(id).toBeTruthy();
+    const notice = s().notice;
+    expect(notice).toContain(`${FILE}.conflict`);
+    expect(notice).toContain("comments/ch-1.json.conflict");
+    expect(notice).toContain("manuscript/002-second-half.json.conflict");
+  });
+
+  it("still puts everything back when the undo steps themselves fail, and says the chapter was not split", async () => {
+    // The shortened chapter cannot be written, and neither can the original text, the comments or the book's list on the way back.
+    failFile = FILE;
+    failAlso.add("comments/ch-1.json");
+    failOnNth.set("cadabra.json", 2);
+    failTrash = true;
+    await expect(a().splitChapter("ch-1", 2, "")).rejects.toThrow(/The chapter was not split/);
+    failFile = null;
+    failAlso.clear();
+    failTrash = false;
+    // The list was saved once (the split) and its restore failed, so the book still lists the new chapter; no text is lost.
+    expect(read("manuscript/002-second-half.json")).toBeTruthy();
+    expect(disk.get(FILE)).toBe(text(doc));
+  });
+
+  it("undo that cannot save the book's list reports it even when the cut chapter cannot be shortened again", async () => {
+    await a().splitChapter("ch-1", 2, "");
+    // Undo writes the whole text back first (the next write of the chapter), then the list fails, then shortening it again fails.
+    failOnNth.set(FILE, (writes.get(FILE) ?? 0) + 2);
+    failOnNth.set("cadabra.json", (writes.get("cadabra.json") ?? 0) + 1);
+    expect(await a().undo()).toBe(false);
+    expect(titles()).toEqual(["Chapter One", "Second half"]);
+  });
+
+  it("undo that cannot trash the new chapter reports it even when the cut chapter cannot be shortened again", async () => {
+    await a().splitChapter("ch-1", 2, "");
+    failTrash = true;
+    failOnNth.set(FILE, (writes.get(FILE) ?? 0) + 2);
+    expect(await a().undo()).toBe(false);
+    expect(titles()).toEqual(["Chapter One", "Second half"]);
+  });
+
+  it("redo that cannot save the list puts the new chapter back in the trash, even if restoring the old list fails too", async () => {
+    await a().splitChapter("ch-1", 2, "");
+    expect(await a().undo()).toBe(true);
+    failAlso.add("cadabra.json"); // the list cannot be saved now, nor restored afterwards
+    expect(await a().redo()).toBe(false);
+    failAlso.clear();
+    expect(titles()).toEqual(["Chapter One"]);
+    expect(trashed().length).toBeGreaterThan(0);
+  });
+
+  it("redo of a page that is no longer in the trash says so and changes nothing", async () => {
+    await a().splitChapter("ch-1", 2, "");
+    expect(await a().undo()).toBe(true);
+    useProject.setState((st) => ({
+      history: {
+        ...st.history,
+        redo: st.history.redo.map((h) => ({
+          ...h,
+          imported: h.imported.map((i) => ({ path: i.path })),
+        })),
+      },
+    }));
+    expect(await a().redo()).toBe(false);
+    expect(s().notice).toMatch(/no longer in the trash/);
+    expect(titles()).toEqual(["Chapter One"]);
+  });
+
+  it("a trash list that cannot be refreshed after undo does not turn the undo into a failure", async () => {
+    await a().splitChapter("ch-1", 2, "");
+    useProject.setState({
+      trash: [{ path: ".cadabra/trash/x.json", original: "x.json", trashed_at: "20260101-1200" }],
+    } as never);
+    failList = true;
+    expect(await a().undo()).toBe(true);
+    await Promise.resolve();
+    expect(titles()).toEqual(["Chapter One"]);
   });
 
   it("keeps the text when undo cannot trash the new chapter: the split stays, nothing is lost", async () => {
