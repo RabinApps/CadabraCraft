@@ -11,6 +11,23 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
+  # Shadow mode: says in the job summary which parts of CI the change could affect (scripts/affected/affected.mjs), but
+  # nothing below depends on it yet, so every job still runs in full. The selection is enforced only after it has missed
+  # no failing test over a couple of weeks of pull requests (docs/architecture.md, "Selecting tests"). The `full-ci`
+  # label already forces the answer to "everything".
+  changes:
+    if: github.event_name == 'pull_request'
+    runs-on: kinhin-container
+    continue-on-error: true # a shadow check never fails the run
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version: 26 }
+      - run: node scripts/affected/affected.mjs
+        env:
+          AFFECTED_BASE: origin/${{ github.base_ref }}
+          FORCE_FULL: ${{ contains(github.event.pull_request.labels.*.name, 'full-ci') && '1' || '0' }}
   js:
     strategy:
       fail-fast: false # one OS failing must not hide how the others do

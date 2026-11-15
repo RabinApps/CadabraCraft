@@ -2417,3 +2417,22 @@ The UI is the EPUB panel of the Export dialog (`app/export/EpubValidation.tsx`):
 | Widening the navigation guard to the whole host    | Only `/embed/` pages are needed.                                                                            |
 
 **Known limit:** keys pressed while the form has focus go to the form, so Escape does not close the dialog from inside it; the Close button does, and Escape works from anywhere else in the dialog.
+
+## Selecting tests from the change: a deterministic map in shadow mode first (2026-11-15)
+
+**Decision:** pull requests will run only the parts of CI a change can affect, chosen by `scripts/affected/affected.mjs` from `git diff` and the workspace's `package.json` files (no model). Today it runs in **shadow mode**: the `changes` job prints what it would select in the job summary and every job still runs in full. It is enforced only after about two weeks (or 20 pull requests) in which it missed no test that failed in the full run. Enforcement also needs a nightly full run on `main`, the `full-ci` label (already read by the script) and the full coverage gate on `main`, because the coverage floors can only be measured on a full run.
+
+**Rules:** a docs, design or agent-settings change needs no test; a change in `src-tauri` selects the Rust job and the WebDriver build; a change in a package selects that package, everything that depends on it and, when the desktop app is among them, the Playwright and accessibility runs; `apps/website` stays in its own package. Lockfiles, workflows, `scripts/`, the Playwright and Vite configs, the e2e support code and root configs, any file no rule knows, a diff that cannot be read and the `full-ci` label select everything.
+
+**Not built yet:** a per-test file map for Playwright (the part that would cut the hour-long run). The app's Vite dev server loads the core of the app in every test, so a change to a core file would still select almost every test; only changes to a leaf component would shrink the run. Build it from the coverage data we already collect only if an estimate over the last commits shows a median selection well under half of the suite.
+
+**Rejected:**
+
+| Alternative                                   | Why not                                                                                                                                                                                                                                      |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Meta-style predictive selection or Launchable | Needs weeks of test history and a model to retrain, or an external service that gets the repository's metadata.                                                                                                                              |
+| An LLM picking tests from the diff            | The safe designs (PyTorch, Juju) wrap it in a deterministic ranking, shadow mode and a run-everything fallback; the model would add a secret and send the diff out for little gain over the map. It can be added later as an add-only layer. |
+| Playwright `--only-changed`                   | Selects changed spec files only: a source change selects nothing, a config change selects hundreds.                                                                                                                                          |
+| Vitest `--changed` alone                      | Follows static imports only and reruns everything on a config change; the package graph is exact for this monorepo and also covers the other jobs.                                                                                           |
+
+**Known limit:** an unmapped or global change always runs everything, so the saving is for the common small changes (docs, one package, one Rust module, one component), not for a change to shared setup.
