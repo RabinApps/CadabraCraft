@@ -10,6 +10,8 @@ jobs:
     uses: ./.github/workflows/ci.yml
   build:
     needs: ci
+    # Signing and notarization secrets live in the `release` environment.
+    environment: release
     strategy:
       fail-fast: false
       matrix:

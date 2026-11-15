@@ -4,6 +4,7 @@ import { getLocale, type LocaleParams } from "@/lib/params";
 import { PageHeader } from "@/components/PageHeader";
 import { SponsorBand } from "@/components/SponsorBand";
 import { pageMetadata } from "@/lib/seo";
+import { appVersion, installers } from "@/lib/release";
 import { RELEASES, REPO, btnPrimary, btnSecondary } from "@/lib/site";
 
 export async function generateMetadata({ params }: LocaleParams) {
@@ -11,17 +12,10 @@ export async function generateMetadata({ params }: LocaleParams) {
   return pageMetadata(
     locale,
     "Download CadabraCraft",
-    "CadabraCraft is a free desktop app for writing and formatting books. Installers for macOS and Linux come first, with Windows coming soon.",
+    "CadabraCraft is a free desktop app for writing and formatting books. Download installers for macOS and Linux, with Windows coming soon.",
     "/download/",
   );
 }
-
-// Matches .github/workflows/release.yml (macOS and Linux; Windows is not built for release yet). Replace the status with a link when a release is published.
-const platforms = [
-  { name: "macOS", detail: "Universal build for Apple silicon and Intel (.dmg)" },
-  { name: "Windows", detail: "Installer (.exe), WebView2 included", soon: true },
-  { name: "Linux", detail: "AppImage (x86-64)" },
-] as const;
 
 const good = [
   { title: "No account", body: "Write, edit and export with no sign-in and no network." },
@@ -34,16 +28,18 @@ const good = [
 
 export default async function Download({ params }: LocaleParams) {
   const locale = await getLocale(params);
+  const version = appVersion();
+  const platforms = installers(version);
   return (
     <>
       <PageHeader
         center
-        eyebrow="Early development"
+        eyebrow={`Version ${version}`}
         title="Download CadabraCraft"
-        lead="There is no packaged release yet. Installers for macOS and Linux will be published on GitHub Releases first, with Windows coming soon. You can build the app from source today."
+        lead="Installers for macOS and Linux are on GitHub Releases, with Windows coming soon. You can also build the app from source."
       >
         <a href={RELEASES} className={btnPrimary}>
-          GitHub Releases
+          All releases
         </a>
         <a href="#build" className={btnSecondary}>
           Build from source
@@ -59,9 +55,15 @@ export default async function Download({ params }: LocaleParams) {
             <li key={p.name} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-6">
               <h3 className="text-lg font-semibold">{p.name}</h3>
               <p className="text-ink-muted">{p.detail}</p>
-              <p className="mt-auto w-fit rounded-full bg-sidebar px-2.5 py-1 text-xs font-semibold text-warn">
-                {"soon" in p ? "Coming soon" : "Not available yet"}
-              </p>
+              {p.href ? (
+                <a href={p.href} className={`${btnPrimary} mt-auto`}>
+                  {p.action}
+                </a>
+              ) : (
+                <p className="mt-auto w-fit rounded-full bg-sidebar px-2.5 py-1 text-xs font-semibold text-warn">
+                  Coming soon
+                </p>
+              )}
             </li>
           ))}
         </ul>
