@@ -26,7 +26,9 @@ function findVeraPdf(): string | null {
   return null;
 }
 const verapdf = findVeraPdf();
-const hasTypst = spawnSync("typst", ["--version"], { stdio: "ignore" }).status === 0;
+// The same lookup as node.ts: `TYPST_BIN` (CI fetches typst into the app's binaries folder, not onto the PATH), then the PATH.
+const hasTypst =
+  spawnSync(process.env.TYPST_BIN || "typst", ["--version"], { stdio: "ignore" }).status === 0;
 
 if (required && (!verapdf || !hasTypst)) {
   describe("veraPDF prerequisites", () => {

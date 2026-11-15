@@ -68,8 +68,18 @@ jobs:
           bash scripts/build-jre.sh
       # Chromium plus its system libraries (libnss3, libatk-bridge2.0-0, libgbm1 ...). This runs before `pnpm test` on purpose:
       # the Ace test inside `pnpm test` starts Puppeteer's own Chrome, which needs the same libraries on Linux.
-      - run: pnpm exec playwright install --with-deps chromium
+      - name: Playwright Chromium and its system libraries
+        shell: bash
         working-directory: apps/desktop
+        run: |
+          # Jobs on one runner machine share /tmp and the dpkg state, and two concurrent `apt-get install` runs made dpkg lose
+          # its .deb files ("cannot access archive /tmp/apt-dpkg-install-*"). Take a machine-wide lock where flock exists (not macOS).
+          LOCK=""; command -v flock >/dev/null 2>&1 && LOCK="flock /tmp/ci-apt.lock"
+          for i in 1 2 3 4 5; do
+            $LOCK pnpm exec playwright install --with-deps chromium && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
       # Ace by DAISY (EPUB accessibility): npm installs it into tools/ace and Puppeteer downloads its own Chrome.
       - run: bash scripts/fetch-ace.sh
       # REQUIRE_ACE=1 (fail instead of skip when Ace is missing) is set on Linux only, where the libraries above are known to
@@ -149,8 +159,18 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - run: pnpm install --frozen-lockfile
       # Both browsers with their system libraries; the Chromium libraries also serve Puppeteer's Chrome for Ace.
-      - run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Playwright Chromium, WebKit and its system libraries
+        shell: bash
         working-directory: apps/desktop
+        run: |
+          # Jobs on one runner machine share /tmp and the dpkg state, and two concurrent `apt-get install` runs made dpkg lose
+          # its .deb files ("cannot access archive /tmp/apt-dpkg-install-*"). Take a machine-wide lock where flock exists (not macOS).
+          LOCK=""; command -v flock >/dev/null 2>&1 && LOCK="flock /tmp/ci-apt.lock"
+          for i in 1 2 3 4 5; do
+            $LOCK pnpm exec playwright install --with-deps chromium webkit && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
       - run: bash scripts/fetch-ace.sh
       - name: veraPDF and Typst
         run: |
@@ -252,7 +272,7 @@ jobs:
       - name: Check the WebDriver tools
         run: |
           PATH="$CARGO_HOME/bin:$PATH"
-          command -v tauri-driver && tauri-driver --version
+          command -v tauri-driver # tauri-driver has no --version flag: it prints its help and exits 1
           command -v xvfb-run
           command -v WebKitWebDriver
       - name: Build the app (debug, dev-automation bridge for the dialog answers)
