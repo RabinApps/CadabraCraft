@@ -130,7 +130,9 @@ mod tests {
         let prefix = "https://raw.githubusercontent.com/google/fonts/";
         for f in families() {
             for file in all_files(f) {
-                let rest = file.url.strip_prefix(prefix).unwrap_or_else(|| panic!("{}: {}", f.id, file.url));
+                let Some(rest) = file.url.strip_prefix(prefix) else {
+                    panic!("{}: {}", f.id, file.url);
+                };
                 let (commit, path) = rest.split_once('/').unwrap();
                 assert!(commit.len() == 40 && commit.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')), "{}: commit {commit}", f.id);
                 assert!(path.starts_with("ofl/"), "{}: {path}", f.id);
@@ -237,7 +239,10 @@ mod tests {
     #[test]
     fn real_licence_files_match_their_pins() {
         let count = if std::env::var("CADABRA_NET_TESTS").as_deref() == Ok("1") { 3 } else { 0 };
-        let files: Vec<&RemoteFile> = families().take(count).map(|f| &f.licence).collect();
+        let mut files: Vec<&RemoteFile> = Vec::new();
+        for f in families().take(count) {
+            files.push(&f.licence);
+        }
         download_pins(&files, tempfile::tempdir().unwrap().path(), true).unwrap();
     }
 

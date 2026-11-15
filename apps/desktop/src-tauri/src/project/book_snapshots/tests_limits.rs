@@ -10,7 +10,10 @@ fn limits(max_count: usize, max_bytes: u64) -> Limits {
 }
 
 fn entry_named(d: &Path, name: &str) -> BookSnapshotEntry {
-    list_book_snapshots(d).unwrap().into_iter().find(|e| e.name == name).unwrap_or_else(|| panic!("no snapshot named {name}"))
+    let Some(entry) = list_book_snapshots(d).unwrap().into_iter().find(|e| e.name == name) else {
+        panic!("no snapshot named {name}");
+    };
+    entry
 }
 
 fn nothing() -> PruneReport {

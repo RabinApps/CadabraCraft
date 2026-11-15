@@ -196,7 +196,9 @@ fn concurrent_saves_snapshots_trash_and_listing_lose_no_unseen_update_and_leave_
         }
         s.spawn(|| {
             for _ in 0..4 {
-                book_snapshots::create_book_snapshot(root, "during", Utc::now()).unwrap_or_else(|e| panic!("snapshot during writes failed: {e:?}"));
+                if let Err(e) = book_snapshots::create_book_snapshot(root, "during", Utc::now()) {
+                    panic!("snapshot during writes failed: {e:?}");
+                }
                 *snapshots_made.lock().unwrap() += 1;
             }
         });

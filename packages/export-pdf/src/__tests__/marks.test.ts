@@ -259,6 +259,19 @@ describe("page marks in the source", () => {
       }),
     ).toContain("#dropcap(height: 3, gap: 0.12em)[Once upon]");
   });
+
+  it("marks the heading that comes before the drop cap paragraph, with the block numbers of the page", () => {
+    const src = marked(
+      chapter(
+        { type: "heading", attrs: { level: 1 }, content: [t("A word first")] },
+        { type: "paragraph", content: [t("Once upon a time")] },
+      ),
+      { template: "novel" },
+    );
+    expect(src).toContain('#heading(level: 1)[#bm-s(0, 0, "h")A #wm(1)word #wm(2)first]');
+    expect(src).toContain('#bm-s(0, 1, "p")');
+    expect(src).toContain("#dropcap(height: 3, gap: 0.12em)[Once #wm(1)upon #wm(2)a #wm(3)time]");
+  });
 });
 
 describe("parsePageReport marks", () => {
