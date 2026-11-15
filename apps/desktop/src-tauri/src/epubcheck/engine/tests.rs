@@ -113,3 +113,39 @@ fn the_tail_keeps_the_last_lines() {
     let t = tail(&text);
     assert!(t.starts_with("line 5") && t.ends_with("line 10"));
 }
+
+#[test]
+fn the_resource_folder_is_set_once_and_the_first_value_stays() {
+    set_resource_dir(PathBuf::from("first"));
+    set_resource_dir(PathBuf::from("second"));
+    assert!(RESOURCE_DIR.get().is_some());
+}
+
+#[test]
+fn windows_looks_for_java_exe_first() {
+    assert_eq!(java_names(true), ["java.exe", "java"]);
+    assert_eq!(java_names(false), ["java"]);
+}
+
+#[cfg(unix)]
+#[test]
+fn a_debug_build_runs_the_java_named_by_java_bin() {
+    let dir = tempfile::tempdir().unwrap();
+    touch(&dir.path().join("epubcheck/epubcheck.jar"));
+    script(&dir.path().join("my-java"), "exit 0");
+    let java = dir.path().join("my-java");
+    let rt = find_runtime_in(Some(dir.path()), None, java.to_str(), None, None, "x86_64", true).unwrap();
+    assert_eq!(rt.java, java);
+    assert!(!rt.bundled);
+}
+
+#[cfg(unix)]
+#[test]
+fn a_debug_build_falls_back_to_the_checkout_runtime() {
+    let dir = tempfile::tempdir().unwrap();
+    touch(&dir.path().join("epubcheck/epubcheck.jar"));
+    script(&dir.path().join("jre/x86_64/bin/java"), "exit 0");
+    let rt = find_runtime_in(None, None, None, Some(dir.path()), None, "x86_64", true).unwrap();
+    assert_eq!(rt.java, dir.path().join("jre/x86_64/bin/java"));
+    assert!(!rt.bundled);
+}

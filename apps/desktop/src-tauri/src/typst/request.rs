@@ -148,4 +148,16 @@ mod tests {
             assert!(matches!(parse_query_request(&body), Err(TypstError::Other { .. })), "{what}");
         }
     }
+
+    #[test]
+    fn query_request_refuses_a_file_that_runs_past_the_end_and_extra_bytes() {
+        let ok = r#"{"source":"s","selector":"<x>","files":[{"name":"a","len":2}]}"#;
+        assert!(parse_query_request(&frame(ok, &[1, 2])).is_ok());
+        let short = parse_query_request(&frame(ok, &[1])).unwrap_err();
+        assert!(format!("{short:?}").contains("runs past the end"), "{short:?}");
+        let extra = parse_query_request(&frame(ok, &[1, 2, 3])).unwrap_err();
+        assert!(format!("{extra:?}").contains("extra bytes"), "{extra:?}");
+        let bad_json = parse_query_request(&frame("nope", &[])).unwrap_err();
+        assert!(format!("{bad_json:?}").contains("bad compile request"), "{bad_json:?}");
+    }
 }

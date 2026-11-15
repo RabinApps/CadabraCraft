@@ -70,4 +70,11 @@ mod tests {
         assert_eq!(EpubcheckError::from(RunError::NotFound("x".into())), EpubcheckError::NotFound { message: "x".into() });
         assert_eq!(EpubcheckError::from(RunError::Other("y".into())), other("y"));
     }
+
+    #[test]
+    fn io_and_tauri_errors_become_other_with_their_text() {
+        assert_eq!(other(std::io::Error::other("disk gone")), EpubcheckError::Other { message: "disk gone".into() });
+        let from_tauri = EpubcheckError::from(tauri::Error::Io(std::io::Error::other("webview gone")));
+        assert_eq!(from_tauri, EpubcheckError::Other { message: "webview gone".into() });
+    }
 }

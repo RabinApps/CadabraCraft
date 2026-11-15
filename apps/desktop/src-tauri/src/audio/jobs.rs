@@ -190,6 +190,24 @@ mod tests {
     }
 
     #[test]
+    fn a_poisoned_table_or_early_cancel_list_still_takes_a_cancel() {
+        let jobs = std::sync::Arc::new(AudioJobs::default());
+        let held = jobs.clone();
+        assert!(std::thread::spawn(move || {
+            let _table = held.0.lock().unwrap();
+            let _early = held.2.lock().unwrap();
+            panic!("poison both locks");
+        })
+        .join()
+        .is_err());
+        jobs.cancel("later"); // not started: remembered in the early list
+        assert!(jobs.flag("later").load(Ordering::Relaxed));
+        let running = jobs.flag("running");
+        jobs.cancel("running");
+        assert!(running.load(Ordering::Relaxed));
+    }
+
+    #[test]
     fn a_poisoned_download_lock_still_marks_and_releases_packs() {
         let jobs = std::sync::Arc::new(AudioJobs::default());
         let held = jobs.clone();
