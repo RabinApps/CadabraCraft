@@ -48,7 +48,10 @@ fetch_typst() { # fetch_typst <triple>
   curl -fL -o "$tmp/$asset" "https://github.com/typst/typst/releases/download/v$TYPST_V/$asset"
   local got; got=$(sha256 "$tmp/$asset")
   [ "$got" = "$want" ] || { echo "sha256 mismatch for $asset: got $got" >&2; return 1; }
-  if [[ $asset == *.zip ]]; then unzip_to "$tmp/$asset" "$tmp"; else tar -xJf "$tmp/$asset" -C "$tmp"; fi
+  if [[ $asset == *.zip ]]; then unzip_to "$tmp/$asset" "$tmp"; else
+    command -v xz >/dev/null 2>&1 || { echo "xz is needed to unpack $asset (Debian and Ubuntu: apt install xz-utils)" >&2; return 1; }
+    tar -xJf "$tmp/$asset" -C "$tmp"
+  fi
   cp "$tmp"/typst-*/LICENSE "$OUT/licenses/Typst-LICENSE.txt" # Apache-2.0 asks that the license and NOTICE travel with redistributions
   cp "$tmp"/typst-*/NOTICE "$OUT/licenses/Typst-NOTICE.txt"
   cp "$tmp"/typst-*/typst$exe "$dest.partial" # publish atomically so an interrupted run never leaves a half file

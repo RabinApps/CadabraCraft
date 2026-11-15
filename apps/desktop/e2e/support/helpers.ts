@@ -161,6 +161,16 @@ export async function focusEnd(page: Page) {
   await page.keyboard.press("ControlOrMeta+End");
 }
 
+/**
+ * Puts the caret in the last paragraph and waits until the editor has let go of a selected node (an image just inserted
+ * is selected, and the next insert would replace it). ProseMirror drops the node selection when it handles the click, but
+ * the toolbar and its menus read it a moment later, which a loaded CI runner makes long enough to lose.
+ */
+export async function caretInNextParagraph(page: Page) {
+  await page.locator(".ProseMirror p").last().click();
+  await expect(page.locator(".ProseMirror .ProseMirror-selectednode")).toHaveCount(0);
+}
+
 /** Makes the page surface ask Typst again (a canned answer is set after the chapter was first measured): Read mode and back remounts it. */
 export async function remeasure(page: Page) {
   await page.getByRole("radio", { name: "Read" }).click();

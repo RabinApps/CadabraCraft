@@ -1,6 +1,6 @@
 import { expect, test } from "../support/coverage";
 import { fakeTauri } from "../support/fakeTauri";
-import { newProject } from "../support/helpers";
+import { caretInNextParagraph, newProject } from "../support/helpers";
 
 // What assistive technology is given: roles, names, states and order, read from the browser's accessibility tree.
 // This is not speech (docs/accessibility.md, "Screen readers"), but a missing name or a lost state shows up here.
@@ -162,7 +162,7 @@ test("Add image dialog and images: a described image has a name, a decorative on
   await dialog.getByLabel("Description (alt text)").fill("A single pixel");
   await dialog.getByRole("button", { name: "Insert" }).click();
   // The new image is selected; a second insert would replace it, so put the caret in the next paragraph.
-  await page.locator(".ProseMirror p").last().click();
+  await caretInNextParagraph(page);
   await toolbar.getByRole("button", { name: "Image", exact: true }).click();
   await dialog.getByLabel("This image is decorative").check();
   await dialog.getByRole("button", { name: "Insert" }).click();
