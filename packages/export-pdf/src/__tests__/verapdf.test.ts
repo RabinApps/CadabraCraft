@@ -26,7 +26,8 @@ function findVeraPdf(): string | null {
   return null;
 }
 const verapdf = findVeraPdf();
-const hasTypst = spawnSync("typst", ["--version"], { stdio: "ignore" }).status === 0;
+const hasTypst =
+  spawnSync(process.env.TYPST_BIN ?? "typst", ["--version"], { stdio: "ignore" }).status === 0;
 
 if (required && (!verapdf || !hasTypst)) {
   describe("veraPDF prerequisites", () => {

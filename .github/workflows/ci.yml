@@ -253,7 +253,7 @@ jobs:
       - name: Check the WebDriver tools
         run: |
           PATH="$CARGO_HOME/bin:$PATH"
-          command -v tauri-driver && tauri-driver --version
+          command -v tauri-driver
           command -v xvfb-run
           command -v WebKitWebDriver
       - name: Build the app (debug, dev-automation bridge for the dialog answers)

@@ -56,7 +56,7 @@ The original baseline was 86.9% lines, 74.0% functions. Current measured totals 
 | remaining files                               | 95% to 100% | 7, 8                      |
 | lib.rs, main.rs                               | 0%          | excluded (builder wiring) |
 
-The explicitly excluded Rust source is `lib.rs` (Tauri builder wiring), `main.rs` (binary entry point, filtered out at collection), and exactly the command-macro wrapper source line `src/commands/project.rs:58`. The underlying command logic is exercised through unit and Tauri IPC tests. The gate removes the generated wrapper line from line totals; it does not discard whole command files. LLVM reports function-instantiation coverage below 100%; the 98% function floor is an interim ratchet, not a claim that Rust has reached 100%.
+The explicitly excluded Rust source is `lib.rs` (Tauri builder wiring), `main.rs` (binary entry point, filtered out at collection), and exactly the command-macro wrapper source line `src/commands/project.rs:62`. The underlying command logic is exercised through unit and Tauri IPC tests. The gate removes the generated wrapper line from line totals; it does not discard whole command files. LLVM reports function-instantiation coverage below 100%; the 98% function floor is an interim ratchet, not a claim that Rust has reached 100%.
 
 ## Rust edge cases (2026-10-29)
 

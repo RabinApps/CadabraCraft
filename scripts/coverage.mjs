@@ -19,7 +19,7 @@ const floors = {
 const rustExcluded = [
   "src/lib.rs", // application builder wiring, explicitly excluded by policy
   "src/platform/native_dialog.rs", // opens the OS file dialogs: needs a real window and a person
-  "src/commands/project.rs:58", // generated #[tauri::command] wrapper glue
+  "src/commands/project.rs:62", // generated #[tauri::command] wrapper glue
 ];
 
 function checkSummary(label, total, floor) {
