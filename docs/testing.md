@@ -74,7 +74,12 @@ pnpm perf:fuzz [target|all] [seconds]            # cargo-fuzz (nightly): docx_ar
 pnpm test:coverage             # all workspace Vitest coverage + instrumented Playwright + desktop report/gates
 pnpm test:coverage:unit        # only workspace Vitest coverage
 pnpm test:coverage:rust        # Rust LCOV and Rust ratchet (needs cargo-llvm-cov + llvm-tools-preview)
+pnpm coverage:fast             # the report for what the two commands above just measured (no Playwright run)
 ```
+
+`pnpm coverage:fast` (and `pnpm coverage:report`, which also reads the Playwright run) prints one table: area, metric, actual, floor, margin and status, and writes it to `coverage/report.md`; on CI it is also added to the job summary. Status is `pass`, `THIN` (within 0.25 points of the floor: it passes, but add tests before finishing) or `FAIL` (under the floor; the command exits 1). An area that was not measured in this run is listed as `NOT RUN`, which is a skipped gate and never a pass. A metric under its floor is fixed by adding tests, never by lowering a floor, widening an exclusion or skipping a test. The table logic is `scripts/coverage-table.mjs`, tested by `scripts/coverage-table.test.mjs`.
+
+Coverage depends on the tools being present: tests that need ffmpeg, typst or the speech engine skip when it is missing, and a skipped test takes its lines out of the numbers. Run the Rust coverage with the tools CI has (ffmpeg and ffprobe on the PATH, `REQUIRE_FFMPEG=1`, and `scripts/fetch-typst.sh`, `fetch-sherpa.sh` and `fetch-ffmpeg.sh` run), and treat a skipped tool test as a failed gate. The CI Rust coverage step sets `REQUIRE_FFMPEG=1` for that reason.
 
 Reports are written under the gitignored `coverage/` tree; raw Rust LCOV and LLVM artifacts remain under `apps/desktop/src-tauri/target/`. The desktop report merges Vitest and Playwright LCOV, while desktop unit and e2e totals are gated separately. The current interim floors are:
 

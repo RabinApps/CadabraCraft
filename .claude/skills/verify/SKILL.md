@@ -11,4 +11,4 @@ Run from the repo root and report each result faithfully, with failing output:
 4. `cd apps/desktop && pnpm test:e2e` (needs `pnpm exec playwright install chromium` once)
 5. `pnpm a11y --fast` (lint, contrast and the exporter output tests; the Playwright a11y specs already ran in step 4, otherwise run `pnpm a11y`). Include its stage table in the report (see the `a11y` skill)
 
-Say plainly which steps were skipped or failed. Do not claim the native app works unless `pnpm tauri dev` was actually launched.
+Say plainly which steps were skipped or failed. Do not claim the native app works unless `pnpm tauri dev` was actually launched. This suite does not measure coverage: `/quality-gates` does (`pnpm coverage:fast`), and its table belongs in the same report.

@@ -9,7 +9,7 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 - Never overwrite user files without a backup; writes are temp file + rename. Never store absolute paths in project files.
 - Store TipTap JSON on disk, never HTML. The schema in `packages/editor-schema` is the editor/exporter contract; exporters must throw on unknown nodes, never drop them.
 - `packages/*` must not import from `apps/desktop`. Use `workspace:*` for internal deps.
-- New logic must keep the coverage threshold of its area; new desktop UI should have instrumented Playwright coverage. See `docs/testing.md` for scope and exclusions.
+- New logic must keep the coverage threshold of its area; new desktop UI should have instrumented Playwright coverage. A metric under its floor is fixed with tests, never by lowering a floor, widening an exclusion or skipping a test. See `docs/testing.md` for scope and exclusions.
 - Record architecture decisions (with rejected alternatives) in `docs/architecture.md`.
 - Ask before downloading tools or binaries.
 - `design/cadabracraft.fig` is the UI source of truth (edited in OpenPencil) and `docs/design.md` must always match it. Draw UI there first, look at it (export the frame to PNG), and after any change to the design run `/sync-design` in the same turn. Edit it only through OpenPencil: the app, `pnpm exec openpencil` or `openpencil-mcp`; never write the file's bytes yourself. Procedure and known gaps in `docs/design.md`, "Editing the designs in OpenPencil".
@@ -26,4 +26,4 @@ Local-first desktop book editor (Tauri 2 + React + TipTap). README.md has layout
 
 Style skills (e.g. `solid`) are guidance only: this repo's conventions and the surrounding code win. In particular, keep the existing functional TypeScript style (pure functions, plain data) and do not introduce value-object classes or the 10-line/2-field limits.
 
-`/drive-app` clicks through the real app via the dev-only bridge, `/verify` full check, `/validate-epub`, `/change-file-format`, `/record-decision`, `/sync-design`, `/a11y` accessibility checks, `/quality-gates` the checklist every plan ends with (feature completeness, typecheck, lint, i18n, ADA, coverage) and runs after the work (in `.claude/skills`).
+`/drive-app` clicks through the real app via the dev-only bridge, `/verify` full check, `/validate-epub`, `/change-file-format`, `/record-decision`, `/sync-design`, `/a11y` accessibility checks, `/quality-gates` the checklist every plan ends with (feature completeness, typecheck, lint, i18n, ADA, and a coverage report from `pnpm coverage:fast` that must show every metric at or above its floor) and runs after the work (in `.claude/skills`).

@@ -364,6 +364,9 @@ jobs:
         working-directory: apps/desktop/src-tauri
       - name: Rust coverage (Linux)
         if: runner.os == 'Linux'
+        # The tests that decode audio with ffmpeg skip when it is missing, and a skipped test takes its lines out of the
+        # numbers; with this set a missing ffmpeg fails the step instead. The table goes to the job summary.
+        env: { REQUIRE_FFMPEG: "1" }
         run: |
           rustup component add llvm-tools-preview
           cargo install cargo-llvm-cov --locked
