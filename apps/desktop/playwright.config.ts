@@ -20,6 +20,11 @@ export default defineConfig({
     workers: 3,
     retries: 2,
   }),
+  // In CI the tests of one file spread over the workers too (the a11y sweeps are independent tests), and E2E_WORKERS sets the count.
+  ...(process.env.CI && {
+    fullyParallel: true,
+    ...(process.env.E2E_WORKERS && { workers: Number(process.env.E2E_WORKERS) }),
+  }),
   ...(port !== 1420 && { outputDir: `test-results-${port}` }),
   ...(process.env.WEBKIT && {
     projects: [{ name: "webkit", testMatch: webkitSpecs, use: { ...devices["Desktop Safari"] } }],

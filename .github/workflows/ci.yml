@@ -117,9 +117,8 @@ jobs:
             coverage/e2e/coverage-summary.json
             apps/desktop/coverage/coverage-summary.json
           if-no-files-found: error
-      - run: pnpm test:e2e
-        working-directory: apps/desktop
-        env: { CI: "1" }
+      # The Playwright e2e suite (Chromium against the dev server, fake Tauri backend) runs once, on Linux, in the coverage step
+      # above: that run executes every spec, so a second plain run and a macOS run would only repeat it.
   # Every automated accessibility gate in one place (scripts/a11y.sh) with the validators: veraPDF (PDF/UA-1, PDF/A-2b) on
   # real Typst output, Ace on the sample EPUBs, LibreOffice for docx and rtf. The stage table goes to the job summary.
   # NOT RUN YET: these steps have never run in CI (written on an unpushed branch); the first run may need fixes. The
