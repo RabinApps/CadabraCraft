@@ -16,7 +16,9 @@ describe.skipIf(skip)("native Markdown import", () => {
     const source = join(src, "book.md");
     const text = "# First\n\nFirst chapter text.\n\n# Second\n\nSecond chapter text.\n";
     writeFileSync(source, text);
+    // The folder picker records the canonical path of what was chosen, so the folder has to exist already.
     const target = join(app.dir(), "imported");
+    mkdirSync(target);
 
     await useEnglish(driver);
     await stubDialogs(driver, [source, target]);

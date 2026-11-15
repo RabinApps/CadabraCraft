@@ -1,15 +1,15 @@
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { By, Key, until } from "selenium-webdriver";
+import { By, until } from "selenium-webdriver";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   click,
-  editor,
   labelled,
   nativeSupport,
   startSession,
   stubFolderDialog,
+  typeInEditor,
   useEnglish,
   type Session,
 } from "./driver";
@@ -43,18 +43,13 @@ describe.skipIf(skip)("native smoke", () => {
     await click(driver, "Choose…");
     await click(driver, "Create book");
 
-    const first = await editor(driver);
     await driver.wait(
       until.elementLocated(
         By.xpath("//*[contains(@class,'ProseMirror')]//h1[normalize-space(.)='Chapter One']"),
       ),
       15_000,
     );
-    await first.click();
-    await first.sendKeys(
-      Key.chord(process.platform === "darwin" ? Key.COMMAND : Key.CONTROL, Key.END),
-      "Hello from tauri-driver",
-    );
+    await typeInEditor(driver, "Hello from tauri-driver");
     await click(driver, "Save");
     await driver.wait(
       until.elementLocated(By.xpath("//*[@role='status' and normalize-space(.)='Saved']")),
