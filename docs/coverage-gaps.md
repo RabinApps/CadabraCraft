@@ -4,7 +4,27 @@ Baseline measured 2026-10-27 with Vitest v8, instrumented Playwright/V8 and `car
 
 ## Status
 
-All 12 `packages/*` reached 100% lines, branches, functions and statements and enforce it through `strictCoverage` in `vitest.coverage.ts`. Product-code `v8 ignore` pragmas are locally commented with their defensive/unreachable rationale. The current measured gate totals (2026-10-27) are Desktop Vitest: 100% lines, 99.78% statements, 99.81% functions, 98.78% branches; Playwright: 99.02% lines, 97.81% statements, 95.81% functions, 92.51% branches; Rust: 99.75% lines and 98.65% functions. CI floors are 99/99/99/98 for desktop unit, 98/97/95/90 for e2e and 99/98 for Rust. The 153-spec Playwright run and 261 Rust tests passed. Rust has no uncovered executable source lines after the two allowlisted command-macro wrapper lines are removed; the remaining function gap is in LLVM-reported function instantiations.
+Measured 2026-11-15 with `pnpm test:coverage:unit`, `pnpm test:coverage:rust` and `pnpm coverage:fast` (the table is also in `coverage/report.md` and in each CI job summary). The Rust run is the CI setup: ffmpeg and ffprobe on the PATH, `REQUIRE_FFMPEG=1`, no `java`.
+
+| Area                             |        Lines | Branches | Functions | Statements | Floor                   | Margin                        |
+| -------------------------------- | -----------: | -------: | --------: | ---------: | ----------------------- | ----------------------------- |
+| Every package under `packages/*` |         100% |     100% |      100% |       100% | 100% each               | none needed                   |
+| Desktop Vitest                   |       99.87% |   98.27% |    99.40% |     99.58% | 99 / 98 / 99 / 99       | +0.87 / +0.27 / +0.40 / +0.58 |
+| Rust                             |       99.31% |      n/a |    98.35% |        n/a | 99 lines / 98 functions | +0.31 / +0.35                 |
+| Desktop Playwright               | not measured |          |           |            | 98 / 90 / 95 / 97       |                               |
+
+The Playwright coverage run takes hours, so it was measured last on 2026-10-27 (lines 99.02%, statements 97.81%, functions 95.81%, branches 92.51%); a newer run is due and is part of `pnpm test:coverage`. The 12 `packages/*` that enforce 100% do it through `strictCoverage` in `vitest.coverage.ts`; product-code `v8 ignore` pragmas carry a comment saying why the code cannot run.
+
+Two things kept the packages and Rust below their floors on CI until this date, and both are fixed:
+
+- Tests that need a real tool (typst, poppler, EPUBCheck, ffmpeg) or that rely on file modes (root ignores `chmod`) skip on the CI container, and a skipped test takes its lines out of the numbers. The gaps are now reached with stand-in tools and injected errors (`export-pdf` marks test, `mcp` stand-in poppler, typst and java, `project-fs` `fault-injection.test.ts`), and the Rust coverage step sets `REQUIRE_FFMPEG=1` so a missing tool fails the step.
+- `scripts/coverage.mjs` counted `src/platform/native_dialog.rs` in the Rust totals although `docs/testing.md` excludes it.
+
+What stays uncovered in Rust, and why (about 40 functions, none of them code that could run in a test):
+
+- Generated `#[tauri::command]` wrapper glue for commands that take a raw `Request` (`commands/assets.rs`, `typst/commands.rs` twice, `epubcheck/commands.rs`; `commands/project.rs:62` is the reviewed exclusion).
+- Error closures that need a second failure after a check just passed (an open or metadata call failing after `metadata` succeeded: `project/fsio`, `references`, `book_snapshots/edit.rs`); they exist for the race and cannot be staged.
+- Closures in generic helpers that are only instantiated for error types no test can produce (`audio/encode.rs`, `platform/sidecar.rs`, `epubcheck/error.rs`), and code behind plugins the mock runtime does not have (`commands/references.rs` opener, `commands/app.rs` resource directory).
 
 ## Historical TypeScript baseline (unit tests only)
 
