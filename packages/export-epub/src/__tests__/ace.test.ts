@@ -19,7 +19,12 @@ const win = process.platform === "win32";
 const ace = fileURLToPath(
   new URL(`../../../../tools/ace/node_modules/.bin/${win ? "ace.cmd" : "ace"}`, import.meta.url),
 );
-// Ace starts headless Chromium; a cold run takes several seconds, more when `pnpm test` runs every package at once.
+// Ace 1.4 runs its checks in Electron; a cold run takes several seconds, more when `pnpm test` runs every package at once.
+// On Linux, Electron needs a display (a virtual one when there is none: `xvfb-run`, which Playwright's system libraries
+// bring along) and refuses to start as root, which is how a container runs, unless its sandbox is switched off. Ace only
+// opens the EPUB this test just wrote, so the sandbox is not needed here.
+const linux = process.platform === "linux";
+const virtualDisplay = linux && !process.env.DISPLAY && !process.env.WAYLAND_DISPLAY;
 const ACE_TIMEOUT = 180_000;
 const fixture = (p: string) => new URL(`../../../../fixtures/${p}`, import.meta.url);
 const doc = JSON.parse(readFileSync(fixture("manuscripts/sample-chapter.json"), "utf8"));
@@ -41,16 +46,22 @@ interface Report {
   "earl:testSubject": { metadata: Record<string, string | string[]> };
 }
 
-/** Runs Ace on the bytes and returns its JSON report. Needs a Chrome: set PUPPETEER_EXECUTABLE_PATH, or let Puppeteer's own download be used. */
+/** Runs Ace on the bytes and returns its JSON report. */
 function runAce(name: string, bytes: Uint8Array): Report {
   const dir = mkdtempSync(join(tmpdir(), "ace-"));
   const f = join(dir, name);
   writeFileSync(f, bytes);
-  execFileSync(ace, ["--force", "--outdir", join(dir, "report"), f], {
-    encoding: "utf8",
-    stdio: "pipe",
-    shell: win,
-  });
+  const args = ["--force", "--outdir", join(dir, "report"), f];
+  execFileSync(
+    virtualDisplay ? "xvfb-run" : ace,
+    virtualDisplay ? ["--auto-servernum", ace, ...args] : args,
+    {
+      encoding: "utf8",
+      stdio: "pipe",
+      shell: win,
+      env: linux ? { ...process.env, ELECTRON_DISABLE_SANDBOX: "1" } : process.env,
+    },
+  );
   return JSON.parse(readFileSync(join(dir, "report", "report.json"), "utf8"));
 }
 
