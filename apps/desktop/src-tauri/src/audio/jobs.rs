@@ -108,27 +108,6 @@ mod tests {
         assert!(!jobs.flag("a").load(Ordering::Relaxed));
     }
 
-    fn poison<T: Send>(m: &std::sync::Mutex<T>) {
-        let _ = std::thread::scope(|s| {
-            s.spawn(|| {
-                let _held = m.lock().unwrap();
-                panic!("poisoned on purpose");
-            })
-            .join()
-        });
-    }
-
-    #[test]
-    fn a_poisoned_table_is_still_used() {
-        let jobs = AudioJobs::default();
-        poison(&jobs.0);
-        poison(&jobs.2);
-        jobs.cancel("early"); // no flag yet: remembered in the poisoned list
-        assert!(jobs.flag("early").load(Ordering::Relaxed));
-        jobs.cancel("early");
-        assert!(jobs.flag("early").load(Ordering::Relaxed));
-    }
-
     #[test]
     fn the_flag_table_is_bounded_and_drops_idle_flags_first() {
         let jobs = AudioJobs::default();
@@ -208,6 +187,24 @@ mod tests {
         assert!(jobs.flag("a").load(Ordering::Relaxed));
         jobs.forget("a");
         assert!(!jobs.flag("a").load(Ordering::Relaxed));
+    }
+
+    #[test]
+    fn a_poisoned_table_or_early_cancel_list_still_takes_a_cancel() {
+        let jobs = std::sync::Arc::new(AudioJobs::default());
+        let held = jobs.clone();
+        assert!(std::thread::spawn(move || {
+            let _table = held.0.lock().unwrap();
+            let _early = held.2.lock().unwrap();
+            panic!("poison both locks");
+        })
+        .join()
+        .is_err());
+        jobs.cancel("later"); // not started: remembered in the early list
+        assert!(jobs.flag("later").load(Ordering::Relaxed));
+        let running = jobs.flag("running");
+        jobs.cancel("running");
+        assert!(running.load(Ordering::Relaxed));
     }
 
     #[test]

@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { assert, type Context } from "./context.ts";
+import { assert, type Context } from "../context.ts";
 
 /** Link and note references, through the real window and the real Rust commands. */
 export async function linkAndNoteSteps({ app, book, shot, step }: Context) {

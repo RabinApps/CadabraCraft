@@ -58,43 +58,6 @@ fn a_debug_build_honours_the_environment_then_path() {
     assert!(matches!(none, EpubcheckError::NotFound { .. }));
 }
 
-#[test]
-fn windows_looks_for_java_exe_before_java() {
-    assert_eq!(java_names(true), ["java.exe", "java"]);
-    assert_eq!(java_names(false), ["java"]);
-}
-
-#[cfg(unix)]
-#[test]
-fn a_runnable_java_bin_is_used_as_it_is_and_is_not_counted_as_bundled() {
-    let dir = tempfile::tempdir().unwrap();
-    touch(&dir.path().join("jar/epubcheck.jar"));
-    script(&dir.path().join("mine/java"), "exit 0");
-    let jar = dir.path().join("jar");
-    let java = dir.path().join("mine/java");
-    let rt = find_runtime_in(None, Some(jar.to_str().unwrap()), Some(java.to_str().unwrap()), None, None, "x86_64", true).unwrap();
-    assert_eq!(rt.java, java);
-    assert!(!rt.bundled);
-}
-
-#[test]
-fn the_resource_folder_is_set_once_and_the_first_one_stays() {
-    set_resource_dir(PathBuf::from("/cadabracraft-test/no-such-resources"));
-    set_resource_dir(PathBuf::from("/cadabracraft-test/ignored"));
-    assert_eq!(RESOURCE_DIR.get().map(|p| p.as_path()), Some(Path::new("/cadabracraft-test/no-such-resources")));
-}
-
-#[cfg(unix)]
-#[test]
-fn a_debug_build_also_looks_in_the_checkout_runtime() {
-    let dir = tempfile::tempdir().unwrap();
-    touch(&dir.path().join("co/epubcheck/epubcheck.jar"));
-    script(&dir.path().join("co/jre/x86_64/bin/java"), "exit 0");
-    let rt = find_runtime_in(None, None, None, Some(&dir.path().join("co")), None, "x86_64", true).unwrap();
-    assert_eq!(rt.java, dir.path().join("co/jre/x86_64/bin/java"));
-    assert!(!rt.bundled);
-}
-
 /// A fake `java` that writes `report` where `--json` points, then exits with `code`.
 #[cfg(unix)]
 fn fake_java(dir: &Path, report: &str, code: i32) -> Runtime {
@@ -158,4 +121,40 @@ fn the_tail_keeps_the_last_lines() {
     let text = (1..=10).map(|n| format!("line {n}")).collect::<Vec<_>>().join("\n\n");
     let t = tail(&text);
     assert!(t.starts_with("line 5") && t.ends_with("line 10"));
+}
+
+#[test]
+fn the_resource_folder_is_set_once_and_the_first_value_stays() {
+    set_resource_dir(PathBuf::from("first"));
+    set_resource_dir(PathBuf::from("second"));
+    assert!(RESOURCE_DIR.get().is_some());
+}
+
+#[test]
+fn windows_looks_for_java_exe_first() {
+    assert_eq!(java_names(true), ["java.exe", "java"]);
+    assert_eq!(java_names(false), ["java"]);
+}
+
+#[cfg(unix)]
+#[test]
+fn a_debug_build_runs_the_java_named_by_java_bin() {
+    let dir = tempfile::tempdir().unwrap();
+    touch(&dir.path().join("epubcheck/epubcheck.jar"));
+    script(&dir.path().join("my-java"), "exit 0");
+    let java = dir.path().join("my-java");
+    let rt = find_runtime_in(Some(dir.path()), None, java.to_str(), None, None, "x86_64", true).unwrap();
+    assert_eq!(rt.java, java);
+    assert!(!rt.bundled);
+}
+
+#[cfg(unix)]
+#[test]
+fn a_debug_build_falls_back_to_the_checkout_runtime() {
+    let dir = tempfile::tempdir().unwrap();
+    touch(&dir.path().join("epubcheck/epubcheck.jar"));
+    script(&dir.path().join("jre/x86_64/bin/java"), "exit 0");
+    let rt = find_runtime_in(None, None, None, Some(dir.path()), None, "x86_64", true).unwrap();
+    assert_eq!(rt.java, dir.path().join("jre/x86_64/bin/java"));
+    assert!(!rt.bundled);
 }

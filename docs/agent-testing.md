@@ -61,7 +61,7 @@ Reviewed exclusions:
 
 - Generated files (`*.d.ts`, `gen/`, Lingui catalogs) and tests/helpers are excluded by the coverage configs.
 - `src/main.tsx` is startup wiring and the bridge shims are exercised through the native scenario; see `coverageScopes.ts` for the source ownership split.
-- Rust excludes `src/lib.rs` (Tauri builder wiring) and `src/main.rs` (binary entry point). The only line-level exclusions are Tauri command macro-generated glue: `src/commands/project.rs:58` and `src/typst/commands.rs:46`; command behavior remains covered at the logic/IPC layer.
+- Rust excludes `src/lib.rs` (Tauri builder wiring) and `src/main.rs` (binary entry point). The only line-level exclusions are Tauri command macro-generated glue: `src/commands/project.rs:62` and `src/typst/commands.rs:46`; command behavior remains covered at the logic/IPC layer.
 - `/* v8 ignore */` comments are reserved for defensive/unreachable paths with an adjacent explanation; they are not a general way to meet a threshold.
 
 ## Troubleshooting

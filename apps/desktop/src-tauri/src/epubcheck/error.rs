@@ -64,12 +64,6 @@ mod tests {
     }
 
     #[test]
-    fn a_tauri_error_becomes_an_other_error_with_its_message() {
-        let e = EpubcheckError::from(tauri::Error::AssetNotFound("missing.html".into()));
-        assert!(matches!(e, EpubcheckError::Other { ref message } if message.contains("missing.html")), "{e:?}");
-    }
-
-    #[test]
     fn a_project_error_becomes_an_other_error() {
         let e = EpubcheckError::from(ProjectError::NotFound { path: "exports/book.epub".into() });
         assert!(matches!(e, EpubcheckError::Other { ref message } if !message.is_empty()), "{e:?}");
@@ -81,5 +75,12 @@ mod tests {
         assert_eq!(EpubcheckError::from(RunError::Cancelled), EpubcheckError::Cancelled);
         assert_eq!(EpubcheckError::from(RunError::NotFound("x".into())), EpubcheckError::NotFound { message: "x".into() });
         assert_eq!(EpubcheckError::from(RunError::Other("y".into())), other("y"));
+    }
+
+    #[test]
+    fn io_and_tauri_errors_become_other_with_their_text() {
+        assert_eq!(other(std::io::Error::other("disk gone")), EpubcheckError::Other { message: "disk gone".into() });
+        let from_tauri = EpubcheckError::from(tauri::Error::Io(std::io::Error::other("webview gone")));
+        assert_eq!(from_tauri, EpubcheckError::Other { message: "webview gone".into() });
     }
 }

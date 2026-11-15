@@ -146,3 +146,32 @@ pub enum Item {
     Break,
     Block(Node),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn alignment_goes_on_a_paragraph_or_heading_and_nothing_else() {
+        assert_eq!(Node::paragraph().aligned(Some("center")).attrs, Some(Attrs::Align { align: "center" }));
+        let heading = Node::with_attrs("heading", Attrs::Heading { level: 2, align: None }, vec![]);
+        assert_eq!(heading.aligned(Some("end")).attrs, Some(Attrs::Heading { level: 2, align: Some("end") }));
+        assert_eq!(Node::new("blockquote").aligned(Some("end")).attrs, None);
+        assert_eq!(Node::paragraph().aligned(None).attrs, None);
+    }
+
+    #[test]
+    fn a_text_node_serializes_without_empty_fields() {
+        let json = serde_json::to_value(Node::plain_text("x")).unwrap();
+        assert_eq!(json, serde_json::json!({ "type": "text", "text": "x" }));
+    }
+
+    #[test]
+    fn marks_serialize_to_bytes_with_their_link() {
+        let mut node = Node::plain_text("x");
+        node.marks = Some(vec![Mark::of("bold"), Mark::link("https://a.example".into())]);
+        let bytes = serde_json::to_vec(&node).unwrap();
+        let back: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(back["marks"], serde_json::json!([{ "type": "bold" }, { "type": "link", "attrs": { "href": "https://a.example" } }]));
+    }
+}

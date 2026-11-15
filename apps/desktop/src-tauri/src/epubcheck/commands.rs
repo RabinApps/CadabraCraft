@@ -13,14 +13,6 @@ use std::time::Duration;
 #[derive(Default)]
 pub struct EpubcheckJob(Arc<AtomicBool>);
 
-#[cfg(test)]
-impl EpubcheckJob {
-    /// Whether a cancel is pending (tests of the command layer read it).
-    pub(crate) fn cancel_requested(&self) -> bool {
-        self.0.load(Ordering::Relaxed)
-    }
-}
-
 #[derive(Serialize, Debug, PartialEq)]
 pub struct EpubcheckInfo {
     /// True when the Java runtime is the one bundled with the app (always so in a release build).

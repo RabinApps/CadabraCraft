@@ -248,3 +248,28 @@ fn renames_pins_and_new_snapshots_at_the_same_time_all_land() {
         assert!(read(d.path(), &e.path).contains("\"manifest\""), "the file is whole");
     }
 }
+
+#[test]
+fn a_listed_snapshot_whose_full_text_is_damaged_cannot_be_renamed_or_pinned() {
+    let d = book();
+    // The head lists fine; the rest has no manifest, so the whole file does not parse.
+    let rel = ".cadabra/snapshots/20261027-1000.json";
+    put(d.path(), rel, "{\"version\":1,\"name\":\"x\",\"automatic\":false,\"pages\":{},\"assets\":[]}");
+    assert_eq!(list_book_snapshots(d.path()).unwrap().len(), 1);
+    let cannot = ProjectError::CannotRestore { path: rel.to_string() };
+    assert_eq!(rename_book_snapshot(d.path(), rel, "new").unwrap_err(), cannot);
+    assert_eq!(pin_book_snapshot(d.path(), rel, true).unwrap_err(), cannot);
+}
+
+#[test]
+fn a_poisoned_files_lock_does_not_stop_snapshots() {
+    assert!(std::thread::spawn(|| {
+        let _held = super::files_lock();
+        panic!("poison the lock");
+    })
+    .join()
+    .is_err());
+    let d = book();
+    let made = create_book_snapshot(d.path(), "after the panic", at("20261027-1000")).unwrap();
+    assert!(pin_book_snapshot(d.path(), &made.path, true).unwrap().pinned);
+}

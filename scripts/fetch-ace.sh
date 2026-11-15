@@ -4,7 +4,13 @@
 set -euo pipefail
 V=1.4.6
 cd "$(dirname "$0")/.."
-if [ -x tools/ace/node_modules/.bin/ace ] && [ "$(node -p "require('./tools/ace/node_modules/@daisy/ace/package.json').version")" = "$V" ]; then exit 0; fi
+if [ -x tools/ace/node_modules/.bin/ace ] && [ "$(node -p "require('./tools/ace/node_modules/@daisy/ace/package.json').version")" = "$V" ]; then
+  # An earlier run left Ace behind but its Chrome may live elsewhere: with PUPPETEER_CACHE_DIR set (CI keeps it per job), fetch it there.
+  if [ -n "${PUPPETEER_CACHE_DIR:-}" ] && [ -z "${PUPPETEER_EXECUTABLE_PATH:-}" ] && [ ! -d "$PUPPETEER_CACHE_DIR/chrome-headless-shell" ]; then
+    (cd tools/ace && ./node_modules/.bin/puppeteer browsers install chrome-headless-shell)
+  fi
+  exit 0
+fi
 
 mkdir -p tools/ace
 echo '{"name":"ace-tool","private":true}' > tools/ace/package.json

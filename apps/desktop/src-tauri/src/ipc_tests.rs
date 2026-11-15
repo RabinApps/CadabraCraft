@@ -18,16 +18,11 @@ fn mock_app() -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     build_app(true)
 }
 
-/// `with_state: false` leaves `WatchState`, `AudioJobs`, `MediaRoots`, `PickedPaths` and `EpubcheckJob` unmanaged, as a build that forgot `.manage` would be.
+/// `with_state: false` leaves `WatchState`, `AudioJobs`, `MediaRoots` and `PickedPaths` unmanaged, as a build that forgot `.manage` would be.
 fn build_app(with_state: bool) -> (App<MockRuntime>, WebviewWindow<MockRuntime>) {
     let builder = mock_builder();
     let builder = if with_state {
-        builder
-            .manage(WatchState::default())
-            .manage(AudioJobs::default())
-            .manage(commands::MediaRoots::default())
-            .manage(commands::PickedPaths::default())
-            .manage(crate::epubcheck::EpubcheckJob::default())
+        builder.manage(WatchState::default()).manage(AudioJobs::default()).manage(commands::MediaRoots::default()).manage(commands::PickedPaths::default())
     } else {
         builder
     };
@@ -384,20 +379,6 @@ fn typst_commands_work_through_the_ipc() {
 }
 
 #[test]
-fn epubcheck_commands_work_through_the_ipc() {
-    let (app, w) = mock_app();
-    let job = app.state::<crate::epubcheck::EpubcheckJob>();
-    // Cancelling raises the flag the running check polls.
-    call(&w, "epubcheck_cancel", json!({})).unwrap();
-    assert!(job.cancel_requested());
-    // Starting a check clears the flag again; a folder that is not a book is refused before any Java runs.
-    let dir = tempfile::tempdir().unwrap();
-    let r = call(&w, "epubcheck_validate", json!({ "root": dir.path().to_string_lossy(), "path": "book.epub" }));
-    assert_eq!(kind_of(r), "other");
-    assert!(!job.cancel_requested());
-}
-
-#[test]
 fn audio_commands_work_through_the_ipc() {
     let (_app, w) = mock_app();
     let voices = json_of(call(&w, "audio_voices", json!({})));
@@ -582,5 +563,7 @@ fn commands_that_need_managed_state_are_refused_when_it_is_missing() {
 
 #[cfg(test)]
 mod acl;
+#[cfg(test)]
+mod arms;
 #[cfg(test)]
 pub(super) mod edge;

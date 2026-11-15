@@ -140,13 +140,6 @@ mod tests {
     use super::*;
     use std::fs;
 
-    #[test]
-    fn a_header_value_that_cannot_be_sent_makes_an_empty_500_not_a_panic() {
-        let r = reply(StatusCode::OK, &[(header::CONTENT_TYPE, "bad\nvalue".to_string())], vec![1, 2, 3]);
-        assert_eq!(r.status(), StatusCode::INTERNAL_SERVER_ERROR);
-        assert!(r.body().is_empty());
-    }
-
     fn get(roots: &MediaRoots, path: &str, range: Option<&str>) -> Response<Vec<u8>> {
         let mut b = Request::builder().method(Method::GET).uri(format!("{MEDIA_SCHEME}://localhost{path}"));
         if let Some(r) = range {
@@ -279,5 +272,12 @@ mod tests {
         // A folder that stopped being a project is still only reachable through its own references/ folder.
         fs::remove_file(book.path().join("references/clip.mp4")).unwrap();
         assert_eq!(status(format!("/{t}/clip.mp4")), StatusCode::NOT_FOUND);
+    }
+
+    #[test]
+    fn a_header_value_that_cannot_be_sent_gives_an_empty_500_not_a_panic() {
+        let res = reply(StatusCode::OK, &[(header::CONTENT_RANGE, "bad\nvalue".into())], b"x".to_vec());
+        assert_eq!(res.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert!(res.body().is_empty());
     }
 }
