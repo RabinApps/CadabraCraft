@@ -51,20 +51,18 @@ describe.skipIf(skip)("native smoke", () => {
     );
     await typeInEditor(driver, "Hello from tauri-driver");
     await click(driver, "Save");
-    await driver.wait(
-      until.elementLocated(By.xpath("//*[@role='status' and normalize-space(.)='Saved']")),
-      15_000,
-    );
+    // The header's badge says "Saved" for as long as the book is saved. The app's own "Saved" notice (role status) is gone
+    // after two seconds, which a slow runner can miss: the autosave may have written the file before Save was clicked.
+    await driver.wait(until.elementLocated(By.xpath("//*[normalize-space(.)='Saved']")), 15_000);
 
     // Rust wrote real files.
     const manifest = JSON.parse(readFileSync(join(root, "cadabra.json"), "utf8"));
     expect(manifest).toMatchObject({ editions: [{ title: "Native Book", author: "Tester" }] });
-    const files = readdirSync(root, { recursive: true, encoding: "utf8" }).filter(
-      (f) => f.replaceAll("\\", "/").endsWith(".json") && f !== "cadabra.json",
-    );
-    expect(
-      files.some((f) => readFileSync(join(root, f), "utf8").includes("Hello from tauri-driver")),
-    ).toBe(true);
+    const typedText = () =>
+      readdirSync(root, { recursive: true, encoding: "utf8" })
+        .filter((f) => f.replaceAll("\\", "/").endsWith(".json") && f !== "cadabra.json")
+        .some((f) => readFileSync(join(root, f), "utf8").includes("Hello from tauri-driver"));
+    await expect.poll(typedText, { timeout: 15_000 }).toBe(true);
 
     // Reopen from disk after a fresh page load.
     await driver.navigate().refresh();
