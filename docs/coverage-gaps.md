@@ -6,14 +6,14 @@ Baseline measured 2026-10-27 with Vitest v8, instrumented Playwright/V8 and `car
 
 Measured 2026-11-15 with `pnpm test:coverage:unit`, `pnpm test:coverage:rust` and `pnpm coverage:fast` (the table is also in `coverage/report.md` and in each CI job summary). The Rust run is the CI setup: ffmpeg and ffprobe on the PATH, `REQUIRE_FFMPEG=1`, no `java`.
 
-| Area                             |        Lines | Branches | Functions | Statements | Floor                   | Margin                        |
-| -------------------------------- | -----------: | -------: | --------: | ---------: | ----------------------- | ----------------------------- |
-| Every package under `packages/*` |         100% |     100% |      100% |       100% | 100% each               | none needed                   |
-| Desktop Vitest                   |       99.87% |   98.27% |    99.40% |     99.58% | 99 / 98 / 99 / 99       | +0.87 / +0.27 / +0.40 / +0.58 |
-| Rust                             |       99.31% |      n/a |    98.35% |        n/a | 99 lines / 98 functions | +0.31 / +0.35                 |
-| Desktop Playwright               | not measured |          |           |            | 98 / 90 / 95 / 97       |                               |
+| Area                             |  Lines | Branches | Functions | Statements | Floor                   | Margin                                   |
+| -------------------------------- | -----: | -------: | --------: | ---------: | ----------------------- | ---------------------------------------- |
+| Every package under `packages/*` |   100% |     100% |      100% |       100% | 100% each               | none needed                              |
+| Desktop Vitest                   | 99.87% |   98.27% |    99.40% |     99.58% | 99 / 98 / 99 / 99       | +0.87 / +0.27 / +0.40 / +0.58            |
+| Rust                             | 99.31% |      n/a |    98.35% |        n/a | 99 lines / 98 functions | +0.31 / +0.35                            |
+| Desktop Playwright               | 99.30% |   90.20% |    95.84% |     97.70% | 98 / 90 / 95 / 97       | +1.30 / **+0.20 (thin)** / +0.84 / +0.70 |
 
-The Playwright coverage run takes hours, so it was measured last on 2026-10-27 (lines 99.02%, statements 97.81%, functions 95.81%, branches 92.51%); a newer run is due and is part of `pnpm test:coverage`. The 12 `packages/*` that enforce 100% do it through `strictCoverage` in `vitest.coverage.ts`; product-code `v8 ignore` pragmas carry a comment saying why the code cannot run.
+The Playwright coverage run takes about an hour on CI (2972 tests, 3 workers; the end-of-run merge needs more than Node's default 2 GB heap, so the step sets `--max-old-space-size`). It was measured on CI run #168 on 2026-11-16 (the Playwright row above); branches are 0.20 points over their floor, which the margin rule flags as thin, so more Playwright specs for uncovered branches are due. The 2026-10-27 run had branches at 92.51%. The 12 `packages/*` that enforce 100% do it through `strictCoverage` in `vitest.coverage.ts`; product-code `v8 ignore` pragmas carry a comment saying why the code cannot run.
 
 Two things kept the packages and Rust below their floors on CI until this date, and both are fixed:
 

@@ -322,6 +322,7 @@ jobs:
       - name: Build the app (debug, dev-automation bridge for the dialog answers)
         run: pnpm --filter @cadabracraft/desktop build:native
       - name: WebDriver e2e
+        timeout-minutes: 15 # the suite takes under a minute; a hang after the tests (run #168) must fail fast, not wait for the job's timeout
         run: xvfb-run --auto-servernum pnpm test:e2e:webdriver
         env: { CI: "1" }
   rust:

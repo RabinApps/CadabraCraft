@@ -37,10 +37,24 @@ export function tauriDriverPath(env: NodeJS.ProcessEnv = process.env): string {
   return dirs.map((d) => join(d, exe)).find((f) => existsSync(f)) ?? exe;
 }
 
+/** Ends tauri-driver and its children (the group it was started in, see startSession); on Windows, just the process. */
+function endProcessGroup(proc: ChildProcess): void {
+  try {
+    if (proc.pid !== undefined && process.platform !== "win32") process.kill(-proc.pid, "SIGKILL");
+    else proc.kill();
+  } catch {
+    // Already gone.
+  }
+}
+
 export async function startSession(): Promise<Session> {
   const bin = tauriDriverPath();
+  // Its own process group, so stop() can end tauri-driver and everything it started (WebKitWebDriver, the app and the
+  // WebKit helper processes). Killing only tauri-driver left the helpers behind holding the job's output open: in CI the
+  // tests passed and the step then hung until the job's timeout.
   const proc: ChildProcess = spawn(bin, ["--port", String(PORT)], {
     stdio: ["ignore", process.stdout, process.stderr],
+    detached: process.platform !== "win32",
   });
   await new Promise((r) => setTimeout(r, 1500)); // tauri-driver prints nothing on ready; give it a moment
   const driver = await new Builder()
@@ -50,8 +64,12 @@ export async function startSession(): Promise<Session> {
   return {
     driver,
     async stop() {
-      await driver.quit().catch(() => {});
-      proc.kill();
+      // quit() talks to the app; if the app is already gone it can wait for a long time, so do not wait for it.
+      await Promise.race([
+        driver.quit().catch(() => {}),
+        new Promise((r) => setTimeout(r, 10_000)),
+      ]);
+      endProcessGroup(proc);
     },
   };
 }
