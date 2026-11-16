@@ -183,7 +183,7 @@ jobs:
   # green a few times (docs/testing.md). This job replaces the old webkit-a11y job.
   a11y:
     runs-on: kinhin-container
-    timeout-minutes: 60
+    timeout-minutes: 120 # the Chromium and WebKit suites take about 50 min alone and about twice that beside the Coverage and WebDriver jobs on a shared machine (run #173 hit 60)
     env:
       PUPPETEER_CACHE_DIR: ${{ github.workspace }}/tools/puppeteer # see the js job
     steps:
