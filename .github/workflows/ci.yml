@@ -57,6 +57,15 @@ jobs:
       PUPPETEER_CACHE_DIR: ${{ github.workspace }}/tools/puppeteer
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Ports for this runner
+        shell: bash
+        run: |
+          # The runners of one machine (names ending -r1 to -r4) share its network, so two jobs that start a server on a fixed
+          # port collide ("http://localhost:1420 is already used"). One job runs per runner at a time: the runner's number
+          # gives it ports of its own. Where the name has no such number (a hosted runner), the defaults stay.
+          slot="${RUNNER_NAME##*-r}"; case "$slot" in ''|*[!0-9]*) slot=0 ;; esac
+          echo "E2E_PORT=$((1420 + slot))" >> "$GITHUB_ENV"
+          echo "TAURI_DRIVER_PORT=$((4444 + slot * 2))" >> "$GITHUB_ENV"
       - name: Linux pnpm deps
         if: runner.os == 'Linux'
         run: |
@@ -179,6 +188,15 @@ jobs:
       PUPPETEER_CACHE_DIR: ${{ github.workspace }}/tools/puppeteer # see the js job
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Ports for this runner
+        shell: bash
+        run: |
+          # The runners of one machine (names ending -r1 to -r4) share its network, so two jobs that start a server on a fixed
+          # port collide ("http://localhost:1420 is already used"). One job runs per runner at a time: the runner's number
+          # gives it ports of its own. Where the name has no such number (a hosted runner), the defaults stay.
+          slot="${RUNNER_NAME##*-r}"; case "$slot" in ''|*[!0-9]*) slot=0 ;; esac
+          echo "E2E_PORT=$((1420 + slot))" >> "$GITHUB_ENV"
+          echo "TAURI_DRIVER_PORT=$((4444 + slot * 2))" >> "$GITHUB_ENV"
       - name: Linux deps (pnpm binary, LibreOffice, unzip for veraPDF)
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
@@ -284,6 +302,15 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Ports for this runner
+        shell: bash
+        run: |
+          # The runners of one machine (names ending -r1 to -r4) share its network, so two jobs that start a server on a fixed
+          # port collide ("http://localhost:1420 is already used"). One job runs per runner at a time: the runner's number
+          # gives it ports of its own. Where the name has no such number (a hosted runner), the defaults stay.
+          slot="${RUNNER_NAME##*-r}"; case "$slot" in ''|*[!0-9]*) slot=0 ;; esac
+          echo "E2E_PORT=$((1420 + slot))" >> "$GITHUB_ENV"
+          echo "TAURI_DRIVER_PORT=$((4444 + slot * 2))" >> "$GITHUB_ENV"
       - name: Linux deps (webview, WebKitWebDriver, virtual display)
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"

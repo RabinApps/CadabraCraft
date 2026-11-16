@@ -2437,3 +2437,19 @@ The UI is the EPUB panel of the Export dialog (`app/export/EpubValidation.tsx`):
 | Vitest `--changed` alone                      | Follows static imports only and reruns everything on a config change; the package graph is exact for this monorepo and also covers the other jobs.                                                                                           |
 
 **Known limit:** an unmapped or global change always runs everything, so the saving is for the common small changes (docs, one package, one Rust module, one component), not for a change to shared setup.
+
+## One port per CI runner for the browser and WebDriver suites (2026-11-16)
+
+**Decision:** the CI jobs that start a server (`js`, `a11y`, `webdriver`) set `E2E_PORT` and `TAURI_DRIVER_PORT` from the runner's number (the `N` of the runner name `...-rN`): `1420+N` and `4444+2N`. The four runners of one machine share its network and run one job each, so each job gets ports no other job on the machine can use; a runner name without a number keeps the defaults. In CI the Playwright and coverage output folders keep their plain names (a runner has its own checkout, and `scripts/coverage.mjs` reads `coverage/e2e`); locally a run with its own `E2E_PORT` still gets `-<port>` folders.
+
+**Why:** the Coverage step of `js` (about an hour) and the `a11y` job (about 45 minutes) overlap on one machine, and both started the dev server on 1420; the second failed with "http://localhost:1420 is already used" (run #172). The WebDriver suite had the same fixed-port problem on 4444.
+
+**Rejected:**
+
+| Alternative                                           | Why not                                                                                                                                                                            |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Probe for a free port at start                        | Playwright loads its config in the main process and in every worker, and they must all compute the same port; a probe gives each a different answer, and it races with other jobs. |
+| `reuseExistingServer` in CI                           | Would silently test the other job's dev server, that is, another checkout's code.                                                                                                  |
+| A lock so Playwright jobs on a machine run one by one | Works, but adds the length of the shorter job (up to an hour) to the wall time of every run.                                                                                       |
+
+**Known limit:** the rule rests on the runner names. A runner pool that names runners differently falls back to the default ports, and two jobs there could collide again; the failure is the same clear "port already used" message.

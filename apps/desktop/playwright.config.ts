@@ -8,6 +8,8 @@ const webkitSpecs =
 const localeSpecs = /(a11y|a11y-label-in-name|a11y-adaptive)\.spec\.ts$/;
 
 const port = Number(process.env.E2E_PORT) || 1420;
+/** Parallel local runs (own E2E_PORT) keep their own output folders. In CI each runner has its own checkout, so the folders keep their plain names, which scripts/coverage.mjs and the artifact upload read. */
+const ownOutputs = port !== 1420 && !process.env.CI;
 
 export default defineConfig({
   testDir: "e2e",
@@ -25,7 +27,7 @@ export default defineConfig({
     fullyParallel: true,
     ...(process.env.E2E_WORKERS && { workers: Number(process.env.E2E_WORKERS) }),
   }),
-  ...(port !== 1420 && { outputDir: `test-results-${port}` }),
+  ...(ownOutputs && { outputDir: `test-results-${port}` }),
   ...(process.env.WEBKIT && {
     projects: [{ name: "webkit", testMatch: webkitSpecs, use: { ...devices["Desktop Safari"] } }],
   }),

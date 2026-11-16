@@ -4,7 +4,8 @@ import { homedir } from "node:os";
 import { delimiter, join, resolve } from "node:path";
 import { Builder, By, until, type WebDriver, type WebElement } from "selenium-webdriver";
 
-const PORT = 4444;
+/** tauri-driver's port, and the one after it for the native WebDriver under it. CI gives each runner its own (runners on one machine share its network). */
+const PORT = Number(process.env.TAURI_DRIVER_PORT) || 4444;
 const appDir = resolve(import.meta.dirname, "..");
 
 /** The debug binary produced by `pnpm build:native` (cargo target dir, no bundling). */
@@ -52,10 +53,14 @@ export async function startSession(): Promise<Session> {
   // Its own process group, so stop() can end tauri-driver and everything it started (WebKitWebDriver, the app and the
   // WebKit helper processes). Killing only tauri-driver left the helpers behind holding the job's output open: in CI the
   // tests passed and the step then hung until the job's timeout.
-  const proc: ChildProcess = spawn(bin, ["--port", String(PORT)], {
-    stdio: ["ignore", process.stdout, process.stderr],
-    detached: process.platform !== "win32",
-  });
+  const proc: ChildProcess = spawn(
+    bin,
+    ["--port", String(PORT), "--native-port", String(PORT + 1)],
+    {
+      stdio: ["ignore", process.stdout, process.stderr],
+      detached: process.platform !== "win32",
+    },
+  );
   await new Promise((r) => setTimeout(r, 1500)); // tauri-driver prints nothing on ready; give it a moment
   const driver = await new Builder()
     .usingServer(`http://127.0.0.1:${PORT}/`)
