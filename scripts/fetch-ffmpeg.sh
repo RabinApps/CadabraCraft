@@ -34,7 +34,7 @@ fetch_source() { # unpacks the pinned tarball once per run into $TMP/src
   [ -n "$SRC" ] && return 0
   local tarball=${FFMPEG_TARBALL:-$TMP/ffmpeg-$FFMPEG_V.tar.xz}
   if [ ! -f "$tarball" ]; then
-    curl -fL -o "$tarball" "https://ffmpeg.org/releases/ffmpeg-$FFMPEG_V.tar.xz"
+    curl -fL --retry 5 --retry-delay 5 --retry-all-errors -o "$tarball" "https://ffmpeg.org/releases/ffmpeg-$FFMPEG_V.tar.xz"
   fi
   local got; got=$(sha256 "$tarball")
   [ "$got" = "$FFMPEG_SHA256" ] || { echo "sha256 mismatch for ffmpeg-$FFMPEG_V.tar.xz: got $got" >&2; return 1; }

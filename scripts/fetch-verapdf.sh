@@ -14,7 +14,7 @@ sha256() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | cut -d
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT # never leave an unverified archive behind
-curl -fL -o "$work/verapdf.zip" "https://software.verapdf.org/releases/${V%.*}/verapdf-greenfield-$V-installer.zip"
+curl -fL --retry 5 --retry-delay 5 --retry-all-errors -o "$work/verapdf.zip" "https://software.verapdf.org/releases/${V%.*}/verapdf-greenfield-$V-installer.zip"
 got=$(sha256 "$work/verapdf.zip")
 if [ -z "$SHA256" ]; then
   echo "WARNING: verapdf-greenfield-$V-installer.zip is not pinned; sha256 is $got" >&2

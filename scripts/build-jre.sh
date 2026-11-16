@@ -60,7 +60,7 @@ fetch_jdk() { # fetch_jdk <cpu> -> prints the extracted JDK home
   local cpu=$1 line url want got
   line=$(pin_for "$cpu") || return 1
   url=${line%% *}; want=${line##* }
-  curl -fL -o "$TMP/jdk-$cpu.tar.gz" "$url"
+  curl -fL --retry 5 --retry-delay 5 --retry-all-errors -o "$TMP/jdk-$cpu.tar.gz" "$url"
   got=$(sha256 "$TMP/jdk-$cpu.tar.gz")
   [ "$got" = "$want" ] || { echo "sha256 mismatch for the $cpu JDK: got $got" >&2; return 1; }
   mkdir -p "$TMP/jdk-$cpu"
