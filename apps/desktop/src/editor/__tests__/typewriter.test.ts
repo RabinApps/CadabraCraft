@@ -30,7 +30,12 @@ vi.mock("../../state/view/editorPrefs", () => ({
     select({ typewriterScroll: h.on }),
 }));
 
-import { followCaret, useTypewriterRefollow, useTypewriterSlack } from "../typewriter";
+import {
+  USER_SCROLL_WINDOW_MS,
+  followCaret,
+  useTypewriterRefollow,
+  useTypewriterSlack,
+} from "../typewriter";
 import { typewriterSlack, typewriterTarget } from "../../lib/reading/typewriterScroll";
 
 interface Span {
@@ -257,8 +262,26 @@ describe("useTypewriterRefollow", () => {
     }
   }
 
+  type Listener = () => void;
+  /** An event target that keeps its listeners, so a test can fire them and see which are removed. */
+  function targetOf() {
+    const listeners = new Map<string, Set<Listener>>();
+    return {
+      listeners,
+      addEventListener: vi.fn((type: string, fn: Listener) => {
+        listeners.set(type, (listeners.get(type) ?? new Set()).add(fn));
+      }),
+      removeEventListener: vi.fn(
+        (type: string, fn: Listener) => void listeners.get(type)?.delete(fn),
+      ),
+      fire: (type: string) => listeners.get(type)?.forEach((fn) => fn()),
+      count: () => [...listeners.values()].reduce((n, set) => n + set.size, 0),
+    };
+  }
+
   const content = {};
-  const pane = { firstElementChild: content } as unknown as HTMLElement;
+  let pane = { firstElementChild: content, ...targetOf() };
+  let win = targetOf();
 
   beforeEach(() => {
     h.on = true;
@@ -266,9 +289,15 @@ describe("useTypewriterRefollow", () => {
     h.queued = null;
     FakeResizeObserver.last = null;
     vi.stubGlobal("ResizeObserver", FakeResizeObserver);
+    pane = { firstElementChild: content, ...targetOf() };
+    win = targetOf();
+    vi.stubGlobal("window", { visualViewport: undefined, ...win });
   });
 
-  function mount(editor: unknown, ref: { current: HTMLElement | null } = { current: pane }) {
+  function mount(
+    editor: unknown,
+    ref: { current: HTMLElement | null } = { current: pane as never },
+  ) {
     h.slot = 0;
     useTypewriterRefollow(ref, editor as never);
     const { fn } = h.queued!;
@@ -319,7 +348,58 @@ describe("useTypewriterRefollow", () => {
   it("stops watching when it is unmounted", () => {
     const stop = mount(editorWith(scrollerOf(), true)) as () => void;
     const observer = FakeResizeObserver.last!;
+    expect(pane.count() + win.count()).toBeGreaterThan(0);
     stop();
     expect(observer.disconnect).toHaveBeenCalled();
+    expect(pane.count()).toBe(0);
+    expect(win.count()).toBe(0);
+  });
+
+  describe("when the browser moves the scroll position itself", () => {
+    let now = 1_000_000;
+    beforeEach(() => {
+      now = 1_000_000;
+      vi.spyOn(Date, "now").mockImplementation(() => now);
+    });
+    afterEach(() => vi.restoreAllMocks());
+
+    it("puts the caret's line back in the middle after a scroll nobody asked for", () => {
+      const scroller = scrollerOf();
+      mount(editorWith(scroller, true));
+      pane.fire("scroll");
+      nextTick();
+      expect(scroller.scrollTo).toHaveBeenCalledWith({ top: 210, behavior: "instant" });
+    });
+
+    it("leaves the author's own scrolling alone: right after a wheel or touch, and while a pointer is held", () => {
+      const scroller = scrollerOf();
+      mount(editorWith(scroller, true));
+      for (const type of ["wheel", "touchmove"]) {
+        pane.fire(type);
+        now += USER_SCROLL_WINDOW_MS - 1;
+        pane.fire("scroll");
+        expect(frames).toHaveLength(0);
+        now += 1; // the window has passed
+      }
+      pane.fire("pointerdown");
+      now += USER_SCROLL_WINDOW_MS * 5; // a long drag of the scrollbar
+      pane.fire("scroll");
+      expect(frames).toHaveLength(0);
+      win.fire("pointerup");
+      pane.fire("scroll");
+      expect(frames).toHaveLength(0); // the release counts as input too
+      now += USER_SCROLL_WINDOW_MS;
+      pane.fire("scroll");
+      expect(frames).toHaveLength(1);
+      win.fire("pointercancel");
+    });
+
+    it("ignores the scroll when the editor has no focus or is gone", () => {
+      mount(editorWith(scrollerOf(), false));
+      pane.fire("scroll");
+      mount(editorWith(scrollerOf(), true, true));
+      pane.fire("scroll");
+      expect(frames).toHaveLength(0);
+    });
   });
 });

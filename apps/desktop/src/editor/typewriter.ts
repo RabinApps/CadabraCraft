@@ -58,10 +58,15 @@ export function useTypewriterSlack(ref: RefObject<HTMLElement | null>): number {
   return slack;
 }
 
+/** A scroll this soon after the author's own wheel or touch is theirs (momentum scrolling goes on after the last event), and is left alone. */
+export const USER_SCROLL_WINDOW_MS = 600;
+
 /**
- * Puts the caret's line back in the middle when the pages change height under it (Typst's exact page breaks arriving, a zoom or a
- * font change): without it the line the author is writing on drifts away until the next key. Only while the editor has focus, so a
- * layout that settles while the author reads elsewhere moves nothing.
+ * Puts the caret's line back in the middle when the page moves under it without the author doing it: the pages change height
+ * (Typst's exact page breaks arriving, a zoom or a font change), or the browser moves the scroll position itself (scroll
+ * anchoring did, by thousands of px, a moment after typing at the end of a long chapter). Without it the line the author is
+ * writing on drifts away until the next key. Only while the editor has focus, so a layout that settles while the author reads
+ * elsewhere moves nothing, and never during the author's own scrolling (wheel, touch, or a held scrollbar). Keys are not counted: a key that scrolls moves the caret too, and following the caret is what the editor does then.
  */
 export function useTypewriterRefollow(
   ref: RefObject<HTMLElement | null>,
@@ -69,15 +74,47 @@ export function useTypewriterRefollow(
 ): void {
   const on = useSettings((s) => s.typewriterScroll);
   useLayoutEffect(() => {
-    const content = ref.current?.firstElementChild;
-    if (!on || !editor || !content) return;
+    const pane = ref.current;
+    const content = pane?.firstElementChild;
+    if (!on || !editor || !pane || !content) return;
+    const follow = () => {
+      if (!editor.isDestroyed && editor.isFocused) followCaret(editor);
+    };
     let first = true;
     const ro = new ResizeObserver(() => {
       // The observer reports once when it starts; that is not a change.
       if (first) return void (first = false);
-      if (!editor.isDestroyed && editor.isFocused) followCaret(editor);
+      follow();
     });
     ro.observe(content);
-    return () => ro.disconnect();
+
+    let lastInput = 0;
+    let held = false;
+    const mark = () => void (lastInput = Date.now());
+    const press = () => {
+      held = true;
+      mark();
+    };
+    const release = () => {
+      held = false;
+      mark();
+    };
+    const onScroll = () => {
+      if (!held && Date.now() - lastInput >= USER_SCROLL_WINDOW_MS) follow();
+    };
+    const marks = ["wheel", "touchmove"];
+    for (const type of marks) pane.addEventListener(type, mark, { passive: true, capture: true });
+    pane.addEventListener("pointerdown", press, { passive: true, capture: true });
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    pane.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      ro.disconnect();
+      for (const type of marks) pane.removeEventListener(type, mark, { capture: true });
+      pane.removeEventListener("pointerdown", press, { capture: true });
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+      pane.removeEventListener("scroll", onScroll);
+    };
   }, [on, editor, ref]);
 }
