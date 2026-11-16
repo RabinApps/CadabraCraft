@@ -2453,3 +2453,20 @@ The UI is the EPUB panel of the Export dialog (`app/export/EpubValidation.tsx`):
 | A lock so Playwright jobs on a machine run one by one | Works, but adds the length of the shorter job (up to an hour) to the wall time of every run.                                                                                       |
 
 **Known limit:** the rule rests on the runner names. A runner pool that names runners differently falls back to the default ports, and two jobs there could collide again; the failure is the same clear "port already used" message.
+
+## Enforcing test selection and splitting the JavaScript job (2026-11-16)
+
+**Decision:** the shadow selection of "Selecting tests from the change" now decides which CI jobs run on a pull request. The serial `js` job is split into `static`, `unit`, a 4-shard `e2e` and a `coverage` job; a `ci-ok` job is the single required check; repeated setup moved into composite actions (`.github/actions/ports`, `apt`, `setup-js`, `js-tools`). Pull requests run Playwright without V8 coverage. The coverage floors are checked on `main`, release runs and pull requests with `full-ci`. The macOS unit leg runs on full runs only.
+
+**Why:** a pull request waited for one job that ran every check in series, then about 3000 Playwright tests with coverage in one process (about an hour), whatever it changed. The floors themselves are unchanged; only where they are checked moved.
+
+**Rejected:**
+
+| Alternative                                       | Why not                                                                                                                                                           |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sharding the coverage run and merging the V8 data | Not done yet: the merge cannot be tried without a CI run. The `coverage` job stays one job on full runs; do it when the shard timings show the hour is the limit. |
+| `paths-ignore` for documentation changes          | A skipped workflow leaves a required check pending; the selector plus `ci-ok` stays green when jobs are skipped.                                                  |
+| Time-balanced shards from recorded durations      | Needs recorded timings first; Playwright's own `--shard` (with `fullyParallel`) splits by test count until then.                                                  |
+| Keeping the floors as a pull-request gate         | It forces the hour-long instrumented run onto every change; the `full-ci` label runs it when a change adds or moves code.                                         |
+
+**Known limit:** a code change merged without `full-ci` can lower coverage until the next push to `main` fails the floor; the fix is then tests, as always. Typecheck and lint run on Linux only (the macOS `js` leg ran them too).

@@ -135,3 +135,17 @@ test("the summary says what would run and what would be skipped", () => {
   const some = summarize(select(["packages/lonely/a.ts"], ws), ["packages/lonely/a.ts"]);
   assert.match(some, /\| Unit tests \| @x\/lonely \|/);
 });
+
+test("the license check runs only for manifests, lockfiles and the cargo-deny setup", () => {
+  assert.equal(select(["packages/format/src/a.ts"], ws).licenses, false);
+  assert.equal(select(["apps/desktop/src-tauri/src/audio/m4b.rs"], ws).licenses, false);
+  assert.equal(select(["packages/format/package.json"], ws).licenses, true);
+  assert.equal(select(["apps/desktop/src-tauri/Cargo.lock"], ws).licenses, true);
+  assert.equal(select(["apps/desktop/src-tauri/deny.toml"], ws).licenses, true);
+  assert.equal(
+    select(["apps/desktop/src-tauri/licenses/THIRD_PARTY_NOTICES-rust.txt"], ws).licenses,
+    true,
+  );
+  assert.equal(select(["docs/a.md"], ws).licenses, false);
+  assert.equal(select([], ws).licenses, true);
+});

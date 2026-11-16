@@ -1,0 +1,28 @@
+name: Linux packages
+description: Installs apt packages on Linux only, skipping apt when they are already there (jobs on one machine share dpkg).
+inputs:
+  packages:
+    description: Space-separated package names.
+    required: true
+  flags:
+    description: Extra apt-get install flags.
+    default: ""
+runs:
+  using: composite
+  steps:
+    - if: runner.os == 'Linux'
+      shell: bash
+      env:
+        PACKAGES: ${{ inputs.packages }}
+        FLAGS: ${{ inputs.flags }}
+      run: |
+        SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+        # The runner image already has most of these; skip apt then, so jobs on one machine do not race on its caches.
+        if dpkg -s $PACKAGES >/dev/null 2>&1; then echo "system packages already installed"; exit 0; fi
+        # Jobs on one machine share dpkg and /var/cache/apt: one apt at a time (the lock is held until this step ends), or a second apt deletes the first one's downloads.
+        command -v flock >/dev/null 2>&1 && { exec 9>/tmp/ci-apt.lock; flock 9; }
+        for i in 1 2 3 4 5; do
+          $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y $FLAGS $PACKAGES && exit 0
+          sleep $((i * 5))
+        done
+        exit 1

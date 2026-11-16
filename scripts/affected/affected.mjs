@@ -1,4 +1,4 @@
-// Which parts of CI a change can affect, from the list of changed files. Pure (`select`) so the rules are tested with
+// Which parts of CI a change can affect, from the list of changed files. ci.yml runs only what the outputs select. Pure (`select`) so the rules are tested with
 // fixture diffs; the command line at the bottom reads `git diff` and the workspace's package.json files.
 //
 // Rule of thumb, as in the research behind docs/architecture.md ("Selecting tests"): when unsure, run more. A file the
@@ -37,6 +37,9 @@ const INERT = [
 const desktopBuild = /^apps\/desktop\/(index\.html|public\/|src\/|e2e\/)/;
 const rust = /^apps\/desktop\/src-tauri\//;
 const native = /^apps\/desktop\/e2e-native\//;
+/** Files the dependency license and advisory checks read (`pnpm licenses:check`): manifests, lockfiles and the cargo-deny and cargo-about setup. */
+const licenseInput =
+  /(^|\/)(package\.json|Cargo\.(toml|lock)|deny\.toml|about\.(hbs|toml))$|^apps\/desktop\/src-tauri\/licenses\//;
 
 /** The workspace: `{ dirs: { "packages/format": "@scope/format" }, deps: { "@scope/format": ["@scope/shared"] } }`. */
 export function readWorkspace(root) {
@@ -82,6 +85,7 @@ const none = () => ({
   e2e: false,
   a11y: false,
   webdriver: false,
+  licenses: false,
 });
 
 const everything = (reasons, ws) => ({
@@ -92,6 +96,7 @@ const everything = (reasons, ws) => ({
   e2e: true,
   a11y: true,
   webdriver: true,
+  licenses: true,
 });
 
 /**
@@ -110,6 +115,7 @@ export function select(files, ws, { forceFull = false } = {}) {
     const hit = GLOBAL.find((re) => re.test(file));
     if (hit) return everything([`${file}: a global trigger`], ws);
     if (INERT.some((re) => re.test(file))) continue;
+    if (licenseInput.test(file)) out.licenses = true;
     const dir = dirOf(file);
     if (rust.test(file)) {
       out.rust = true;
@@ -141,21 +147,22 @@ export function select(files, ws, { forceFull = false } = {}) {
   return out;
 }
 
-/** The selection as a Markdown summary, so a shadow run shows what it would have done. */
+/** The selection as a Markdown summary of what CI runs. */
 export function summarize(sel, files) {
   const yn = (b) => (b ? "run" : "skip");
   return [
-    "### Test selection (shadow: everything still runs)",
+    "### Test selection",
     "",
-    `${files.length} changed file(s). ${sel.full ? "**Everything** would run" : "Selected"}: ${sel.reasons.join("; ") || "nothing needs a test"}.`,
+    `${files.length} changed file(s). ${sel.full ? "**Everything** runs" : "Selected"}: ${sel.reasons.join("; ") || "nothing needs a test"}.`,
     "",
-    "| Part | Would |",
+    "| Part | CI |",
     "| --- | --- |",
     `| Unit tests | ${sel.full ? "all packages" : sel.packages.length ? sel.packages.join(", ") : "none"} |`,
     `| Rust | ${yn(sel.rust)} |`,
     `| Playwright e2e | ${yn(sel.e2e)} |`,
     `| Accessibility sweeps | ${yn(sel.a11y)} |`,
     `| WebDriver | ${yn(sel.webdriver)} |`,
+    `| Licenses | ${yn(sel.licenses)} |`,
     "",
   ].join("\n");
 }
@@ -184,6 +191,7 @@ function main() {
       `e2e=${sel.e2e}`,
       `a11y=${sel.a11y}`,
       `webdriver=${sel.webdriver}`,
+      `licenses=${sel.licenses}`,
       `packages=${sel.packages.join(",")}`,
     ];
     appendFileSync(process.env.GITHUB_OUTPUT, `${lines.join("\n")}\n`);
