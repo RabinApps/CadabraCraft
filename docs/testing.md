@@ -23,7 +23,7 @@ Lint (`jsx-a11y`), the axe e2e spec, the forced-colors and increased-contrast sp
 
 ## Running everything for accessibility
 
-`pnpm a11y` runs every automated accessibility check in order and stops at the first failure: eslint, the contrast test, the Playwright a11y specs on Chromium, and the exporter output tests (EPUB, PDF/UA, RTF, DOCX), then prints a stage table. `--fast` skips Playwright, `--webkit` adds the WebKit run, `--tools` adds veraPDF, Ace and LibreOffice when installed (missing tools are reported as skipped). See `scripts/a11y.sh` and the `/a11y` skill.
+`pnpm a11y` runs every automated accessibility check in order and stops at the first failure: eslint, the contrast test, the Playwright a11y specs on Chromium, and the exporter output tests (EPUB, PDF/UA, RTF, DOCX), then prints a stage table. `--fast` skips Playwright, `--no-chromium` skips only the Chromium stage (CI uses it: the sharded `e2e` job already runs every spec in `e2e/`, the accessibility ones included, so the `a11y` job keeps the exporter and tool checks and WebKit), `--webkit` adds the WebKit run, `--tools` adds veraPDF, Ace and LibreOffice when installed (missing tools are reported as skipped). See `scripts/a11y.sh` and the `/a11y` skill.
 
 ## WebDriver e2e (real built app)
 

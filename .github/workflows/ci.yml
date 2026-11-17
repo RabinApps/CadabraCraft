@@ -146,7 +146,9 @@ jobs:
             apps/desktop/coverage/coverage-summary.json
           if-no-files-found: error
   # Every automated accessibility gate in one place (scripts/a11y.sh) with the validators: veraPDF (PDF/UA-1, PDF/A-2b) on
-  # real Typst output, Ace on the sample EPUBs, LibreOffice for docx and rtf. The stage table goes to the job summary.
+  # real Typst output, Ace on the sample EPUBs, LibreOffice for docx and rtf. The stage table goes to the job summary. The
+  # Chromium Playwright a11y specs are not run here: the sharded `e2e` job runs every spec in e2e/ (including all of them),
+  # so a second run would only repeat it (scripts/a11y.sh --no-chromium; a local `pnpm a11y` still runs them).
   # NOT RUN YET: these steps have never run in CI (written on an unpushed branch); the first run may need fixes. The
   # a11y.sh step is required; the WebKit run (the engine of WKWebView and WebKitGTK) is continue-on-error until it has run
   # green a few times (docs/testing.md). This job replaces the old webkit-a11y job.
@@ -154,7 +156,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.a11y == 'true'
     runs-on: kinhin-container
-    timeout-minutes: 120 # the Chromium and WebKit suites take about 50 min alone and about twice that beside the Coverage and WebDriver jobs on a shared machine (run #173 hit 60)
+    timeout-minutes: 120 # sized when this job also ran the Chromium suite (about 50 min with WebKit alone, twice that beside other jobs; run #173 hit 60): lower it once a run shows how long the stages take now
     env:
       PUPPETEER_CACHE_DIR: ${{ github.workspace }}/tools/puppeteer # see the js job
     steps:
@@ -190,11 +192,11 @@ jobs:
           } >> "$GITHUB_ENV"
       # a11y.sh itself sets REQUIRE_VERAPDF=1 and REQUIRE_ACE=1 (and REQUIRE_SOFFICE=1 for LibreOffice) on the tools it finds.
       # It prints the stage table at the end, also when a stage fails, so tee it into the job summary.
-      - name: Accessibility stages (scripts/a11y.sh --tools)
+      - name: Accessibility stages (scripts/a11y.sh --tools --no-chromium)
         shell: bash # explicit shell: GitHub adds `set -eo pipefail`, so tee does not hide the script's exit code
         run: |
           status=0
-          bash scripts/a11y.sh --tools 2>&1 | tee a11y-stages.log || status=$?
+          bash scripts/a11y.sh --tools --no-chromium 2>&1 | tee a11y-stages.log || status=$?
           {
             echo '### Accessibility stages'
             echo '```'
