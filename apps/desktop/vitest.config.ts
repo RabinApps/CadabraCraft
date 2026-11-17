@@ -6,6 +6,8 @@ import { coverage } from "../../vitest.coverage";
 export default defineConfig({
   plugins: [babel({ plugins: ["@lingui/babel-plugin-lingui-macro"] }), lingui()],
   test: {
+    // The EPUB and Markdown export tests do real zip work: on a CI machine shared with the browser suites they passed the 5 s default only by luck.
+    testTimeout: process.env.CI ? 20_000 : 5_000,
     setupFiles: ["./src/i18n/test-setup.ts"],
     exclude: [
       "e2e/**",

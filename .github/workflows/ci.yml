@@ -108,7 +108,8 @@ jobs:
       - name: Playwright shard ${{ matrix.shard }} of 4
         working-directory: apps/desktop
         run: pnpm exec playwright test --shard=${{ matrix.shard }}/4 --trace off
-        env: { CI: "1" }
+        # Three workers per shard, as the coverage run used: the default (half the cores) times four shards oversubscribes a shared machine.
+        env: { CI: "1", E2E_WORKERS: "3" }
   # Full runs only: unit and e2e coverage with the floors of scripts/coverage.mjs (docs/testing.md, "Coverage").
   coverage:
     needs: changes

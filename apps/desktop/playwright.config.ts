@@ -23,8 +23,10 @@ export default defineConfig({
     retries: 2,
   }),
   // In CI the tests of one file spread over the workers too (the a11y sweeps are independent tests), and E2E_WORKERS sets the count.
+  // CI machines run several jobs at once, so a test can time out on load alone: two retries (as in the coverage run above), and a retried pass is reported as "flaky", not hidden.
   ...(process.env.CI && {
     fullyParallel: true,
+    retries: 2,
     ...(process.env.E2E_WORKERS && { workers: Number(process.env.E2E_WORKERS) }),
   }),
   ...(ownOutputs && { outputDir: `test-results-${port}` }),
