@@ -381,7 +381,7 @@ jobs:
         working-directory: apps/desktop/src-tauri
   # The one check branch protection requires: green when every job that ran passed (a skipped job is a job the change cannot reach).
   ci-ok:
-    if: always()
+    if: ${{ !cancelled() }} # not always(): a cancelled run (a newer push) must end at once, or its ci-ok holds the concurrency group and the new run waits
     needs: [changes, static, unit, e2e, coverage, a11y, licenses, webdriver, rust]
     runs-on: kinhin-container
     steps:
