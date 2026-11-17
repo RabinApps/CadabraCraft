@@ -98,4 +98,21 @@ describe("appIndexMarkers", () => {
     expect(make([{ id: "g1", term: "Orb", definition: "" }])[1]).toContain("Orb");
     expect(withDef.length).toBe(3);
   });
+
+  it("words a plain index entry and a glossary mark when no book is open", async () => {
+    const { appIndexMarkers } = await import("../indexing/appMarkers");
+    const { useProject } = await import("../../state/project/index");
+    const schema = editorSchema();
+    useProject.setState({ manifest: null } as unknown as ReturnType<typeof useProject.getState>);
+    const plugins = (appIndexMarkers().config.addProseMirrorPlugins as () => Plugin[]).call({});
+    const doc = schema.node("doc", null, [
+      schema.node("paragraph", null, [
+        schema.text("a", [schema.marks.indexEntry!.create({ id: "p", term: "Orb" })]),
+        schema.text("b", [schema.marks.glossaryTerm!.create({ id: "g1" })]),
+      ]),
+    ]);
+    const [index, glossary] = titles(EditorState.create({ doc, plugins }));
+    expect(index).toBe("Index: Orb");
+    expect(glossary).not.toContain("Orb");
+  });
 });

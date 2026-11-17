@@ -15,6 +15,10 @@ const fault = vi.hoisted(() => ({
   stat: null as null | ((real: { size: number; isFile(): boolean }) => unknown),
   readSync: null as Error | null,
   realpath: null as Error | null,
+  /** Fails `openSync` for the paths this returns an error for (and no others: the temp files must still open). */
+  open: null as null | ((path: string) => Error | null),
+  /** Fails `realpathSync` for the paths this returns an error for. */
+  realpathOf: null as null | ((path: string) => Error | null),
   randomBytes: null as null | (() => Buffer),
 }));
 
@@ -51,9 +55,16 @@ vi.mock("node:fs", async (orig) => {
       if (fault.readSync) throw fault.readSync;
       return real.readSync(...a);
     }) as typeof real.readSync,
+    openSync: ((...a: Parameters<typeof real.openSync>) => {
+      const err = fault.open?.(String(a[0]));
+      if (err) throw err;
+      return real.openSync(...a);
+    }) as typeof real.openSync,
     realpathSync: Object.assign(
       (...a: Parameters<typeof real.realpathSync>) => {
         if (fault.realpath) throw fault.realpath;
+        const err = fault.realpathOf?.(String(a[0]));
+        if (err) throw err;
         return real.realpathSync(...a);
       },
       { native: real.realpathSync.native },
@@ -70,7 +81,15 @@ vi.mock("node:crypto", async (orig) => {
   };
 });
 
-import { ProjectFsError, atomicWrite, readRegular, resolveReal, trashFile } from "../index";
+import {
+  ProjectFsError,
+  atomicWrite,
+  importReference,
+  readRegular,
+  readRelativeImage,
+  resolveReal,
+  trashFile,
+} from "../index";
 import { renameNoReplace, syncDir } from "../files/atomic";
 
 const tmp = () => mkdtempSync(join(tmpdir(), "pfs-fault-"));
@@ -91,6 +110,7 @@ afterEach(() => {
   fault.mkdir = fault.rename = fault.readSync = fault.realpath = null;
   fault.fstat = fault.stat = fault.randomBytes = null;
   fault.link = fault.unlink = fault.beforeLink = null;
+  fault.open = fault.realpathOf = null;
 });
 
 describe("atomicWrite under faults", () => {
@@ -174,6 +194,45 @@ describe("readRegular under faults", () => {
   it("maps a read failure and still closes the handle", () => {
     fault.readSync = errno("EIO");
     expect(code(() => readRegular(file(), 100, "f.bin", tooLarge))).toBe("io_error");
+  });
+});
+
+describe("permission errors, injected so they also happen when the tests run as root (root ignores file modes)", () => {
+  it("atomicWrite: a parent folder that cannot be created is permission_denied", () => {
+    const d = tmp();
+    fault.mkdir = errno("EACCES");
+    expect(code(() => atomicWrite(join(d, "sub", "x.json"), new Uint8Array([1])))).toBe(
+      "permission_denied",
+    );
+  });
+  it("readRegular: a file that cannot be opened is permission_denied", () => {
+    const d = tmp();
+    writeFileSync(join(d, "locked.bin"), "x");
+    fault.open = (p) => (p.endsWith("locked.bin") ? errno("EACCES") : null);
+    expect(code(() => readRegular(join(d, "locked.bin"), 100, "locked.bin", tooLarge))).toBe(
+      "permission_denied",
+    );
+  });
+  it("importReference: a source that cannot be opened is permission_denied and nothing is left behind", () => {
+    const d = tmp();
+    writeFileSync(join(d, "notes.txt"), "text");
+    fault.open = (p) => (p.endsWith("notes.txt") ? errno("EACCES") : null);
+    expect(code(() => importReference(d, join(d, "notes.txt")))).toBe("permission_denied");
+    fault.open = null;
+    expect(existsSync(join(d, "references")) ? readdirSync(join(d, "references")) : []).toEqual([]);
+  });
+  it("importReference: a references folder that cannot be created is permission_denied", () => {
+    const d = tmp();
+    writeFileSync(join(d, "notes.txt"), "text");
+    fault.mkdir = errno("EACCES");
+    expect(code(() => importReference(d, join(d, "notes.txt")))).toBe("permission_denied");
+  });
+  it("readRelativeImage: an image that cannot be resolved is permission_denied", () => {
+    const d = tmp();
+    writeFileSync(join(d, "book.md"), "x");
+    writeFileSync(join(d, "a.png"), "x");
+    fault.realpathOf = (p) => (p.endsWith("a.png") ? errno("EACCES") : null);
+    expect(code(() => readRelativeImage(join(d, "book.md"), "a.png"))).toBe("permission_denied");
   });
 });
 

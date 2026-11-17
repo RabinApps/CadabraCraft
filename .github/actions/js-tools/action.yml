@@ -1,0 +1,56 @@
+name: External tools for the JavaScript tests
+description: EPUBCheck, the bundled Java runtime, Playwright Chromium, Ace, enwik8, veraPDF, Typst and LibreOffice, with the REQUIRE_* variables the tests read. Needs setup-js with java first.
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/apt
+      with: { packages: libreoffice-writer, flags: --no-install-recommends }
+    - if: runner.os == 'Linux'
+      shell: bash
+      run: echo "REQUIRE_SOFFICE=1" >> "$GITHUB_ENV"
+    - shell: bash
+      run: bash scripts/fetch-epubcheck.sh
+    # The EPUB checker and trimmed Java runtime that ship in the app: stage them, build the runtime with jlink and run EPUBCheck with it on the sample EPUB.
+    - if: runner.os != 'Windows'
+      shell: bash
+      run: |
+        pnpm --filter @cadabracraft/export-epub build:sample
+        bash scripts/stage-epubcheck.sh
+        bash scripts/build-jre.sh
+    # Chromium plus its system libraries (libnss3, libatk-bridge2.0-0, libgbm1 ...): the Ace test starts Puppeteer's own Chrome, which needs the same libraries on Linux.
+    - shell: bash
+      working-directory: apps/desktop
+      run: |
+        # Jobs on one runner machine share /tmp and the dpkg state, and two concurrent `apt-get install` runs made dpkg lose
+        # its .deb files. Take a machine-wide lock where flock exists (not macOS).
+        LOCK=""; command -v flock >/dev/null 2>&1 && LOCK="flock /tmp/ci-apt.lock"
+        for i in 1 2 3 4 5; do
+          $LOCK pnpm exec playwright install --with-deps chromium && exit 0
+          sleep $((i * 5))
+        done
+        exit 1
+    # Ace runs in Electron, which needs GTK 3. Playwright's Chromium libraries above do not include it (only WebKit's do), and a
+    # runner machine without GTK in its image failed the four Ace tests with "libgtk-3.so.0: cannot open shared object file".
+    - uses: ./.github/actions/apt
+      with: { packages: libgtk-3-0t64 }
+    - shell: bash
+      run: bash scripts/fetch-ace.sh
+    # REQUIRE_ACE=1 is set on Linux only, where the libraries above are known to be installed.
+    - if: runner.os == 'Linux'
+      shell: bash
+      run: echo "REQUIRE_ACE=1" >> "$GITHUB_ENV"
+    - shell: bash
+      run: bash scripts/fetch-enwik8.sh
+    # PDF/UA and PDF/A validation of the real Typst output (packages/export-pdf verapdf.test.ts). Linux only; elsewhere the test skips.
+    - if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        bash scripts/fetch-verapdf.sh
+        bash scripts/fetch-typst.sh
+        bin=$(ls "$PWD"/apps/desktop/src-tauri/binaries/typst-* | head -n 1)
+        {
+          echo "REQUIRE_VERAPDF=1"
+          echo "VERAPDF_BIN=$PWD/tools/verapdf/verapdf"
+          echo "TYPST_BIN=$bin"
+          echo "TYPST_FONT_PATHS=$PWD/apps/desktop/src-tauri/binaries/fonts"
+        } >> "$GITHUB_ENV"

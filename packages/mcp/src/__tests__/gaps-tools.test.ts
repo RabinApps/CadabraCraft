@@ -273,6 +273,31 @@ describe.skipIf(!posix)("inspect_pdf with stand-in poppler tools", () => {
     expect(await errorCode("cadabra_inspect_pdf", { path: "p" })).toBe("pdf_error");
   });
 
+  it("reads pages, size, version, fonts and the first page's text from all three tools", async () => {
+    const popplerDir = tools({
+      pdfinfo:
+        "printf 'Pages:          3\\nPage size:      397 x 595 pts\\nPDF version:    1.7\\n'",
+      pdffonts:
+        "printf 'name type encoding emb sub uni object ID\\n----\\nABCDEF+Lora CID TrueType Identity-H yes yes yes 12 0\\nHelvetica Type 1 WinAnsi no no no 9 0\\n'",
+      pdftotext: "printf 'Chapter One\\nIt begins.\\n'",
+    });
+    await newBook();
+    put("exports/en/book.pdf", "%PDF-1.7");
+    s = await (async () => (await s.close(), connect({ root: s.root, popplerDir })))();
+    const r = await s.ok("cadabra_inspect_pdf", { path: "p" });
+    expect(r).toMatchObject({
+      poppler: "ok",
+      pages: 3,
+      pageSize: "397 x 595 pts",
+      pdfVersion: "1.7",
+      firstPageText: "Chapter One\nIt begins.",
+    });
+    expect(r.fonts).toEqual([
+      { name: "ABCDEF+Lora", type: "CID TrueType", embedded: true },
+      { name: "Helvetica", type: "Type 1", embedded: false },
+    ]);
+  });
+
   it("reports missing fields as null when only pdfinfo is installed", async () => {
     const popplerDir = tools({ pdfinfo: "echo 'Title: x'" });
     await newBook();

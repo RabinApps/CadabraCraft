@@ -2,7 +2,7 @@ import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { By, until } from "selenium-webdriver";
 import { describe, expect, it } from "vitest";
-import { click, createBook, eventually, typeAtEnd } from "./driver";
+import { click, createBook, eventually, typeInEditor } from "./driver";
 import { skip, useApp } from "./session";
 
 // The EPUB is built in the webview and written by Rust under exports/<language>/.
@@ -13,7 +13,7 @@ describe.skipIf(skip)("native EPUB export", () => {
     const { driver } = app.session();
     const root = join(app.dir(), "book");
     await createBook(driver, root, "Export Book", "Tester");
-    await typeAtEnd(driver, "Exported sentence");
+    await typeInEditor(driver, "Exported sentence");
 
     await click(driver, "Export");
     const dialog = await driver.wait(until.elementLocated(By.css('[role="dialog"]')), 10_000);

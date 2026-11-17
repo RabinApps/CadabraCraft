@@ -134,6 +134,12 @@ mod tests {
     }
 
     #[test]
+    fn query_request_refuses_a_header_longer_than_the_body() {
+        assert!(matches!(parse_query_request(&u32::MAX.to_le_bytes()), Err(TypstError::Other { .. })));
+        assert!(matches!(parse_query_request(&[]), Err(TypstError::Other { .. })));
+    }
+
+    #[test]
     fn query_request_decodes_the_selector_source_and_files() {
         let h = r#"{"source":"s","selector":"<page-report>","files":[{"name":"a.png","len":2}]}"#;
         let r = parse_query_request(&frame(h, &[7, 8])).unwrap();

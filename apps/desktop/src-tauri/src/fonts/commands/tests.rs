@@ -184,6 +184,21 @@ fn the_real_client_refuses_plain_http() {
 }
 
 #[test]
+fn a_picked_font_file_is_imported_into_the_fonts_folder() {
+    use tauri::Manager;
+    // The folder is the startup setting (set once for the whole test process) or CADABRA_FONTS_DIR.
+    crate::fonts::set_fonts_dir(std::env::temp_dir().join("cadabracraft-test-fonts"));
+    let src = tempfile::tempdir().unwrap();
+    let font = src.path().join("Picked.ttf");
+    std::fs::write(&font, ttf("Picked Family")).unwrap();
+    let app = tauri::test::mock_app();
+    app.manage(PickedPaths::default());
+    app.state::<PickedPaths>().record(PickKind::Font, &font).unwrap();
+    let installed = run(fonts_import(app.state(), font.to_string_lossy().into_owned())).unwrap();
+    assert_eq!(installed.family, "Picked Family");
+}
+
+#[test]
 fn the_commands_list_the_catalog_and_installed_fonts_import_read_and_delete() {
     // These commands read the fonts folder from CADABRA_FONTS_DIR or the startup setting, so only the
     // folder-independent parts run here; the folder logic is covered by the store and import tests.

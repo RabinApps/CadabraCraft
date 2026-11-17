@@ -1,10 +1,11 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { delimiter, join, resolve } from "node:path";
-import { Builder, By, Key, until, type WebDriver, type WebElement } from "selenium-webdriver";
+import { Builder, By, until, type WebDriver, type WebElement } from "selenium-webdriver";
 
-const PORT = 4444;
+/** tauri-driver's port, and the one after it for the native WebDriver under it. CI gives each runner its own (runners on one machine share its network). */
+const PORT = Number(process.env.TAURI_DRIVER_PORT) || 4444;
 const appDir = resolve(import.meta.dirname, "..");
 
 /** The debug binary produced by `pnpm build:native` (cargo target dir, no bundling). */
@@ -37,11 +38,29 @@ export function tauriDriverPath(env: NodeJS.ProcessEnv = process.env): string {
   return dirs.map((d) => join(d, exe)).find((f) => existsSync(f)) ?? exe;
 }
 
+/** Ends tauri-driver and its children (the group it was started in, see startSession); on Windows, just the process. */
+function endProcessGroup(proc: ChildProcess): void {
+  try {
+    if (proc.pid !== undefined && process.platform !== "win32") process.kill(-proc.pid, "SIGKILL");
+    else proc.kill();
+  } catch {
+    // Already gone.
+  }
+}
+
 export async function startSession(): Promise<Session> {
   const bin = tauriDriverPath();
-  const proc: ChildProcess = spawn(bin, ["--port", String(PORT)], {
-    stdio: ["ignore", process.stdout, process.stderr],
-  });
+  // Its own process group, so stop() can end tauri-driver and everything it started (WebKitWebDriver, the app and the
+  // WebKit helper processes). Killing only tauri-driver left the helpers behind holding the job's output open: in CI the
+  // tests passed and the step then hung until the job's timeout.
+  const proc: ChildProcess = spawn(
+    bin,
+    ["--port", String(PORT), "--native-port", String(PORT + 1)],
+    {
+      stdio: ["ignore", process.stdout, process.stderr],
+      detached: process.platform !== "win32",
+    },
+  );
   await new Promise((r) => setTimeout(r, 1500)); // tauri-driver prints nothing on ready; give it a moment
   const driver = await new Builder()
     .usingServer(`http://127.0.0.1:${PORT}/`)
@@ -50,8 +69,12 @@ export async function startSession(): Promise<Session> {
   return {
     driver,
     async stop() {
-      await driver.quit().catch(() => {});
-      proc.kill();
+      // quit() talks to the app; if the app is already gone it can wait for a long time, so do not wait for it.
+      await Promise.race([
+        driver.quit().catch(() => {}),
+        new Promise((r) => setTimeout(r, 10_000)),
+      ]);
+      endProcessGroup(proc);
     },
   };
 }
@@ -84,6 +107,7 @@ export async function button(driver: WebDriver, name: string): Promise<WebElemen
 export async function click(driver: WebDriver, name: string): Promise<void> {
   const el = await button(driver, name);
   await driver.wait(until.elementIsVisible(el), 5_000);
+  await driver.wait(until.elementIsEnabled(el), 5_000); // a wizard's Next stays disabled while it reads
   await el.click();
 }
 export const editor = (driver: WebDriver) =>
@@ -92,23 +116,54 @@ export async function labelled(driver: WebDriver, label: string): Promise<WebEle
   const by = By.xpath(
     `//input[@id=//label[normalize-space(.)=${q(label)}]/@for] | //input[@aria-label=${q(label)}]`,
   );
-  return driver.wait(until.elementLocated(by), 10_000);
+  const el = await driver.wait(until.elementLocated(by), 10_000);
+  // A dialog's field exists before it is shown: typing into it then fails as "not interactable".
+  await driver.wait(until.elementIsVisible(el), 5_000);
+  await driver.wait(until.elementIsEnabled(el), 5_000);
+  return el;
 }
 
-/** The UI language is an app preference stored in localStorage; pin English so text selectors are stable. */
+/**
+ * The UI language is an app preference stored in localStorage; pin English so text selectors are stable. The same
+ * preferences also mark the first-run welcome screen as seen (a fresh profile opens on it, covering Home) and keep the
+ * sponsor dialog after an export away, as the Playwright setup does (e2e/support/fakeTauri.ts).
+ */
 export async function useEnglish(driver: WebDriver): Promise<void> {
-  await driver.executeScript(`localStorage.setItem("cadabracraft.locale", "en")`);
+  await driver.executeScript(`
+    localStorage.setItem("cadabracraft.locale", "en");
+    localStorage.setItem("cadabracraft.onboarding", "seen");
+    localStorage.setItem("cadabracraft.sponsor", "hidden");
+  `);
   await driver.navigate().refresh();
+  // The page is reloading: a spec that looks for a control right away would find the old, empty document.
+  await driver.wait(until.elementLocated(By.css("button")), 15_000);
 }
 
-/** Types `text` at the end of the open chapter. */
-export async function typeAtEnd(driver: WebDriver, text: string): Promise<void> {
+/**
+ * Asks the app to close its window the way the window frame does: the close-requested event runs the app's save-on-close
+ * handler, which flushes unsaved typing and then destroys the window. WebDriver's own window close skips that handler,
+ * and a page cannot call `window.close` (the capability is not granted, on purpose).
+ */
+export async function requestClose(driver: WebDriver): Promise<void> {
+  await driver
+    .executeAsyncScript(
+      `
+    const done = arguments[arguments.length - 1];
+    window.__TAURI_INTERNALS__.invoke("plugin:event|emit", { event: "tauri://close-requested", payload: null })
+      .then(() => done(null), (e) => done(String(e)));
+  `,
+    )
+    .catch(() => {}); // the window can be gone before the answer comes back
+}
+
+/**
+ * Types `text` into the open chapter, where the click puts the caret. No key chord (Ctrl+End): under WebKitWebDriver the
+ * modifier stays down for the next key press, so the first characters are swallowed as shortcuts and the text is lost.
+ */
+export async function typeInEditor(driver: WebDriver, text: string): Promise<void> {
   const el = await editor(driver);
   await el.click();
-  await el.sendKeys(
-    Key.chord(process.platform === "darwin" ? Key.COMMAND : Key.CONTROL, Key.END),
-    text,
-  );
+  await el.sendKeys(text);
 }
 
 /** From the welcome screen: create a book in `root` through the real New project wizard and wait for the editor. */
@@ -119,6 +174,8 @@ export async function createBook(
   author: string,
 ): Promise<void> {
   await useEnglish(driver);
+  // The real folder dialog can create the folder it returns, and the picker records only a path that exists.
+  mkdirSync(root, { recursive: true });
   await stubFolderDialog(driver, root);
   await click(driver, "New project");
   await (await labelled(driver, "Title")).sendKeys(title);

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "./support/coverage";
 import { fakeTauri } from "./support/fakeTauri";
-import { newProject, exportBook, seedChapters } from "./support/helpers";
+import { caretInNextParagraph, newProject, exportBook, seedChapters } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -84,12 +84,15 @@ test.describe("images", () => {
     };
     expect(await saved()).toMatchObject({ alt: "", decorative: true });
 
-    // Select the image and give it a description.
-    await page.locator(".ProseMirror p").last().click();
+    // Select the image and give it a description. The menu reads the selection when it opens, so wait until the editor
+    // has really moved it off (or onto) the image before opening it; on a loaded runner the click can lag the menu.
+    const selected = page.locator(".ProseMirror .ProseMirror-selectednode");
+    await caretInNextParagraph(page);
     await tb(page, "More formatting").click();
     await expect(page.getByRole("menuitem", { name: "Image details" })).toBeDisabled();
     await page.keyboard.press("Escape");
     await img.click();
+    await expect(selected).toHaveCount(1);
     await tb(page, "More formatting").click();
     await page.getByRole("menuitem", { name: "Image details" }).click();
     const edit = page.getByRole("dialog", { name: "Image details" });

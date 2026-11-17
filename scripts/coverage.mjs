@@ -1,6 +1,7 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { formatTable, rowsOf, verdict } from "./coverage-table.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const desktop = path.join(root, "apps/desktop");
@@ -22,7 +23,12 @@ const rustExcluded = [
   "src/commands/project.rs:62", // generated #[tauri::command] wrapper glue
 ];
 
+// Every gated metric, for the table printed at the end (scripts/coverage-table.mjs), and the areas this run did not measure.
+const rows = [];
+const notRun = [];
+
 function checkSummary(label, total, floor) {
+  rows.push(...rowsOf(label, total, floor));
   let failed = false;
   for (const [metric, minimum] of Object.entries(floor)) {
     const actual = total[metric]?.pct;
@@ -171,12 +177,18 @@ function mergeLcov(inputs) {
 }
 
 const mode = process.argv[2] ?? "all";
-if (!["all", "--js-only", "--rust-only"].includes(mode)) {
+if (!["all", "--js-only", "--rust-only", "--fast"].includes(mode)) {
   console.error(`Unknown coverage report mode: ${mode}`);
   process.exit(2);
 }
 let failed = false;
-if (mode !== "--rust-only") {
+if (mode === "--fast") {
+  // The gates that run in minutes: desktop Vitest and Rust. The Playwright coverage run takes over an hour, so it is
+  // listed as not run, which is a skipped gate in the report and never a pass.
+  const unit = JSON.parse(await readFile(appUnitPath, "utf8"));
+  failed = checkSummary("Desktop Vitest", unit.total, floors.desktopUnit);
+  notRun.push("Desktop Playwright");
+} else if (mode !== "--rust-only") {
   const [unit, e2e, unitLcov, e2eLcov] = await Promise.all([
     readFile(appUnitPath, "utf8").then(JSON.parse),
     readFile(e2eSummaryPath, "utf8").then(JSON.parse),
@@ -202,9 +214,12 @@ if (mode !== "--js-only") {
   const rustReport = JSON.parse(rustJsonText);
   const rustTotals = { lines: { covered: 0, total: 0 }, functions: { covered: 0, total: 0 } };
   const rustFileSummaries = new Map();
+  // A whole-file exclusion (no `:line`) is out of the totals as well as out of the lcov file, as docs/testing.md says.
+  const rustExcludedFiles = new Set(rustExcluded.filter((excluded) => !excluded.includes(":")));
   for (const file of rustReport.data.flatMap((chunk) => chunk.files)) {
     const source = file.filename.replace(/^.*\/src\//, "src/");
-    if (!source.startsWith("src/") || source === "src/lib.rs" || source === "src/main.rs") continue;
+    if (!source.startsWith("src/") || source === "src/main.rs" || rustExcludedFiles.has(source))
+      continue;
     rustFileSummaries.set(source, file.summary);
     const lines = file.summary.lines;
     const functions = file.summary.functions;
@@ -280,5 +295,16 @@ if (mode !== "--js-only") {
     await mkdir(outputDir, { recursive: true });
     await writeFile(rustOutputPath, `${rustLcovForGate}\n`);
   }
+}
+
+if (rows.length || notRun.length) {
+  const table = formatTable(rows, notRun);
+  const summary = `${table}\n\n${verdict(rows, notRun)}\n`;
+  console.log(`\nCoverage report\n\n${summary}`);
+  await mkdir(path.join(root, "coverage"), { recursive: true });
+  await writeFile(path.join(root, "coverage/report.md"), `# Coverage report\n\n${summary}`);
+  // On CI the table also goes to the job summary, so every run shows how far above its floors the numbers are.
+  if (process.env.GITHUB_STEP_SUMMARY)
+    await appendFile(process.env.GITHUB_STEP_SUMMARY, `### Coverage\n\n${summary}\n`);
 }
 if (failed) process.exitCode = 1;

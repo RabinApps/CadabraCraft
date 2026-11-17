@@ -333,6 +333,28 @@ mod tests {
         assert_eq!(code(read_archive(&z, &LIMITS)), ImportErrorCode::InvalidZip);
     }
 
+    #[test]
+    fn an_entry_whose_local_header_is_damaged_makes_the_archive_unreadable() {
+        let mut z = build(&[("word/document.xml", b"<w:document/>")], CompressionMethod::Stored);
+        z[2..4].copy_from_slice(&[0, 0]); // the "PK\x03\x04" signature of the first local header
+        assert_eq!(code(read_archive(&z, &LIMITS)), ImportErrorCode::InvalidZip);
+    }
+
+    #[test]
+    fn an_encrypted_wanted_entry_is_refused() {
+        let mut z = build(&[("word/document.xml", b"<w:document/>")], CompressionMethod::Stored);
+        for i in 0..z.len().saturating_sub(10) {
+            let sig = u32::from_le_bytes(z[i..i + 4].try_into().unwrap());
+            if sig == 0x0403_4b50 {
+                z[i + 6] |= 1; // general purpose flag, bit 0: encrypted (local header)
+            }
+            if sig == 0x0201_4b50 {
+                z[i + 8] |= 1; // the same in the central directory
+            }
+        }
+        assert_eq!(code(read_archive(&z, &LIMITS)), ImportErrorCode::InvalidZip);
+    }
+
     /// Sets the compression method of every entry in the local headers and the central directory.
     fn set_method(z: &mut [u8], method: u16) {
         for i in 0..z.len().saturating_sub(12) {

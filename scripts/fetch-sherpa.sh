@@ -58,7 +58,7 @@ sys.exit("bin/" + name + " is not in " + archive)
 
 fetch_file() { # fetch_file <url> <sha256> <dest>
   local tmp="$TMP/$(basename "$3")"
-  curl -fL -o "$tmp" "$1"
+  curl -fL --retry 5 --retry-delay 5 --retry-all-errors -o "$tmp" "$1"
   local got; got=$(sha256 "$tmp")
   [ "$got" = "$2" ] || { echo "sha256 mismatch for $1: got $got" >&2; return 1; }
   mv "$tmp" "$3"
@@ -79,7 +79,7 @@ fetch_sherpa() { # fetch_sherpa <triple>
   read -r asset want <<<"$(asset_for "$triple")"
   local tmp="$TMP/sherpa-$triple"
   mkdir -p "$tmp"
-  curl -fL -o "$tmp/$asset" "https://github.com/k2-fsa/sherpa-onnx/releases/download/v$SHERPA_V/$asset"
+  curl -fL --retry 5 --retry-delay 5 --retry-all-errors -o "$tmp/$asset" "https://github.com/k2-fsa/sherpa-onnx/releases/download/v$SHERPA_V/$asset"
   local got; got=$(sha256 "$tmp/$asset")
   [ "$got" = "$want" ] || { echo "sha256 mismatch for $asset: got $got" >&2; return 1; }
   extract_bin "$tmp/$asset" "sherpa-onnx-offline-tts$exe" "$dest.partial" # publish atomically so an interrupted run never leaves a half file

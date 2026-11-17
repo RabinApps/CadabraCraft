@@ -1,0 +1,13 @@
+name: Ports for this runner
+description: One E2E and tauri-driver port per runner, so jobs sharing a machine do not collide.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        # The runners of one machine (names ending -r1 to -r4) share its network, so two jobs that start a server on a fixed
+        # port collide ("http://localhost:1420 is already used"). One job runs per runner at a time: the runner's number
+        # gives it ports of its own. Where the name has no such number (a hosted runner), the defaults stay.
+        slot="${RUNNER_NAME##*-r}"; case "$slot" in ''|*[!0-9]*) slot=0 ;; esac
+        echo "E2E_PORT=$((1420 + slot))" >> "$GITHUB_ENV"
+        echo "TAURI_DRIVER_PORT=$((4444 + slot * 2))" >> "$GITHUB_ENV"

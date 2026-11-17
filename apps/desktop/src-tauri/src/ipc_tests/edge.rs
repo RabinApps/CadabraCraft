@@ -13,6 +13,12 @@ fn replace_strings(v: &Value, with: &str) -> Value {
     }
 }
 
+#[test]
+fn every_string_is_replaced_at_any_depth_including_inside_arrays() {
+    let args = json!({ "a": "x", "n": 3, "list": ["y", { "deep": "z" }, 4], "empty": [] });
+    assert_eq!(replace_strings(&args, "!"), json!({ "a": "!", "n": 3, "list": ["!", { "deep": "!" }, 4], "empty": [] }));
+}
+
 /// Commands that share global state with other tests (the fake dialog queue, the one folder watcher) or that need a channel.
 pub(super) fn is_shared_state_command(cmd: &str) -> bool {
     cmd.starts_with("pick_") || cmd == "watch_project" || cmd == "unwatch_project"

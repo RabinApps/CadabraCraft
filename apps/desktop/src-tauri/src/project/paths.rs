@@ -12,12 +12,12 @@ fn is_missing(e: &std::io::Error) -> bool {
 /// The deepest part of the path that exists is resolved; the rest does not exist yet, so cannot be a link. A dangling
 /// link is refused, because writing through it would create its target elsewhere.
 fn ensure_contained(root: &Path, abs: &Path, rel: &str) -> Result<()> {
-    ensure_contained_with(root, abs, rel, |p| fs::canonicalize(p))
+    ensure_contained_with(root, abs, rel, &|p| fs::canonicalize(p))
 }
 
 /// `ensure_contained` with the canonicalising call passed in, so the case where an entry vanishes between the two calls
 /// (a concurrent trash or rename) can be tested.
-fn ensure_contained_with(root: &Path, abs: &Path, rel: &str, canonicalize: impl Fn(&Path) -> std::io::Result<PathBuf>) -> Result<()> {
+fn ensure_contained_with(root: &Path, abs: &Path, rel: &str, canonicalize: &dyn Fn(&Path) -> std::io::Result<PathBuf>) -> Result<()> {
     let Ok(real_root) = fs::canonicalize(root) else { return Ok(()) }; // no root yet, so no links to follow
     let escape = || ProjectError::PathEscape { path: rel.to_string() };
     let mut cur = abs;
@@ -127,12 +127,12 @@ mod tests {
             let _ = fs::remove_file(p);
             Err(std::io::Error::from(std::io::ErrorKind::NotFound))
         };
-        assert!(ensure_contained_with(d.path(), &page, "manuscript/001-a.json", gone).is_ok());
+        assert!(ensure_contained_with(d.path(), &page, "manuscript/001-a.json", &gone).is_ok());
         // An entry that is still there but cannot be resolved (a dangling link or a loop) is refused.
         fs::write(&page, "x").unwrap();
         let broken = |_: &Path| Err(std::io::Error::from(std::io::ErrorKind::NotFound));
         assert_eq!(
-            ensure_contained_with(d.path(), &page, "manuscript/001-a.json", broken),
+            ensure_contained_with(d.path(), &page, "manuscript/001-a.json", &broken),
             Err(ProjectError::PathEscape { path: "manuscript/001-a.json".into() })
         );
     }

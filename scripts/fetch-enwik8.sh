@@ -29,7 +29,7 @@ extract_zip() { # extract_zip <zip> <dest>
 
 rm -rf tools/enwik8
 mkdir -p tools/enwik8
-curl -fL -o tools/enwik8/enwik8.zip "https://mattmahoney.net/dc/enwik8.zip"
+curl -fL --retry 5 --retry-delay 5 --retry-all-errors -o tools/enwik8/enwik8.zip "https://mattmahoney.net/dc/enwik8.zip"
 extract_zip tools/enwik8/enwik8.zip tools/enwik8
 rm tools/enwik8/enwik8.zip
 GOT=$(sha1_of tools/enwik8/enwik8)

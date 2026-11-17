@@ -161,6 +161,22 @@ export async function focusEnd(page: Page) {
   await page.keyboard.press("ControlOrMeta+End");
 }
 
+/**
+ * Puts the caret in the last paragraph, for after an image was inserted (the new image is selected, and the next insert
+ * would replace it). Two things can undo a click made too early, so it waits for the first and repeats the click for the
+ * second: the Add image dialog still closing (it gives focus back to the editor, which restores the image selection after
+ * the click), and ProseMirror dropping the node selection a moment after the click, which the toolbar reads later.
+ */
+export async function caretInNextParagraph(page: Page) {
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(async () => {
+    await page.locator(".ProseMirror p").last().click();
+    await expect(page.locator(".ProseMirror .ProseMirror-selectednode")).toHaveCount(0, {
+      timeout: 2_000,
+    });
+  }).toPass();
+}
+
 /** Makes the page surface ask Typst again (a canned answer is set after the chapter was first measured): Read mode and back remounts it. */
 export async function remeasure(page: Page) {
   await page.getByRole("radio", { name: "Read" }).click();

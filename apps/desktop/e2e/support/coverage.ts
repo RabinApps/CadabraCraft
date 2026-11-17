@@ -19,7 +19,8 @@ export const test = base.extend<{ appCoverage: void }>({
       } finally {
         if (!page.isClosed()) {
           const coverage = await page.coverage.stopJSCoverage();
-          await new CoverageReport(coverageOptions).add(coverage);
+          // A page that never loaded a script (a crashed or navigated-away one) gives nothing to add.
+          if (coverage.length > 0) await new CoverageReport(coverageOptions).add(coverage);
         }
       }
     },

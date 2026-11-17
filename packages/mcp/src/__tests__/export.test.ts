@@ -11,7 +11,7 @@ import {
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { strFromU8, unzipSync } from "fflate";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { type Session, connect, epubcheckJar, hasPoppler, hasTypst, seedBook } from "./helpers";
 
 let s: Session;
@@ -130,6 +130,44 @@ describe("export_epub / inspect_epub", () => {
     expect((await s.call("cadabra_inspect_epub", { path: "e" })).data.error.code).toBe("not_found");
     expect((await s.call("cadabra_inspect_pdf", { path: "e" })).data.error.code).toBe("not_found");
   });
+
+  // A stand-in `java` first on the PATH: it runs, and EPUBCheck "finds" a problem, so no real jar or java is needed.
+  it.skipIf(process.platform === "win32")(
+    "reports what EPUBCheck says: its messages when it finds a problem (the EPUB is still written), and a pass",
+    async () => {
+      const bin = mkdtempSync(join(tmpdir(), "cadabra-fakejava-"));
+      writeFileSync(
+        join(bin, "java"),
+        [
+          "#!/bin/sh",
+          'if [ "$1" = "-version" ]; then exit 0; fi',
+          'echo "ERROR(RSC-005): book.epub: a stand-in problem"',
+          "exit 1",
+        ].join("\n"),
+      );
+      chmodSync(join(bin, "java"), 0o755);
+      const fakeJar = join(bin, "epubcheck.jar");
+      writeFileSync(fakeJar, "x");
+      vi.stubEnv("PATH", `${bin}:${process.env.PATH ?? ""}`);
+      try {
+        s = await connect({ epubcheckJar: fakeJar });
+        const { path } = await seedBook(s);
+        const r = await s.ok("cadabra_export_epub", { path });
+        expect(r.epubcheck).toMatchObject({ ran: true, passed: false });
+        expect(r.epubcheck.messages).toEqual(["ERROR(RSC-005): book.epub: a stand-in problem"]);
+        expect(existsSync(join(s.root, path, "exports/en-GB/book.epub"))).toBe(true);
+        // The same stand-in on a day EPUBCheck is happy.
+        writeFileSync(
+          join(bin, "java"),
+          '#!/bin/sh\nif [ "$1" = "-version" ]; then exit 0; fi\necho "No errors or warnings detected."\n',
+        );
+        const clean = await s.ok("cadabra_export_epub", { path });
+        expect(clean.epubcheck).toMatchObject({ ran: true, passed: true, messages: [] });
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    },
+  );
 
   const jar = epubcheckJar();
   it.skipIf(!jar && !requireEpubcheck)(
@@ -256,6 +294,20 @@ describe("export_pdf / inspect_pdf", () => {
       });
       expect(argMissing.data.error.code).toBe("font_missing");
       expect(argMissing.data.error.details.role).toBe("heading");
+    },
+  );
+
+  it.skipIf(process.platform === "win32")(
+    "reports PDF/A, a bleed and crop marks in what it wrote, and only when they were asked for",
+    async () => {
+      s = await connect({ typstBin: fakeTypst() });
+      const { path } = await seedBook(s);
+      const plain = await s.ok("cadabra_export_pdf", { path });
+      expect(plain.options).toMatchObject({ pdfA: false, bleedIn: 0, cropMarks: false });
+      const bleed = await s.ok("cadabra_export_pdf", { path, pdfA: true, bleedIn: 0.125 });
+      expect(bleed.options).toMatchObject({ pdfA: true, bleedIn: 0.125, cropMarks: false });
+      const marks = await s.ok("cadabra_export_pdf", { path, bleedIn: 0.125, cropMarks: true });
+      expect(marks.options).toMatchObject({ pdfA: false, bleedIn: 0.125, cropMarks: true });
     },
   );
 

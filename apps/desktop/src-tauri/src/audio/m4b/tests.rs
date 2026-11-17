@@ -76,6 +76,54 @@ fn the_track_language_is_a_three_letter_code_and_odd_tags_are_undetermined() {
 }
 
 #[test]
+fn every_known_primary_language_maps_to_its_iso_639_2_code() {
+    for (tag, code) in [
+        ("fr", "fra"),
+        ("de", "deu"),
+        ("es", "spa"),
+        ("it", "ita"),
+        ("pt", "por"),
+        ("nl", "nld"),
+        ("sv", "swe"),
+        ("da", "dan"),
+        ("no", "nor"),
+        ("nb", "nor"),
+        ("nn", "nor"),
+        ("fi", "fin"),
+        ("pl", "pol"),
+        ("cs", "ces"),
+        ("sk", "slk"),
+        ("sl", "slv"),
+        ("hu", "hun"),
+        ("ro", "ron"),
+        ("bg", "bul"),
+        ("hr", "hrv"),
+        ("sr", "srp"),
+        ("ru", "rus"),
+        ("uk", "ukr"),
+        ("el", "ell"),
+        ("tr", "tur"),
+        ("ar", "ara"),
+        ("he", "heb"),
+        ("fa", "fas"),
+        ("hi", "hin"),
+        ("ja", "jpn"),
+        ("ko", "kor"),
+        ("zh", "zho"),
+        ("id", "ind"),
+        ("vi", "vie"),
+        ("th", "tha"),
+        ("ca", "cat"),
+        ("la", "lat"),
+        ("et", "est"),
+        ("lv", "lav"),
+        ("lt", "lit"),
+    ] {
+        assert_eq!(iso639_2(Some(tag)), code, "{tag:?}");
+    }
+}
+
+#[test]
 fn the_encoder_output_is_stored_up_to_the_cap_and_no_further() {
     let d = tempfile::tempdir().unwrap();
     let root = d.path().join("book");

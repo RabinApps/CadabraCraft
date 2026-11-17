@@ -104,7 +104,9 @@ fn every_capability_permission_belongs_to_a_registered_plugin() {
     let unique: BTreeSet<&String> = ids.iter().collect();
     assert_eq!(unique.len(), ids.len(), "a permission is listed twice");
     for id in ids {
-        let (plugin, rest) = id.split_once(':').unwrap_or_else(|| panic!("{id} has no plugin prefix"));
+        let Some((plugin, rest)) = id.split_once(':') else {
+            panic!("{id} has no plugin prefix");
+        };
         assert!(!rest.is_empty() && !id.contains('*'), "{id} is a wildcard");
         if plugin != "core" {
             assert!(LIB.contains(&format!("tauri_plugin_{plugin}::")), "{id}: lib.rs does not register the {plugin} plugin");

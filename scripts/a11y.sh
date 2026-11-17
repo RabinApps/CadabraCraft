@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Runs every automated accessibility check, in order, and stops at the first failing stage.
-#   scripts/a11y.sh [--fast] [--webkit] [--tools]
+#   scripts/a11y.sh [--fast] [--no-chromium] [--webkit] [--tools]
 #   --fast    skip the Playwright stages
+#   --no-chromium  skip only the Chromium Playwright stage (CI: the sharded e2e job already runs every spec)
 #   --webkit  also run `test:e2e:webkit` of the desktop app, if that script exists
 #   --tools   also run the optional veraPDF / Ace / LibreOffice tests, for the tools that are installed
 # A stage whose test files do not exist (yet) is reported as "skipped", never as a failure.
@@ -11,14 +12,15 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 root=$PWD
 
-fast=0 webkit=0 tools=0
+fast=0 chromium=1 webkit=0 tools=0
 for arg in "$@"; do
   case "$arg" in
     --fast) fast=1 ;;
+    --no-chromium) chromium=0 ;;
     --webkit) webkit=1 ;;
     --tools) tools=1 ;;
     -h | --help)
-      sed -n 2,7p "$0" | sed 's/^# \{0,1\}//'
+      sed -n 2,8p "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *)
@@ -115,7 +117,9 @@ else
   # shellcheck disable=SC2086
   # The specs live in e2e/ or e2e/a11y/.
   specs=$( (existing apps/desktop/e2e $e2e_specs | sed 's#^#e2e/#'; existing apps/desktop/e2e/a11y $e2e_specs | sed 's#^#e2e/a11y/#') | tr '\n' ' ')
-  if [ -z "$specs" ]; then
+  if [ "$chromium" = 0 ]; then
+    skip_stage "playwright a11y (chromium)" "--no-chromium (e2e shards)"
+  elif [ -z "$specs" ]; then
     skip_stage "playwright a11y (chromium)" "no a11y specs present"
   else
     # shellcheck disable=SC2086

@@ -80,9 +80,18 @@ type PathLocks = Mutex<HashMap<PathBuf, Arc<Mutex<()>>>>;
 /// `with_path_lock` over a given set of locks. A lock poisoned by a panicking save is still taken: the data it guards is
 /// the file on disk, not anything the panic left half-done in memory.
 fn with_lock_in<T>(locks: &PathLocks, path: &Path, f: impl FnOnce() -> T) -> T {
-    let lock = locks.lock().unwrap_or_else(|e| e.into_inner()).entry(path.to_path_buf()).or_default().clone();
-    let _guard = lock.lock().unwrap_or_else(|e| e.into_inner());
+    let lock = lock_of(locks, path);
+    let _guard = hold(&lock);
     f()
+}
+
+/// The lock of `path`, made on first use.
+fn lock_of(locks: &PathLocks, path: &Path) -> Arc<Mutex<()>> {
+    locks.lock().unwrap_or_else(|e| e.into_inner()).entry(path.to_path_buf()).or_default().clone()
+}
+
+fn hold(lock: &Mutex<()>) -> std::sync::MutexGuard<'_, ()> {
+    lock.lock().unwrap_or_else(|e| e.into_inner())
 }
 
 pub(crate) fn write_file_with(root: &Path, rel: &str, contents: &str, base_hash: Option<&str>, snapshot: SnapshotMode) -> Result<WriteResult> {
@@ -222,6 +231,26 @@ mod tests {
         assert_eq!(read_file(d.path(), "manuscript/x.json").unwrap_err(), ProjectError::IcloudPending { path: "manuscript/x.json".into() });
         // The placeholder itself is a normal dotfile path and resolves fine.
         assert!(resolve(d.path(), "manuscript/.x.json.icloud").is_ok());
+    }
+
+    #[test]
+    fn a_poisoned_lock_is_still_taken() {
+        fn poison<T: Send>(m: &Mutex<T>) {
+            let _ = std::thread::scope(|s| {
+                s.spawn(|| {
+                    let _held = m.lock().unwrap();
+                    panic!("poisoned on purpose");
+                })
+                .join()
+            });
+        }
+        let locks: PathLocks = Mutex::new(HashMap::new());
+        let path = Path::new("manuscript/001-a.json");
+        assert_eq!(with_lock_in(&locks, path, || 1), 1);
+        let inner = locks.lock().unwrap().get(path).unwrap().clone();
+        poison(&*inner);
+        poison(&locks);
+        assert_eq!(with_lock_in(&locks, path, || 2), 2);
     }
 
     #[cfg(unix)]

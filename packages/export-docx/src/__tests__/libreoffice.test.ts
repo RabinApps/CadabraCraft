@@ -91,7 +91,9 @@ const writeDocx = (
 const pageCount = (pdf: Buffer): number =>
   (pdf.toString("latin1").match(/\/Type\s*\/Page(?![A-Za-z])/g) ?? []).length;
 const toPdf = (docx: string): Buffer => readFileSync(convert(docx, "pdf", "pdf"));
-const toText = (docx: string): string => readFileSync(convert(docx, "txt:Text", "txt"), "utf8");
+// "Text" alone writes the machine's locale encoding (Latin-1 on a CI runner with no LANG), so ask for UTF-8.
+const toText = (docx: string): string =>
+  readFileSync(convert(docx, "txt:Text (encoded):UTF8", "txt"), "utf8");
 
 // Needs LibreOffice (`soffice` on the PATH). CI installs it on Linux; set REQUIRE_SOFFICE=1 to fail instead of skip.
 // Right-to-left books are refused by the exporter (see docx.test.ts), so there is nothing to open for them.

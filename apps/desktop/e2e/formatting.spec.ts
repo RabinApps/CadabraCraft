@@ -18,7 +18,13 @@ test.describe("formatting toolbar", () => {
   }
   // Triple-click selects the paragraph; Shift+Home is platform-specific in Chromium.
   const selectLine = async (page: Page) => {
-    await ed(page).locator("p").last().click({ clickCount: 3 });
+    // On a loaded machine the editor can take the triple-click without keeping the selection, so click again until it holds.
+    await expect(async () => {
+      await ed(page).locator("p").last().click({ clickCount: 3 });
+      expect(await page.evaluate(() => window.getSelection()?.toString().trim() ?? "")).not.toBe(
+        "",
+      );
+    }).toPass();
   };
 
   test.beforeEach(async ({ page }) => {

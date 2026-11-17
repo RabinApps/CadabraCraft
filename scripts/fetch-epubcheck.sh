@@ -61,7 +61,7 @@ install_unzip() { # Linux only: install unzip with whichever package manager exi
 
 mkdir -p tools
 trap 'rm -f tools/epubcheck.zip' EXIT # never leave an unverified archive behind
-curl -fL -o tools/epubcheck.zip "https://github.com/w3c/epubcheck/releases/download/v$V/epubcheck-$V.zip"
+curl -fL --retry 5 --retry-delay 5 --retry-all-errors -o tools/epubcheck.zip "https://github.com/w3c/epubcheck/releases/download/v$V/epubcheck-$V.zip"
 got=$(sha256 tools/epubcheck.zip)
 [ "$got" = "$SHA256" ] || { echo "sha256 mismatch for epubcheck-$V.zip: got $got" >&2; exit 1; }
 extract_zip tools/epubcheck.zip tools

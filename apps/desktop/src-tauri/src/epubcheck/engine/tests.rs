@@ -70,6 +70,15 @@ fn fake_java(dir: &Path, report: &str, code: i32) -> Runtime {
 
 #[cfg(unix)]
 #[test]
+fn a_report_that_is_not_json_is_a_failure() {
+    let dir = tempfile::tempdir().unwrap();
+    let rt = fake_java(dir.path(), "this is not a report", 0);
+    let e = validate(&rt, &dir.path().join("book.epub"), Duration::from_secs(20), &AtomicBool::new(false)).unwrap_err();
+    assert!(matches!(e, EpubcheckError::Failed { .. }), "{e:?}");
+}
+
+#[cfg(unix)]
+#[test]
 fn a_failing_exit_status_still_returns_the_report() {
     let dir = tempfile::tempdir().unwrap();
     let rt = fake_java(

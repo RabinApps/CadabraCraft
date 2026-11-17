@@ -1,15 +1,15 @@
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { By, Key, until } from "selenium-webdriver";
+import { By, until } from "selenium-webdriver";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   click,
-  editor,
   labelled,
   nativeSupport,
   startSession,
   stubFolderDialog,
+  typeInEditor,
   useEnglish,
   type Session,
 } from "./driver";
@@ -43,33 +43,26 @@ describe.skipIf(skip)("native smoke", () => {
     await click(driver, "Choose…");
     await click(driver, "Create book");
 
-    const first = await editor(driver);
     await driver.wait(
       until.elementLocated(
         By.xpath("//*[contains(@class,'ProseMirror')]//h1[normalize-space(.)='Chapter One']"),
       ),
       15_000,
     );
-    await first.click();
-    await first.sendKeys(
-      Key.chord(process.platform === "darwin" ? Key.COMMAND : Key.CONTROL, Key.END),
-      "Hello from tauri-driver",
-    );
+    await typeInEditor(driver, "Hello from tauri-driver");
     await click(driver, "Save");
-    await driver.wait(
-      until.elementLocated(By.xpath("//*[@role='status' and normalize-space(.)='Saved']")),
-      15_000,
-    );
+    // The header's badge says "Saved" for as long as the book is saved. The app's own "Saved" notice (role status) is gone
+    // after two seconds, which a slow runner can miss: the autosave may have written the file before Save was clicked.
+    await driver.wait(until.elementLocated(By.xpath("//*[normalize-space(.)='Saved']")), 15_000);
 
     // Rust wrote real files.
     const manifest = JSON.parse(readFileSync(join(root, "cadabra.json"), "utf8"));
     expect(manifest).toMatchObject({ editions: [{ title: "Native Book", author: "Tester" }] });
-    const files = readdirSync(root, { recursive: true, encoding: "utf8" }).filter(
-      (f) => f.replaceAll("\\", "/").endsWith(".json") && f !== "cadabra.json",
-    );
-    expect(
-      files.some((f) => readFileSync(join(root, f), "utf8").includes("Hello from tauri-driver")),
-    ).toBe(true);
+    const typedText = () =>
+      readdirSync(root, { recursive: true, encoding: "utf8" })
+        .filter((f) => f.replaceAll("\\", "/").endsWith(".json") && f !== "cadabra.json")
+        .some((f) => readFileSync(join(root, f), "utf8").includes("Hello from tauri-driver"));
+    await expect.poll(typedText, { timeout: 15_000 }).toBe(true);
 
     // Reopen from disk after a fresh page load.
     await driver.navigate().refresh();

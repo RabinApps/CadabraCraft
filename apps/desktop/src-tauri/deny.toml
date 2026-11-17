@@ -34,6 +34,8 @@ ignore = [
   { id = "RUSTSEC-2026-0370", reason = "zvariant: unmaintained, under Tauri's Linux stack" },
   { id = "RUSTSEC-2026-0371", reason = "zbus_names: unmaintained, under Tauri's Linux stack" },
   { id = "RUSTSEC-2026-0372", reason = "zvariant_derive: unmaintained, under Tauri's Linux stack" },
+  # A direct dependency (project/snapshots, book_snapshots, pages): an unmaintained notice, not a vulnerability. Move to jiff or time (docs/roadmap.md, Engineering) and delete this entry.
+  { id = "RUSTSEC-2026-0543", reason = "chrono: unmaintained, no safe upgrade; used for snapshot timestamps only" },
 ]
 
 [bans]
