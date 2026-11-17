@@ -56,10 +56,22 @@ test.describe("1.4.13 content on hover or focus", () => {
           ).length,
           tooltips: document.querySelectorAll("[popover]:popover-open").length,
         }));
-      const bad: string[] = [];
-      for (let i = 0; i < count; i++) {
+      // On a busy machine the page keeps settling by itself (the autosave badge goes from Unsaved to Saved with its Dismiss button, the
+      // Contents panel behind a dialog swaps "≈ 1" for the measured page number), which moves the count with no hover or focus involved.
+      // So wait until the count has stopped moving, and look again at a control that looked bad: what hover or focus really adds is added again.
+      const settled = async () => {
+        let last = -1;
+        let steady = 0;
+        for (let n = 0; n < 150 && steady < 10; n++) {
+          const now = (await snapshot()).count;
+          steady = now === last ? steady + 1 : 0;
+          last = now;
+          await page.waitForTimeout(100);
+        }
+      };
+      const probe = async (i: number): Promise<string[]> => {
         const el = scope.locator(SEL).nth(i);
-        if (!(await el.isVisible())) continue;
+        if (!(await el.isVisible())) return [];
         const before = await snapshot();
         await el.hover({ timeout: 2000 }).catch(() => {});
         await page.waitForTimeout(20);
@@ -67,10 +79,22 @@ test.describe("1.4.13 content on hover or focus", () => {
         await el.focus().catch(() => {});
         const focused = await snapshot();
         await page.mouse.move(0, 0);
+        const found: string[] = [];
         if (hovered.count !== before.count || hovered.tooltips)
-          bad.push(`hover ${i}: ${before.count}->${hovered.count}`);
+          found.push(`hover ${i}: ${before.count}->${hovered.count}`);
         if (focused.count !== before.count || focused.tooltips)
-          bad.push(`focus ${i}: ${before.count}->${focused.count}`);
+          found.push(`focus ${i}: ${before.count}->${focused.count}`);
+        return found;
+      };
+      await settled();
+      const bad: string[] = [];
+      for (let i = 0; i < count; i++) {
+        let found = await probe(i);
+        if (found.length > 0) {
+          await settled();
+          found = await probe(i);
+        }
+        bad.push(...found);
       }
       expect(bad).toEqual([]);
     });
