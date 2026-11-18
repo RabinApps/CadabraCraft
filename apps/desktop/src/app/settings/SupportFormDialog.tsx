@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLingui } from "@lingui/react/macro";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Loader2 } from "lucide-react";
 import { bridge } from "../../lib/bridge";
 import {
   FORM_LOAD_TIMEOUT_MS,
@@ -91,17 +91,32 @@ function FormFrame({
           {openError && <Notice role="alert">{openError}</Notice>}
         </div>
       ) : (
-        <iframe
-          ref={frame}
-          src={url}
-          title={title}
-          referrerPolicy="no-referrer"
-          sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
-          style={{ height: frameHeight(form, height) }}
-          className="mx-auto block w-full rounded-md border-0"
-        />
+        <div className="relative" style={{ minHeight: frameHeight(form, height) }}>
+          <iframe
+            ref={frame}
+            src={url}
+            title={title}
+            referrerPolicy="no-referrer"
+            sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+            style={{ height: frameHeight(form, height) }}
+            className={`mx-auto block w-full rounded-md border-0 ${loaded ? "" : "invisible"}`}
+          />
+          {!loaded && (
+            <div
+              role="status"
+              data-testid="support-form-loading"
+              className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-ink-muted"
+            >
+              <Loader2
+                size={18}
+                aria-hidden
+                className="animate-spin text-accent motion-reduce:animate-none"
+              />
+              {t`Loading the form…`}
+            </div>
+          )}
+        </div>
       )}
-      <p className="text-xs leading-relaxed text-ink-muted">{t`The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you submit the form.`}</p>
       <div className="flex justify-end">
         <Button onClick={onClose}>{t`Close`}</Button>
       </div>

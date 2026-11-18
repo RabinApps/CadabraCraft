@@ -1189,7 +1189,7 @@ msgstr "تقريبي: Typst غير متاح"
 
 #: src/app/settings/HelpSection.tsx
 msgid "Ask a question or report a problem."
-msgstr ""
+msgstr "اطرح سؤالًا أو أبلغ عن مشكلة."
 
 #: src/app/settings/SettingsSections.tsx
 msgid "Ask each time"
@@ -1963,12 +1963,12 @@ msgstr "بوصلة"
 
 #: src/app/settings/HelpSection.tsx
 msgid "Contact"
-msgstr ""
+msgstr "اتصل بنا"
 
 #: src/app/settings/HelpSection.tsx
 #: src/app/settings/SupportFormDialog.tsx
 msgid "Contact CadabraCraft"
-msgstr ""
+msgstr "التواصل مع CadabraCraft"
 
 #: src/app/analysis/analysisModel.ts
 msgid "Content word of four or more letters, not a common function word; used four or more times"
@@ -2141,7 +2141,7 @@ msgstr "تعذّر فتح {title}: {error}"
 
 #: src/app/settings/SupportFormDialog.tsx
 msgid "Could not open {url}. Copy the address into your browser instead."
-msgstr ""
+msgstr "تعذّر فتح {url}. انسخ العنوان إلى متصفحك بدلًا من ذلك."
 
 #. placeholder {0}: causeText(e)
 #: src/app/dialogs/import/useImportPicker.ts
@@ -2911,7 +2911,7 @@ msgstr "ريشة"
 
 #: src/app/settings/SupportFormDialog.tsx
 msgid "Feedback for CadabraCraft"
-msgstr ""
+msgstr "ملاحظات حول CadabraCraft"
 
 #. placeholder {0}: fmt(Math.round(perThousand * 10) / 10)
 #: src/app/analysis/analysisModel.ts
@@ -3149,7 +3149,7 @@ msgstr "شبح"
 
 #: src/app/settings/HelpSection.tsx
 msgid "Give feedback"
-msgstr ""
+msgstr "إرسال ملاحظات"
 
 #: src/app/dialogs/BookDetailsFields.tsx
 msgid "Give the book a title."
@@ -3907,6 +3907,10 @@ msgstr "استمع إليه، أو سلّمه لغيرك"
 #: src/editor/reading/ReadingBook.tsx
 msgid "Loading the book"
 msgstr "جارٍ تحميل الكتاب"
+
+#: src/app/settings/SupportFormDialog.tsx
+msgid "Loading the form…"
+msgstr "جارٍ تحميل النموذج…"
 
 #: src/app/dialogs/LicensesDialog.tsx
 #: src/app/references/Previews.tsx
@@ -5770,7 +5774,7 @@ msgstr "جارٍ حفظ {dir}/manuscript.rtf…"
 
 #: src/app/settings/HelpSection.tsx
 msgid "Say what works and what does not."
-msgstr ""
+msgstr "أخبرنا بما يعمل وما لا يعمل."
 
 #: src/state/project/scenes.ts
 msgid "scene"
@@ -6804,12 +6808,8 @@ msgid "The font of titles and headings. Settings, Fonts has more."
 msgstr "خط العناوين والعناوين الفرعية. في الإعدادات، الخطوط المزيد."
 
 #: src/app/settings/SupportFormDialog.tsx
-msgid "The form comes from support.cadabracraft.com and is only loaded when you open it. Nothing is sent until you submit the form."
-msgstr ""
-
-#: src/app/settings/SupportFormDialog.tsx
 msgid "The form could not load. Check your connection, or open it in your browser."
-msgstr ""
+msgstr "تعذّر تحميل النموذج. تحقق من اتصالك أو افتحه في المتصفح."
 
 #: src/lib/indexing/problemText.ts
 msgid "The glossary already has this term."

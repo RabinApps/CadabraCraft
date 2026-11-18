@@ -84,8 +84,44 @@ test("a form page that loads but never reports its height (blocked from framing)
   await openHelp(page);
   await page.getByRole("button", { name: "Contact", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Contact CadabraCraft" });
-  await expect(dialog.locator("iframe")).toBeVisible();
+  await expect(dialog.getByTestId("support-form-loading")).toBeVisible();
   await page.clock.fastForward(13_000);
   await expect(dialog.getByRole("alert")).toContainText("could not load");
+  await expect(dialog.getByTestId("support-form-loading")).toHaveCount(0);
   await expect(dialog.getByRole("button", { name: "Open in browser" })).toBeVisible();
+});
+
+test("a loading indicator shows until the form reports its height, and no privacy footnote is shown", async ({
+  page,
+}) => {
+  let release: () => void = () => {};
+  const gate = new Promise<void>((resolve) => (release = resolve));
+  await page.route("https://support.cadabracraft.com/**", async (route) => {
+    await gate;
+    await route.fulfill({ contentType: "text/html", body: FORM("Contact") + REPORT_HEIGHT });
+  });
+  await openHelp(page);
+  await page.getByRole("button", { name: "Contact", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Contact CadabraCraft" });
+  const loading = dialog.getByRole("status");
+  await expect(loading).toContainText("Loading the form");
+  await expect(dialog.locator("iframe")).not.toBeVisible();
+  await expect(dialog).not.toContainText("Nothing is sent until you submit");
+  release();
+  await expect(loading).toHaveCount(0);
+  await expect(dialog.locator("iframe")).toBeVisible();
+  await expect(dialog.frameLocator("iframe").getByRole("heading")).toHaveText("Contact form");
+  await expect(dialog).not.toContainText("Nothing is sent until you submit");
+});
+
+test("the loading indicator is not shown when the form cannot load", async ({ page }) => {
+  await page.route("https://support.cadabracraft.com/**", (route) => route.abort());
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "onLine", { value: false });
+  });
+  await openHelp(page);
+  await page.getByRole("button", { name: "Give feedback", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Feedback for CadabraCraft" });
+  await expect(dialog.getByRole("alert")).toContainText("could not load");
+  await expect(dialog.getByTestId("support-form-loading")).toHaveCount(0);
 });
