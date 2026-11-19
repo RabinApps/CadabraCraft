@@ -7,7 +7,7 @@ import { formatSize, kindOf } from "../../lib/references/referenceKinds";
 import { errText } from "../../lib/projectError";
 import { useProject } from "../../state/project/index";
 import { Button, IconButton } from "../../ui/Button";
-import { overlayClass, panelClass } from "../../ui/Dialog";
+import { keepFocusInView, overlayClass, panelClass } from "../../ui/Dialog";
 import { Notice } from "../../ui/feedback/Notice";
 import { ReferenceDetails } from "./ReferenceDetails";
 import { Preview } from "./Previews";
@@ -46,6 +46,8 @@ export function ReferenceViewer({ id, onClose }: { id: string | null; onClose: (
         <D.Overlay className={overlayClass} />
         <D.Content
           aria-describedby={undefined}
+          // Radix moves focus with preventScroll when Tab wraps, so without this a focused control can stay out of view (WCAG 2.4.11).
+          onFocus={keepFocusInView}
           className={`${panelClass} left-1/2 top-1/2 flex h-[min(92dvh,720px)] w-[min(96vw,1120px)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg`}
         >
           <header className="flex items-center gap-3 border-b border-border px-5 py-3">
