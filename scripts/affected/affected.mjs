@@ -216,6 +216,7 @@ function main() {
       `rust=${sel.rust}`,
       `e2e=${sel.e2e}`,
       `e2e_specs=${sel.e2eSpecs.join(",")}`,
+      `e2e_shards=${sel.e2eSpecs.length ? "[1]" : "[1,2,3,4]"}`,
       `a11y=${sel.a11y}`,
       `webdriver=${sel.webdriver}`,
       `licenses=${sel.licenses}`,

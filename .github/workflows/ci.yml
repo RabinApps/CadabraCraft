@@ -28,6 +28,7 @@ jobs:
       rust: ${{ steps.select.outputs.rust }}
       e2e: ${{ steps.select.outputs.e2e }}
       e2e_specs: ${{ steps.select.outputs.e2e_specs }}
+      e2e_shards: ${{ steps.select.outputs.e2e_shards }}
       a11y: ${{ steps.select.outputs.a11y }}
       webdriver: ${{ steps.select.outputs.webdriver }}
       licenses: ${{ steps.select.outputs.licenses }}
@@ -103,7 +104,7 @@ jobs:
       fail-fast: false
       matrix:
         # One job for a named list of specs: the whole matrix would leave three shards with nothing to run.
-        shard: ${{ fromJSON(needs.changes.outputs.e2e_specs == '' && '[1,2,3,4]' || '[1]') }}
+        shard: ${{ fromJSON(needs.changes.outputs.e2e_shards) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/ports
@@ -117,17 +118,21 @@ jobs:
             sleep $((i * 5))
           done
           exit 1
-      - name: Playwright, the specs the change reached
-        if: needs.changes.outputs.e2e_specs != ''
+      - name: Playwright
         working-directory: apps/desktop
-        run: pnpm exec playwright test ${{ needs.changes.outputs.e2e_specs }} --trace off
-        env: { CI: "1", E2E_WORKERS: "3" }
-      - name: Playwright shard ${{ matrix.shard }} of 4 (all specs)
-        if: needs.changes.outputs.e2e_specs == ''
-        working-directory: apps/desktop
-        run: pnpm exec playwright test --shard=${{ matrix.shard }}/4 --trace off
+        run: |
+          # A spec list from the selection runs alone in this one job; otherwise this is one of four shards of the whole suite.
+          if [ -n "$E2E_SPECS" ]; then
+            IFS=',' read -r -a specs <<< "$E2E_SPECS"
+            pnpm exec playwright test "${specs[@]}" --trace off
+          else
+            pnpm exec playwright test --shard=${{ matrix.shard }}/${{ strategy.job-total }} --trace off
+          fi
         # Three workers per shard, as the coverage run used: the default (half the cores) times four shards oversubscribes a shared machine.
-        env: { CI: "1", E2E_WORKERS: "3" }
+        env:
+          CI: "1"
+          E2E_WORKERS: "3"
+          E2E_SPECS: ${{ needs.changes.outputs.e2e_specs }}
   # Full runs only: unit and e2e coverage with the floors of scripts/coverage.mjs (docs/testing.md, "Coverage").
   coverage:
     needs: changes
