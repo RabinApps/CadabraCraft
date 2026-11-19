@@ -31,6 +31,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 26 }
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
+      - uses: ./.github/actions/cargo-cache # keyed on tools/perf/Cargo.lock, the crate this job builds
       # The generator and probe are a standalone crate (no sidecar binaries, no pnpm install needed).
       - name: Huge-book smoke test
         run: node scripts/perf/huge-book.ts --preset "${{ inputs.preset || 'small' }}"
@@ -74,6 +75,7 @@ jobs:
       # cargo-fuzz needs nightly (sanitizer flags). The ref pins the action; the input picks the toolchain.
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
         with: { toolchain: nightly }
+      - uses: ./.github/actions/cargo-cache # the cargo-fuzz binary and the fuzz crate's registry downloads
       - run: cargo install --locked cargo-fuzz@0.13.2
       - name: Fuzz ${{ matrix.target }}
         run: bash scripts/perf/fuzz.sh "${{ matrix.target }}" "${{ inputs.fuzz_seconds || '60' }}"

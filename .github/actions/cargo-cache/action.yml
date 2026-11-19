@@ -13,7 +13,10 @@ runs:
           ~/.cargo/registry
           ~/.cargo/git
           ~/.cargo/bin
-        key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+        # The three lockfiles in the repository, spelled out: the app, the fuzz crate (which `cargo fuzz` resolves through its
+        # own Cargo.lock) and the perf tool that scripts/perf/huge-book.ts builds. A glob would also wander into target/ and
+        # node_modules/, and an explicit list makes it obvious that the fuzz crate's lockfile is part of the key.
+        key: cargo-${{ runner.os }}-${{ hashFiles('apps/desktop/src-tauri/Cargo.lock', 'apps/desktop/src-tauri/fuzz/Cargo.lock', 'apps/desktop/src-tauri/tools/perf/Cargo.lock') }}
         # A lockfile change misses the exact key but still restores the newest tree, so only the changed crates download.
         restore-keys: |
           cargo-${{ runner.os }}-
