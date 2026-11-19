@@ -33,6 +33,10 @@ export default defineConfig({
     retries: 2,
     ...(process.env.E2E_WORKERS && { workers: Number(process.env.E2E_WORKERS) }),
   }),
+  // SPEC_MAP: the reporter tells the map merge whether the run was filtered (e2e/support/specMapCore.ts).
+  ...(process.env.SPEC_MAP && {
+    reporter: [[process.env.CI ? "dot" : "list"], ["./e2e/support/specMapReporter.ts"]],
+  }),
   ...(ownOutputs && { outputDir: `test-results-${port}` }),
   ...(process.env.WEBKIT && {
     projects: [{ name: "webkit", testMatch: webkitSpecs, use: { ...devices["Desktop Safari"] } }],

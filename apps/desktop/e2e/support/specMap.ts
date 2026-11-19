@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { patchMap, planMerge, type Part, type Run, type SpecMap } from "./specMapCore";
 
 /**
  * Which app source files each Playwright spec calls into, for the CI selection (scripts/affected/e2e-specs.mjs).
@@ -10,8 +11,11 @@ import { fileURLToPath } from "node:url";
  */
 const here = dirname(fileURLToPath(import.meta.url));
 const desktop = resolve(here, "../..");
+export const desktopDir = desktop;
 const repo = resolve(desktop, "../..");
 const partsDir = join(repo, "coverage/spec-map-parts");
+/** What specMapReporter.ts saw of the run (written before the tests start, so outside partsDir). */
+export const runInfoPath = join(repo, "coverage/spec-map-run.json");
 export const specMapPath = join(desktop, "e2e/spec-map.json");
 
 export const specMapEnabled = (): boolean => Boolean(process.env.COVERAGE && process.env.SPEC_MAP);
@@ -82,35 +86,32 @@ export function writePart(testFile: string, testId: string, files: string[]): vo
   writeFileSync(join(partsDir, `${testId}.json`), JSON.stringify({ spec, files }));
 }
 
-/** Merges the parts into e2e/spec-map.json: `{ specs: [...], files: { path: [spec indexes] } }`, sorted so a diff shows real change. */
+/** Merges the parts into e2e/spec-map.json, unless the run cannot make a whole map (see planMerge). */
 export function mergeParts(): void {
-  const bySpec = new Map<string, Set<string>>();
   // No parts (no test reached Chromium): keep the map that is there rather than write an empty one.
   if (!existsSync(partsDir)) return;
   clearIncomplete();
-  for (const name of readdirSync(partsDir)) {
-    const part = JSON.parse(readFileSync(join(partsDir, name), "utf8")) as {
-      spec: string;
-      files: string[];
-    };
-    const set = bySpec.get(part.spec) ?? new Set<string>();
-    for (const f of part.files) set.add(f);
-    bySpec.set(part.spec, set);
+  const parts = readdirSync(partsDir).map(
+    (name) => JSON.parse(readFileSync(join(partsDir, name), "utf8")) as Part,
+  );
+  // SPEC_MAP_PATCH=1: replace just the specs this run covered in the committed map (after changing a few specs).
+  if (process.env.SPEC_MAP_PATCH) {
+    const existing = JSON.parse(readFileSync(specMapPath, "utf8")) as SpecMap;
+    writeFileSync(specMapPath, `${JSON.stringify(patchMap(existing, parts, listSpecs()))}\n`);
+    return;
   }
-  // A map made from some of the specs would send changes to those alone: refuse it (a filtered run, a crashed one).
-  const missing = listSpecs().filter((spec) => !bySpec.has(spec));
-  if (missing.length > 0) {
-    const message = `spec map not written: no test of ${missing.length} spec(s) ran (${missing.slice(0, 3).join(", ")}${missing.length > 3 ? ", ..." : ""}). Run all the specs (or resume with SPEC_MAP_KEEP=1).`;
+  const run = existsSync(runInfoPath)
+    ? (JSON.parse(readFileSync(runInfoPath, "utf8")) as Run)
+    : { filtered: true, skipped: [] };
+  // SPEC_MAP_KEEP=1 finishes an interrupted run from the parts of earlier ones: the person says so, the completeness check stays.
+  if (keepParts()) run.filtered = false;
+  const plan = planMerge(parts, listSpecs(), run);
+  if (!plan.ok) {
+    const message = `spec map not written: ${plan.reason}. Run every spec in one unfiltered run (or resume with SPEC_MAP_KEEP=1).`;
     if (process.env.SPEC_MAP === "only") throw new Error(message);
     console.warn(message);
     writeFileSync(incompleteMarker, message);
     return;
   }
-  const specs = [...bySpec.keys()].sort();
-  const files: Record<string, number[]> = {};
-  specs.forEach((spec, i) => {
-    for (const f of [...(bySpec.get(spec) ?? [])].sort()) (files[f] ??= []).push(i);
-  });
-  const sorted = Object.fromEntries(Object.entries(files).sort(([a], [b]) => a.localeCompare(b)));
-  writeFileSync(specMapPath, `${JSON.stringify({ specs, files: sorted })}\n`);
+  writeFileSync(specMapPath, `${JSON.stringify(plan.map)}\n`);
 }
