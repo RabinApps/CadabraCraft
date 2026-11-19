@@ -12,7 +12,8 @@
 # one so it needs no Visual C++ runtime on the user's machine.
 set -euo pipefail
 SHERPA_V=2.0.1
-cd "$(dirname "$0")/../apps/desktop/src-tauri"
+HERE=$(cd "$(dirname "$0")" && pwd)
+cd "$HERE/../apps/desktop/src-tauri"
 OUT=binaries
 mkdir -p "$OUT/licenses"
 
@@ -68,7 +69,11 @@ fetch_licenses() {
   [ -f "$OUT/licenses/Sherpa-onnx-LICENSE.txt" ] && [ -f "$OUT/licenses/Onnxruntime-LICENSE.txt" ] && return 0
   # sherpa-onnx (Apache-2.0) and ONNX Runtime (MIT, linked into the static program). The archives carry no licence files.
   fetch_file "https://raw.githubusercontent.com/k2-fsa/sherpa-onnx/v$SHERPA_V/LICENSE" cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30 "$OUT/licenses/Sherpa-onnx-LICENSE.txt"
-  fetch_file "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.28.2/LICENSE" 2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c "$OUT/licenses/Onnxruntime-LICENSE.txt"
+  # The ONNX Runtime repository no longer serves its LICENSE (github.com/microsoft/onnxruntime answers 404, which failed the
+  # CI fetch), so the MIT text is kept in the repo (scripts/vendor/) and checked against the same pinned digest.
+  local vendored="$HERE/vendor/Onnxruntime-LICENSE.txt"
+  [ "$(sha256 "$vendored")" = 2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c ] || { echo "sha256 mismatch for $vendored" >&2; return 1; }
+  cp "$vendored" "$OUT/licenses/Onnxruntime-LICENSE.txt"
 }
 
 fetch_sherpa() { # fetch_sherpa <triple>
