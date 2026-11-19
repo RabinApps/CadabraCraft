@@ -82,7 +82,7 @@ Then a clean-Mac check: on a Mac that has never run the app, download the `.dmg`
 ## Known gaps
 
 - Windows is not in the first release: add `windows-latest` back to the `release.yml` matrix, the `windows-x86_64` updater entry and the website Windows card ("Coming soon") together when it ships.
-- Runner labels (`kinhin-container`, `kinhin-xcode`): see architecture.md, "Updates and releases", for what they must provide and the hosted-runner replacements.
+- Runner labels (Blacksmith `blacksmith-<n>vcpu-ubuntu-2404` for Linux, `kinhin-xcode` for macOS): see architecture.md, "Linux CI on Blacksmith runners" and the "Runner labels" entry before it, for what they must provide and the fallbacks.
 - A `.deb`, `.rpm` or `.msi` is not built; see the open question in the roadmap.
 
 ## EPUB checker (EPUBCheck and its Java runtime)

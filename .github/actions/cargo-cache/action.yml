@@ -1,0 +1,19 @@
+name: Cargo cache
+description: The cargo registry, git checkouts and installed tools, restored from the runner's cache (Blacksmith serves actions/cache from its colocated cache; elsewhere it is GitHub's backend).
+runs:
+  using: composite
+  steps:
+    - if: runner.os == 'Linux'
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        # The registry and git trees are the downloads; bin holds the cargo-installed tools (cargo-deny, cargo-about,
+        # cargo-llvm-cov, tauri-driver, cargo-fuzz), which are rebuilt from source on a miss. target/ stays out: it is
+        # several GB and the coverage and release builds use different profiles, so a restored tree mostly invalidates.
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          ~/.cargo/bin
+        key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+        # A lockfile change misses the exact key but still restores the newest tree, so only the changed crates download.
+        restore-keys: |
+          cargo-${{ runner.os }}-

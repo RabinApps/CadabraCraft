@@ -7,11 +7,13 @@ inputs:
 runs:
   using: composite
   steps:
-    # The standalone pnpm binary needs libatomic, which the container image lacks; jlink (--strip-debug) runs objcopy, from binutils; unzip unpacks the veraPDF installer.
+    # The standalone pnpm binary needs libatomic (a no-op on an image that has it); jlink (--strip-debug) runs objcopy, from binutils; unzip unpacks the veraPDF installer.
     - uses: ./.github/actions/apt
       with: { packages: libatomic1 binutils unzip xz-utils }
     - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       with: { dest: "~/setup-pnpm-${{ runner.name }}" } # one folder per runner: jobs sharing ~/setup-pnpm overwrite each other
+    # cache: pnpm keeps the store in the runner's cache: on a Blacksmith runner that is its colocated cache, on any other
+    # runner GitHub's. See docs/architecture.md, "Linux CI on Blacksmith runners".
     - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with: { node-version: 26, cache: pnpm }
     - if: inputs.java == 'true'

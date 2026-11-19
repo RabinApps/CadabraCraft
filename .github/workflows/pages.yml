@@ -13,14 +13,14 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    runs-on: kinhin-container
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Linux pnpm deps
         if: runner.os == 'Linux'
         run: |
           SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
-          # The standalone pnpm binary needs libatomic, which the container image lacks.
+          # The standalone pnpm binary needs libatomic; an image that already ships it makes this a no-op.
           for i in 1 2 3 4 5; do
             $SUDO apt-get -o DPkg::Lock::Timeout=300 update && $SUDO apt-get -o DPkg::Lock::Timeout=300 install -y libatomic1 && exit 0
             sleep $((i * 5))
@@ -35,7 +35,7 @@ jobs:
         with: { path: apps/website/out }
   deploy:
     needs: build
-    runs-on: kinhin-container
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

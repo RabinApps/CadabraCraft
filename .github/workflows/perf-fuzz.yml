@@ -16,7 +16,7 @@ permissions:
   contents: read
 jobs:
   perf:
-    runs-on: kinhin-container
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,7 +45,7 @@ jobs:
           if-no-files-found: warn
 
   fuzz:
-    runs-on: kinhin-container
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
     strategy:
       fail-fast: false # one target crashing must not hide the others

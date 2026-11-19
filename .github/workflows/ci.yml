@@ -12,12 +12,16 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 # Which jobs run: a pull request runs only what its change can reach (`changes`, scripts/affected/affected.mjs, docs/testing.md
 # "Test selection"). A push to main, a release run (workflow_call) and a PR with the `full-ci` label run everything, and the
-# coverage floors are checked only then. Shared steps live in .github/actions (ports, apt, setup-js, js-tools).
+# coverage floors are checked only then. Shared steps live in .github/actions (ports, apt, setup-js, js-tools, cargo-cache).
+# Runners: Linux jobs run on Blacksmith (one machine per job; its colocated cache serves actions/cache and the pnpm cache of
+# actions/setup-node at no extra cost), macOS on the self-hosted kinhin-xcode Mac. Sizes follow the job: 2 vCPU for the small
+# script jobs, 4 for typecheck/lint, unit and the e2e shards, 8 for coverage, a11y, webdriver and rust (memory matters there:
+# the coverage job gives Node 60% of it, capped at 8 GB). See docs/architecture.md, "Linux CI on Blacksmith runners".
 env:
   FULL_RUN: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}
 jobs:
   changes:
-    runs-on: kinhin-container
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     outputs:
       full: ${{ steps.select.outputs.full }}
       rust: ${{ steps.select.outputs.rust }}
@@ -30,7 +34,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { fetch-depth: "${{ github.event_name == 'pull_request' && '0' || '1' }}" }
       - uses: ./.github/actions/apt
-        with: { packages: libatomic1 } # Node needs it (the container image lacks it)
+        with: { packages: libatomic1 } # Node needs it; a no-op on an image that already has it
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 26 }
       - id: select
@@ -40,7 +44,7 @@ jobs:
           FORCE_FULL: ${{ env.FULL_RUN == 'true' && '1' || '0' }}
   # Fast checks that need no browser or external tool. Always runs.
   static:
-    runs-on: kinhin-container
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-js
@@ -58,7 +62,7 @@ jobs:
       matrix:
         # Windows is off for now: the first release is macOS and Linux (see release.yml). macOS runs on full runs only: the pull
         # request run is the Linux one.
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["kinhin-container"]' || '["kinhin-container","kinhin-xcode"]') }}
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["blacksmith-4vcpu-ubuntu-2404"]' || '["blacksmith-4vcpu-ubuntu-2404","kinhin-xcode"]') }}
     runs-on: ${{ matrix.os }}
     env:
       REQUIRE_EPUBCHECK: "1"
@@ -86,7 +90,7 @@ jobs:
   e2e:
     needs: changes
     if: needs.changes.outputs.e2e == 'true'
-    runs-on: kinhin-container
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -114,7 +118,7 @@ jobs:
   coverage:
     needs: changes
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci')
-    runs-on: kinhin-container
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 120
     env:
       REQUIRE_EPUBCHECK: "1"
@@ -155,7 +159,7 @@ jobs:
   a11y:
     needs: changes
     if: needs.changes.outputs.a11y == 'true'
-    runs-on: kinhin-container
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 120 # sized when this job also ran the Chromium suite (about 50 min with WebKit alone, twice that beside other jobs; run #173 hit 60): lower it once a run shows how long the stages take now
     env:
       PUPPETEER_CACHE_DIR: ${{ github.workspace }}/tools/puppeteer # see the js job
@@ -213,18 +217,22 @@ jobs:
   licenses:
     needs: changes
     if: needs.changes.outputs.licenses == 'true'
-    runs-on: kinhin-container
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/apt
         with: { packages: build-essential }
       - uses: ./.github/actions/setup-js
-      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs.
+      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs. A Blacksmith
+      # runner has its machine to itself (its name has no -rN suffix), so it keeps the default folders, which are the ones the
+      # cargo cache restores.
       - run: |
-          echo "RUSTUP_HOME=$HOME/.rustup-$RUNNER_NAME" >> "$GITHUB_ENV"
-          echo "CARGO_HOME=$HOME/.cargo-$RUNNER_NAME" >> "$GITHUB_ENV"
+          slot="${RUNNER_NAME##*-r}"; case "$slot" in ''|*[!0-9]*) slot="" ;; esac
+          echo "RUSTUP_HOME=$HOME/.rustup$slot" >> "$GITHUB_ENV"
+          echo "CARGO_HOME=$HOME/.cargo$slot" >> "$GITHUB_ENV"
         shell: bash
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
+      - uses: ./.github/actions/cargo-cache # the two installed tools dominate this job
       - run: cargo install --locked cargo-deny@0.20.2
       - run: cargo install --locked cargo-about@0.9.3 --features cli
       - run: pnpm licenses:check
@@ -237,7 +245,7 @@ jobs:
   webdriver:
     needs: changes
     if: needs.changes.outputs.webdriver == 'true'
-    runs-on: kinhin-container
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     continue-on-error: true
     timeout-minutes: 60
     steps:
@@ -249,12 +257,16 @@ jobs:
             packages: build-essential pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libayatana-appindicator3-dev zlib1g-dev webkit2gtk-driver xvfb xz-utils,
           }
       - uses: ./.github/actions/setup-js
-      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs.
+      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs. A Blacksmith
+      # runner has its machine to itself (its name has no -rN suffix), so it keeps the default folders, which are the ones the
+      # cargo cache restores.
       - run: |
-          echo "RUSTUP_HOME=$HOME/.rustup-$RUNNER_NAME" >> "$GITHUB_ENV"
-          echo "CARGO_HOME=$HOME/.cargo-$RUNNER_NAME" >> "$GITHUB_ENV"
+          slot="${RUNNER_NAME##*-r}"; case "$slot" in ''|*[!0-9]*) slot="" ;; esac
+          echo "RUSTUP_HOME=$HOME/.rustup$slot" >> "$GITHUB_ENV"
+          echo "CARGO_HOME=$HOME/.cargo$slot" >> "$GITHUB_ENV"
         shell: bash
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
+      - uses: ./.github/actions/cargo-cache
       - run: bash scripts/fetch-typst.sh
       - run: bash scripts/fetch-sherpa.sh
       - run: bash scripts/fetch-ffmpeg.sh
@@ -282,7 +294,7 @@ jobs:
         # Windows is off for now: the first release is macOS and Linux (see release.yml), and the Windows runner is the
         # slowest of the three. Put `windows-latest` back in this list to test it again; the steps below that only run
         # there are still in place.
-        os: [kinhin-container, kinhin-xcode]
+        os: [blacksmith-8vcpu-ubuntu-2404, kinhin-xcode]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -292,12 +304,16 @@ jobs:
           {
             packages: build-essential pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libayatana-appindicator3-dev zlib1g-dev ffmpeg xz-utils,
           }
-      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs.
+      # One rustup and cargo folder per runner: jobs that share ~/.rustup break each other's toolchain installs. A Blacksmith
+      # runner has its machine to itself (its name has no -rN suffix), so it keeps the default folders, which are the ones the
+      # cargo cache restores.
       - run: |
-          echo "RUSTUP_HOME=$HOME/.rustup-$RUNNER_NAME" >> "$GITHUB_ENV"
-          echo "CARGO_HOME=$HOME/.cargo-$RUNNER_NAME" >> "$GITHUB_ENV"
+          slot="${RUNNER_NAME##*-r}"; case "$slot" in ''|*[!0-9]*) slot="" ;; esac
+          echo "RUSTUP_HOME=$HOME/.rustup$slot" >> "$GITHUB_ENV"
+          echo "CARGO_HOME=$HOME/.cargo$slot" >> "$GITHUB_ENV"
         shell: bash
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
+      - uses: ./.github/actions/cargo-cache
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         if: runner.os == 'Linux'
         with: { node-version: 26 }
@@ -385,7 +401,7 @@ jobs:
   ci-ok:
     if: ${{ !cancelled() }} # not always(): a cancelled run (a newer push) must end at once, or its ci-ok holds the concurrency group and the new run waits
     needs: [changes, static, unit, e2e, coverage, a11y, licenses, webdriver, rust]
-    runs-on: kinhin-container
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Every needed job passed or was skipped
         env: { RESULTS: "${{ join(needs.*.result, ' ') }}" }
