@@ -115,6 +115,24 @@ Everything runs, with no selection, on a push to `main`, a release run and a pul
 
 A job the selection skipped that would have failed is a miss: widen the rules in `scripts/affected/affected.mjs` (tests in `scripts/affected/affected.test.mjs`) and add the case. Locally: `AFFECTED_BASE=origin/main node scripts/affected/affected.mjs`. Shared CI steps (ports, apt, pnpm and Node, the external tools) are composite actions in `.github/actions/`. Decision and rejected alternatives: `docs/architecture.md`, "Enforcing test selection and splitting the JavaScript job".
 
+## Known flaky failures in CI
+
+### The `e2e` job: the Vite dev server dies on startup
+
+Symptom: a shard fails almost immediately with `[WebServer] abort: Lazy deopt after a fast API call with return value is unsupported`, a stack through `byteLength [node:buffer]`, `maybePrepareFinalChunk [node:_http_outgoing]`, `res.end(string)` and `viteTransformMiddleware`, and then every test in the shard fails with `page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:1420/`. Nothing in the app is wrong: Playwright's web server (Vite, started with the Node on the runner) crashes before the first test.
+
+Cause: a V8 bug in Node ([nodejs/node#66870](https://github.com/nodejs/node/issues/66870)) that the Vite dev server happens to hit while writing an HTTP response. The fix (nodejs/node PR [#67136](https://github.com/nodejs/node/pull/67136)) landed on Node's `main` on 2026-11-01 but was not in Node 26.13.1 (2026-11-11), and the workflows take Node from `setup-node` with `node-version: 26`. It is intermittent and not tied to a shard: it hit `e2e (2)` on run 44538745750, passed on the other three shards in the same run, and can hit any shard.
+
+What to do: rerun the failed jobs, do not change code, the Node pin or the workflow:
+
+```bash
+gh run rerun <run-id> --failed
+```
+
+`gh run rerun --failed` only works once the run has finished. The rerun is green in practice; if it fails the same way on the retry, treat it as a real failure and look at the log.
+
+When to remove this section: once a Node 26.x release contains PR #67136 (it is on `main` as `bf246cf`; the Node 26.x changelog and release notes name the pull requests they include). Then delete this section and the pointer comment above the `e2e` job in `.github/workflows/ci.yml`.
+
 ## Ports when several jobs share a machine
 
 The runners of one CI machine (`...-r1` to `...-r4`) share its network. Playwright's dev server (port 1420) and tauri-driver (4444, with its native driver on the port after it) are fixed ports, so two jobs on one machine that both run a browser or WebDriver suite collided: the second failed with `http://localhost:1420 is already used`. Each of the `unit`, `coverage`, `e2e`, `a11y` and `webdriver` jobs therefore starts with the step "Ports for this runner", which takes the runner's number (the `N` of `-rN`) and sets `E2E_PORT=1420+N` and `TAURI_DRIVER_PORT=4444+2N`; a runner name without that number keeps the defaults. One job runs per runner at a time, so no other job on the machine can hold the port. In CI the output folders keep their plain names (`coverage/e2e`, `test-results`) whatever the port, because each runner has its own checkout and `scripts/coverage.mjs` reads `coverage/e2e`; locally, a run with its own `E2E_PORT` writes to `coverage/e2e-<port>` and `test-results-<port>`, so parallel local runs do not overwrite each other. Locally: `E2E_PORT=1431 pnpm test:e2e`, `TAURI_DRIVER_PORT=4460 pnpm test:native`.

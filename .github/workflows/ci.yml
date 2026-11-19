@@ -13,10 +13,11 @@ concurrency:
 # Which jobs run: a pull request runs only what its change can reach (`changes`, scripts/affected/affected.mjs, docs/testing.md
 # "Test selection"). A push to main, a release run (workflow_call) and a PR with the `full-ci` label run everything, and the
 # coverage floors are checked only then. Shared steps live in .github/actions (ports, apt, setup-js, js-tools, cargo-cache).
-# Runners: Linux jobs run on Blacksmith (one machine per job; its colocated cache serves actions/cache and the pnpm cache of
-# actions/setup-node at no extra cost), macOS on the self-hosted kinhin-xcode Mac. Sizes follow the job: 2 vCPU for the small
-# script jobs, 4 for typecheck/lint, unit and the e2e shards, 8 for coverage, a11y, webdriver and rust (memory matters there:
-# the coverage job gives Node 60% of it, capped at 8 GB). See docs/architecture.md, "Linux CI on Blacksmith runners".
+# Runners: every job runs on Blacksmith (one machine per job; its colocated cache serves actions/cache and the pnpm cache of
+# actions/setup-node at no extra cost), macOS on blacksmith-6vcpu-macos-latest. Sizes follow the job: 2 vCPU for the small script
+# jobs, 4 for typecheck/lint, unit and the e2e shards, 8 for coverage, a11y, webdriver and rust (memory matters there: the
+# coverage job gives Node 60% of it, capped at 8 GB), 6 for the macOS jobs. Only release.yml still runs on the self-hosted
+# kinhin-xcode Mac, which holds the Developer ID certificate and the notary key. See docs/architecture.md, "CI on Blacksmith runners".
 env:
   FULL_RUN: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}
 jobs:
@@ -62,7 +63,7 @@ jobs:
       matrix:
         # Windows is off for now: the first release is macOS and Linux (see release.yml). macOS runs on full runs only: the pull
         # request run is the Linux one.
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["blacksmith-4vcpu-ubuntu-2404"]' || '["blacksmith-4vcpu-ubuntu-2404","kinhin-xcode"]') }}
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["blacksmith-4vcpu-ubuntu-2404"]' || '["blacksmith-4vcpu-ubuntu-2404","blacksmith-6vcpu-macos-latest"]') }}
     runs-on: ${{ matrix.os }}
     env:
       REQUIRE_EPUBCHECK: "1"
@@ -87,6 +88,8 @@ jobs:
           pnpm "${args[@]}" test
   # The Playwright e2e suite (Chromium against the dev server, fake Tauri backend), in shards. No coverage here: it is
   # about three times slower per test, and its floors are checked by the `coverage` job on full runs.
+  # A shard that dies at once with "Lazy deopt after a fast API call with return value is unsupported" is the V8 bug in
+  # nodejs/node#66870, not the app: see "Known flaky failures in CI" in docs/testing.md and rerun the failed jobs.
   e2e:
     needs: changes
     if: needs.changes.outputs.e2e == 'true'
@@ -294,7 +297,7 @@ jobs:
         # Windows is off for now: the first release is macOS and Linux (see release.yml), and the Windows runner is the
         # slowest of the three. Put `windows-latest` back in this list to test it again; the steps below that only run
         # there are still in place.
-        os: [blacksmith-8vcpu-ubuntu-2404, kinhin-xcode]
+        os: [blacksmith-8vcpu-ubuntu-2404, blacksmith-6vcpu-macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
