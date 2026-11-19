@@ -76,6 +76,10 @@ test("runNarrowing tells tests taken out of the files from files named", () => {
   });
   assert.deepEqual(runNarrowing(plain, ["--last-failed"]), { subset: true, named: false });
   assert.deepEqual(runNarrowing(plain, ["e2e/find.spec.ts"]), { subset: false, named: true });
+  // A line (and column) selector runs one test of a file.
+  assert.deepEqual(runNarrowing(plain, ["e2e/find.spec.ts:42"]), { subset: true, named: true });
+  assert.equal(runNarrowing(plain, ["e2e/find.spec.ts:42:7"]).subset, true);
+  assert.equal(runNarrowing(plain, ["e2e/a.spec.ts", "e2e/find.spec.ts:42"]).subset, true);
   // Test lists filter before the reporter counts tests.
   assert.equal(runNarrowing(plain, ["--test-list=list.txt"]).subset, true);
   assert.equal(runNarrowing(plain, ["--test-list-invert", "list.txt"]).subset, true);

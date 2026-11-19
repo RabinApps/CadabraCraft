@@ -63,7 +63,13 @@ export function runNarrowing(
     /^(--last-failed|--only-changed|-g|--grep|--grep-invert|--shard|--test-list)/.test(a),
   );
   return {
-    subset: grepSet || Boolean(config.grepInvert) || Boolean(config.shard) || flags,
+    // `e2e/a.spec.ts:42` runs one test of a file: that takes tests out of the spec, whatever else is named.
+    subset:
+      grepSet ||
+      Boolean(config.grepInvert) ||
+      Boolean(config.shard) ||
+      flags ||
+      namedFiles(args).some((file) => /:\d+(:\d+)?$/.test(file)),
     named: namedFiles(args).length > 0,
   };
 }
