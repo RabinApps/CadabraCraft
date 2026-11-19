@@ -34,7 +34,9 @@ export default defineConfig({
     ...(process.env.E2E_WORKERS && { workers: Number(process.env.E2E_WORKERS) }),
   }),
   // SPEC_MAP: the reporter tells the map merge whether the run was filtered (e2e/support/specMapCore.ts).
+  // A `test.only` would filter the suite before the reporter counts it, and the map would take a spec's one focused test for all of it.
   ...(process.env.SPEC_MAP && {
+    forbidOnly: true,
     reporter: [[process.env.CI ? "dot" : "list"], ["./e2e/support/specMapReporter.ts"]],
   }),
   ...(ownOutputs && { outputDir: `test-results-${port}` }),
