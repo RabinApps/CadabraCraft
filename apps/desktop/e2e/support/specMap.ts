@@ -58,6 +58,19 @@ export function exercisedFiles(coverage: Entry[]): string[] {
   return [...files];
 }
 
+/** Left in coverage/ when the last merge refused to write (ci.yml says so in the job summary). */
+const incompleteMarker = join(repo, "coverage/spec-map-incomplete");
+const clearIncomplete = (): void => rmSync(incompleteMarker, { force: true });
+
+/** Every spec file of the e2e folder, relative to apps/desktop, as the parts name them. */
+function listSpecs(dir = join(desktop, "e2e")): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) return listSpecs(path);
+    return entry.name.endsWith(".spec.ts") ? [relative(desktop, path).split("\\").join("/")] : [];
+  });
+}
+
 export function clearParts(): void {
   rmSync(partsDir, { recursive: true, force: true });
 }
@@ -74,6 +87,7 @@ export function mergeParts(): void {
   const bySpec = new Map<string, Set<string>>();
   // No parts (no test reached Chromium): keep the map that is there rather than write an empty one.
   if (!existsSync(partsDir)) return;
+  clearIncomplete();
   for (const name of readdirSync(partsDir)) {
     const part = JSON.parse(readFileSync(join(partsDir, name), "utf8")) as {
       spec: string;
@@ -82,6 +96,15 @@ export function mergeParts(): void {
     const set = bySpec.get(part.spec) ?? new Set<string>();
     for (const f of part.files) set.add(f);
     bySpec.set(part.spec, set);
+  }
+  // A map made from some of the specs would send changes to those alone: refuse it (a filtered run, a crashed one).
+  const missing = listSpecs().filter((spec) => !bySpec.has(spec));
+  if (missing.length > 0) {
+    const message = `spec map not written: no test of ${missing.length} spec(s) ran (${missing.slice(0, 3).join(", ")}${missing.length > 3 ? ", ..." : ""}). Run all the specs (or resume with SPEC_MAP_KEEP=1).`;
+    if (process.env.SPEC_MAP === "only") throw new Error(message);
+    console.warn(message);
+    writeFileSync(incompleteMarker, message);
+    return;
   }
   const specs = [...bySpec.keys()].sort();
   const files: Record<string, number[]> = {};
