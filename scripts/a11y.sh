@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Runs every automated accessibility check, in order, and stops at the first failing stage.
-#   scripts/a11y.sh [--fast] [--no-chromium] [--webkit] [--tools]
+#   scripts/a11y.sh [--fast] [--no-chromium] [--no-exporters] [--webkit] [--tools]
 #   --fast    skip the Playwright stages
 #   --no-chromium  skip only the Chromium Playwright stage (CI: the sharded e2e job already runs every spec)
+#   --no-exporters  skip the exporter output tests and the tool stages (CI: a change to the app's pages only)
 #   --webkit  also run `test:e2e:webkit` of the desktop app, if that script exists
 #   --tools   also run the optional veraPDF / Ace / LibreOffice tests, for the tools that are installed
 # A stage whose test files do not exist (yet) is reported as "skipped", never as a failure.
@@ -12,15 +13,16 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 root=$PWD
 
-fast=0 chromium=1 webkit=0 tools=0
+fast=0 chromium=1 exporters=1 webkit=0 tools=0
 for arg in "$@"; do
   case "$arg" in
     --fast) fast=1 ;;
     --no-chromium) chromium=0 ;;
+    --no-exporters) exporters=0 ;;
     --webkit) webkit=1 ;;
     --tools) tools=1 ;;
     -h | --help)
-      sed -n 2,8p "$0" | sed 's/^# \{0,1\}//'
+      sed -n 2,9p "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *)
@@ -146,14 +148,18 @@ pkg_stage() {
     run_stage "$1" pnpm --filter "@cadabracraft/$(basename "$2")" exec vitest run $files
   fi
 }
-pkg_stage "export-epub a11y tests" packages/export-epub '(a11y|language)'
-# The PDF/UA tests live inside the render, typst and edges suites, so select them by test name.
-run_stage "export-pdf PDF/UA tests" pnpm --filter @cadabracraft/export-pdf exec vitest run -t "PDF/UA|decorative|language"
-run_stage "export-rtf tests" pnpm --filter @cadabracraft/export-rtf test
-run_stage "export-docx tests" pnpm --filter @cadabracraft/export-docx test
+if [ "$exporters" = 1 ]; then
+  pkg_stage "export-epub a11y tests" packages/export-epub '(a11y|language)'
+  # The PDF/UA tests live inside the render, typst and edges suites, so select them by test name.
+  run_stage "export-pdf PDF/UA tests" pnpm --filter @cadabracraft/export-pdf exec vitest run -t "PDF/UA|decorative|language"
+  run_stage "export-rtf tests" pnpm --filter @cadabracraft/export-rtf test
+  run_stage "export-docx tests" pnpm --filter @cadabracraft/export-docx test
+else
+  skip_stage "exporter output tests" "--no-exporters"
+fi
 
 # 5. optional external tools
-if [ "$tools" = 1 ]; then
+if [ "$tools" = 1 ] && [ "$exporters" = 1 ]; then
   if tool_on_path verapdf || [ -x tools/verapdf/verapdf ]; then
     run_stage "veraPDF (export-pdf)" env REQUIRE_VERAPDF=1 pnpm --filter @cadabracraft/export-pdf exec vitest run verapdf
   else
