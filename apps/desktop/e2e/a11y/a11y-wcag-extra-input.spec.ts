@@ -2,7 +2,7 @@ import { expect, test } from "../support/coverage";
 import { fakeTauri } from "../support/fakeTauri";
 import { screens } from "../support/a11yScreens";
 import { newProject } from "../support/helpers";
-import { fresh, sources } from "../support/a11yWcagExtra";
+import { fresh, screenRuns, sources } from "../support/a11yWcagExtra";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -133,31 +133,42 @@ test.describe("3.3.7 redundant entry", () => {
         expect(f, where).not.toMatch(/=$/);
   });
 
-  test("no form asks the person to type the same thing twice", async ({ browser, baseURL }) => {
-    test.setTimeout(300_000);
-    for (const s of screens) {
-      const page = await fresh(browser, baseURL);
-      await s.open(page);
-      const labels = await page.evaluate(() =>
-        [
-          ...document.querySelectorAll<HTMLInputElement>(
-            "input:not([type=hidden]):not([type=checkbox]):not([type=radio])",
+  // Every screen in one test ran past its 300 s ceiling on a loaded CI runner, so the walk is cut into runs of screens. Each
+  // run checks its own screens the same way; the runs share no state, so Playwright spreads them over the workers.
+  const RUNS = screenRuns(screens, 8);
+  for (const [i, run] of RUNS.entries()) {
+    test(`no form asks the person to type the same thing twice (screens ${i + 1} of ${RUNS.length})`, async ({
+      browser,
+      baseURL,
+    }) => {
+      // A run is an eighth of the walk that outlasted 300 s; this leaves room for a slow runner and still ends.
+      test.setTimeout(180_000);
+      for (const s of run) {
+        const page = await fresh(browser, baseURL);
+        await s.open(page);
+        const labels = await page.evaluate(() =>
+          [
+            ...document.querySelectorAll<HTMLInputElement>(
+              "input:not([type=hidden]):not([type=checkbox]):not([type=radio])",
+            ),
+          ].map((el) =>
+            (el.getAttribute("aria-label") ?? el.labels?.[0]?.textContent ?? "")
+              .trim()
+              .toLowerCase(),
           ),
-        ].map((el) =>
-          (el.getAttribute("aria-label") ?? el.labels?.[0]?.textContent ?? "").trim().toLowerCase(),
-        ),
-      );
-      expect(
-        labels.filter((l) => /confirm|repeat|retype|re-enter|again/.test(l)),
-        s.name,
-      ).toEqual([]);
-      expect(
-        labels.length - new Set(labels.filter(Boolean)).size,
-        `${s.name}: ${labels.join(", ")}`,
-      ).toBe(0);
-      await page.context().close();
-    }
-  });
+        );
+        expect(
+          labels.filter((l) => /confirm|repeat|retype|re-enter|again/.test(l)),
+          s.name,
+        ).toEqual([]);
+        expect(
+          labels.length - new Set(labels.filter(Boolean)).size,
+          `${s.name}: ${labels.join(", ")}`,
+        ).toBe(0);
+        await page.context().close();
+      }
+    });
+  }
 });
 
 // ---------------------------------------------------------------------------------------------------------------------------

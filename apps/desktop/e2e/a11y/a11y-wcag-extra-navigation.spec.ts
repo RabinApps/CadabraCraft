@@ -3,7 +3,7 @@ import { expect, test } from "../support/coverage";
 import { fakeTauri } from "../support/fakeTauri";
 import { screens } from "../support/a11yScreens";
 import { SHIFT_TAB, TAB } from "../support/helpers";
-import { fresh, named, MAIN } from "../support/a11yWcagExtra";
+import { fresh, named, MAIN, screenRuns } from "../support/a11yWcagExtra";
 
 test.beforeEach(async ({ page }) => {
   await fakeTauri(page);
@@ -221,38 +221,53 @@ test.describe("3.2.3 consistent navigation", () => {
 });
 
 test.describe("3.2.4 consistent identification", () => {
-  test("the same icon always has the same name", async ({ browser, baseURL }) => {
-    test.setTimeout(300_000);
-    const byIcon = new Map<string, Map<string, string[]>>();
-    for (const s of screens) {
-      const page = await fresh(browser, baseURL);
-      await s.open(page);
-      const found = await page.evaluate(() => {
-        const out: [string, string][] = [];
-        for (const el of document.querySelectorAll("button, a[href], [role=menuitem]")) {
-          const svg = el.querySelector("svg[class*=lucide]");
-          if (!svg || (el.textContent ?? "").trim() !== "") continue;
-          const icon =
-            [...svg.classList].find((c) => /^lucide-[a-z0-9-]+$/.test(c) && c !== "lucide") ?? "";
-          const name = (el.getAttribute("aria-label") ?? "").replace(/\s+/g, " ").trim();
-          out.push([
-            icon,
-            // A row's own number or title is not a different function ("Move chapter 1 up", "Move chapter 2 up").
-            name
-              .replace(/^(Actions for|Reorder|Undo:|Redo:)\s.*$/, "$1")
-              .replace(/\bchapter \d+\b/gi, "chapter")
-              .trim() || name,
-          ]);
+  // One icon, one name, compared across every screen: the runs fill one map and the last test reports on it, so they run in
+  // order in one worker, and a retried group rebuilds the map from the start. Splitting the walk only shortens each test;
+  // every screen is still opened and compared.
+  test.describe.configure({ mode: "serial" });
+  const byIcon = new Map<string, Map<string, string[]>>();
+  test.beforeAll(() => byIcon.clear());
+  const RUNS = screenRuns(screens, 8);
+  for (const [i, run] of RUNS.entries()) {
+    test(`every icon-only control keeps the same name, screens ${i + 1} of ${RUNS.length}`, async ({
+      browser,
+      baseURL,
+    }) => {
+      // A run is an eighth of the walk that outlasted 300 s; this leaves room for a slow runner and still ends.
+      test.setTimeout(180_000);
+      for (const s of run) {
+        const page = await fresh(browser, baseURL);
+        await s.open(page);
+        const found = await page.evaluate(() => {
+          const out: [string, string][] = [];
+          for (const el of document.querySelectorAll("button, a[href], [role=menuitem]")) {
+            const svg = el.querySelector("svg[class*=lucide]");
+            if (!svg || (el.textContent ?? "").trim() !== "") continue;
+            const icon =
+              [...svg.classList].find((c) => /^lucide-[a-z0-9-]+$/.test(c) && c !== "lucide") ?? "";
+            const name = (el.getAttribute("aria-label") ?? "").replace(/\s+/g, " ").trim();
+            out.push([
+              icon,
+              // A row's own number or title is not a different function ("Move chapter 1 up", "Move chapter 2 up").
+              name
+                .replace(/^(Actions for|Reorder|Undo:|Redo:)\s.*$/, "$1")
+                .replace(/\bchapter \d+\b/gi, "chapter")
+                .trim() || name,
+            ]);
+          }
+          return out;
+        });
+        for (const [icon, name] of found) {
+          const names = byIcon.get(icon) ?? new Map<string, string[]>();
+          names.set(name, [...(names.get(name) ?? []), s.name]);
+          byIcon.set(icon, names);
         }
-        return out;
-      });
-      for (const [icon, name] of found) {
-        const names = byIcon.get(icon) ?? new Map<string, string[]>();
-        names.set(name, [...(names.get(name) ?? []), s.name]);
-        byIcon.set(icon, names);
+        await page.context().close();
       }
-      await page.context().close();
-    }
+    });
+  }
+
+  test("the same icon always has the same name", async () => {
     // Icons that stand for different functions in different places, reviewed by hand. The icon is reused, the function is not.
     const REVIEWED: Record<string, string> = {
       "lucide-ellipsis":
@@ -273,6 +288,7 @@ test.describe("3.2.4 consistent identification", () => {
     const report = [...byIcon]
       .filter(([icon, names]) => icon && names.size > 1 && !(icon in REVIEWED))
       .map(([icon, names]) => `${icon}: ${[...names.keys()].join(" / ")}`);
+    expect(byIcon.size).toBeGreaterThan(0);
     expect(report).toEqual([]);
   });
 });

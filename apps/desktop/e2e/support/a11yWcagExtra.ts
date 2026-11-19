@@ -12,6 +12,17 @@ export async function fresh(browser: Browser, baseURL: string | undefined): Prom
   return page;
 }
 
+/**
+ * The screens cut into `parts` consecutive runs. A sweep that opened every screen in one test ran past its time ceiling on a
+ * loaded CI runner, so each run checks its own screens and a test covers one run; every screen is still opened.
+ */
+export function screenRuns<T>(list: T[], parts: number): T[][] {
+  const size = Math.ceil(list.length / parts);
+  return Array.from({ length: parts }, (_, i) => list.slice(i * size, (i + 1) * size)).filter(
+    (run) => run.length > 0,
+  );
+}
+
 export const named = (...names: string[]) => screens.filter((s) => names.includes(s.name));
 /** The screens that hold the shell, the forms and the long-lived dialogs. */
 export const MAIN = named(
