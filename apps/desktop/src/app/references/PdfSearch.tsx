@@ -82,7 +82,8 @@ export function PdfSearch({
         onClick={() => (open ? close() : setOpen(true))}
       />
       {open && (
-        <form onSubmit={search} role="search" className="flex items-center gap-1">
+        // min-w-0 lets the row shrink inside the toolbar; flex-wrap keeps every control on screen at phone width.
+        <form onSubmit={search} role="search" className="flex min-w-0 flex-wrap items-center gap-1">
           <input
             autoFocus
             value={query}

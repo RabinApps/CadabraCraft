@@ -81,7 +81,8 @@ export function PdfPreview({ root, file }: { root: string; file: string }) {
       <div
         role="toolbar"
         aria-label={t`PDF controls`}
-        className="flex items-center gap-1 border-b border-border bg-surface px-3 py-1.5"
+        // Wraps, so at phone width (and with search open) no control ends up outside the window (WCAG 2.4.11).
+        className="flex flex-wrap items-center gap-x-1 gap-y-1 border-b border-border bg-surface px-3 py-1.5"
       >
         <IconButton
           icon={ChevronLeft}
