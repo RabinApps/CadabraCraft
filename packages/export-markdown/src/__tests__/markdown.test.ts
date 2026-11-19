@@ -634,7 +634,9 @@ describe("property: doc -> markdown -> importer -> doc", () => {
       ).toEqual([]);
       expect(r.chapters[0]!.doc, md).toEqual({ type: "doc", content: [node] });
     }
-  });
+    // A property over 1000 documents, not a speed test: it takes about 0.4 s here, but a loaded self-hosted macOS runner took
+    // 5.3 s (run 44460260589) and hit the 5 s default, as the JVM start did before it. The bound only stops a hang.
+  }, 30_000);
 });
 
 describe("multi-chapter output", () => {
