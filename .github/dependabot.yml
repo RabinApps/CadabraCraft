@@ -16,27 +16,17 @@ updates:
     groups:
       npm-minor-patch:
         update-types: [minor, patch]
+  # One entry for the three Cargo roots (the app, its perf probe and the fuzz crate, each with its own lockfile): a
+  # `directories` entry with one group produces a single weekly PR across all of them. As separate entries they opened
+  # one PR per directory, and the same crate bumped in two of them made two PRs.
   - package-ecosystem: cargo
-    directory: /apps/desktop/src-tauri
+    directories:
+      - /apps/desktop/src-tauri
+      - /apps/desktop/src-tauri/tools/perf
+      - /apps/desktop/src-tauri/fuzz
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
-    groups:
-      cargo-minor-patch:
-        update-types: [minor, patch]
-  - package-ecosystem: cargo
-    directory: /apps/desktop/src-tauri/tools/perf
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 1
-    groups:
-      cargo-minor-patch:
-        update-types: [minor, patch]
-  - package-ecosystem: cargo
-    directory: /apps/desktop/src-tauri/fuzz
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 1
     groups:
       cargo-minor-patch:
         update-types: [minor, patch]
