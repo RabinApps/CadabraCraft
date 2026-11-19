@@ -113,8 +113,8 @@ jobs:
           pnpm "${args[@]}" test
   # The Playwright e2e suite (Chromium against the dev server, fake Tauri backend), in shards. No coverage here: it is
   # about three times slower per test, and its floors are checked by the `coverage` job on full runs.
-  # A change that is nothing but spec files (`e2e/find.spec.ts`) runs those files alone, in one job; anything that can reach
-  # every spec (app sources, a package the app uses, an e2e helper, a full run) keeps the four shards. See the selection rules
+  # A change runs only the specs it can reach: spec files themselves, the specs that import a changed e2e helper, and the specs
+  # that called into a changed app source or package file (e2e/spec-map.json). A file nothing knows, and a full run, keep all four shards. See the selection rules
   # in scripts/affected/affected.mjs and docs/testing.md, "Test selection".
   # A shard that dies at once with "Lazy deopt after a fast API call with return value is unsupported" is the V8 bug in
   # nodejs/node#66870, not the app: see "Known flaky failures in CI" in docs/testing.md and rerun the failed jobs.
@@ -126,7 +126,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # One job for a named list of specs: the whole matrix would leave three shards with nothing to run.
+        # A named list of specs gets one job per 20 specs (at most four); the whole suite gets four.
         shard: ${{ fromJSON(needs.changes.outputs.e2e_shards) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -144,10 +144,11 @@ jobs:
       - name: Playwright
         working-directory: apps/desktop
         run: |
-          # A spec list from the selection runs alone in this one job; otherwise this is one of four shards of the whole suite.
+          # A spec list from the selection runs only those specs, in one job or (over 20 specs) in up to four shards of the list;
+          # otherwise this is one of four shards of the whole suite.
           if [ -n "$E2E_SPECS" ]; then
             IFS=',' read -r -a specs <<< "$E2E_SPECS"
-            pnpm exec playwright test "${specs[@]}" --trace off
+            pnpm exec playwright test "${specs[@]}" --shard=${{ matrix.shard }}/${{ strategy.job-total }} --trace off
           else
             pnpm exec playwright test --shard=${{ matrix.shard }}/${{ strategy.job-total }} --trace off
           fi
@@ -180,7 +181,16 @@ jobs:
           mem_mb=$(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)
           heap_mb=$((mem_mb * 6 / 10)); [ "$heap_mb" -gt 8192 ] && heap_mb=8192
           echo "cores: $(nproc), memory: ${mem_mb} MB, Node heap for the e2e coverage run: ${heap_mb} MB"
-          NODE_OPTIONS="--max-old-space-size=${heap_mb}" pnpm --filter @cadabracraft/desktop test:e2e:coverage
+          NODE_OPTIONS="--max-old-space-size=${heap_mb}" SPEC_MAP=1 pnpm --filter @cadabracraft/desktop test:e2e:coverage
+      # The run also rewrote e2e/spec-map.json (which specs call into which sources, see "Test selection" in docs/testing.md).
+      # Say in the summary whether the committed map is out of date; refresh it with `pnpm --filter @cadabracraft/desktop e2e:map`.
+      - name: Is the committed spec map current?
+        run: |
+          if git diff --quiet -- apps/desktop/e2e/spec-map.json; then
+            echo "The spec map is current." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::apps/desktop/e2e/spec-map.json is out of date (download it from the javascript-coverage artifact and commit it)."
+          fi
       - run: pnpm coverage:report:js
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -190,6 +200,7 @@ jobs:
             coverage/merged/summary.json
             coverage/e2e/coverage-summary.json
             apps/desktop/coverage/coverage-summary.json
+            apps/desktop/e2e/spec-map.json
           if-no-files-found: error
   # Every automated accessibility gate in one place (scripts/a11y.sh) with the validators: veraPDF (PDF/UA-1, PDF/A-2b) on
   # real Typst output, Ace on the sample EPUBs, LibreOffice for docx and rtf. The stage table goes to the job summary. The

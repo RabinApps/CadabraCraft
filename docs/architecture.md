@@ -2487,3 +2487,5 @@ The UI is the EPUB panel of the Export dialog (`app/export/EpubValidation.tsx`):
 | Making the desktop package one of the tool packages | Its tests use fakes; counting it would turn the tools on for almost every change and save nothing.                             |
 
 **Known limit:** a lint rule that looks at other files than the one linted (none today) would be missed by changed-file linting until the next full run on `main`.
+
+**Follow-up (2026-11-19): e2e narrowing.** The `e2e` job now narrows for app sources and packages too: the specs that import a changed e2e helper (import graph) plus the specs that called a function in a changed source file (`apps/desktop/e2e/spec-map.json`, written by the instrumented run with `SPEC_MAP=1`). Unit tests and Markdown select no spec. A file the map and graph do not know runs all specs; full runs and pushes to `main` run everything and the `coverage` job flags a stale map. Rejected: running only the specs whose names match a feature folder (silent misses), and `playwright --only-changed` (follows spec imports only, never app sources).
