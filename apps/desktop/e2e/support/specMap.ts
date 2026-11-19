@@ -22,8 +22,6 @@ export const specMapEnabled = (): boolean => Boolean(process.env.COVERAGE && pro
 /** SPEC_MAP=only writes the map without the coverage report, whose cache is gigabytes on a full run. */
 export const reportEnabled = (): boolean =>
   Boolean(process.env.COVERAGE) && process.env.SPEC_MAP !== "only";
-/** SPEC_MAP_KEEP=1 keeps the parts of an earlier run, to finish an interrupted one with the specs that are left. */
-export const keepParts = (): boolean => Boolean(process.env.SPEC_MAP_KEEP);
 
 type Entry = {
   url: string;
@@ -83,7 +81,7 @@ export function clearParts(): void {
 export function writePart(testFile: string, testId: string, files: string[]): void {
   mkdirSync(partsDir, { recursive: true });
   const spec = relative(desktop, testFile).split("\\").join("/");
-  writeFileSync(join(partsDir, `${testId}.json`), JSON.stringify({ spec, files }));
+  writeFileSync(join(partsDir, `${testId}.json`), JSON.stringify({ spec, test: testId, files }));
 }
 
 /** Merges the parts into e2e/spec-map.json, unless the run cannot make a whole map (see planMerge). */
@@ -94,20 +92,15 @@ export function mergeParts(): void {
   const parts = readdirSync(partsDir).map(
     (name) => JSON.parse(readFileSync(join(partsDir, name), "utf8")) as Part,
   );
-  // SPEC_MAP_PATCH=1: replace just the specs this run covered in the committed map (after changing a few specs).
-  if (process.env.SPEC_MAP_PATCH) {
-    const existing = JSON.parse(readFileSync(specMapPath, "utf8")) as SpecMap;
-    writeFileSync(specMapPath, `${JSON.stringify(patchMap(existing, parts, listSpecs()))}\n`);
-    return;
-  }
   const run = existsSync(runInfoPath)
     ? (JSON.parse(readFileSync(runInfoPath, "utf8")) as Run)
-    : { filtered: true, skipped: [] };
-  // SPEC_MAP_KEEP=1 finishes an interrupted run from the parts of earlier ones: the person says so, the completeness check stays.
-  if (keepParts()) run.filtered = false;
-  const plan = planMerge(parts, listSpecs(), run);
+    : { subset: true, named: true, skipped: [], tests: {} };
+  // SPEC_MAP_PATCH=1: replace just the specs this run covered in the committed map (after changing a few specs).
+  const plan = process.env.SPEC_MAP_PATCH
+    ? patchMap(JSON.parse(readFileSync(specMapPath, "utf8")) as SpecMap, parts, listSpecs(), run)
+    : planMerge(parts, listSpecs(), run);
   if (!plan.ok) {
-    const message = `spec map not written: ${plan.reason}. Run every spec in one unfiltered run (or resume with SPEC_MAP_KEEP=1).`;
+    const message = `spec map not written: ${plan.reason}. Run every spec in one unfiltered run (or refresh named specs with SPEC_MAP_PATCH=1).`;
     if (process.env.SPEC_MAP === "only") throw new Error(message);
     console.warn(message);
     writeFileSync(incompleteMarker, message);

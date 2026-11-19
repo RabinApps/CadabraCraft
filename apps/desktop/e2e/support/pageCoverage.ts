@@ -10,6 +10,9 @@ type Entry = Awaited<ReturnType<Page["coverage"]["stopJSCoverage"]>>;
 export function createTracker(onCoverage: (coverage: Entry) => Promise<void>) {
   const started = new Map<Page, Promise<void>>();
   const track = (page: Page): Promise<void> => {
+    // Idempotent: the fixture's page is tracked by `watch` and by the fixture; a second start would be rejected by Playwright.
+    const existing = started.get(page);
+    if (existing) return existing;
     const start = page.coverage.startJSCoverage({ resetOnNavigation: false }).catch(() => {
       started.delete(page);
     });
