@@ -88,6 +88,8 @@ jobs:
           pnpm "${args[@]}" test
   # The Playwright e2e suite (Chromium against the dev server, fake Tauri backend), in shards. No coverage here: it is
   # about three times slower per test, and its floors are checked by the `coverage` job on full runs.
+  # A shard that dies at once with "Lazy deopt after a fast API call with return value is unsupported" is the V8 bug in
+  # nodejs/node#66870, not the app: see "Known flaky failures in CI" in docs/testing.md and rerun the failed jobs.
   e2e:
     needs: changes
     if: needs.changes.outputs.e2e == 'true'
