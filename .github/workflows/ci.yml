@@ -13,11 +13,12 @@ concurrency:
 # Which jobs run: a pull request runs only what its change can reach (`changes`, scripts/affected/affected.mjs, docs/testing.md
 # "Test selection"). A push to main, a release run (workflow_call) and a PR with the `full-ci` label run everything, and the
 # coverage floors are checked only then. Shared steps live in .github/actions (ports, apt, setup-js, js-tools, cargo-cache).
-# Runners: every job runs on Blacksmith (one machine per job; its colocated cache serves actions/cache and the pnpm cache of
-# actions/setup-node at no extra cost), macOS on blacksmith-6vcpu-macos-latest. Sizes follow the job: 2 vCPU for the small script
-# jobs, 4 for typecheck/lint, unit and the e2e shards, 8 for coverage, a11y, webdriver and rust (memory matters there: the
-# coverage job gives Node 60% of it, capped at 8 GB), 6 for the macOS jobs. Only release.yml still runs on the self-hosted
-# kinhin-xcode Mac, which holds the Developer ID certificate and the notary key. See docs/architecture.md, "CI on Blacksmith runners".
+# Runners (cost: docs/architecture.md, "Heavy CI jobs back on the self-hosted runners"): the quick and latency-critical jobs run
+# on Blacksmith (one machine per job; its colocated cache serves actions/cache and the pnpm cache of actions/setup-node at no extra
+# cost): `changes`, `static`, `website`, `unit` (Linux), the four `e2e` shards, `licenses` and `ci-ok`, sized 2 vCPU for the script
+# jobs and 4 for the rest. The long jobs that run one at a time run on the self-hosted machines: `coverage`, `a11y`, `webdriver`
+# and the Linux `rust` leg on kinhin-container, the macOS `unit` and `rust` legs on kinhin-xcode. Only release.yml also signs
+# on kinhin-xcode, which holds the Developer ID certificate and the notary key.
 env:
   FULL_RUN: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}
 jobs:
@@ -85,7 +86,7 @@ jobs:
       matrix:
         # Windows is off for now: the first release is macOS and Linux (see release.yml). macOS runs on full runs only: the pull
         # request run is the Linux one.
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["blacksmith-4vcpu-ubuntu-2404"]' || '["blacksmith-4vcpu-ubuntu-2404","blacksmith-6vcpu-macos-latest"]') }}
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["blacksmith-4vcpu-ubuntu-2404"]' || '["blacksmith-4vcpu-ubuntu-2404","kinhin-xcode"]') }}
     runs-on: ${{ matrix.os }}
     env:
       # The tools and the variables that make their tests required come only when the change reaches a package that drives one
@@ -163,7 +164,7 @@ jobs:
   coverage:
     needs: changes
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci')
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: kinhin-container
     timeout-minutes: 120
     env:
       REQUIRE_EPUBCHECK: "1"
@@ -217,7 +218,7 @@ jobs:
   a11y:
     needs: changes
     if: needs.changes.outputs.a11y == 'true'
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: kinhin-container
     timeout-minutes: 120 # sized when this job also ran the Chromium suite (about 50 min with WebKit alone, twice that beside other jobs; run #173 hit 60): lower it once a run shows how long the stages take now
     env:
       PUPPETEER_CACHE_DIR: ${{ github.workspace }}/tools/puppeteer # see the js job
@@ -313,7 +314,7 @@ jobs:
   webdriver:
     needs: changes
     if: needs.changes.outputs.webdriver == 'true'
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: kinhin-container
     continue-on-error: true
     timeout-minutes: 60
     steps:
@@ -362,7 +363,7 @@ jobs:
         # Windows is off for now: the first release is macOS and Linux (see release.yml), and the Windows runner is the
         # slowest of the three. Put `windows-latest` back in this list to test it again; the steps below that only run
         # there are still in place.
-        os: [blacksmith-8vcpu-ubuntu-2404, blacksmith-6vcpu-macos-latest]
+        os: [kinhin-container, kinhin-xcode]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

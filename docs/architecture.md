@@ -2489,3 +2489,18 @@ The UI is the EPUB panel of the Export dialog (`app/export/EpubValidation.tsx`):
 **Known limit:** a lint rule that looks at other files than the one linted (none today) would be missed by changed-file linting until the next full run on `main`.
 
 **Follow-up (2026-11-19): e2e narrowing.** The `e2e` job now narrows for app sources and packages too: the specs that import a changed e2e helper (import graph) plus the specs that called a function in a changed source file (`apps/desktop/e2e/spec-map.json`, written by the instrumented run with `SPEC_MAP=1`). Unit tests and Markdown select no spec. A file the map and graph do not know runs all specs; full runs and pushes to `main` run everything and the `coverage` job flags a stale map. Rejected: running only the specs whose names match a feature folder (silent misses), and `playwright --only-changed` (follows spec imports only, never app sources).
+
+## Heavy CI jobs back on the self-hosted runners (2026-11-19)
+
+**Decision:** in `ci.yml`, `coverage`, `a11y`, `webdriver` and the Linux leg of `rust` run on `kinhin-container`, and the macOS legs of `unit` and `rust` on `kinhin-xcode`. The quick and latency-critical jobs stay on Blacksmith: `changes`, `static`, `website`, the Linux `unit` leg, the four `e2e` shards, `licenses` and `ci-ok`.
+
+**Why:** Blacksmith's usage page showed the long jobs as the bill: `e2e` $9.76 (93 runs), `rust` $7.87 (52), `a11y` $6.38 (22), `coverage` $6.24 (8 runs, about $0.78 each), `webdriver` $3.42 (32) and `unit` $2.67 (29). The moved jobs are long, run one at a time per workflow run and nobody waits on a few extra minutes for them (`coverage` and the macOS legs run on full runs only; `webdriver` is `continue-on-error`). The `-rN` runner names already give each runner its own ports, cargo and rustup folders, so the shared-machine setup from before still works.
+
+**Rejected:**
+
+| Alternative                 | Why not                                                                                                                                                                                           |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Moving the `e2e` shards too | The biggest line, but four shards in parallel are what a pull request waits on, and four runners per machine would be shared with the jobs moved here. Revisit if the bill stays high after this. |
+| Moving every job back       | The self-hosted container was the slowest and least predictable part of CI (a runner was lost mid-`rust` job on the v0.1.0 run), so the quick jobs keep Blacksmith's speed.                       |
+
+**Known limit:** `kinhin-xcode` stopped picking up jobs on 2026-11-19 and left runs waiting, which blocked `ci-ok`. If a moved job queues for long, change its label back to the Blacksmith one (one line per job; the previous labels are `blacksmith-8vcpu-ubuntu-2404` and `blacksmith-6vcpu-macos-latest`). Several moved jobs at once queue behind the machine's runner slots, and a long queue shows up as a slow pull request, not a failure.
