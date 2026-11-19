@@ -6,7 +6,7 @@ The app program is built from the crates below. Each keeps its own license. Gene
 
 Crates by license
 -----------------
-Apache License 2.0: 265 crates
+Apache License 2.0: 263 crates
 MIT License: 114 crates
 ISC License: 25 crates
 Unicode License v3: 19 crates
@@ -6717,7 +6717,6 @@ Used by:
   block-buffer 0.10.4  https://github.com/RustCrypto/utils
   block-buffer 0.12.1  https://github.com/RustCrypto/utils
   const-oid 0.10.2  https://github.com/RustCrypto/formats
-  cpufeatures 0.2.17  https://github.com/RustCrypto/utils
   cpufeatures 0.3.1  https://github.com/RustCrypto/utils
   crypto-common 0.1.7  https://github.com/RustCrypto/traits
   crypto-common 0.2.2  https://github.com/RustCrypto/traits
@@ -6725,7 +6724,6 @@ Used by:
   digest 0.11.3  https://github.com/RustCrypto/traits
   hybrid-array 0.4.15  https://github.com/RustCrypto/hybrid-array
   md-5 0.10.6  https://github.com/RustCrypto/hashes
-  sha2 0.10.9  https://github.com/RustCrypto/hashes
   sha2 0.11.1  https://github.com/RustCrypto/hashes
 
 ----------------------------------------
@@ -8683,17 +8681,17 @@ Used by:
   syn 2.0.119  https://github.com/dtolnay/syn
   syn 3.0.9  https://github.com/dtolnay/syn
   sync_wrapper 1.0.2  https://github.com/Actyx/sync_wrapper
-  tauri-codegen 2.7.4  https://github.com/tauri-apps/tauri
-  tauri-macros 2.7.4  https://github.com/tauri-apps/tauri
+  tauri-codegen 2.7.6  https://github.com/tauri-apps/tauri
+  tauri-macros 2.7.6  https://github.com/tauri-apps/tauri
   tauri-plugin-dialog 2.8.4  https://github.com/tauri-apps/plugins-workspace
   tauri-plugin-fs 2.7.1  https://github.com/tauri-apps/plugins-workspace
-  tauri-plugin-opener 2.7.2  https://github.com/tauri-apps/plugins-workspace
+  tauri-plugin-opener 2.7.3  https://github.com/tauri-apps/plugins-workspace
   tauri-plugin-process 2.4.0  https://github.com/tauri-apps/plugins-workspace
   tauri-plugin-updater 2.14.1  https://github.com/tauri-apps/plugins-workspace
-  tauri-runtime-wry 2.12.3  https://github.com/tauri-apps/tauri
-  tauri-runtime 2.12.2  https://github.com/tauri-apps/tauri
-  tauri-utils 2.10.2  https://github.com/tauri-apps/tauri
-  tauri 2.12.5  https://github.com/tauri-apps/tauri
+  tauri-runtime-wry 2.12.5  https://github.com/tauri-apps/tauri
+  tauri-runtime 2.12.4  https://github.com/tauri-apps/tauri
+  tauri-utils 2.10.4  https://github.com/tauri-apps/tauri
+  tauri 2.12.6  https://github.com/tauri-apps/tauri
   thiserror-impl 1.0.69  https://github.com/dtolnay/thiserror
   thiserror-impl 2.0.21  https://github.com/dtolnay/thiserror
   thiserror 1.0.69  https://github.com/dtolnay/thiserror
@@ -9006,7 +9004,7 @@ https://datatracker.ietf.org/ipr/1526/
 
 Used by:
   cadabracraft 0.1.0
-  opus-rs 0.1.41  https://github.com/restsend/opus-rs
+  opus-rs 0.1.42  https://github.com/restsend/opus-rs
 
 ----------------------------------------
 
@@ -11290,7 +11288,7 @@ SOFTWARE.
 
 Used by:
   tracing-core 0.1.36  https://github.com/tokio-rs/tracing
-  zip 9.5.0  https://github.com/zip-rs/zip2
+  zip 9.6.0  https://github.com/zip-rs/zip2
 
 ----------------------------------------
 
@@ -11382,7 +11380,7 @@ THE SOFTWARE.
 
 
 Used by:
-  nix 0.31.3  https://github.com/nix-rust/nix
+  nix 0.32.0  https://github.com/nix-rust/nix
 
 ----------------------------------------
 
