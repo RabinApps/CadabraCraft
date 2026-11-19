@@ -17,7 +17,7 @@ concurrency:
 # machine per job; its colocated cache serves actions/cache and the pnpm cache of actions/setup-node at no extra cost): `changes`,
 # `static`, `website`, `unit` (Linux), `licenses` and `ci-ok`, sized 2 vCPU for the script jobs and 4 for the rest. The long jobs
 # run on the self-hosted machines: the four `e2e` shards, `coverage`, `a11y`, `webdriver` and the Linux `rust` leg on
-# kinhin-container, the macOS `unit` and `rust` legs on kinhin-xcode. Only release.yml also signs on kinhin-xcode, which holds
+# kinhin-container, the macOS `unit` and `rust` legs on kinhin-xcode (a pull request's macOS `rust` leg uses a Blacksmith Mac). Only release.yml also signs on kinhin-xcode, which holds
 # the Developer ID certificate and the notary key.
 env:
   FULL_RUN: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}
@@ -369,7 +369,9 @@ jobs:
         # Windows is off for now: the first release is macOS and Linux (see release.yml), and the Windows runner is the
         # slowest of the three. Put `windows-latest` back in this list to test it again; the steps below that only run
         # there are still in place.
-        os: [kinhin-container, kinhin-xcode]
+        # kinhin-xcode also signs and notarizes releases (the Developer ID certificate and the notary key live there), so a pull request's
+        # code never runs on it: the PR run uses a Blacksmith Mac, and the push to main and the release run use kinhin-xcode.
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["kinhin-container","blacksmith-6vcpu-macos-latest"]' || '["kinhin-container","kinhin-xcode"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
