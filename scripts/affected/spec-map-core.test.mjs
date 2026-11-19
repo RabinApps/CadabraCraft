@@ -76,6 +76,19 @@ test("runNarrowing tells tests taken out of the files from files named", () => {
   });
   assert.deepEqual(runNarrowing(plain, ["--last-failed"]), { subset: true, named: false });
   assert.deepEqual(runNarrowing(plain, ["e2e/find.spec.ts"]), { subset: false, named: true });
+  // Test lists filter before the reporter counts tests.
+  assert.equal(runNarrowing(plain, ["--test-list=list.txt"]).subset, true);
+  assert.equal(runNarrowing(plain, ["--test-list-invert", "list.txt"]).subset, true);
+  // An option's value is not a spec file, whether it follows after a space or an equals sign.
+  assert.deepEqual(runNarrowing(plain, ["--workers", "1"]), { subset: false, named: false });
+  assert.deepEqual(runNarrowing(plain, ["-j", "2", "--reporter=list", "--trace", "off"]), {
+    subset: false,
+    named: false,
+  });
+  assert.deepEqual(runNarrowing(plain, ["--workers", "1", "e2e/find.spec.ts"]), {
+    subset: false,
+    named: true,
+  });
 });
 
 const existing = {

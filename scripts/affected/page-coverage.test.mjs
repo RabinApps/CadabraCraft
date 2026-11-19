@@ -2,21 +2,27 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createTracker } from "../../apps/desktop/e2e/support/pageCoverage.ts";
 
-// A page whose coverage works as Playwright's: a second start is rejected, and stopping hands over what the page ran.
+// A page whose coverage works as Playwright's: a second start is rejected, stopping hands over what the page ran, and nothing can
+// be collected once the page is closed.
 function fakePage(url) {
   let on = false;
+  let closed = false;
   return {
+    close: () => {
+      closed = true;
+    },
     coverage: {
       startJSCoverage: async () => {
         if (on) throw new Error("JS coverage has already been started");
         on = true;
       },
       stopJSCoverage: async () => {
+        if (closed) throw new Error("Target page, context or browser has been closed");
         on = false;
         return [{ url }];
       },
     },
-    isClosed: () => false,
+    isClosed: () => closed,
   };
 }
 function fakeContext(pages) {
@@ -25,7 +31,10 @@ function fakeContext(pages) {
     pages: () => pages,
     on: (event, fn) => (handlers[event] = fn),
     emit: (event, arg) => handlers[event]?.(arg),
-    close: async () => {},
+    // Closing a context closes its pages, so a tracker that collects after it loses their coverage.
+    close: async function () {
+      this.pages().forEach((page) => page.close());
+    },
   };
 }
 

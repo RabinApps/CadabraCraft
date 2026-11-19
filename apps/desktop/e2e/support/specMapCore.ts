@@ -15,6 +15,44 @@ export type Run = {
 export type SpecMap = { specs: string[]; files: Record<string, number[]> };
 export type Merge = { ok: true; map: SpecMap } | { ok: false; reason: string };
 
+/** `playwright test` options that take a value, which may follow as a separate argument (`--workers 1`): not spec files. */
+const VALUE_OPTIONS = new Set([
+  "-c",
+  "--config",
+  "-j",
+  "--workers",
+  "--reporter",
+  "--retries",
+  "--timeout",
+  "--global-timeout",
+  "--project",
+  "--output",
+  "--repeat-each",
+  "--trace",
+  "--tsconfig",
+  "--max-failures",
+  "--browser",
+  "--ui-host",
+  "--ui-port",
+  "--shard",
+  "-g",
+  "--grep",
+  "--grep-invert",
+  "--test-list",
+  "--test-list-invert",
+]);
+
+/** The files named on the command line: the arguments that are neither options nor the value of one. */
+function namedFiles(args: string[]): string[] {
+  const named: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i] ?? "";
+    if (!arg.startsWith("-")) named.push(arg);
+    else if (!arg.includes("=") && VALUE_OPTIONS.has(arg)) i++;
+  }
+  return named;
+}
+
 /** How a Playwright run is narrowed: `subset` runs fewer tests than the files hold, `named` runs only the files named on the command line. */
 export function runNarrowing(
   config: { grep?: unknown; grepInvert?: unknown; shard?: unknown },
@@ -22,11 +60,11 @@ export function runNarrowing(
 ): { subset: boolean; named: boolean } {
   const grepSet = config.grep !== undefined && String(config.grep) !== "/.*/";
   const flags = args.some((a) =>
-    /^(--last-failed|--only-changed|-g|--grep|--grep-invert|--shard)/.test(a),
+    /^(--last-failed|--only-changed|-g|--grep|--grep-invert|--shard|--test-list)/.test(a),
   );
   return {
     subset: grepSet || Boolean(config.grepInvert) || Boolean(config.shard) || flags,
-    named: args.some((a) => !a.startsWith("-")),
+    named: namedFiles(args).length > 0,
   };
 }
 

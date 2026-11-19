@@ -192,7 +192,13 @@ jobs:
           # No parts folder, or a marker from a merge that refused (specs missing): the run says nothing about the map.
           if [ ! -d coverage/spec-map-parts ] || [ -e coverage/spec-map-incomplete ]; then
             echo "::warning::the spec map could not be checked: this run did not record every spec (see the coverage run's log)."
-          elif git diff --quiet -- apps/desktop/e2e/spec-map.json; then
+          elif node -e '
+            // The run writes compact JSON and the committed file is formatted: compare what they say, not their bytes.
+            const { execSync } = require("node:child_process");
+            const committed = JSON.parse(execSync("git show HEAD:apps/desktop/e2e/spec-map.json"));
+            const fresh = JSON.parse(require("node:fs").readFileSync("apps/desktop/e2e/spec-map.json", "utf8"));
+            process.exit(JSON.stringify(committed) === JSON.stringify(fresh) ? 0 : 1);
+          '; then
             echo "The spec map is current." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "::warning::apps/desktop/e2e/spec-map.json is out of date (download it from the javascript-coverage artifact and commit it)."
