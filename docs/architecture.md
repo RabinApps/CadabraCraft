@@ -2471,3 +2471,19 @@ The UI is the EPUB panel of the Export dialog (`app/export/EpubValidation.tsx`):
 | Keeping the floors as a pull-request gate         | It forces the hour-long instrumented run onto every change; the `full-ci` label runs it when a change adds or moves code.                                         |
 
 **Known limit:** a code change merged without `full-ci` can lower coverage until the next push to `main` fails the floor; the fix is then tests, as always. Typecheck and lint run on Linux only (the macOS `js` leg ran them too).
+
+## Narrower pull-request runs: scripts, validators, tools and static checks (2026-11-19)
+
+**Decision:** the selection of "Enforcing test selection" got finer. Only the `ci` and `release` workflows, the shared actions and most of `scripts/` are global triggers; the perf, fuzz, design and release-only scripts, the `pages` and `perf-fuzz` workflows, the perf and fuzz crates under `src-tauri`, `brand/`, dependabot and git-hook files select no test job. A new `website` job runs `next build` when the website changes. The `unit` job installs the external tools (EPUBCheck, Ace, veraPDF, LibreOffice, enwik8) only when a change reaches a package that drives one, and the `a11y` job splits into exporter validators (when an exporter is reached) and page sweeps (WebKit, when the app's pages are reached). On a pull request that is not a full run, `static` typechecks the changed packages and their dependents (`pnpm --filter "...[base]"`) and runs eslint and prettier on the changed files (`scripts/affected/static-checks.sh`); size and the scripts' tests still see the whole tree.
+
+**Why:** a change to the app's pages paid for LibreOffice, veraPDF, Ace and Java it never uses, a perf-script edit ran the whole suite, and a docs or one-package change still linted and formatted the whole repository.
+
+**Rejected:**
+
+| Alternative                                         | Why not                                                                                                                        |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Mapping app sources to the specs that cover them    | Nothing declares it, and a missed spec is a missed regression; the e2e job still narrows only for spec-only changes (roadmap). |
+| Skipping `static` altogether for non-code changes   | It is the cheap check that catches formatting and size; it now scales with the change instead.                                 |
+| Making the desktop package one of the tool packages | Its tests use fakes; counting it would turn the tools on for almost every change and save nothing.                             |
+
+**Known limit:** a lint rule that looks at other files than the one linted (none today) would be missed by changed-file linting until the next full run on `main`.

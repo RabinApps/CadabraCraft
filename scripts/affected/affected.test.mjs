@@ -176,3 +176,89 @@ test("the license check runs only for manifests, lockfiles and the cargo-deny se
   assert.equal(select(["docs/a.md"], ws).licenses, false);
   assert.equal(select([], ws).licenses, true);
 });
+
+test("scripts only the perf, design or release runs need no test; the a11y scripts run only the a11y job", () => {
+  for (const file of [
+    "scripts/perf/huge-book.ts",
+    "scripts/design/sync.mjs",
+    "scripts/set-version.mjs",
+    ".github/workflows/pages.yml",
+    ".github/workflows/perf-fuzz.yml",
+    ".github/dependabot.yml",
+    ".githooks/pre-commit",
+    "brand/cadabracraft-icon.svg",
+  ]) {
+    const sel = select([file], ws);
+    assert.equal(sel.full, false, file);
+    assert.equal(sel.rust || sel.e2e || sel.a11y || sel.webdriver || sel.licenses, false, file);
+    assert.deepEqual(sel.packages, [], file);
+  }
+  for (const file of ["scripts/a11y.sh", "scripts/a11ylens/gate.mjs", "scripts/fetch-ace.sh"]) {
+    const sel = select([file], ws);
+    assert.equal(sel.full, false, file);
+    assert.equal(sel.a11y, true, file);
+    assert.equal(sel.rust || sel.e2e || sel.webdriver, false, file);
+  }
+});
+
+test("other scripts and the CI workflow files still select everything", () => {
+  for (const file of [
+    "scripts/cargo-test.sh",
+    "scripts/fetch-typst.sh",
+    ".github/workflows/ci.yml",
+    ".github/workflows/release.yml",
+    ".github/actions/setup-js/action.yml",
+  ])
+    assert.equal(select([file], ws).full, true, file);
+});
+
+test("the perf probe and the fuzz crate do not run the app's Rust or WebDriver jobs", () => {
+  for (const file of [
+    "apps/desktop/src-tauri/tools/perf/src/main.rs",
+    "apps/desktop/src-tauri/fuzz/fuzz_targets/a.rs",
+  ]) {
+    const sel = select([file], ws);
+    assert.equal(sel.rust || sel.webdriver, false, file);
+  }
+  assert.equal(select(["apps/desktop/src-tauri/tools/perf/Cargo.lock"], ws).licenses, true);
+});
+
+test("the website build runs only when the website changed", () => {
+  assert.equal(select(["apps/website/src/lib/release.ts"], ws).website, true);
+  assert.equal(select(["packages/format/src/a.ts"], ws).website, false);
+  assert.equal(select(["docs/a.md"], ws).website, false);
+  assert.equal(select([], ws).website, true);
+});
+
+test("the external tools and the exporter validators follow the exporter packages", () => {
+  // In this workspace export-pdf and mcp drive tools; format is used by export-pdf, so it reaches them.
+  const pdf = select(["packages/export-pdf/src/typst.ts"], ws);
+  assert.equal(pdf.tools, true);
+  assert.equal(pdf.a11yTools, true);
+  const format = select(["packages/format/src/a.ts"], ws);
+  assert.equal(format.tools && format.a11yTools, true);
+  // mcp drives tools in its tests but is no exporter: no validators.
+  const mcp = select(["packages/mcp/src/server.ts"], ws);
+  assert.equal(mcp.tools, true);
+  assert.equal(mcp.a11yTools, false);
+  // App pages and unrelated packages need neither.
+  for (const file of [
+    "apps/desktop/src/app/App.tsx",
+    "packages/lonely/src/a.ts",
+    "apps/website/src/a.ts",
+  ]) {
+    const sel = select([file], ws);
+    assert.equal(sel.tools || sel.a11yTools, false, file);
+  }
+  assert.equal(select(["apps/desktop/src/app/App.tsx"], ws).a11yPages, true);
+  assert.equal(select(["apps/desktop/src/app/App.tsx"], ws).a11y, true);
+});
+
+test("the validator scripts run only the validators, a11y.sh runs both parts, a full run all", () => {
+  const ace = select(["scripts/fetch-ace.sh"], ws);
+  assert.equal(ace.a11yTools && !ace.a11yPages, true);
+  const sh = select(["scripts/a11y.sh"], ws);
+  assert.equal(sh.a11yTools && sh.a11yPages, true);
+  const full = select([], ws);
+  assert.equal(full.a11yTools && full.a11yPages && full.tools, true);
+});

@@ -4,6 +4,8 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 
 ## Open
 
+- CI: narrow Playwright e2e below "all specs" for app-source changes with a source-to-spec map (for example from the V8 coverage data under `coverage/e2e`), and narrow the Rust job by module.
+
 ### Accessibility CI follow-ups
 
 - veraPDF SHA256 is pinned (2026-11-12) in `scripts/fetch-verapdf.sh`: the installer came from software.verapdf.org and downloads.verapdf.org with the same hash. veraPDF publishes no checksum, so this is first-download trust, not a check against a published value.

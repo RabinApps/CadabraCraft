@@ -15,8 +15,11 @@ const GLOBAL = [
   /^tsconfig[^/]*\.json$/,
   /^vitest[^/]*\.(ts|mjs)$/,
   /^eslint\.config\.mjs$/,
-  /^\.github\/workflows\//,
-  /^scripts\//,
+  // The CI and release workflows and the shared actions decide what every job does. The other workflows (pages, perf-fuzz) are INERT.
+  /^\.github\/workflows\/(ci|release)\.yml$/,
+  /^\.github\/actions\//,
+  // Scripts the test jobs run. The ones below with a narrower reach (A11Y_ONLY, A11Y_TOOLS_ONLY, INERT) are excluded.
+  /^scripts\/(?!(perf|audio-spike|design)\/|a11ylens\/|(a11y|validate-pdf|fetch-ace|fetch-verapdf|set-version|build-jre|sign-jre)[.-])/,
   /^apps\/desktop\/playwright\.config\.ts$/,
   /^apps\/desktop\/vite\.config\.[^/]+$/,
   /^apps\/desktop\/e2e\/support\//,
@@ -32,12 +35,43 @@ const INERT = [
   /^LICENSE/,
   /^\.gitignore$/,
   /^\.prettier[^/]*$/,
+  /^\.editorconfig$/,
+  /^\.gitattributes$/,
+  /^\.githooks\//,
+  /^brand\//,
+  /^\.github\/(dependabot|FUNDING)\.yml$/,
+  // Deployed or run on a schedule, never by the pull request run: the website deploy, the weekly perf and fuzz run, and the
+  // scripts only those and the release use.
+  /^\.github\/workflows\/(pages|perf-fuzz)\.yml$/,
+  /^scripts\/(perf|audio-spike|design)\//,
+  /^scripts\/(set-version\.mjs|build-jre\.sh|sign-jre\.sh)$/,
 ];
+
+/** Scripts only the `a11y` job runs: the whole job, or just its validator tools (veraPDF, Ace). */
+const A11Y_ONLY = [/^scripts\/a11ylens\//, /^scripts\/(a11y|validate-pdf)\.sh$/];
+const A11Y_TOOLS_ONLY = [/^scripts\/(fetch-ace|fetch-verapdf)\.sh$/];
+
+/**
+ * The packages whose tests drive an external tool (EPUBCheck, Ace, veraPDF and Typst, LibreOffice, enwik8): the `unit` job
+ * installs the tools only when the change reaches one of them. The desktop app is not one: its tests use fakes.
+ */
+const TOOL_PACKAGES = [
+  "packages/export-epub",
+  "packages/export-pdf",
+  "packages/export-docx",
+  "packages/export-rtf",
+  "packages/import-docx",
+  "packages/mcp",
+];
+/** The exporters the accessibility validators (veraPDF, Ace, LibreOffice, the output tests) check. */
+const A11Y_PACKAGES = TOOL_PACKAGES.filter((d) => d.includes("/export-"));
 
 const desktopBuild = /^apps\/desktop\/(index\.html|public\/|src\/|e2e\/)/;
 /** A Playwright spec, relative to apps/desktop (which is where Playwright runs). */
 const e2eSpec = /^apps\/desktop\/(e2e\/.+\.spec\.ts)$/;
 const rust = /^apps\/desktop\/src-tauri\//;
+/** Standalone crates the app's `cargo test --lib` does not build: the perf probe and the fuzz targets (the weekly perf-fuzz run checks them). */
+const rustStandalone = /^apps\/desktop\/src-tauri\/(tools\/perf|fuzz)\//;
 const native = /^apps\/desktop\/e2e-native\//;
 /** Files the dependency license and advisory checks read (`pnpm licenses:check`): manifests, lockfiles and the cargo-deny and cargo-about setup. */
 const licenseInput =
@@ -97,8 +131,16 @@ const none = () => ({
   /** The specs to run when the change only touches spec files; empty means the whole suite. */
   e2eSpecs: [],
   a11y: false,
+  /** The part of `a11y` that checks the exporters' output with veraPDF, Ace and LibreOffice (the rest is the page sweeps). */
+  a11yTools: false,
+  /** The part of `a11y` that sweeps the app's pages (WebKit). */
+  a11yPages: false,
+  /** Whether the unit tests need the external tools installed. */
+  tools: false,
   webdriver: false,
   licenses: false,
+  /** `next build` of the website. */
+  website: false,
 });
 
 const everything = (reasons, ws) => ({
@@ -109,9 +151,42 @@ const everything = (reasons, ws) => ({
   e2e: true,
   e2eSpecs: [],
   a11y: true,
+  a11yTools: true,
+  a11yPages: true,
+  tools: true,
   webdriver: true,
   licenses: true,
+  website: true,
 });
+
+/** A script only the `a11y` job (or its validators) runs: marks that part and says whether `file` was one. */
+function markA11yScript(file, out) {
+  if (A11Y_ONLY.some((re) => re.test(file))) {
+    out.a11yTools = true;
+    out.a11yPages = true;
+    return true;
+  }
+  if (A11Y_TOOLS_ONLY.some((re) => re.test(file))) {
+    out.a11yTools = true;
+    return true;
+  }
+  return false;
+}
+
+/** What the packages a change reaches (the touched ones and their dependents) select. */
+function applyReach(out, affected, ws) {
+  out.packages = [...affected].sort();
+  out.website = affected.has(ws.dirs["apps/website"]);
+  // A change in a package the desktop app depends on reaches the app's pages.
+  if (affected.has(ws.dirs["apps/desktop"])) {
+    out.e2e = true;
+    out.a11yPages = true;
+  }
+  const reaches = (dirs) => dirs.some((d) => ws.dirs[d] && affected.has(ws.dirs[d]));
+  out.tools = reaches(TOOL_PACKAGES);
+  out.a11yTools = out.a11yTools || reaches(A11Y_PACKAGES);
+  out.a11y = out.a11yTools || out.a11yPages;
+}
 
 /**
  * @param {string[]} files changed files, relative to the repository root, with `/`
@@ -133,7 +208,9 @@ export function select(files, ws, { forceFull = false } = {}) {
     if (hit) return everything([`${file}: a global trigger`], ws);
     if (INERT.some((re) => re.test(file))) continue;
     if (licenseInput.test(file)) out.licenses = true;
+    if (markA11yScript(file, out)) continue;
     const dir = dirOf(file);
+    if (rustStandalone.test(file)) continue;
     if (rust.test(file)) {
       out.rust = true;
       out.webdriver = true;
@@ -143,7 +220,7 @@ export function select(files, ws, { forceFull = false } = {}) {
       touched.add(ws.dirs[dir]);
       if (desktopBuild.test(file)) {
         out.e2e = true;
-        out.a11y = true;
+        out.a11yPages = true;
         const spec = e2eSpec.exec(file);
         if (spec) specs.push(spec[1]);
         else appInput = true;
@@ -152,13 +229,7 @@ export function select(files, ws, { forceFull = false } = {}) {
       return everything([`${file}: not covered by any rule`], ws);
     }
   }
-  const affected = withDependents(touched, ws.deps);
-  out.packages = [...affected].sort();
-  // A change in a package the desktop app depends on reaches the app's pages.
-  if (affected.has(ws.dirs["apps/desktop"])) {
-    out.e2e = true;
-    out.a11y = true;
-  }
+  applyReach(out, withDependents(touched, ws.deps), ws);
   out.e2eSpecs = narrowSpecs(specs, appInput, touched, ws.dirs["apps/desktop"]);
   out.reasons = [
     ...(touched.size ? [`packages: ${[...touched].sort().join(", ")}`] : []),
@@ -181,9 +252,11 @@ export function summarize(sel, files) {
     `| Unit tests | ${sel.full ? "all packages" : sel.packages.length ? sel.packages.join(", ") : "none"} |`,
     `| Rust | ${yn(sel.rust)} |`,
     `| Playwright e2e | ${sel.e2e ? (sel.e2eSpecs.length ? sel.e2eSpecs.join(", ") : "run (all specs)") : "skip"} |`,
-    `| Accessibility sweeps | ${yn(sel.a11y)} |`,
+    `| Accessibility sweeps | ${sel.a11y ? [sel.a11yPages && "pages", sel.a11yTools && "exporter validators"].filter(Boolean).join(" and ") : "skip"} |`,
+    `| External tools for unit tests | ${yn(sel.tools)} |`,
     `| WebDriver | ${yn(sel.webdriver)} |`,
     `| Licenses | ${yn(sel.licenses)} |`,
+    `| Website build | ${yn(sel.website)} |`,
     "",
   ].join("\n");
 }
@@ -218,8 +291,12 @@ function main() {
       `e2e_specs=${sel.e2eSpecs.join(",")}`,
       `e2e_shards=${sel.e2eSpecs.length ? "[1]" : "[1,2,3,4]"}`,
       `a11y=${sel.a11y}`,
+      `a11y_tools=${sel.a11yTools}`,
+      `a11y_pages=${sel.a11yPages}`,
+      `tools=${sel.tools}`,
       `webdriver=${sel.webdriver}`,
       `licenses=${sel.licenses}`,
+      `website=${sel.website}`,
       `packages=${sel.packages.join(",")}`,
     ];
     appendFileSync(process.env.GITHUB_OUTPUT, `${lines.join("\n")}\n`);

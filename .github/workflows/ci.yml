@@ -30,8 +30,12 @@ jobs:
       e2e_specs: ${{ steps.select.outputs.e2e_specs }}
       e2e_shards: ${{ steps.select.outputs.e2e_shards }}
       a11y: ${{ steps.select.outputs.a11y }}
+      a11y_tools: ${{ steps.select.outputs.a11y_tools }}
+      a11y_pages: ${{ steps.select.outputs.a11y_pages }}
+      tools: ${{ steps.select.outputs.tools }}
       webdriver: ${{ steps.select.outputs.webdriver }}
       licenses: ${{ steps.select.outputs.licenses }}
+      website: ${{ steps.select.outputs.website }}
       packages: ${{ steps.select.outputs.packages }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,17 +49,33 @@ jobs:
         env:
           AFFECTED_BASE: origin/${{ github.base_ref }}
           FORCE_FULL: ${{ env.FULL_RUN == 'true' && '1' || '0' }}
-  # Fast checks that need no browser or external tool. Always runs.
+  # Fast checks that need no browser or external tool. Always runs. On a pull request that is not a full run, typecheck covers the
+  # changed packages and their dependents, and eslint and prettier the changed files (scripts/affected/static-checks.sh); size and
+  # the scripts' tests always see the whole tree.
   static:
+    needs: changes
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: "${{ github.event_name == 'pull_request' && '0' || '1' }}" }
+      - uses: ./.github/actions/setup-js
+      - name: Typecheck, lint and format
+        run: bash scripts/affected/static-checks.sh
+        env:
+          AFFECTED_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}
+          FULL: ${{ needs.changes.outputs.full }}
+      - run: pnpm check:size
+      - run: pnpm test:scripts
+  # `next build` of the website (typecheck and static export), so a broken page fails the pull request instead of the deploy
+  # after the merge (pages.yml). Runs only when the website changed.
+  website:
+    needs: changes
+    if: needs.changes.outputs.website == 'true'
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-js
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm check:size
-      - run: pnpm test:scripts
-      - run: pnpm format:check
+      - run: pnpm --filter @cadabracraft/website build
   # Vitest in the packages the change reaches (all of them on a full run), with the external tools the exporters' tests drive.
   unit:
     needs: changes
@@ -68,8 +88,10 @@ jobs:
         os: ${{ fromJSON(github.event_name == 'pull_request' && '["blacksmith-4vcpu-ubuntu-2404"]' || '["blacksmith-4vcpu-ubuntu-2404","blacksmith-6vcpu-macos-latest"]') }}
     runs-on: ${{ matrix.os }}
     env:
-      REQUIRE_EPUBCHECK: "1"
-      REQUIRE_ENWIK8: "1"
+      # The tools and the variables that make their tests required come only when the change reaches a package that drives one
+      # (the `tools` output of scripts/affected/affected.mjs); a full run always has them.
+      REQUIRE_EPUBCHECK: ${{ needs.changes.outputs.tools == 'true' && '1' || '' }}
+      REQUIRE_ENWIK8: ${{ needs.changes.outputs.tools == 'true' && '1' || '' }}
       # Puppeteer (Ace) keeps its Chrome per job: the Linux runners share /root, and two jobs unpacking into the same
       # ~/.cache/puppeteer at once failed with ENOENT. /tools is gitignored.
       PUPPETEER_CACHE_DIR: ${{ github.workspace }}/tools/puppeteer
@@ -77,8 +99,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/ports
       - uses: ./.github/actions/setup-js
-        with: { java: "true" }
-      - uses: ./.github/actions/js-tools
+        with: { java: "${{ needs.changes.outputs.tools }}" }
+      - if: needs.changes.outputs.tools == 'true'
+        uses: ./.github/actions/js-tools
       - name: Unit tests
         shell: bash
         env:
@@ -185,12 +208,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/ports
-      - uses: ./.github/actions/apt
+      # The exporter validators (veraPDF, Ace, LibreOffice) run when a change reaches an exporter (or on a full run); the page
+      # sweeps (WebKit) when it reaches the app's pages. Each part installs only what it needs (`a11y_tools`, `a11y_pages`).
+      - if: needs.changes.outputs.a11y_tools == 'true'
+        uses: ./.github/actions/apt
         with: { packages: libreoffice-writer, flags: --no-install-recommends }
       - uses: ./.github/actions/setup-js
-        with: { java: "true" }
-      # Both browsers with their system libraries; the Chromium libraries also serve Puppeteer's Chrome for Ace.
-      - name: Playwright Chromium, WebKit and its system libraries
+        with: { java: "${{ needs.changes.outputs.a11y_tools }}" }
+      # Chromium and WebKit with their system libraries; the Chromium libraries also serve Puppeteer's Chrome for Ace.
+      - name: Playwright browsers and their system libraries
         shell: bash
         working-directory: apps/desktop
         run: |
@@ -198,12 +224,15 @@ jobs:
           # its .deb files ("cannot access archive /tmp/apt-dpkg-install-*"). Take a machine-wide lock where flock exists (not macOS).
           LOCK=""; command -v flock >/dev/null 2>&1 && LOCK="flock /tmp/ci-apt.lock"
           for i in 1 2 3 4 5; do
-            $LOCK pnpm exec playwright install --with-deps chromium webkit && exit 0
+            $LOCK pnpm exec playwright install --with-deps chromium ${PAGES:+webkit} && exit 0
             sleep $((i * 5))
           done
           exit 1
-      - run: bash scripts/fetch-ace.sh
+        env: { PAGES: "${{ needs.changes.outputs.a11y_pages == 'true' && '1' || '' }}" }
+      - if: needs.changes.outputs.a11y_tools == 'true'
+        run: bash scripts/fetch-ace.sh
       - name: veraPDF and Typst
+        if: needs.changes.outputs.a11y_tools == 'true'
         run: |
           bash scripts/fetch-verapdf.sh
           bash scripts/fetch-typst.sh
@@ -215,11 +244,14 @@ jobs:
           } >> "$GITHUB_ENV"
       # a11y.sh itself sets REQUIRE_VERAPDF=1 and REQUIRE_ACE=1 (and REQUIRE_SOFFICE=1 for LibreOffice) on the tools it finds.
       # It prints the stage table at the end, also when a stage fails, so tee it into the job summary.
-      - name: Accessibility stages (scripts/a11y.sh --tools --no-chromium)
+      - name: Accessibility stages (scripts/a11y.sh)
         shell: bash # explicit shell: GitHub adds `set -eo pipefail`, so tee does not hide the script's exit code
+        env: { TOOLS: "${{ needs.changes.outputs.a11y_tools }}" }
         run: |
           status=0
-          bash scripts/a11y.sh --tools --no-chromium 2>&1 | tee a11y-stages.log || status=$?
+          # --tools adds the validators; without them the exporter output tests are skipped too (--no-exporters).
+          flags="--tools --no-chromium"; [ "$TOOLS" = "true" ] || flags="--no-exporters --no-chromium"
+          bash scripts/a11y.sh $flags 2>&1 | tee a11y-stages.log || status=$?
           {
             echo '### Accessibility stages'
             echo '```'
@@ -228,6 +260,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           exit "$status"
       - name: WebKit accessibility specs
+        if: needs.changes.outputs.a11y_pages == 'true'
         continue-on-error: true
         run: pnpm test:e2e:webkit
         working-directory: apps/desktop
@@ -419,7 +452,7 @@ jobs:
   # The one check branch protection requires: green when every job that ran passed (a skipped job is a job the change cannot reach).
   ci-ok:
     if: ${{ !cancelled() }} # not always(): a cancelled run (a newer push) must end at once, or its ci-ok holds the concurrency group and the new run waits
-    needs: [changes, static, unit, e2e, coverage, a11y, licenses, webdriver, rust]
+    needs: [changes, static, unit, website, e2e, coverage, a11y, licenses, webdriver, rust]
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Every needed job passed or was skipped
