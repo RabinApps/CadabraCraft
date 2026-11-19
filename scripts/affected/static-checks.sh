@@ -36,7 +36,7 @@ pnpm --filter "...[$AFFECTED_BASE]" typecheck
 if names | grep -qE '^(scripts/|tsconfig)'; then pnpm typecheck:scripts; fi
 
 # Lint: the changed code files (a deleted file is left out by --diff-filter). Files the config ignores are skipped quietly.
-{ grep -zE '\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$' "$list" || true; } | xargs -0 pnpm exec eslint --no-warn-ignored
+{ grep -zE '\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$' "$list" || true; } | xargs -0 -r pnpm exec eslint --no-warn-ignored
 
 # Format: a formatter config or ignore file changes how every file is formatted, so check the whole tree then; otherwise
 # the changed files only.
