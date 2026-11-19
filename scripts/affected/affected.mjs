@@ -4,7 +4,7 @@
 // Rule of thumb, as in the research behind docs/architecture.md ("Selecting tests"): when unsure, run more. A file the
 // rules do not know, a global trigger (lockfile, workflows, test setup) and any error all select everything.
 import { execFileSync } from "node:child_process";
-import { appendFileSync, readdirSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /** Files that can change what every test does: a change to one runs everything. */
@@ -35,6 +35,8 @@ const INERT = [
 ];
 
 const desktopBuild = /^apps\/desktop\/(index\.html|public\/|src\/|e2e\/)/;
+/** A Playwright spec, relative to apps/desktop (which is where Playwright runs). */
+const e2eSpec = /^apps\/desktop\/(e2e\/.+\.spec\.ts)$/;
 const rust = /^apps\/desktop\/src-tauri\//;
 const native = /^apps\/desktop\/e2e-native\//;
 /** Files the dependency license and advisory checks read (`pnpm licenses:check`): manifests, lockfiles and the cargo-deny and cargo-about setup. */
@@ -62,6 +64,15 @@ export function readWorkspace(root) {
   return { dirs, deps };
 }
 
+/**
+ * The specs to run when a change is nothing but spec files, or `[]` for the whole suite. App sources, the entry page,
+ * public assets and the `e2e/` helpers can reach any spec, and which specs cover which code is not declared anywhere.
+ */
+function narrowSpecs(specs, appInput, touched, desktop) {
+  const onlySpecs = specs.length > 0 && !appInput && touched.size === 1 && touched.has(desktop);
+  return onlySpecs ? [...new Set(specs)].sort() : [];
+}
+
 /** `names` and everything that depends on them, directly or not. */
 export function withDependents(names, deps) {
   const out = new Set(names);
@@ -83,6 +94,8 @@ const none = () => ({
   packages: [],
   rust: false,
   e2e: false,
+  /** The specs to run when the change only touches spec files; empty means the whole suite. */
+  e2eSpecs: [],
   a11y: false,
   webdriver: false,
   licenses: false,
@@ -94,6 +107,7 @@ const everything = (reasons, ws) => ({
   packages: Object.values(ws.dirs).sort(),
   rust: true,
   e2e: true,
+  e2eSpecs: [],
   a11y: true,
   webdriver: true,
   licenses: true,
@@ -110,6 +124,9 @@ export function select(files, ws, { forceFull = false } = {}) {
     return everything(["no changed files found (so nothing can be skipped safely)"], ws);
   const out = none();
   const touched = new Set();
+  const specs = [];
+  // Anything a spec can observe other than a spec file: app sources, the entry page, public assets and the e2e helpers.
+  let appInput = false;
   const dirOf = (f) => Object.keys(ws.dirs).find((d) => f.startsWith(`${d}/`));
   for (const file of files) {
     const hit = GLOBAL.find((re) => re.test(file));
@@ -127,6 +144,9 @@ export function select(files, ws, { forceFull = false } = {}) {
       if (desktopBuild.test(file)) {
         out.e2e = true;
         out.a11y = true;
+        const spec = e2eSpec.exec(file);
+        if (spec) specs.push(spec[1]);
+        else appInput = true;
       }
     } else {
       return everything([`${file}: not covered by any rule`], ws);
@@ -139,6 +159,7 @@ export function select(files, ws, { forceFull = false } = {}) {
     out.e2e = true;
     out.a11y = true;
   }
+  out.e2eSpecs = narrowSpecs(specs, appInput, touched, ws.dirs["apps/desktop"]);
   out.reasons = [
     ...(touched.size ? [`packages: ${[...touched].sort().join(", ")}`] : []),
     ...(out.rust ? ["Rust sources"] : []),
@@ -159,7 +180,7 @@ export function summarize(sel, files) {
     "| --- | --- |",
     `| Unit tests | ${sel.full ? "all packages" : sel.packages.length ? sel.packages.join(", ") : "none"} |`,
     `| Rust | ${yn(sel.rust)} |`,
-    `| Playwright e2e | ${yn(sel.e2e)} |`,
+    `| Playwright e2e | ${sel.e2e ? (sel.e2eSpecs.length ? sel.e2eSpecs.join(", ") : "run (all specs)") : "skip"} |`,
     `| Accessibility sweeps | ${yn(sel.a11y)} |`,
     `| WebDriver | ${yn(sel.webdriver)} |`,
     `| Licenses | ${yn(sel.licenses)} |`,
@@ -177,6 +198,11 @@ function main() {
       .split("\n")
       .filter(Boolean);
     sel = select(files, ws, { forceFull: process.env.FORCE_FULL === "1" });
+    // A spec the change deletes cannot be run; with none left the run falls back to the whole suite.
+    const present = sel.e2eSpecs.filter((spec) =>
+      existsSync(join(process.cwd(), "apps/desktop", spec)),
+    );
+    if (present.length !== sel.e2eSpecs.length) sel.e2eSpecs = present;
   } catch (e) {
     sel = everything([`selection failed (${e.message.split("\n")[0]})`], ws);
   }
@@ -189,6 +215,7 @@ function main() {
       `full=${sel.full}`,
       `rust=${sel.rust}`,
       `e2e=${sel.e2e}`,
+      `e2e_specs=${sel.e2eSpecs.join(",")}`,
       `a11y=${sel.a11y}`,
       `webdriver=${sel.webdriver}`,
       `licenses=${sel.licenses}`,

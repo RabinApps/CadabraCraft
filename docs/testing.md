@@ -113,6 +113,8 @@ On a pull request the `changes` job runs `node scripts/affected/affected.mjs` an
 
 Everything runs, with no selection, on a push to `main`, a release run and a pull request with the `full-ci` label; so does any change to a global file (lockfile, workflows, test setup, `scripts/`), to a file no rule knows, or when the selector fails. The `coverage` job (unit and Playwright coverage, the floors above) also runs only then: a pull request does not check coverage floors unless it carries `full-ci`, so add the label to a change that adds or moves code. The macOS `unit` leg runs on full runs only.
 
+The `e2e` job narrows to the files a change touches only when every changed page-affecting file is a spec (`apps/desktop/e2e/*.spec.ts`): it then runs exactly those specs in one job instead of four shards of the whole 87-spec suite. App sources, the entry page, public assets, a package the app uses or an `e2e/` helper (fixtures, support) still run every spec, because nothing declares which specs exercise which code and a missed spec is a missed regression. Deleting a spec falls back to the whole suite.
+
 A job the selection skipped that would have failed is a miss: widen the rules in `scripts/affected/affected.mjs` (tests in `scripts/affected/affected.test.mjs`) and add the case. Locally: `AFFECTED_BASE=origin/main node scripts/affected/affected.mjs`. Shared CI steps (ports, apt, pnpm and Node, the external tools) are composite actions in `.github/actions/`. Decision and rejected alternatives: `docs/architecture.md`, "Enforcing test selection and splitting the JavaScript job".
 
 ## Known flaky failures in CI

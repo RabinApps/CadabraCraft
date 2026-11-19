@@ -85,6 +85,33 @@ test("a change to the app's sources, pages or e2e specs runs the pages and the a
   }
 });
 
+test("a change that is only spec files runs just those specs", () => {
+  const sel = select(["apps/desktop/e2e/find.spec.ts"], ws);
+  assert.equal(sel.e2e, true);
+  assert.deepEqual(sel.e2eSpecs, ["e2e/find.spec.ts"]);
+  const both = select(["apps/desktop/e2e/paste.spec.ts", "apps/desktop/e2e/find.spec.ts"], ws);
+  assert.deepEqual(both.e2eSpecs, ["e2e/find.spec.ts", "e2e/paste.spec.ts"]);
+});
+
+test("app sources, a used package or a spec helper keep the whole suite", () => {
+  for (const file of [
+    "apps/desktop/src/app/App.tsx",
+    "apps/desktop/e2e/fixtures.ts",
+    "apps/desktop/index.html",
+    "packages/export-pdf/src/typst.ts",
+  ]) {
+    const sel = select(["apps/desktop/e2e/find.spec.ts", file], ws);
+    assert.equal(sel.e2e, true, file);
+    assert.deepEqual(sel.e2eSpecs, [], file);
+  }
+});
+
+test("a full run names no specs, and the summary lists the ones selected", () => {
+  assert.deepEqual(select([], ws).e2eSpecs, []);
+  const files = ["apps/desktop/e2e/find.spec.ts"];
+  assert.match(summarize(select(files, ws), files), /\| Playwright e2e \| e2e\/find\.spec\.ts \|/);
+});
+
 test("the native specs run only the WebDriver job", () => {
   const sel = select(["apps/desktop/e2e-native/driver.ts"], ws);
   assert.equal(sel.webdriver, true);

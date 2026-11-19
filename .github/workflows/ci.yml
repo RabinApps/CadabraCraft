@@ -27,6 +27,7 @@ jobs:
       full: ${{ steps.select.outputs.full }}
       rust: ${{ steps.select.outputs.rust }}
       e2e: ${{ steps.select.outputs.e2e }}
+      e2e_specs: ${{ steps.select.outputs.e2e_specs }}
       a11y: ${{ steps.select.outputs.a11y }}
       webdriver: ${{ steps.select.outputs.webdriver }}
       licenses: ${{ steps.select.outputs.licenses }}
@@ -88,6 +89,9 @@ jobs:
           pnpm "${args[@]}" test
   # The Playwright e2e suite (Chromium against the dev server, fake Tauri backend), in shards. No coverage here: it is
   # about three times slower per test, and its floors are checked by the `coverage` job on full runs.
+  # A change that is nothing but spec files (`e2e/find.spec.ts`) runs those files alone, in one job; anything that can reach
+  # every spec (app sources, a package the app uses, an e2e helper, a full run) keeps the four shards. See the selection rules
+  # in scripts/affected/affected.mjs and docs/testing.md, "Test selection".
   # A shard that dies at once with "Lazy deopt after a fast API call with return value is unsupported" is the V8 bug in
   # nodejs/node#66870, not the app: see "Known flaky failures in CI" in docs/testing.md and rerun the failed jobs.
   e2e:
@@ -98,7 +102,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        # One job for a named list of specs: the whole matrix would leave three shards with nothing to run.
+        shard: ${{ fromJSON(needs.changes.outputs.e2e_specs == '' && '[1,2,3,4]' || '[1]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/ports
@@ -112,7 +117,13 @@ jobs:
             sleep $((i * 5))
           done
           exit 1
-      - name: Playwright shard ${{ matrix.shard }} of 4
+      - name: Playwright, the specs the change reached
+        if: needs.changes.outputs.e2e_specs != ''
+        working-directory: apps/desktop
+        run: pnpm exec playwright test ${{ needs.changes.outputs.e2e_specs }} --trace off
+        env: { CI: "1", E2E_WORKERS: "3" }
+      - name: Playwright shard ${{ matrix.shard }} of 4 (all specs)
+        if: needs.changes.outputs.e2e_specs == ''
         working-directory: apps/desktop
         run: pnpm exec playwright test --shard=${{ matrix.shard }}/4 --trace off
         # Three workers per shard, as the coverage run used: the default (half the cores) times four shards oversubscribes a shared machine.
