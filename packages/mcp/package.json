@@ -27,9 +27,9 @@
     "@cadabracraft/shared": "workspace:*",
     "@cadabracraft/templates": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "@tiptap/core": "^3.33.0",
-    "@tiptap/pm": "^3.33.0",
-    "fast-xml-parser": "^5.12.0",
+    "@tiptap/core": "^3.34.0",
+    "@tiptap/pm": "^3.34.0",
+    "fast-xml-parser": "^5.12.1",
     "fflate": "^0.8.3",
     "zod": "^4.6.7"
   },
