@@ -8,6 +8,8 @@ permissions:
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
+    with:
+      skip-e2e: true # a release gates on lint, typecheck, unit and Rust tests only
   build:
     needs: ci
     # Signing and notarization secrets live in the `release` environment.

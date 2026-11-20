@@ -4,6 +4,11 @@ on:
     branches: [main] # a PR branch is tested by its pull_request run; a push run as well would double the load and collide on e2e port 1420
   pull_request:
   workflow_call:
+    inputs:
+      skip-e2e:
+        description: Skip the browser and WebDriver jobs (e2e, coverage, a11y, webdriver); release.yml sets it
+        type: boolean
+        default: false
 permissions:
   contents: read
 # A new push to a PR cancels that PR's older run. Runs on main and runs called from release.yml are never cancelled.
@@ -19,6 +24,7 @@ concurrency:
 # run on the self-hosted machines: the four `e2e` shards, `coverage`, `a11y`, `webdriver` and the Linux `rust` leg on
 # kinhin-container, the macOS `unit` and `rust` legs on kinhin-xcode (a pull request's macOS `rust` leg uses a Blacksmith Mac). Only release.yml also signs on kinhin-xcode, which holds
 # the Developer ID certificate and the notary key.
+# A release run (release.yml) passes `skip-e2e`: it runs static, unit, rust, licenses and website, but not e2e, coverage, a11y or webdriver.
 env:
   FULL_RUN: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}
 jobs:
@@ -121,7 +127,7 @@ jobs:
   # nodejs/node#66870, not the app: see "Known flaky failures in CI" in docs/testing.md and rerun the failed jobs.
   e2e:
     needs: changes
-    if: needs.changes.outputs.e2e == 'true'
+    if: needs.changes.outputs.e2e == 'true' && !inputs.skip-e2e
     runs-on: kinhin-container
     timeout-minutes: 60
     strategy:
@@ -163,7 +169,7 @@ jobs:
   # Full runs only: unit and e2e coverage with the floors of scripts/coverage.mjs (docs/testing.md, "Coverage").
   coverage:
     needs: changes
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci')
+    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci')) && !inputs.skip-e2e
     runs-on: kinhin-container
     timeout-minutes: 120
     env:
@@ -223,7 +229,7 @@ jobs:
   # green a few times (docs/testing.md). This job replaces the old webkit-a11y job.
   a11y:
     needs: changes
-    if: needs.changes.outputs.a11y == 'true'
+    if: needs.changes.outputs.a11y == 'true' && !inputs.skip-e2e
     runs-on: kinhin-container
     timeout-minutes: 120 # sized when this job also ran the Chromium suite (about 50 min with WebKit alone, twice that beside other jobs; run #173 hit 60): lower it once a run shows how long the stages take now
     env:
@@ -319,7 +325,7 @@ jobs:
   # job) but does not block merges. Make it required once it has been green a few times (docs/testing.md).
   webdriver:
     needs: changes
-    if: needs.changes.outputs.webdriver == 'true'
+    if: needs.changes.outputs.webdriver == 'true' && !inputs.skip-e2e
     runs-on: kinhin-container
     continue-on-error: true
     timeout-minutes: 60
