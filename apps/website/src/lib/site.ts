@@ -19,10 +19,10 @@ export const OG_IMAGE = "/og/cadabracraft-og.png";
 
 export const nav = [
   { key: "features", href: "/features/" },
-  { key: "compare", href: "/compare/" },
-  { key: "formats", href: "/formats/" },
   { key: "docs", href: "/docs/" },
   { key: "guides", href: "/guides/" },
+  { key: "compare", href: "/compare/" },
+  { key: "formats", href: "/formats/" },
   { key: "support", href: "/support/" },
 ] as const;
 

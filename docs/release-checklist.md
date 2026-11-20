@@ -2,7 +2,7 @@
 
 Back to the [docs index](README.md). Release design and rejected alternatives: [architecture.md](architecture.md), "Updates and releases". Open questions: [roadmap.md](roadmap.md).
 
-Versions are all `0.0.0` on purpose until the first release. Nothing below has been run yet; each step says what to confirm.
+The version files say `0.1.0` (checked 2026-11-19 with `node scripts/set-version.mjs --check`). Nothing below has been run yet; each step says what to confirm.
 
 ## What the release builds
 
