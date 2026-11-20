@@ -23,7 +23,7 @@ jobs:
             rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
           # Windows is not part of the first release (macOS and Linux first, Windows coming soon). CI still builds and tests
           # it; to ship it, add back `- os: windows-latest` with `args: ""` and `rust-targets: ""`.
-          - os: blacksmith-8vcpu-ubuntu-2404
+          - os: kinhin-container
             args: ""
             rust-targets: ""
     runs-on: ${{ matrix.os }}
