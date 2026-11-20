@@ -6,7 +6,7 @@ on:
   workflow_call:
     inputs:
       skip-e2e:
-        description: Skip the browser and WebDriver jobs (e2e, coverage, a11y, webdriver); release.yml sets it
+        description: Skip the browser and WebDriver jobs (e2e, coverage, a11y, webdriver) and the Rust coverage steps; release.yml sets it
         type: boolean
         default: false
 permissions:
@@ -438,7 +438,7 @@ jobs:
         run: bash ../../../scripts/cargo-test.sh
         working-directory: apps/desktop/src-tauri
       - name: Rust coverage (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && !inputs.skip-e2e
         # The tests that decode audio with ffmpeg skip when it is missing, and a skipped test takes its lines out of the
         # numbers; with this set a missing ffmpeg fails the step instead. The table goes to the job summary.
         env: { REQUIRE_FFMPEG: "1" }
@@ -451,7 +451,7 @@ jobs:
           node scripts/coverage.mjs --rust-only
         working-directory: apps/desktop/src-tauri
       - name: Upload Rust coverage (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && !inputs.skip-e2e
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: rust-coverage
