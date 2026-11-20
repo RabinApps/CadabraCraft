@@ -125,7 +125,7 @@ test("a global trigger selects everything, whatever else changed", () => {
     ".github/workflows/ci.yml",
     "scripts/coverage.mjs",
     "apps/desktop/playwright.config.ts",
-    "apps/desktop/e2e/support/fakeTauri.ts",
+    "apps/desktop/e2e/support/coverageSetup.ts",
     "tsconfig.base.json",
     "vitest.coverage.ts",
   ]) {
@@ -261,4 +261,76 @@ test("the validator scripts run only the validators, a11y.sh runs both parts, a 
   assert.equal(sh.a11yTools && sh.a11yPages, true);
   const full = select([], ws);
   assert.equal(full.a11yTools && full.a11yPages && full.tools, true);
+});
+
+// A fake index: specs by file, as createSpecIndex would answer from the import graph and the coverage map.
+const index = (table) => (file) =>
+  table[file] ?? (/\.spec\.ts$/.test(file) ? [file.replace("apps/desktop/", "")] : null);
+const specsFor = index({
+  "apps/desktop/src/app/export/ExportDialog.tsx": ["e2e/export.spec.ts", "e2e/cov-export.spec.ts"],
+  "apps/desktop/src/app/find/FindBar.tsx": ["e2e/find.spec.ts"],
+  "apps/desktop/e2e/support/pageCards.ts": ["e2e/cards.spec.ts"],
+  "packages/format/src/marks.ts": ["e2e/paste.spec.ts"],
+});
+
+test("an app source file runs the specs that exercise it, and several files run the union", () => {
+  const one = select(["apps/desktop/src/app/find/FindBar.tsx"], ws, { specsFor });
+  assert.equal(one.e2e, true);
+  assert.deepEqual(one.e2eSpecs, ["e2e/find.spec.ts"]);
+  const two = select(
+    ["apps/desktop/src/app/find/FindBar.tsx", "apps/desktop/src/app/export/ExportDialog.tsx"],
+    ws,
+    { specsFor },
+  );
+  assert.deepEqual(two.e2eSpecs, [
+    "e2e/cov-export.spec.ts",
+    "e2e/export.spec.ts",
+    "e2e/find.spec.ts",
+  ]);
+});
+
+test("a file no spec is known to reach runs every spec", () => {
+  for (const file of ["apps/desktop/src/app/new/Unknown.tsx", "apps/desktop/index.html"]) {
+    const sel = select(["apps/desktop/src/app/find/FindBar.tsx", file], ws, { specsFor });
+    assert.equal(sel.e2e, true, file);
+    assert.deepEqual(sel.e2eSpecs, [], file);
+  }
+});
+
+test("an e2e helper runs the specs that import it", () => {
+  const sel = select(["apps/desktop/e2e/support/pageCards.ts"], ws, { specsFor });
+  assert.deepEqual(sel.e2eSpecs, ["e2e/cards.spec.ts"]);
+});
+
+test("a package file the app uses selects by the map, and one the app does not use selects no spec", () => {
+  const used = select(["packages/format/src/marks.ts"], ws, { specsFor });
+  assert.deepEqual(used.e2eSpecs, ["e2e/paste.spec.ts"]);
+  assert.equal(used.e2e, true);
+  const unused = select(["packages/lonely/src/a.ts"], ws, { specsFor });
+  assert.equal(unused.e2e, false);
+  assert.deepEqual(unused.e2eSpecs, []);
+});
+
+test("unit tests and package docs select no e2e spec, though they run their unit tests", () => {
+  const sel = select(
+    [
+      "apps/desktop/src/state/__tests__/updates.test.ts",
+      "packages/format/src/__tests__/a.test.ts",
+      "packages/format/README.md",
+    ],
+    ws,
+    { specsFor },
+  );
+  assert.equal(sel.e2e || sel.a11yPages, false);
+  assert.ok(sel.packages.includes("@x/desktop"));
+  assert.ok(sel.packages.includes("@x/format"));
+});
+
+test("a shard is added for every 20 specs, up to four, and the whole suite has four", async () => {
+  const { shardsFor } = await import("./e2e-specs.mjs");
+  assert.deepEqual(shardsFor(0), [1, 2, 3, 4]);
+  assert.deepEqual(shardsFor(3), [1]);
+  assert.deepEqual(shardsFor(20), [1]);
+  assert.deepEqual(shardsFor(21), [1, 2]);
+  assert.deepEqual(shardsFor(80), [1, 2, 3, 4]);
 });

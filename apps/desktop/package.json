@@ -22,6 +22,7 @@
     "test:e2e:webdriver": "pnpm test:native",
     "tauri:automate": "tauri dev --features dev-automation --config src-tauri/tauri.automation.conf.json",
     "test:e2e:coverage": "COVERAGE=1 playwright test",
+    "e2e:map": "COVERAGE=1 SPEC_MAP=only playwright test",
     "test:voiceover": "playwright test --config e2e-voiceover/playwright.config.ts"
   },
   "dependencies": {

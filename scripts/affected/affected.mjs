@@ -6,6 +6,13 @@
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  createSpecIndex,
+  readImportGraph,
+  readSpecMap,
+  shardsFor,
+  specsForAll,
+} from "./e2e-specs.mjs";
 
 /** Files that can change what every test does: a change to one runs everything. */
 const GLOBAL = [
@@ -22,7 +29,8 @@ const GLOBAL = [
   /^scripts\/(?!(perf|audio-spike|design)\/|a11ylens\/|(a11y|validate-pdf|fetch-ace|fetch-verapdf|set-version|build-jre|sign-jre)[.-])/,
   /^apps\/desktop\/playwright\.config\.ts$/,
   /^apps\/desktop\/vite\.config\.[^/]+$/,
-  /^apps\/desktop\/e2e\/support\//,
+  // Loaded by playwright.config.ts for every run. The other e2e helpers narrow by the specs that import them.
+  /^apps\/desktop\/e2e\/support\/coverage[^/]*\.ts$/,
   /^apps\/desktop\/(coverageScopes|vitest\.[^/]+|tsconfig[^/]*)\.[^/]+$/,
 ];
 
@@ -66,9 +74,8 @@ const TOOL_PACKAGES = [
 /** The exporters the accessibility validators (veraPDF, Ace, LibreOffice, the output tests) check. */
 const A11Y_PACKAGES = TOOL_PACKAGES.filter((d) => d.includes("/export-"));
 
-const desktopBuild = /^apps\/desktop\/(index\.html|public\/|src\/|e2e\/)/;
-/** A Playwright spec, relative to apps/desktop (which is where Playwright runs). */
-const e2eSpec = /^apps\/desktop\/(e2e\/.+\.spec\.ts)$/;
+/** Files only the unit tests (or no test) read: the app's pages cannot observe them, so they select no e2e spec. */
+const unitOnly = /(^|\/)__tests__\/|\.test\.tsx?$|\.md$/;
 const rust = /^apps\/desktop\/src-tauri\//;
 /** Standalone crates the app's `cargo test --lib` does not build: the perf probe and the fuzz targets (the weekly perf-fuzz run checks them). */
 const rustStandalone = /^apps\/desktop\/src-tauri\/(tools\/perf|fuzz)\//;
@@ -96,15 +103,6 @@ export function readWorkspace(root) {
     }
   }
   return { dirs, deps };
-}
-
-/**
- * The specs to run when a change is nothing but spec files, or `[]` for the whole suite. App sources, the entry page,
- * public assets and the `e2e/` helpers can reach any spec, and which specs cover which code is not declared anywhere.
- */
-function narrowSpecs(specs, appInput, touched, desktop) {
-  const onlySpecs = specs.length > 0 && !appInput && touched.size === 1 && touched.has(desktop);
-  return onlySpecs ? [...new Set(specs)].sort() : [];
 }
 
 /** `names` and everything that depends on them, directly or not. */
@@ -177,31 +175,42 @@ function markA11yScript(file, out) {
 function applyReach(out, affected, ws) {
   out.packages = [...affected].sort();
   out.website = affected.has(ws.dirs["apps/website"]);
-  // A change in a package the desktop app depends on reaches the app's pages.
-  if (affected.has(ws.dirs["apps/desktop"])) {
-    out.e2e = true;
-    out.a11yPages = true;
-  }
   const reaches = (dirs) => dirs.some((d) => ws.dirs[d] && affected.has(ws.dirs[d]));
   out.tools = reaches(TOOL_PACKAGES);
   out.a11yTools = out.a11yTools || reaches(A11Y_PACKAGES);
+}
+
+/**
+ * The e2e specs the changed files that can reach the app's pages select (all of them when one is unknown to `specsFor`).
+ * A file counts when its package is the desktop app or one the app depends on, and it is not a unit test.
+ */
+function applyPages(out, pageFiles, ws, specsFor) {
+  const desktop = ws.dirs["apps/desktop"];
+  const reaching = pageFiles
+    .filter(({ pkg }) => withDependents([pkg], ws.deps).has(desktop))
+    .map(({ file }) => file);
+  out.e2e = reaching.length > 0;
+  out.a11yPages = out.a11yPages || out.e2e;
+  out.e2eSpecs = specsForAll(reaching, specsFor);
   out.a11y = out.a11yTools || out.a11yPages;
 }
 
 /**
  * @param {string[]} files changed files, relative to the repository root, with `/`
  * @param {{ dirs: Record<string, string>, deps: Record<string, string[]> }} ws
- * @param {{ forceFull?: boolean }} [options]
+ * @param {{ forceFull?: boolean, specsFor?: (file: string) => string[] | null }} [options] `specsFor`: see createSpecIndex
  */
-export function select(files, ws, { forceFull = false } = {}) {
+export function select(
+  files,
+  ws,
+  { forceFull = false, specsFor = createSpecIndex({}, null) } = {},
+) {
   if (forceFull) return everything(["forced (full-ci)"], ws);
   if (files.length === 0)
     return everything(["no changed files found (so nothing can be skipped safely)"], ws);
   const out = none();
   const touched = new Set();
-  const specs = [];
-  // Anything a spec can observe other than a spec file: app sources, the entry page, public assets and the e2e helpers.
-  let appInput = false;
+  const pageFiles = [];
   const dirOf = (f) => Object.keys(ws.dirs).find((d) => f.startsWith(`${d}/`));
   for (const file of files) {
     const hit = GLOBAL.find((re) => re.test(file));
@@ -218,19 +227,13 @@ export function select(files, ws, { forceFull = false } = {}) {
       out.webdriver = true;
     } else if (dir) {
       touched.add(ws.dirs[dir]);
-      if (desktopBuild.test(file)) {
-        out.e2e = true;
-        out.a11yPages = true;
-        const spec = e2eSpec.exec(file);
-        if (spec) specs.push(spec[1]);
-        else appInput = true;
-      }
+      if (!unitOnly.test(file)) pageFiles.push({ file, pkg: ws.dirs[dir] });
     } else {
       return everything([`${file}: not covered by any rule`], ws);
     }
   }
   applyReach(out, withDependents(touched, ws.deps), ws);
-  out.e2eSpecs = narrowSpecs(specs, appInput, touched, ws.dirs["apps/desktop"]);
+  applyPages(out, pageFiles, ws, specsFor);
   out.reasons = [
     ...(touched.size ? [`packages: ${[...touched].sort().join(", ")}`] : []),
     ...(out.rust ? ["Rust sources"] : []),
@@ -270,7 +273,8 @@ function main() {
     files = execFileSync("git", ["diff", "--name-only", `${base}...HEAD`], { encoding: "utf8" })
       .split("\n")
       .filter(Boolean);
-    sel = select(files, ws, { forceFull: process.env.FORCE_FULL === "1" });
+    const specsFor = createSpecIndex(readImportGraph(process.cwd()), readSpecMap(process.cwd()));
+    sel = select(files, ws, { forceFull: process.env.FORCE_FULL === "1", specsFor });
     // A spec the change deletes cannot be run; with none left the run falls back to the whole suite.
     const present = sel.e2eSpecs.filter((spec) =>
       existsSync(join(process.cwd(), "apps/desktop", spec)),
@@ -289,7 +293,7 @@ function main() {
       `rust=${sel.rust}`,
       `e2e=${sel.e2e}`,
       `e2e_specs=${sel.e2eSpecs.join(",")}`,
-      `e2e_shards=${sel.e2eSpecs.length ? "[1]" : "[1,2,3,4]"}`,
+      `e2e_shards=${JSON.stringify(shardsFor(sel.e2eSpecs.length))}`,
       `a11y=${sel.a11y}`,
       `a11y_tools=${sel.a11yTools}`,
       `a11y_pages=${sel.a11yPages}`,

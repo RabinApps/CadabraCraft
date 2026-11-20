@@ -4,7 +4,7 @@ Part of the [docs index](README.md). Add ideas here instead of building them ear
 
 ## Open
 
-- CI: narrow Playwright e2e below "all specs" for app-source changes with a source-to-spec map (for example from the V8 coverage data under `coverage/e2e`), and narrow the Rust job by module.
+- CI: narrow the Rust job by module, and the WebKit page sweeps by the spec map.
 
 ### Accessibility CI follow-ups
 
