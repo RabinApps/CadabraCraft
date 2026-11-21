@@ -164,6 +164,16 @@ jobs:
       - name: Show Tauri bundler variables set on the runner
         if: matrix.os == 'kinhin-xcode'
         run: env | grep -i '^TAURI_BUNDLER' || echo "none set"
+      - name: Let linuxdeploy find libjvm.so in the bundled Java runtime
+        if: runner.os == 'Linux'
+        # linuxdeploy runs ldd on every ELF file in the AppDir, including the jlink runtime, and libjava.so needs libjvm.so, which
+        # sits in lib/server where ldd does not look ("ERROR: Could not find dependency: libjvm.so"). ldd honors LD_LIBRARY_PATH,
+        # so list the runtime's server folder (the AppDir copy first, then the staged one) for the build.
+        run: |
+          cpu=$(uname -m); [ "$cpu" = arm64 ] && cpu=aarch64
+          src="$PWD/apps/desktop/src-tauri"
+          appdir="$src/target/release/bundle/appimage/CadabraCraft.AppDir/usr/lib/CadabraCraft/jre/$cpu/lib/server"
+          echo "LD_LIBRARY_PATH=$appdir:$src/binaries/jre/$cpu/lib/server${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
       - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
