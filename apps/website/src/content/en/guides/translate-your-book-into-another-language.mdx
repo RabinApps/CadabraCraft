@@ -1,0 +1,60 @@
+---
+title: "Translate your book into another language"
+tag: "Editions"
+summary: "Add a language edition, write the translation chapter by chapter, and export each edition."
+description: "Keep a translation in the same book with CadabraCraft editions: add a language, start from a copy or empty, track what is not translated yet, and export each edition."
+updated: "2026-11-21"
+readMinutes: 5
+order: 6
+---
+
+An edition is one language of your book. Editions keep translations in the same book, with the same chapters, and each one is exported separately. CadabraCraft does not translate the text for you: you, or your translator, write each edition. What the app does is keep the original and the translation together, show what is still untranslated and export each language.
+
+## Add a language
+
+Choose the **Edition** button at the top left, which shows the current language. The menu lists each edition with how many chapters it has, and **Add language**.
+
+<Shot
+  name="edition-menu"
+  alt="The Edition menu open under the language button, listing English with 5 of 5 chapters and an Add language item."
+  caption="The Edition menu lists your languages and adds new ones."
+/>
+
+In the **Add language** dialog, pick a language, then choose how to **Start the new edition**:
+
+- **Start from a copy of the source**: the chapters start as copies of the original, each marked "Not translated yet". Handy when you translate by overwriting the text.
+- **Start empty**: every chapter starts blank.
+
+Press **Add language**.
+
+<Shot
+  name="add-language"
+  alt="The Add language dialog with French chosen and two choices: start from a copy of the source, or start empty."
+  caption="Choose a language and how the edition starts."
+/>
+
+## Write the translation
+
+The editor switches to the new edition, and the button shows its name. In the chapter list, chapters you have not touched yet say "Not translated yet". Open a chapter and write or paste the translation. Once you type, the chapter counts as translated and the note goes away.
+
+Each edition has its own chapter titles, its own contents page entries, and its own title, author and cover in Book details. Chapters are stored in a folder for that language inside your book, so the original is never overwritten.
+
+To go back, open the Edition menu and choose another language. Your book keeps one structure for every edition: add, move or trash a chapter and it changes in every language.
+
+## Mark passages in another language
+
+For a French phrase inside an English book, you do not need an edition. Select the passage and choose **Language of selection** from the **More formatting** menu or the Format menu. It tells screen readers how to pronounce it, and the exports carry it. See [Writing](/docs/writing/).
+
+## Export the editions
+
+Choose **Export** and pick a format. When the book has editions, the dialog asks you to pick an edition to export, and you can export several together. An edition with chapters that are not translated yet is blocked: the dialog names them ("Not translated yet in French") and asks you to translate them or choose **Skip untranslated chapters**, which leaves them out of that file.
+
+The files for each language go to a folder named for it inside `exports`, for example `exports/fr/book.epub`.
+
+## Audiobooks in another language
+
+The audiobook voices CadabraCraft can download read English only. If no voice on your computer reads your edition's language, the audiobook panel says so, and you can export the text and the other formats instead. See [Make an audiobook](/guides/make-an-audiobook/).
+
+## Next steps
+
+Set the language of the book itself in Book details, since it decides hyphenation, quotes and the EPUB. See [Format an EPUB](/guides/format-an-epub/) and [Exporting](/docs/exporting/).

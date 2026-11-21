@@ -1,0 +1,53 @@
+---
+title: "Make an audiobook from your manuscript"
+tag: "Audiobook"
+summary: "Pick a voice and speed, choose Opus, FLAC, WAV or M4B, hear a sample, and render the book on your computer."
+description: "Make an audiobook from your manuscript with CadabraCraft, offline: choose a voice, speed and format, hear a sample, and export one file per chapter or a single M4B with chapters."
+updated: "2026-11-21"
+readMinutes: 5
+order: 5
+---
+
+CadabraCraft turns your chapters into audio with a voice that runs on your computer. Nothing is uploaded, and there is no account. This guide goes from an open book to audio files.
+
+## Open the audiobook export
+
+Choose **Export**, then **Audiobook**. The panel says what it will do: one audio file per chapter, with a voice that runs on your computer.
+
+<Shot
+  name="audiobook-export"
+  alt="The Export book dialog on Audiobook, with the voice, speed, formats, chapters and a Hear a sample button."
+  caption="The Audiobook panel: voice, speed, formats and chapters."
+/>
+
+## Choose a voice and speed
+
+**Voice** lists the voices on your computer. Kokoro sounds the most natural but is slower: roughly 20 minutes of work per hour of audio. Piper voices (Amy and LibriTTS) are about 10 times faster, which is handy for a first pass. The speed buttons are 0.9x, 1x, 1.1x and 1.25x.
+
+If a voice is not installed yet, it is marked as such, and the panel offers **Download more voices**. The voices are an optional download that only starts when you click, and the button shows the size. Stopping a download keeps what was already fetched, so the next download carries on from there. The voices CadabraCraft can download read English only; if your book is in another language, the panel tells you no voice on this computer reads it yet.
+
+Choose **Hear a sample** to render a few sentences with the chosen voice. It writes no files, so you can try several voices and speeds.
+
+## Choose the formats
+
+- **Opus**: small files, about 14 MB per hour. Plays on phones and modern players.
+- **FLAC**: lossless, about 60% of the size of WAV.
+- **WAV**: lossless and large, about 1.7 GB per 10 hours.
+- **M4B audiobook**: one file for the whole book with chapters and your cover, about 29 MB per hour. This is the format for audiobook apps and stores.
+- **Save a transcript**: a text file of the whole book and a WebVTT captions file for each chapter, from the exact text the voice reads. Caption times are estimated.
+
+You can tick more than one.
+
+## Choose the chapters
+
+The **Chapters** menu starts at "All chapters"; choose "Selected chapters" to pick which ones to read. A line below it says what will be read, for example "Reads 5 chapters, one audio file each. Front and back matter are not read."
+
+## Render the audiobook
+
+Press **Export audiobook**. A progress bar shows the chapters as they finish, and you can close the dialog while it runs: a chip in the header keeps showing progress. **Cancel** stops the render, and chapters that were already finished are kept. When it is done, the panel says "Your audiobook is ready" and how many files it made. They are in an audio folder inside your book's `exports` folder, in a folder named for the language.
+
+## Before you upload
+
+Some audiobook stores do not accept synthetic voices, so check their rules before you upload. Listen to the first and last chapters at least once. If a name or a word is read wrong, edit the text and render again.
+
+See [Exporting](/docs/exporting/) for the other formats, or [Format an EPUB](/guides/format-an-epub/) to publish the e-book from the same book.

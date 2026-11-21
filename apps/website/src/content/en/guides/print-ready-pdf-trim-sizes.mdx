@@ -1,0 +1,58 @@
+---
+title: "Make a print-ready PDF: trim sizes, margins and fonts"
+tag: "Print"
+summary: "Choose a trim size, a template and fonts, read the KDP print checks, and export an interior PDF."
+description: "Export a print-ready interior PDF with CadabraCraft: pick a trim size, template and fonts, read the Amazon KDP print checks, and set bleed and crop marks."
+updated: "2026-11-21"
+readMinutes: 6
+order: 3
+---
+
+A print book is a fixed page, so the size of the page decides everything else: how many pages you get, how wide the margins must be and how the text sits. CadabraCraft builds the PDF with Typst, which comes with the app, and checks the result against Amazon KDP paperback rules before you export.
+
+## Choose the trim size
+
+The trim size is the size of the finished page. It is a setting of the book, not of one export. You pick it when you create the book and can change it any time in **Book details**. The sizes on offer are 4.25 x 6.87, 5 x 8, 5.25 x 8, 5.5 x 8.5, 6 x 9, 7 x 10 and 8.5 x 11 inches.
+
+<Shot
+  name="book-details"
+  alt="The Book details dialog with the trim size field among the book's other settings."
+  caption="Trim size is set in Book details."
+/>
+
+The status bar at the bottom of the editor shows the page count the book would have at that size, as an estimate. Try a smaller trim size if your book is short, a larger one if it is long.
+
+## Open the Print PDF export
+
+Choose **Export**, then **Print PDF**. The dialog shows your trim size with a **Change** link that goes back to Book details.
+
+<Shot
+  name="pdf-export"
+  alt="The Export book dialog on Print PDF, with print checks, trim size, template, body font and heading font."
+  caption="The Print PDF panel: checks first, then trim size, template and fonts."
+/>
+
+## Read the print checks
+
+Above the options, a list of **Print checks** compares your book with KDP paperback rules: a page count of 24 to 828, the minimum inside (gutter) margin for your page count, and a 0.25 inch minimum outer margin (0.375 inch when bleed is on). The page count is an estimate, so treat the checks as early warnings. KDP's own previewer has the final say.
+
+A book with no cover shows a note too: KDP takes the cover as a separate file.
+
+## Pick the template and fonts
+
+Choose a **Template**: Classic Novel, Nonfiction or Modern Memoir. Below it, **Body font** and **Heading font** set the fonts of the PDF. "Template default" uses the template's own font, and "Same as body" sets headings in the body font. The choice is saved with the book, but the font file is not. If you open the book on a computer without that font, the export stops and tells you, with an **Open Fonts** button. CadabraCraft never swaps in a different font for you. See [Fonts](/docs/fonts/).
+
+## Set bleed, crop marks and the cover
+
+- **Add bleed (0.125 in)** is for artwork or images that run to the page edge. Every page grows by 0.125 inch on the top, bottom and outside edges, and your margins stay measured from the trim, so the text does not move.
+- **Crop marks** draw trim marks outside the bleed and make the page larger on every side. KDP does not accept them, so use them only if another printer asks.
+- Printers usually want the cover as a separate file, so turn the cover off for a print-ready interior.
+- **PDF/A (archival)** embeds everything needed to open the file in the future. **PDF/UA (accessible)** tags headings, lists, tables and images so screen readers can read it; images need a description in the editor.
+
+**Print preview** shows an approximate layout. It is not the PDF.
+
+## Export
+
+Press **Export**. The file is saved as `book.pdf` in the `exports` folder of your book. See [Exporting](/docs/exporting/#print-pdf) for the contents page, page numbers and the other options in full.
+
+Upload the PDF to your printer's previewer and check the margins on the first and last pages before you order proofs.

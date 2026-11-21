@@ -1,0 +1,49 @@
+---
+title: "Write a book in Markdown"
+tag: "Markdown"
+summary: "Bring a Markdown manuscript in, edit it as a book, and export the whole book back to one Markdown file."
+description: "Use Markdown with CadabraCraft: import a .md manuscript into chapters, check the import report, edit in the app, and export the whole book as Markdown."
+updated: "2026-11-21"
+readMinutes: 5
+order: 4
+---
+
+If you draft in Markdown, CadabraCraft can take your files in and give a Markdown file back. It is not a Markdown editor: you edit in a rich-text editor with a toolbar, and Markdown is the format that goes in and out. This guide shows the round trip and what to expect on each side.
+
+## Import a Markdown file
+
+Choose **Import...** on the start screen, or **File > Import...** (Cmd/Ctrl+Shift+I). Pick your `.md` file, then give the new book a title, an author and an empty folder. Import always creates a new book; you cannot import into a book that is already open.
+
+The next step shows the chapters the app found. Choose which heading level starts a new chapter (Heading 1, 2 or 3), rename chapters, and leave out anything you do not want. The default is Heading 1, so every `# Title` becomes a chapter. Nothing is written until you confirm, and your original file is never changed.
+
+Images that your file points to with a relative path are copied into the book, resolved from the folder of the `.md` file. Remote images are not downloaded; they stay as text with the image description.
+
+## Read the import report
+
+After the import, an **Import report** lists anything that could not be kept exactly. A Warning means something was lost or changed and is worth a look. A Note is a routine adjustment. Use **Copy report** to keep it. "Nothing was lost or changed" means exactly that. The full list of what each Markdown construct becomes is in the [import notes on GitHub](https://github.com/RabinApps/cadabracraft/blob/main/docs/import.md).
+
+## Edit the book
+
+Each chapter opens in the editor. Use the toolbar or the Format menu for headings, bold, italics, lists, quotes, links, tables and footnotes. Add front and back matter with **Add page**, and pick a template for the look of the finished book. See [Writing](/docs/writing/) for the editor and [Organising your book](/docs/organising/) for chapters and the contents page.
+
+Your chapters are stored as plain files inside the book folder, so a copy or a cloud-synced folder works like any other folder of files.
+
+## Export the whole book as Markdown
+
+Choose **Export**, then **Markdown**. The whole book is written as one Markdown file in reading order: front matter, chapters, back matter. A contents page becomes a nested list of links to the chapters and headings. The file is saved as `book.md` in the `exports` folder of your book, in a folder named for the language.
+
+<Shot
+  name="markdown-export"
+  alt="The Export book dialog with Markdown selected, showing the Keep underline and small caps option."
+  caption="The Markdown panel in the Export dialog."
+/>
+
+## What Markdown cannot say
+
+Underline, small caps, superscript and subscript have no Markdown form. By default the export stops and names the chapter that uses them, so nothing is lost silently. Tick **Keep underline and small caps** to write them as HTML tags instead. Other Markdown tools may show those tags as text. A passage marked as another language is written as plain text unless you keep HTML marks.
+
+An export you can round-trip is the goal: a book exported to Markdown and imported again gives you the same chapters, apart from a few documented differences.
+
+## Next steps
+
+Need a Word manuscript instead? See [Convert a Word manuscript to EPUB](/guides/convert-word-manuscript-to-epub/). For the other formats, see [Exporting](/docs/exporting/#markdown).

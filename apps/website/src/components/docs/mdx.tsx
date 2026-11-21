@@ -1,15 +1,42 @@
 import type { MDXComponents } from "mdx/types";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import { Screenshot } from "@/components/Screenshot";
 import { localePath, type Locale } from "@/i18n/config";
 
-export function Callout({ children, tone = "note" }: { children: ReactNode; tone?: "note" | "warn" }) {
+export function Callout({
+  children,
+  tone = "note",
+}: {
+  children: ReactNode;
+  tone?: "note" | "warn";
+}) {
   const cls = tone === "warn" ? "border-warn" : "border-accent";
-  return <aside className={`my-5 rounded-md border-s-4 ${cls} bg-surface px-4 py-3 text-ink`}>{children}</aside>;
+  return (
+    <aside className={`my-5 rounded-md border-s-4 ${cls} bg-surface px-4 py-3 text-ink`}>
+      {children}
+    </aside>
+  );
 }
 
 export function Kbd({ children }: { children: ReactNode }) {
   return (
-    <kbd className="rounded border border-border bg-sidebar px-1.5 py-0.5 font-mono text-[0.85em]">{children}</kbd>
+    <kbd className="rounded border border-border bg-sidebar px-1.5 py-0.5 font-mono text-[0.85em]">
+      {children}
+    </kbd>
+  );
+}
+
+/** A guide screenshot in both colour schemes with a caption. `alt` says what the picture shows, for screen readers. */
+export function Shot({ name, alt, caption }: { name: string; alt: string; caption?: string }) {
+  return (
+    <figure className="my-6 overflow-hidden rounded-lg border border-border">
+      <Screenshot name={name} alt={alt} />
+      {caption && (
+        <figcaption className="border-t border-border bg-surface px-4 py-2 text-sm text-ink-muted">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
   );
 }
 
@@ -22,7 +49,9 @@ export function mdxComponents(locale: Locale): MDXComponents {
     p: (p) => <p {...p} className="mt-4 leading-relaxed" />,
     ul: (p) => <ul {...p} className="mt-4 list-disc space-y-2 ps-6 leading-relaxed" />,
     ol: (p) => <ol {...p} className="mt-4 list-decimal space-y-2 ps-6 leading-relaxed" />,
-    blockquote: (p) => <blockquote {...p} className="mt-4 border-s-4 border-border ps-4 text-ink-muted" />,
+    blockquote: (p) => (
+      <blockquote {...p} className="mt-4 border-s-4 border-border ps-4 text-ink-muted" />
+    ),
     a: ({ href = "", ...rest }: ComponentPropsWithoutRef<"a">) => {
       const external = /^https?:\/\//.test(href);
       return (
@@ -47,10 +76,17 @@ export function mdxComponents(locale: Locale): MDXComponents {
         <table {...p} className="w-full text-start text-sm" />
       </div>
     ),
-    th: (p) => <th {...p} scope="col" className="border-b border-border px-3 py-2 text-start font-semibold" />,
+    th: (p) => (
+      <th
+        {...p}
+        scope="col"
+        className="border-b border-border px-3 py-2 text-start font-semibold"
+      />
+    ),
     td: (p) => <td {...p} className="border-b border-border px-3 py-2 align-top" />,
     hr: (p) => <hr {...p} className="my-10 border-border" />,
     Callout,
     Kbd,
+    Shot,
   };
 }

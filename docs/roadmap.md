@@ -130,7 +130,7 @@ Infrastructure is in; see the Internationalization section of [architecture.md](
 - Link the LICENSE once the licensing question is settled; add a real download link once a GitHub Release exists.
 - Download page: switch the platform cards to real links, version and size when the first GitHub Release exists (drawn as the "released" variant in the pen), and add `SoftwareApplication` structured data at the same time.
 - Run Lighthouse (the `web-perf` skill) against the built site and check the budgets in [seo-plan.md](seo-plan.md), section 4; verify `www` to apex, HTTPS and Search Console and Bing verification by DNS.
-- Write more guides (print-ready PDF and trim sizes, Markdown workflow, audiobook, translations) from [seo-plan.md](seo-plan.md), section 5, and re-check compare pages every 90 days.
+- Guides done (2026-11-21): format an EPUB, print-ready PDF and trim sizes, Markdown workflow, audiobook, translations (`apps/website/src/content/en/guides/`, screenshots from `website.spec.ts`). Still to write: back up and recover a book, scene board and codex, syncing with Dropbox. Re-check compare pages every 90 days.
 - Pen: the website Formats, Guides, Guide article, Changelog and 404 pages are drawn at tablet and mobile widths (2026-11-08; the tablet and mobile layouts were built by hand, not copied from desktop). The built pages are responsive and were checked at 375, 700, 820 and 1280 px.
 - Done: Features, Compare index, Download, Formats, Guides (index and article), Changelog and 404 pages; Home "How it works"; header and footer links; social card, `summary_large_image`, sitemap dates, `Article`, `BreadcrumbList` and `FAQPage` data, `noindex` on 404; site copy updated for Word, Markdown, audiobooks and editions.
 

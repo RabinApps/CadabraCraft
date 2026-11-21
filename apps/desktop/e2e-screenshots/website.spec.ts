@@ -93,6 +93,57 @@ const SHOTS: Shot[] = [
     },
   },
   {
+    name: "pdf-export",
+    prepare: async (page) => {
+      await page.getByRole("button", { name: "Export", exact: true }).click();
+      const dialog = page.getByRole("dialog", { name: "Export book" });
+      await dialog.getByRole("radio", { name: "Print PDF" }).click();
+      await expect(dialog.getByTestId("trim-size")).toBeVisible();
+    },
+  },
+  {
+    name: "markdown-export",
+    prepare: async (page) => {
+      await page.getByRole("button", { name: "Export", exact: true }).click();
+      const dialog = page.getByRole("dialog", { name: "Export book" });
+      await dialog.getByRole("radio", { name: "Markdown" }).click();
+      await expect(dialog.getByLabel("Keep underline and small caps")).toBeVisible();
+    },
+  },
+  {
+    name: "audiobook-export",
+    prepare: async (page) => {
+      await page.getByRole("button", { name: "Export", exact: true }).click();
+      const dialog = page.getByRole("dialog", { name: "Export book" });
+      await dialog.getByRole("radio", { name: "Audiobook" }).click();
+      await expect(dialog.getByRole("button", { name: "Hear a sample" })).toBeVisible();
+    },
+  },
+  {
+    name: "book-details",
+    prepare: async (page) => {
+      await page.getByRole("button", { name: "Book details" }).click();
+      await expect(page.getByRole("dialog", { name: "Book details" })).toBeVisible();
+    },
+  },
+  {
+    name: "edition-menu",
+    prepare: async (page) => {
+      await page.getByRole("button", { name: /Edition: English/ }).click();
+      await expect(page.getByRole("menuitem", { name: "Add language" })).toBeVisible();
+    },
+  },
+  {
+    name: "add-language",
+    prepare: async (page) => {
+      await page.getByRole("button", { name: /Edition: English/ }).click();
+      await page.getByRole("menuitem", { name: "Add language" }).click();
+      const dialog = page.getByRole("dialog", { name: "Add language" });
+      await expect(dialog).toBeVisible();
+      await dialog.getByLabel("Language", { exact: true }).selectOption("fr");
+    },
+  },
+  {
     name: "history",
     prepare: async (page) => {
       const days: Record<string, number> = {};

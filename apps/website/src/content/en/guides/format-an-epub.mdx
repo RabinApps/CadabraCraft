@@ -1,0 +1,59 @@
+---
+title: "How to format an EPUB"
+tag: "EPUB"
+summary: "Set up your details, pick a template, add front and back matter, and export an EPUB 3 you can check."
+description: "Format a book as an EPUB 3 with CadabraCraft: book details and cover, template, front and back matter, a contents page, then export and check the file."
+updated: "2026-11-21"
+readMinutes: 5
+order: 2
+---
+
+An EPUB is a reflowable e-book: the reader chooses the font size and the page changes shape to fit the screen. So formatting an EPUB is less about pages and more about getting the structure right. This guide takes a finished manuscript to an EPUB 3 file in five steps.
+
+## Fill in the book details
+
+Choose **File > Book Details...** or the book icon at the top. Set the title, author and language. The language matters for hyphenation, quotes and the metadata that stores read. Add an ISBN if you have one.
+
+Add a cover too. It is a PNG, JPEG or WebP image up to 25 MB, and a portrait image of about 1600 x 2400 pixels works best.
+
+<Shot
+  name="book-details"
+  alt="The Book details dialog over the editor, with the title, author, language, trim size and cover fields."
+  caption="Book details hold the title, author, language, ISBN and cover."
+/>
+
+## Pick a template
+
+The right-hand panel shows the template in use and a **Change template** button. CadabraCraft has three: Classic Novel (serif type, indented paragraphs), Nonfiction and Modern Memoir. The template sets the look of headings and paragraphs in the EPUB. A reader can still change the font and size on their device, so do not expect the exact page you see in the print preview.
+
+## Add front and back matter
+
+In the chapter list, choose **Add page** and pick what you need: title page, copyright page, dedication, epigraph, contents, foreword or preface at the front, and acknowledgments, about the author, also by or colophon at the back. A book has at most one title page, one copyright page and one contents page.
+
+The **Contents** page is built from your book. You do not type its list; it follows your chapters and headings, so renaming or moving a chapter updates it. In an EPUB it becomes a nested list of links, and the e-reader's own navigation menu uses it too. See [Organising your book](/docs/organising/#contents-page) for the depth and renaming options.
+
+Press Cmd/Ctrl+Alt+Z if you move something by mistake: book undo reverses changes to the structure.
+
+## Export the EPUB
+
+Choose **Export** at the top right, then **EPUB 3**. The dialog first lists anything it can see that needs attention, such as a book with no chapters or untitled chapters. Press **Export**. The file is saved as `book.epub` in the `exports` folder of your book (inside a folder named for the language), and exporting again replaces it.
+
+<Shot
+  name="export"
+  alt="The Export book dialog with EPUB 3 selected, showing the checks and the Export button."
+  caption="The Export dialog lists problems before it writes the file."
+/>
+
+## Check the file
+
+In the Export dialog, choose **Check EPUB**. It runs EPUBCheck, the standard EPUB validator, on the file you just made. It is built into the app and runs on your computer, so nothing is uploaded, and its messages are in English. Turn on **Check the EPUB after every export** if you want it every time.
+
+A clean result does not promise that a store accepts the book, so preview it in your store's own tool before you publish. If a store rejects the file, see [Troubleshooting](/docs/troubleshooting/).
+
+## Before you upload
+
+- Open the EPUB in a real reader and page through the first and last chapters.
+- Check that the cover shows and the contents links work.
+- Keep the book folder: you can export again after any change.
+
+Want a print edition from the same book? See [Make a print-ready PDF](/guides/print-ready-pdf-trim-sizes/).
