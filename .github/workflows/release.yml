@@ -198,13 +198,14 @@ jobs:
         if: matrix.os == 'kinhin-xcode' && env.APPLE_NOTARY_MODE != 'none'
         run: |
           set -euo pipefail
-          shopt -s globstar nullglob
-          dmgs=(apps/desktop/src-tauri/target/**/bundle/dmg/*.dmg)
-          if [ "${#dmgs[@]}" -ne 1 ]; then
-            echo "::error::Expected one .dmg under target/**/bundle/dmg, found ${#dmgs[@]}" >&2
+          # The runner's bash is macOS's 3.2, which has neither globstar nor mapfile, so use find.
+          dmgs=$(find apps/desktop/src-tauri/target -path '*/bundle/dmg/*.dmg' -type f)
+          count=$(printf '%s\n' "$dmgs" | grep -c . || true)
+          if [ "$count" -ne 1 ]; then
+            echo "::error::Expected one .dmg under target/**/bundle/dmg, found $count" >&2
             exit 1
           fi
-          dmg="${dmgs[0]}"
+          dmg="$dmgs"
           codesign --force --sign "$APPLE_SIGNING_IDENTITY" --timestamp "$dmg"
           if [ "$APPLE_NOTARY_MODE" = api ]; then
             auth=(--key "$APPLE_API_KEY_PATH" --key-id "$APPLE_API_KEY" --issuer "$APPLE_API_ISSUER")
