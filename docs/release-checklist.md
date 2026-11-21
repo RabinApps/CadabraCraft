@@ -9,9 +9,9 @@ The version files say `0.1.0` (checked 2026-11-19 with `node scripts/set-version
 | Platform | Bundles (`bundle.targets`) | Updater artifact (signed) |
 | -------- | -------------------------- | ------------------------- |
 | macOS    | universal `.app`, `.dmg`   | `.app.tar.gz` and `.sig`  |
-| Linux    | `.AppImage`                | `.AppImage` and `.sig`    |
+| Linux    | `.AppImage` (x86_64 on Blacksmith, arm64 on `kinhin-container`) | `.AppImage` and `.sig` each |
 
-`latest.json` should list `darwin-aarch64`, `darwin-x86_64` and `linux-x86_64` (no Windows entry: Windows is coming soon), each with a URL and a signature. Confirm this in step 4; the keys were never seen.
+`latest.json` should list `darwin-aarch64`, `darwin-x86_64`, `linux-x86_64` and `linux-aarch64` (no Windows entry: Windows is coming soon), each with a URL and a signature. Confirm this in step 4; the keys were never seen.
 
 ## Secrets (repository settings, Actions)
 

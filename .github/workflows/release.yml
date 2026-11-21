@@ -32,7 +32,11 @@ jobs:
           # Windows is not part of the first release (macOS and Linux first, Windows coming soon). CI still builds and tests
           # it; to ship it, add back `- os: windows-latest` with `args: ""` and `rust-targets: ""`.
           # --verbose: Tauri hides linuxdeploy's own output, so a failed AppImage bundle says nothing without it.
-          - os: kinhin-container
+          - os: kinhin-container # arm64: the linux-aarch64 AppImage
+            args: --verbose
+            rust-targets: ""
+          # x86_64: the linux-x86_64 AppImage and updater entry (most Linux desktops). Blacksmith's oldest image keeps the glibc floor low.
+          - os: blacksmith-8vcpu-ubuntu-2404
             args: --verbose
             rust-targets: ""
     runs-on: ${{ matrix.os }}
