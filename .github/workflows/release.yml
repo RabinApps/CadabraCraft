@@ -172,6 +172,9 @@ jobs:
           # shellcheck disable=SC2086
           security list-keychains -d user -s "$kc" $previous
           bash scripts/sign-jre.sh "$APPLE_SIGNING_IDENTITY"
+      - name: Show Tauri bundler variables set on the runner
+        if: matrix.os == 'kinhin-xcode'
+        run: env | grep -i '^TAURI_BUNDLER' || echo "none set"
       - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -181,6 +184,8 @@ jobs:
           APPIMAGE_EXTRACT_AND_RUN: "1"
           # The dmg script styles the window through Finder AppleScript, which times out on a runner with no GUI session; with CI set Tauri skips it.
           CI: "true"
+          # Tauri ignores CI when this is "true"; the self-hosted macOS runner may export it, so pin it off here.
+          TAURI_BUNDLER_DMG_IGNORE_CI: "false"
         with:
           projectPath: apps/desktop
           args: ${{ matrix.args }} --config src-tauri/tauri.release.conf.json
