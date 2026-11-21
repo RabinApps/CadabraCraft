@@ -197,7 +197,8 @@ jobs:
           releaseDraft: true
           includeUpdaterJson: true
       - name: Sign, notarize and staple the dmg
-        # tauri-action notarizes the .app; the .dmg is also submitted here so that it is notarized and stapled.
+        # tauri-action notarizes the .app, and has already uploaded the unstapled .dmg to the release by now. The .dmg is submitted
+        # here so that it is notarized and stapled; the next step replaces the release asset with this file.
         if: matrix.os == 'kinhin-xcode' && env.APPLE_NOTARY_MODE != 'none'
         run: |
           set -euo pipefail
@@ -219,6 +220,25 @@ jobs:
           xcrun notarytool submit "$dmg" "${auth[@]}" --wait
           xcrun stapler staple "$dmg"
           xcrun stapler validate "$dmg"
+          echo "DMG_PATH=$PWD/$dmg" >> "$GITHUB_ENV"
+      - name: Replace the release dmg with the stapled one
+        # The release is a draft that tauri-action created and filled above, so overwriting the asset is not visible to anyone.
+        # The digest check proves the asset on the release is byte for byte the stapled file.
+        if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'kinhin-xcode' && env.APPLE_NOTARY_MODE != 'none'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          command -v gh >/dev/null || { echo "::error::The GitHub CLI (gh) is not installed on this runner" >&2; exit 1; }
+          gh release upload "$GITHUB_REF_NAME" "$DMG_PATH" --clobber
+          name=$(basename "$DMG_PATH")
+          remote=$(gh release view "$GITHUB_REF_NAME" --json assets --jq ".assets[] | select(.name == \"$name\") | .digest")
+          local_digest="sha256:$(shasum -a 256 "$DMG_PATH" | cut -d' ' -f1)"
+          if [ "$remote" != "$local_digest" ]; then
+            echo "::error::Release asset $name has digest '$remote', expected the stapled file's $local_digest" >&2
+            exit 1
+          fi
+          echo "Release asset $name is the stapled dmg ($local_digest)"
       - name: Remove Apple API key file
         if: always() && matrix.os == 'kinhin-xcode' && env.APPLE_API_KEY_PATH != ''
         run: rm -f "$APPLE_API_KEY_PATH"
