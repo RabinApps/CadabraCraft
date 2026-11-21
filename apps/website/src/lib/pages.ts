@@ -3,7 +3,7 @@ import type { Locale } from "@/i18n/config";
 import { listEntries } from "./docs/entries";
 
 /** Last substantive edit of each page (YYYY-MM-DD). Constants, not build time, so the sitemap is deterministic. */
-export const SITE_UPDATED = "2026-11-10";
+export const SITE_UPDATED = "2026-11-21";
 
 export type PageEntry = { path: string; lastModified: string };
 

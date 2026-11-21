@@ -62,9 +62,9 @@ export default async function Features({ params }: LocaleParams) {
             ))}
           </div>
           <p className="mt-10 text-sm text-ink-muted">
-            Not released yet. Follow progress on{" "}
+            Version 0.1.0 is out for macOS and Linux. See the{" "}
             <a href={RELEASES} className="text-accent hover:underline">
-              GitHub Releases
+              release notes on GitHub
             </a>
             .
           </p>

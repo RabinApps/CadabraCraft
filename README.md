@@ -28,9 +28,9 @@ CadabraCraft is for authors who want to write a whole book in one place and publ
 
 ## Install
 
-There is **no release yet**, so there is no installer to download. Today you can build the app from source (the commands are under [Quick start](#quick-start): install the prerequisites, run `scripts/fetch-typst.sh` and `scripts/fetch-sherpa.sh` once, then `pnpm install` and `pnpm tauri dev`).
+Download the installer from [GitHub Releases](https://github.com/RabinApps/CadabraCraft/releases/latest): a universal `.dmg` for macOS (Apple silicon and Intel), and an AppImage for Linux (x86-64 and arm64; make it executable, then run it). Windows is coming soon (the code runs there and CI tests it, but no Windows installer is released yet). The macOS build is signed and notarized by Apple. The app checks GitHub Releases for newer versions at launch (switchable in Settings); that is its only network request.
 
-Once releases exist, they will be published on GitHub Releases for macOS and Linux (AppImage); Windows is coming soon (the code runs there and CI tests it, but no Windows installer is released yet). The macOS builds are signed and notarized by the release workflow, so they should open without an "unidentified developer" warning; the first dry run checks this (see `docs/release-checklist.md`). The app checks GitHub Releases for newer versions at launch (switchable in Settings); that is its only network request.
+You can also build the app from source (the commands are under [Quick start](#quick-start): install the prerequisites, run `scripts/fetch-typst.sh` and `scripts/fetch-sherpa.sh` once, then `pnpm install` and `pnpm tauri dev`).
 
 ## Your book is a folder
 
