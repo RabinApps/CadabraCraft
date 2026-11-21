@@ -9,6 +9,8 @@ export type Installer = {
   href?: string;
   /** Label of the download button, e.g. "Download .dmg". */
   action?: string;
+  /** Further downloads of the same platform (other CPU architectures), shown as secondary buttons. */
+  alternates?: readonly { href: string; action: string }[];
 };
 
 /** The app version, read from the desktop app's Tauri config so the page and the release cannot disagree. */
@@ -39,9 +41,12 @@ export function installers(version: string): readonly Installer[] {
     { name: "Windows", detail: "Installer (.exe), WebView2 included" },
     {
       name: "Linux",
-      detail: "AppImage for x86-64. Make it executable, then run it",
+      detail: "AppImage for x86-64 and arm64. Make it executable, then run it",
       href: assetUrl(version, `CadabraCraft_${version}_amd64.AppImage`),
-      action: "Download for Linux",
+      action: "Download for Linux (x86-64)",
+      alternates: [
+        { href: assetUrl(version, `CadabraCraft_${version}_aarch64.AppImage`), action: "Download for Linux (arm64)" },
+      ],
     },
   ];
 }

@@ -3,6 +3,9 @@
 import { useEffect, useRef } from "react";
 
 const SUPPORT_ORIGIN = "https://support.cadabracraft.com";
+// The form's own height report is the frame's current height, not its content's, so the frame never grows by itself.
+// 700 px holds the whole form, with the Send button, at desktop and phone widths (checked on the live page).
+const FRAME_HEIGHT = 700;
 
 /**
  * The contact form from the support desk (SupDesk), embedded with its own script. The script puts the form's frame
@@ -19,7 +22,7 @@ export function ContactForm() {
     script.async = true;
     script.dataset.supdesk = "contact";
     script.dataset.title = "Contact CadabraCraft";
-    script.dataset.height = "520";
+    script.dataset.height = String(FRAME_HEIGHT);
     el.appendChild(script);
     return () => {
       el.replaceChildren();
@@ -32,7 +35,7 @@ export function ContactForm() {
           src={`${SUPPORT_ORIGIN}/embed/contact`}
           title="Contact CadabraCraft"
           width="100%"
-          height="520"
+          height={FRAME_HEIGHT}
           style={{ border: 0 }}
         />
       </noscript>

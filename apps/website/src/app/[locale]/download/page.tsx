@@ -56,9 +56,16 @@ export default async function Download({ params }: LocaleParams) {
               <h3 className="text-lg font-semibold">{p.name}</h3>
               <p className="text-ink-muted">{p.detail}</p>
               {p.href ? (
-                <a href={p.href} className={`${btnPrimary} mt-auto`}>
-                  {p.action}
-                </a>
+                <div className="mt-auto flex flex-col gap-2">
+                  <a href={p.href} className={btnPrimary}>
+                    {p.action}
+                  </a>
+                  {p.alternates?.map((a) => (
+                    <a key={a.href} href={a.href} className={btnSecondary}>
+                      {a.action}
+                    </a>
+                  ))}
+                </div>
               ) : (
                 <p className="mt-auto w-fit rounded-full bg-sidebar px-2.5 py-1 text-xs font-semibold text-warn">
                   Coming soon

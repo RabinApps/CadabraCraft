@@ -10,6 +10,9 @@ describe("release links", () => {
     const [mac, win, linux] = installers("0.1.0");
     expect(mac?.href).toMatch(/\/v0\.1\.0\/CadabraCraft_0\.1\.0_universal\.dmg$/);
     expect(linux?.href).toMatch(/\/v0\.1\.0\/CadabraCraft_0\.1\.0_amd64\.AppImage$/);
+    expect(linux?.alternates?.map((a) => a.href)).toEqual([
+      expect.stringMatching(/\/v0\.1\.0\/CadabraCraft_0\.1\.0_aarch64\.AppImage$/),
+    ]);
     expect(win?.name).toBe("Windows");
     expect(win?.href).toBeUndefined();
   });
