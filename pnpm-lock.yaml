@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  hono: ^4.13.19
+  '@hono/node-server@>=2.0.0': ^2.1.11
+
 pnpmfileChecksum: sha256-CqCVc3W4bUn0Z3ue8zDk4z5ETM0+eeDBiNsl2RdW0gw=
 
 importers:
@@ -1009,13 +1013,13 @@ packages:
     resolution: {integrity: sha512-Fy9R7PACOzHU9LDpfnuzVyuVYevKQRcEG2mZhmfc+DRdmayEd3RVfa2XOt2IgGcPNgA77Yk63KBszepcMFK5Ng==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: ^4
+      hono: ^4.13.19
 
-  '@hono/node-server@2.1.5':
-    resolution: {integrity: sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==}
+  '@hono/node-server@2.1.11':
+    resolution: {integrity: sha512-KzKz9vl4vvr1vgLHamj+g5uonbrj5NwAdO3yzOS6cd2HjALVeOgTgeZOyAzNxejbkfOOPIcvuf/Tg8l1pEFLog==}
     engines: {node: '>=20'}
     peerDependencies:
-      hono: ^4 || ^5.0.0-0
+      hono: ^4.13.19
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -3967,8 +3971,8 @@ packages:
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
 
-  hono@4.13.14:
-    resolution: {integrity: sha512-yhRLQ21U6qa9Hsu2N7Qcbh8tE+WKEcoErjIo56LeSGiGXGp9sA7UpE86Ui9uexb61KakiGwuHMn2QdV7w6i6kQ==}
+  hono@4.13.19:
+    resolution: {integrity: sha512-KmXvQAXwcAHV+muzbIwoJ23niEB5nMoDVr9WcRkU8mvjUECm/1+7v4Jgp7P7a+H6MLFrh+vXrGonGrGS+RQfkA==}
     engines: {node: '>=16.9.0'}
 
   hookified@1.15.1:
@@ -6252,13 +6256,13 @@ snapshots:
       dom-accessibility-api: 0.7.1
       html-aria: 0.5.3
 
-  '@hono/node-server@1.19.19(hono@4.13.14)':
+  '@hono/node-server@1.19.19(hono@4.13.19)':
     dependencies:
-      hono: 4.13.14
+      hono: 4.13.19
 
-  '@hono/node-server@2.1.5(hono@4.13.14)':
+  '@hono/node-server@2.1.11(hono@4.13.19)':
     dependencies:
-      hono: 4.13.14
+      hono: 4.13.19
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -6658,7 +6662,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.32.2(zod@4.6.7)':
     dependencies:
-      '@hono/node-server': 2.1.5(hono@4.13.14)
+      '@hono/node-server': 2.1.11(hono@4.13.19)
       ajv: 8.20.0
       ajv-formats: 3.0.1(ajv@8.20.0)
       content-type: 1.0.5
@@ -6668,7 +6672,7 @@ snapshots:
       eventsource-parser: 3.1.1
       express: 5.3.0
       express-rate-limit: 8.7.1(express@5.3.0)
-      hono: 4.13.14
+      hono: 4.13.19
       jose: 6.2.13
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -6909,13 +6913,13 @@ snapshots:
 
   '@open-pencil/mcp@0.16.0(@typescript-eslint/types@8.72.2)(typescript@7.0.2)':
     dependencies:
-      '@hono/node-server': 1.19.19(hono@4.13.14)
+      '@hono/node-server': 1.19.19(hono@4.13.19)
       '@modelcontextprotocol/server': 2.4.0
       '@open-pencil/core': 0.16.0(@typescript-eslint/types@8.72.2)(typescript@7.0.2)
       '@open-pencil/scene-graph': 0.16.0(typescript@7.0.2)
       '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@7.0.2))
       es-toolkit: 1.53.2
-      hono: 4.13.14
+      hono: 4.13.19
       js-base64: 3.9.6
       package-manager-detector: 1.9.0
       valibot: 1.5.0(typescript@7.0.2)
@@ -9224,7 +9228,7 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.5
 
-  hono@4.13.14: {}
+  hono@4.13.19: {}
 
   hookified@1.15.1: {}
 

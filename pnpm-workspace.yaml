@@ -1,6 +1,13 @@
 packages:
   - "apps/*"
   - "packages/*"
+overrides:
+  # Patched versions for the hono and @hono/node-server advisories reported by
+  # `pnpm licenses:npm-advisories`. The MCP SDK's own ranges (hono ^4.11.4,
+  # @hono/node-server ^1.19.9 || ^2.0.5) allow them; the lockfile kept the older
+  # resolution. The range key leaves the 1.x install (@open-pencil/mcp) alone.
+  hono: ^4.13.19
+  "@hono/node-server@>=2.0.0": ^2.1.11
 allowBuilds:
   core-js: false
   es5-ext: false
