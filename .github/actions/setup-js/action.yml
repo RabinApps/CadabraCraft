@@ -11,7 +11,11 @@ runs:
     - uses: ./.github/actions/apt
       with: { packages: libatomic1 binutils unzip xz-utils }
     - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      with: { dest: "~/setup-pnpm-${{ runner.name }}" } # one folder per runner: jobs sharing ~/setup-pnpm overwrite each other
+      # One folder per job: jobs sharing ~/setup-pnpm overwrite each other, and a GitHub-hosted runner's name ("GitHub Actions
+      # 12345") has a space, which the action's self-installer passes to node unquoted; `runner.name` would give node a path
+      # that stops at the space. The run id and job id have neither a space nor a collision.
+      with:
+        { dest: "~/setup-pnpm-${{ github.run_id }}-${{ github.job }}-${{ strategy.job-index }}" }
     # cache: pnpm keeps the store in the runner's cache: on a Blacksmith runner that is its colocated cache, on any other
     # runner GitHub's. See docs/architecture.md, "Linux CI on Blacksmith runners".
     - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0

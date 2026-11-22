@@ -53,7 +53,10 @@ pin_for() {
 }
 
 jlink_runtime() { # jlink_runtime <jdk home> <cpu>
-  local jdk=$1 cpu=$2 dest="$OUT/jre/$2" jlink="$jdk/bin/jlink$EXE"
+  local jdk=$1 cpu=$2
+  # Its own line: `local ... jlink="$jdk/bin/jlink"` reads $jdk before this statement's own assignment is visible, which
+  # `set -u` turns into "jdk: unbound variable" (seen in CI).
+  local dest="$OUT/jre/$cpu" jlink="$jdk/bin/jlink$EXE"
   [ -f "$jlink" ] && [ -d "$jdk/jmods" ] || { echo "$jdk is not a JDK with jmods (needed by jlink)" >&2; return 1; }
   rm -rf "$dest.partial"
   mkdir -p "$OUT/jre" "$OUT/licenses"
