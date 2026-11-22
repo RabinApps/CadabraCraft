@@ -349,14 +349,24 @@ fn a_book_snapshot_naming_paths_outside_the_pages_is_refused_before_anything_is_
 
 // ---- 3. names ---------------------------------------------------------------------------------------------------
 
+/// The longest page name that still saves here. A name component may be 255 bytes on both platforms, but Windows also caps
+/// the whole path at 260 characters unless long paths are enabled, and the temporary project folder already uses part of
+/// that, so the two tests below use a name that fits there instead of one that cannot exist.
+fn longest_page_name() -> String {
+    let len = if cfg!(windows) { 150 } else { 255 };
+    format!("manuscript/{}.json", "a".repeat(len - ".json".len()))
+}
+
 #[test]
-fn a_255_byte_name_saves_and_a_name_over_the_limit_is_a_typed_error() {
+fn a_name_at_the_limit_saves_and_a_name_over_the_limit_is_a_typed_error() {
     let d = book();
-    let ok = format!("manuscript/{}.json", "a".repeat(250));
-    assert_eq!(ok.len() - "manuscript/".len(), 255);
+    let ok = longest_page_name();
+    assert_eq!(ok.len() - "manuscript/".len(), if cfg!(windows) { 150 } else { 255 });
     write_file(d.path(), &ok, "long", None).unwrap();
     assert_eq!(read_file(d.path(), &ok).unwrap().unwrap().contents, "long");
-    for len in [256usize, 300, 5000] {
+    // 256 is the exact limit of one component, so it is the interesting case everywhere the whole path allows it.
+    let over = if cfg!(windows) { vec![300usize, 5000] } else { vec![256, 300, 5000] };
+    for len in over {
         let too_long = format!("manuscript/{}.json", "b".repeat(len));
         let e = write_file(d.path(), &too_long, "x", None).unwrap_err();
         assert!(matches!(e, ProjectError::Io { .. } | ProjectError::NotFound { .. } | ProjectError::NotAFile { .. }), "{len}: {e:?}");
@@ -370,7 +380,7 @@ fn a_255_byte_name_saves_and_a_name_over_the_limit_is_a_typed_error() {
 fn a_page_whose_trash_name_would_be_too_long_stays_where_it_is() {
     // The trash name is `<stamp>-<folder>__<name>`, so a page that fits can be too long to move: it must stay, with a typed error.
     let d = book();
-    let rel = format!("manuscript/{}.json", "a".repeat(250));
+    let rel = longest_page_name();
     write_file(d.path(), &rel, "keep", None).unwrap();
     let r = trash_file(d.path(), &rel);
     assert!(matches!(r, Err(ProjectError::Io { .. }) | Err(ProjectError::NotFound { .. }) | Err(ProjectError::NotAFile { .. })) || r.is_ok(), "{r:?}");

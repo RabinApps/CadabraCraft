@@ -56,7 +56,8 @@ fn every_supported_type_is_imported_with_a_sanitized_name() {
         ("data.xlsx", vec![0, 1, 2, 255], ReferenceKind::Other, "references/data.xlsx"),
         ("README", b"plain text notes".to_vec(), ReferenceKind::Other, "references/README"),
         ("scan", PNG.to_vec(), ReferenceKind::Other, "references/scan"),
-        ("???.pdf", b"%PDF-1".to_vec(), ReferenceKind::Pdf, "references/file.pdf"),
+        // `!!!`: legal to create on every platform, and nothing survives sanitising; `?` is not a legal Windows file name.
+        ("!!!.pdf", b"%PDF-1".to_vec(), ReferenceKind::Pdf, "references/file.pdf"),
     ];
     for (name, bytes, kind, rel) in cases {
         let got = import_reference(proj.path(), &src(&out, name, &bytes)).unwrap();
@@ -137,7 +138,9 @@ fn refuses_blocked_types_bad_names_fake_content_and_non_files() {
         assert!(!BLOCKED.contains(&ext), "{ext} is ordinary research material");
     }
     // No extension: only a recognizable file is kept, never a program or unknown bytes.
-    let programs: [(&str, &[u8]); 7] = [
+    // `nul` is a reserved device name on Windows: such a file cannot exist there (the write lands in the device), so the
+    // case is only meaningful where the name is an ordinary one.
+    let programs: &[(&str, &[u8])] = &[
         ("tool", &[0x7f, b'E', b'L', b'F', 2, 1][..]),
         ("tool2", &[0xcf, 0xfa, 0xed, 0xfe, 7][..]),
         ("tool3", b"MZ\x90\0"),
@@ -146,7 +149,7 @@ fn refuses_blocked_types_bad_names_fake_content_and_non_files() {
         ("nul", b"a\0b"),
         ("latin", &[0x80, 0x81][..]),
     ];
-    for (name, bytes) in programs {
+    for &(name, bytes) in programs.iter().filter(|(name, _)| !(cfg!(windows) && *name == "nul")) {
         assert!(matches!(err(name, bytes), ProjectError::UnsupportedReference { .. }), "{name}");
     }
     assert!(matches!(err("weird.ex e", b"x"), ProjectError::UnsupportedReference { .. }));

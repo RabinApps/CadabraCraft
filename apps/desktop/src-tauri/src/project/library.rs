@@ -197,7 +197,9 @@ mod tests {
         book(&d.path().join("node_modules/book"), FULL);
         let roots: Vec<String> = scan_library(d.path()).unwrap().books.into_iter().map(|b| b.root).collect();
         assert_eq!(roots.len(), 2, "{roots:?}");
-        assert!(roots[0].ends_with("Series/One") && roots[1].ends_with("a/b/c"), "sorted by path: {roots:?}");
+        // Compared as paths: the separator differs on Windows, so a literal `Series/One` never matches there.
+        let (series, nested) = (Path::new("Series").join("One"), Path::new("a").join("b").join("c"));
+        assert!(Path::new(&roots[0]).ends_with(&series) && Path::new(&roots[1]).ends_with(&nested), "sorted by path: {roots:?}");
     }
 
     #[test]

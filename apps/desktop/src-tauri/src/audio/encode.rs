@@ -301,6 +301,21 @@ mod tests {
         ok.then_some("ffmpeg")
     }
 
+    /// What the decode tests need beyond `ffmpeg` existing: a raw PCM muxer to write the decode to, and the container
+    /// demuxers to read it back from. The ffmpeg on the Windows CI image is a build without the `s16le` muxer (the app's own
+    /// minimal build has only the `ipod` muxer), so the tests ask rather than assume, and skip when it cannot do the job.
+    fn ffmpeg_decodes_to_raw() -> Option<&'static str> {
+        let found = ffmpeg()?;
+        let list = |flag: &str| {
+            Command::new("ffmpeg").args(["-hide_banner", flag]).output().map_or_else(|_| String::new(), |o| String::from_utf8_lossy(&o.stdout).into_owned())
+        };
+        let ok = list("-muxers").contains("s16le") && list("-demuxers").contains("ogg") && list("-demuxers").contains("flac");
+        if !ok {
+            eprintln!("skipping: this ffmpeg cannot write or read raw PCM for these containers");
+        }
+        ok.then_some(found)
+    }
+
     #[test]
     fn a_missing_ffmpeg_skips_the_decode_tests_unless_it_is_required() {
         assert_eq!(ffmpeg_if(false, false), None);
@@ -334,7 +349,7 @@ mod tests {
 
     #[test]
     fn ffmpeg_decodes_flac_bit_exactly() {
-        let Some(_) = ffmpeg() else { return };
+        let Some(_) = ffmpeg_decodes_to_raw() else { return };
         let src: Vec<i16> = sine(24_000, 1.0, 200.0).iter().zip(sine(24_000, 1.0, 3100.0)).map(|(a, b)| a / 2 + b / 3).collect();
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("a.flac");
@@ -348,7 +363,7 @@ mod tests {
 
     #[test]
     fn ffmpeg_decodes_opus_close_to_the_source_with_the_right_length() {
-        let Some(_) = ffmpeg() else { return };
+        let Some(_) = ffmpeg_decodes_to_raw() else { return };
         for rate in [24_000u32, 22_050, 16_000] {
             let src: Vec<i16> = sine(rate, 2.0, 220.0).iter().zip(sine(rate, 2.0, 1700.0)).map(|(a, b)| a / 2 + b / 3).collect();
             let dir = tempfile::tempdir().unwrap();

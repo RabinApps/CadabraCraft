@@ -369,8 +369,14 @@ jobs:
         run: xvfb-run --auto-servernum pnpm test:e2e:webdriver
         env: { CI: "1" }
   # The same native suite on Windows, where tauri-driver reaches WebView2 through msedgedriver instead of WebKitWebDriver.
-  # Like the Linux job it is not a required check yet (continue-on-error): the suite has not run against a real driver, so
-  # the first runs may need selector or timing fixes. A release run skips it (`skip-e2e`).
+  # Not a required check (continue-on-error), and on a GitHub-hosted runner it cannot pass as things stand: WebView2 Runtime
+  # 150 and later ignore `--remote-debugging-port` (which msedgedriver passes through WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS) in
+  # an elevated process, and these runners run as administrator, so the CDP port never opens and every session dies with
+  # "DevToolsActivePort file doesn't exist" (tauri-apps/wry#1782; wry declined a change, and wry's own
+  # set_additional_browser_arguments wins over the variable anyway, tauri-apps/wry#1805). Verified against the 2026-11-22 run:
+  # the runtime and msedgedriver versions matched exactly. Unblocking it needs the app started de-elevated (gsudo) or a pinned
+  # WebView2 149 runtime (docs/testing.md, "WebDriver e2e"). Until then the job reports the failure and `ci-ok` ignores it.
+  # A release run skips it (`skip-e2e`).
   webdriver-windows:
     needs: changes
     if: needs.changes.outputs.webdriver == 'true' && !inputs.skip-e2e
