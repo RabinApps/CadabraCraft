@@ -320,8 +320,10 @@ jobs:
       - run: cargo install --locked cargo-about@0.9.3 --features cli
       - run: pnpm licenses:check
       # Known advisories in the JavaScript the app ships (`--prod`: the tree npm-licenses.mjs checks; `cargo deny check
-      # advisories` above covers Rust). High and critical fail the job; low and moderate are printed and do not, or the
-      # gate would fail on advisories nobody can fix and be worked around. Run it by hand with `pnpm licenses:npm-advisories`.
+      # advisories` above covers Rust). Moderate and above fail the job; low is printed and does not, because an
+      # unfixable low is not worth an override or an ignore and gating on it would only be worked around. Moderate now
+      # fails because `high` had stayed silent on six moderates pnpm was reporting, and pinning them showed they were
+      # fixable; the shipped tree is clean at moderate and above. Run it by hand with `pnpm licenses:npm-advisories`.
       - run: pnpm licenses:npm-advisories
       # The perf probe and the fuzz crate have their own lockfiles that `cargo deny check` above does not see.
       - run: pnpm licenses:tools-advisories
