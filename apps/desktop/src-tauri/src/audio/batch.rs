@@ -124,6 +124,8 @@ mod tests {
         assert!(a.contains(&"--kokoro-length-scale=0.8000".to_string()) && a.contains(&"--sid=3".to_string()));
         assert_eq!(a.last().unwrap(), "Hello; rm -rf /");
         let p = engine_args(VOICES.iter().find(|v| v.id == "piper-amy").unwrap(), Path::new("/v"), 1.0, 1, Path::new("/o.wav"), "x");
-        assert!(p.iter().all(|s| !s.starts_with("--sid")) && p.contains(&"--vits-lexicon=/v/lexicon-en-us.txt".to_string()));
+        // Built with `join`, not spelled out: the separator is `\` on Windows, and the argument carries whatever it produced.
+        let lexicon = format!("--vits-lexicon={}", Path::new("/v").join("lexicon-en-us.txt").display());
+        assert!(p.iter().all(|s| !s.starts_with("--sid")) && p.contains(&lexicon), "{p:?}");
     }
 }

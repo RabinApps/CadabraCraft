@@ -18,16 +18,20 @@ pub(super) fn book() -> tempfile::TempDir {
     d
 }
 
-/// Every `.<random>.tmp` file left anywhere under `dir` (links are not followed).
+/// Every `.<random>.tmp` file left anywhere under `dir` (links are not followed). Walks with its own stack: the deep-path
+/// test leaves a tree a thousand folders deep, and recursing here overflowed a Windows test thread's stack.
 pub(super) fn temp_files(dir: &Path) -> Vec<PathBuf> {
     let mut out = vec![];
-    for item in fs::read_dir(dir).unwrap().flatten() {
-        let path = item.path();
-        let t = item.file_type().unwrap();
-        if t.is_dir() {
-            out.extend(temp_files(&path));
-        } else if item.file_name().to_string_lossy().starts_with('.') && item.file_name().to_string_lossy().ends_with(".tmp") {
-            out.push(path);
+    let mut folders = vec![dir.to_path_buf()];
+    while let Some(folder) = folders.pop() {
+        for item in fs::read_dir(&folder).unwrap().flatten() {
+            let path = item.path();
+            let t = item.file_type().unwrap();
+            if t.is_dir() {
+                folders.push(path);
+            } else if item.file_name().to_string_lossy().starts_with('.') && item.file_name().to_string_lossy().ends_with(".tmp") {
+                out.push(path);
+            }
         }
     }
     out
