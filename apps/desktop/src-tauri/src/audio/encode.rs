@@ -171,6 +171,7 @@ pub fn encode_opus(rate: u32, samples: &[i16], language: Option<&str>) -> Result
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
     use std::process::Command;
 
     fn sine(rate: u32, secs: f64, hz: f64) -> Vec<i16> {
@@ -302,18 +303,37 @@ mod tests {
     }
 
     /// What the decode tests need beyond `ffmpeg` existing: a raw PCM muxer to write the decode to, and the container
-    /// demuxers to read it back from. The ffmpeg on the Windows CI image is a build without the `s16le` muxer (the app's own
-    /// minimal build has only the `ipod` muxer), so the tests ask rather than assume, and skip when it cannot do the job.
-    fn ffmpeg_decodes_to_raw() -> Option<&'static str> {
+    /// demuxers to read it back from. A bare `ffmpeg` does not necessarily name a full build: `tauri-build` copies
+    /// `binaries/ffmpeg-<cpu>` into the target folder with the CPU suffix removed, and on Windows the test program's search
+    /// path holds that folder, so the app's own minimal M4B encoder (only the `ipod` muxer, no ogg demuxer) answers it. The
+    /// tests ask rather than assume, skip when the program cannot do the job, and decode with exactly the program they asked.
+    fn ffmpeg_decodes_to_raw() -> Option<PathBuf> {
         let found = ffmpeg()?;
         let list = |flag: &str| {
-            Command::new("ffmpeg").args(["-hide_banner", flag]).output().map_or_else(|_| String::new(), |o| String::from_utf8_lossy(&o.stdout).into_owned())
+            Command::new(found).args(["-hide_banner", flag]).output().map_or_else(|_| String::new(), |o| String::from_utf8_lossy(&o.stdout).into_owned())
         };
-        let ok = list("-muxers").contains("s16le") && list("-demuxers").contains("ogg") && list("-demuxers").contains("flac");
-        if !ok {
-            eprintln!("skipping: this ffmpeg cannot write or read raw PCM for these containers");
+        if !can_decode_to_raw(&list("-muxers"), &list("-demuxers")) {
+            eprintln!("skipping: the ffmpeg found cannot write raw PCM or read these containers back");
+            return None;
         }
-        ok.then_some(found)
+        Some(PathBuf::from(found))
+    }
+
+    /// The listings `ffmpeg -muxers` and `-demuxers` print, as the minimal bundled build and a full one emit them.
+    fn can_decode_to_raw(muxers: &str, demuxers: &str) -> bool {
+        muxers.contains("s16le") && demuxers.contains("ogg") && demuxers.contains("flac")
+    }
+
+    #[test]
+    fn the_capability_check_needs_the_raw_muxer_and_each_demuxer() {
+        // The app's own build (scripts/fetch-ffmpeg.sh) lists what it was configured with, not a full ffmpeg's formats.
+        let minimal = (" E  ipod     iPod H.264 MP4 (MPEG-4 Part 14)\n E  mov      QuickTime / MOV", " D  concat\n D  flac\n D  mov\n D  wav");
+        let full = ("D  s16le   PCM signed 16-bit little-endian", " D  ogg\n D  flac");
+        assert!(!can_decode_to_raw(minimal.0, minimal.1));
+        assert!(can_decode_to_raw(full.0, full.1));
+        assert!(!can_decode_to_raw(full.0, " D  ogg")); // no flac reader
+        assert!(!can_decode_to_raw(full.0, " D  flac")); // no ogg reader
+        assert!(!can_decode_to_raw(" E  ipod", full.1)); // no raw writer
     }
 
     #[test]
@@ -323,13 +343,13 @@ mod tests {
         assert!(std::panic::catch_unwind(|| ffmpeg_if(false, true)).is_err());
     }
 
-    /// Decodes with ffmpeg to 16-bit mono PCM at `rate`, and also returns what `ffprobe` says about the container. The
-    /// container description is empty when `ffprobe` is not installed (the Windows CI image has `ffmpeg` but not
-    /// `ffprobe`), and the callers then skip those assertions rather than fail on a tool the test does not need to prove
-    /// the decode itself.
-    fn decode(path: &std::path::Path, rate: u32) -> (Vec<i16>, String) {
+    /// Decodes with `program` (exactly the ffmpeg the capability check accepted) to 16-bit mono PCM at `rate`, and also
+    /// returns what `ffprobe` says about the container. The container description is empty when `ffprobe` is not installed —
+    /// the app's own ffmpeg build has none (`--disable-ffprobe`) — and the callers then skip those assertions rather than
+    /// fail on a tool the test does not need to prove the decode itself.
+    fn decode(program: &std::path::Path, path: &std::path::Path, rate: u32) -> (Vec<i16>, String) {
         let out = path.with_extension("raw");
-        let r = Command::new("ffmpeg")
+        let r = Command::new(program)
             .args(["-v", "error", "-y", "-i"])
             .arg(path)
             .args(["-f", "s16le", "-ac", "1", "-ar", &rate.to_string()])
@@ -349,12 +369,12 @@ mod tests {
 
     #[test]
     fn ffmpeg_decodes_flac_bit_exactly() {
-        let Some(_) = ffmpeg_decodes_to_raw() else { return };
+        let Some(program) = ffmpeg_decodes_to_raw() else { return };
         let src: Vec<i16> = sine(24_000, 1.0, 200.0).iter().zip(sine(24_000, 1.0, 3100.0)).map(|(a, b)| a / 2 + b / 3).collect();
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("a.flac");
         std::fs::write(&path, encode_flac(24_000, &src).unwrap()).unwrap();
-        let (pcm, probe) = decode(&path, 24_000);
+        let (pcm, probe) = decode(&program, &path, 24_000);
         assert_eq!(pcm, src);
         if !probe.is_empty() {
             assert!(probe.contains("codec_name=flac") && probe.contains("sample_rate=24000") && probe.contains("channels=1"), "{probe}");
@@ -363,13 +383,13 @@ mod tests {
 
     #[test]
     fn ffmpeg_decodes_opus_close_to_the_source_with_the_right_length() {
-        let Some(_) = ffmpeg_decodes_to_raw() else { return };
+        let Some(program) = ffmpeg_decodes_to_raw() else { return };
         for rate in [24_000u32, 22_050, 16_000] {
             let src: Vec<i16> = sine(rate, 2.0, 220.0).iter().zip(sine(rate, 2.0, 1700.0)).map(|(a, b)| a / 2 + b / 3).collect();
             let dir = tempfile::tempdir().unwrap();
             let path = dir.path().join("a.opus");
             std::fs::write(&path, encode_opus(rate, &src, None).unwrap()).unwrap();
-            let (pcm, probe) = decode(&path, rate);
+            let (pcm, probe) = decode(&program, &path, rate);
             if !probe.is_empty() {
                 assert!(probe.contains("codec_name=opus") && probe.contains("channels=1"), "{probe}");
             }

@@ -10,9 +10,8 @@ runs:
       run: echo "REQUIRE_SOFFICE=1" >> "$GITHUB_ENV"
     - shell: bash
       run: bash scripts/fetch-epubcheck.sh
-    # The EPUB checker and trimmed Java runtime that ship in the app: stage them, build the runtime with jlink and run EPUBCheck with it on the sample EPUB.
-    - if: runner.os != 'Windows'
-      shell: bash
+    # The EPUB checker and trimmed Java runtime that ship in the app: stage them, build the runtime with jlink and run EPUBCheck with it on the sample EPUB. All three runners do it, so the Windows runtime the release ships is built and proved on every run; there it links from the JDK setup-js installs, as in the Linux and macOS jobs.
+    - shell: bash
       run: |
         pnpm --filter @cadabracraft/export-epub build:sample
         bash scripts/stage-epubcheck.sh

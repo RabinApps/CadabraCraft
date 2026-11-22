@@ -76,10 +76,15 @@ jlink_runtime() { # jlink_runtime <jdk home> <cpu>
 host_cpu() { case "$(uname -m)" in arm64|aarch64) echo aarch64 ;; x86_64|amd64) echo x86_64 ;; *) echo "unsupported CPU $(uname -m)" >&2; return 1 ;; esac; }
 
 local_jdk() {
-  if [ -n "${JDK_HOME:-}" ]; then echo "$JDK_HOME"
-  elif command -v /usr/libexec/java_home >/dev/null 2>&1 && /usr/libexec/java_home -v 17 >/dev/null 2>&1; then /usr/libexec/java_home -v 17
-  elif [ -n "${JAVA_HOME:-}" ]; then echo "$JAVA_HOME"
+  local jdk
+  if [ -n "${JDK_HOME:-}" ]; then jdk="$JDK_HOME"
+  elif command -v /usr/libexec/java_home >/dev/null 2>&1 && /usr/libexec/java_home -v 17 >/dev/null 2>&1; then jdk=$(/usr/libexec/java_home -v 17)
+  elif [ -n "${JAVA_HOME:-}" ]; then jdk="$JAVA_HOME"
   else echo "Set JDK_HOME to a Temurin 17 JDK (with jmods), or use --all" >&2; return 1; fi
+  # setup-java on Windows sets JAVA_HOME to a native path (C:\\hostedtoolcache\\...\\x64), which Git Bash cannot stat with the
+  # backslashes in it and jlink cannot use in --module-path. cygpath turns it into /c/hostedtoolcache/..., and MSYS converts
+  # that back to a native path for the jlink child process.
+  if [ "$HOST_OS" = windows ] && command -v cygpath >/dev/null 2>&1; then cygpath -u "$jdk"; else echo "$jdk"; fi
 }
 
 fetch_jdk() { # fetch_jdk <cpu> <os: mac|windows> -> prints the extracted JDK home
