@@ -252,7 +252,7 @@ Settings, Accessibility, Contrast themes. Do the table once for each of **Aquati
 
 Setup:
 
-1. A current GNOME session. Run on Wayland and on X11 if both are available. Note the distribution, Orca and WebKitGTK versions. Use the AppImage from a release dry run (the bundle targets are app, dmg, nsis and appimage; there is no `.deb`). AT-SPI must be on (`gsettings get org.gnome.desktop.interface toolkit-accessibility` prints `true`); if WebKitGTK exposes nothing to Orca, record that and stop.
+1. A current GNOME session. Run on Wayland and on X11 if both are available. Note the distribution, Orca and WebKitGTK versions. Use the AppImage from a release dry run (the bundle targets are app, dmg and appimage, plus nsis on Windows; there is no `.deb`). AT-SPI must be on (`gsettings get org.gnome.desktop.interface toolkit-accessibility` prints `true`); if WebKitGTK exposes nothing to Orca, record that and stop.
 2. The Orca key is Insert or CapsLock. Useful: Orca+Space preferences, Orca+Z toggles speech, D and Shift+D next and previous landmark in browse mode, Orca+A toggles focus and browse mode where the toolkit allows.
 3. Run A to M. Orca specifics:
    - A dialog's title and first control are both spoken; record when only the control is.

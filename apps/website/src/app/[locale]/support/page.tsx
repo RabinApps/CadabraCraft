@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: LocaleParams) {
 
 const funds = [
   "Development time on the editor, exporters and templates",
-  "Code-signing and release builds for macOS and Linux, then Windows",
+  "Code-signing and release builds for macOS, Windows and Linux",
   "Keeping the file format documented and stable",
 ];
 

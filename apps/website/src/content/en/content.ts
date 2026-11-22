@@ -241,7 +241,7 @@ export const faq = [
   },
   {
     q: "Which platforms does it support?",
-    a: "It is a desktop app built with Tauri, with macOS and Linux downloads on GitHub Releases and Windows coming soon.",
+    a: "It is a desktop app built with Tauri, with installers for macOS, Windows and Linux on GitHub Releases.",
   },
 ] as const;
 

@@ -1,0 +1,7 @@
+{
+  "bundle": {
+    "windows": {
+      "signCommand": { "cmd": "cmd", "args": ["/c", "%CADABRA_SIGN_CMD%", "%1"] }
+    }
+  }
+}

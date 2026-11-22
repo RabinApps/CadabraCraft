@@ -14,7 +14,7 @@ export const changelog: readonly ChangelogEntry[] = [
     changes: [
       {
         kind: "New",
-        text: "Downloads for macOS (universal, signed and notarized) and Linux (x86-64 and arm64 AppImage). Windows is coming soon.",
+        text: "Downloads for macOS (universal, signed and notarized), Windows (64-bit installer, signed) and Linux (x86-64 and arm64 AppImage).",
       },
       {
         kind: "New",

@@ -2,7 +2,7 @@
 
 Part of the [docs index](README.md). A longer version of the "Linux: Orca with WebKitGTK" section in [platform-checks.md](platform-checks.md), written so one person can run it start to finish. **Nothing here has been run.** The machine that prepared it is a Mac, and the research for it found no reports of Orca reading a Tauri window on WebKitGTK, good or bad: whether the web content shows up in the AT-SPI tree and how it is spoken is unknown. Every command and every "try" below comes from general knowledge of GNOME and AT-SPI, not from a run against this app; if one fails, write down what happened and do not assume the app is at fault.
 
-The release bundle targets in `tauri.conf.json` are `app`, `dmg`, `nsis` and `appimage`, so on Linux the artifact to test is the **AppImage** from a release dry run ([release-checklist.md](release-checklist.md)). A dev build (`pnpm tauri:automate`) is a fallback, and a differing result between the two is worth a note.
+The release bundle targets are `app`, `dmg` and `appimage` in `tauri.conf.json`, with `nsis` added for Windows by `tauri.windows.conf.json`, so on Linux the artifact to test is the **AppImage** from a release dry run ([release-checklist.md](release-checklist.md)). A dev build (`pnpm tauri:automate`) is a fallback, and a differing result between the two is worth a note.
 
 Ids start with `L` so they do not clash with the checklist ids A to M, W and KB in platform-checks.md.
 

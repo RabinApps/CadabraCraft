@@ -51,7 +51,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["app", "dmg", "nsis", "appimage"],
+    "targets": ["app", "dmg", "appimage"],
     "icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"],
     "externalBin": ["binaries/typst", "binaries/sherpa-onnx-offline-tts", "binaries/ffmpeg"],
     "resources": { "binaries/fonts/*": "fonts/", "binaries/epubcheck": "epubcheck", "binaries/jre": "jre", "binaries/licenses/*": "licenses/", "licenses/*": "licenses/", "../../../LICENSE": "licenses/LICENSE.txt", "../../../NOTICE": "licenses/NOTICE.txt", "../../../LICENSE-CLARIFICATIONS.md": "licenses/LICENSE-CLARIFICATIONS.md" },
@@ -59,7 +59,10 @@
       "signingIdentity": null,
       "hardenedRuntime": true
     },
-    "windows": { "webviewInstallMode": { "type": "embedBootstrapper" } }
+    "windows": {
+      "webviewInstallMode": { "type": "embedBootstrapper" },
+      "nsis": { "languages": ["English", "Spanish", "Italian", "French", "German", "Hebrew", "Arabic"] }
+    }
   },
   "plugins": {
     "updater": {

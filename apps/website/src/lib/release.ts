@@ -27,8 +27,7 @@ export function assetUrl(version: string, file: string): string {
 }
 
 /**
- * The three desktop targets. macOS and Linux are built by release.yml. Windows is listed without a link until
- * `windows-latest` is back in that workflow's matrix (then add `href: assetUrl(version, `CadabraCraft_${version}_x64-setup.exe`)`).
+ * The three desktop targets, all built by release.yml. Tauri names the NSIS installer `CadabraCraft_<version>_x64-setup.exe`.
  */
 export function installers(version: string): readonly Installer[] {
   return [
@@ -38,7 +37,12 @@ export function installers(version: string): readonly Installer[] {
       href: assetUrl(version, `CadabraCraft_${version}_universal.dmg`),
       action: "Download for macOS",
     },
-    { name: "Windows", detail: "Installer (.exe), WebView2 included" },
+    {
+      name: "Windows",
+      detail: "Installer (.exe) for Windows 10 and 11 (64-bit), signed; WebView2 is installed if it is missing",
+      href: assetUrl(version, `CadabraCraft_${version}_x64-setup.exe`),
+      action: "Download for Windows",
+    },
     {
       name: "Linux",
       detail: "AppImage for x86-64 and arm64. Make it executable, then run it",

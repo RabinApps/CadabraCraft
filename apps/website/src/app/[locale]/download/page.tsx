@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: LocaleParams) {
   return pageMetadata(
     locale,
     "Download CadabraCraft",
-    "CadabraCraft is a free desktop app for writing and formatting books. Download installers for macOS and Linux, with Windows coming soon.",
+    "CadabraCraft is a free desktop app for writing and formatting books. Download installers for macOS, Windows and Linux.",
     "/download/",
   );
 }
@@ -36,7 +36,7 @@ export default async function Download({ params }: LocaleParams) {
         center
         eyebrow={`Version ${version}`}
         title="Download CadabraCraft"
-        lead="Installers for macOS and Linux are on GitHub Releases, with Windows coming soon. You can also build the app from source."
+        lead="Installers for macOS, Windows and Linux are on GitHub Releases. You can also build the app from source."
       >
         <a href={RELEASES} className={btnPrimary}>
           All releases

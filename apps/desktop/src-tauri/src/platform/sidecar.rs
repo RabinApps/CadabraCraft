@@ -40,6 +40,21 @@ pub fn find_executable(names: &[&str], dirs: &[PathBuf]) -> Option<PathBuf> {
     dirs.iter().filter(|d| !d.as_os_str().is_empty()).flat_map(|d| names.iter().map(move |n| d.join(n))).find(|p| is_executable(p))
 }
 
+/// Windows creates a console window for every console program a GUI app starts, which flashes over the app while Typst,
+/// ffmpeg or the voice engine run. `CREATE_NO_WINDOW` stops that (the flag Rust's `CommandExt` takes).
+#[cfg(windows)]
+const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+
+/// Keeps a console program from opening a window; nothing to do everywhere else.
+#[cfg(windows)]
+fn hide_console(cmd: &mut Command) {
+    use std::os::windows::process::CommandExt;
+    cmd.creation_flags(CREATE_NO_WINDOW);
+}
+
+#[cfg(not(windows))]
+fn hide_console(_cmd: &mut Command) {}
+
 pub struct Captured {
     pub success: bool,
     pub stdout: Vec<u8>,
@@ -91,7 +106,10 @@ fn kill_tree(child: &mut Child) {
     }
     #[cfg(windows)]
     {
-        let _ = Command::new("taskkill").args(["/T", "/F", "/PID", &child.id().to_string()]).stdout(Stdio::null()).stderr(Stdio::null()).status();
+        let mut kill = Command::new("taskkill");
+        kill.args(["/T", "/F", "/PID", &child.id().to_string()]).stdout(Stdio::null()).stderr(Stdio::null());
+        hide_console(&mut kill);
+        let _ = kill.status();
     }
     let _ = child.kill();
     let _ = child.wait();
@@ -107,6 +125,7 @@ pub fn run(r: &Run) -> Result<Captured, RunError> {
     if let Some(cwd) = r.cwd {
         cmd.current_dir(cwd);
     }
+    hide_console(&mut cmd);
     if r.shared_libs {
         if let Some(dir) = r.bin.parent() {
             let lib = dir.join("..").join("lib");
@@ -306,5 +325,29 @@ mod tests {
         let bin = script(&odd.join("bin"), "t", "true");
         let got = run(&Run { shared_libs: true, ..run_of(&bin, &[]) });
         assert!(matches!(got, Err(RunError::Other(_))));
+    }
+}
+
+#[cfg(all(test, windows))]
+#[allow(clippy::unwrap_used, clippy::expect_used)] // clippy's allow-*-in-tests only recognises a plain `#[cfg(test)]`
+mod windows_tests {
+    use super::*;
+
+    /// A console program started without a console window still runs and its output still reaches the capture files.
+    #[test]
+    fn a_hidden_program_still_runs_and_its_output_is_captured() {
+        let args = ["/C".to_string(), "echo hi".to_string()];
+        let got = run(&Run {
+            bin: Path::new("cmd.exe"),
+            args: &args,
+            cwd: None,
+            timeout: Duration::from_secs(30),
+            cancel: None,
+            shared_libs: false,
+            install_advice: "Start cmd.exe.",
+        })
+        .unwrap();
+        assert!(got.success);
+        assert!(String::from_utf8_lossy(&got.stdout).contains("hi"), "{}", got.stderr);
     }
 }

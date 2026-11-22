@@ -23,7 +23,8 @@ concurrency:
 # `static`, `website`, `unit` (Linux), `licenses` and `ci-ok`, sized 2 vCPU for the script jobs and 4 for the rest. The long jobs
 # run on the self-hosted machines: the four `e2e` shards, `coverage`, `a11y`, `webdriver` and the Linux `rust` leg on
 # kinhin-container, the macOS `unit` and `rust` legs on kinhin-xcode (a pull request's macOS `rust` leg uses a Blacksmith Mac). Only release.yml also signs on kinhin-xcode, which holds
-# the Developer ID certificate and the notary key.
+# the Developer ID certificate and the notary key. Windows (the `unit` and `rust` legs, and `webdriver-windows`) runs on
+# GitHub's windows-latest, where the WebView2 runtime and msedgedriver are.
 # A release run (release.yml) passes `skip-e2e`: it runs static, unit, rust, licenses and website, but not e2e, coverage, a11y or webdriver.
 env:
   FULL_RUN: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}
@@ -90,9 +91,10 @@ jobs:
     strategy:
       fail-fast: false # one OS failing must not hide how the others do
       matrix:
-        # Windows is off for now: the first release is macOS and Linux (see release.yml). macOS runs on full runs only: the pull
-        # request run is the Linux one.
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["blacksmith-4vcpu-ubuntu-2404"]' || '["blacksmith-4vcpu-ubuntu-2404","kinhin-xcode"]') }}
+        # Windows ships with the first release, so its leg runs on every PR (that is where the Windows-only branches in the
+        # packages and the sidecar scripts are exercised). macOS runs on full runs only: the pull request run is Linux and
+        # Windows.
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["blacksmith-4vcpu-ubuntu-2404","windows-latest"]' || '["blacksmith-4vcpu-ubuntu-2404","kinhin-xcode","windows-latest"]') }}
     runs-on: ${{ matrix.os }}
     env:
       # The tools and the variables that make their tests required come only when the change reaches a package that drives one
@@ -366,18 +368,74 @@ jobs:
         timeout-minutes: 15 # the suite takes under a minute; a hang after the tests (run #168) must fail fast, not wait for the job's timeout
         run: xvfb-run --auto-servernum pnpm test:e2e:webdriver
         env: { CI: "1" }
+  # The same native suite on Windows, where tauri-driver reaches WebView2 through msedgedriver instead of WebKitWebDriver.
+  # Like the Linux job it is not a required check yet (continue-on-error): the suite has not run against a real driver, so
+  # the first runs may need selector or timing fixes. A release run skips it (`skip-e2e`).
+  webdriver-windows:
+    needs: changes
+    if: needs.changes.outputs.webdriver == 'true' && !inputs.skip-e2e
+    runs-on: windows-latest
+    continue-on-error: true
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/ports
+      - uses: ./.github/actions/setup-js
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch as of 2026-10-28
+      # `tauri build --no-bundle` still checks that every externalBin exists for the host triple.
+      - run: bash scripts/fetch-typst.sh
+      - run: bash scripts/fetch-sherpa.sh
+      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+        with:
+          msystem: MINGW64
+          path-type: inherit
+          install: make diffutils mingw-w64-x86_64-gcc mingw-w64-x86_64-pkgconf mingw-w64-x86_64-zlib
+      - name: Bundled audio encoder (ffmpeg)
+        shell: msys2 {0}
+        run: bash scripts/fetch-ffmpeg.sh
+      - name: tauri-driver
+        shell: bash
+        run: command -v tauri-driver || cargo install --locked tauri-driver@2.1.0
+      # tauri-driver starts msedgedriver itself; it must match the WebView2 runtime on the runner. The full build number is
+      # the usual driver version, with the major-only version and LATEST_STABLE as fallbacks when Microsoft has not published
+      # that exact one yet.
+      - name: msedgedriver matching the installed WebView2
+        shell: pwsh
+        run: |
+          $root = Join-Path ${env:ProgramFiles(x86)} "Microsoft\EdgeWebView\Application"
+          $version = Get-ChildItem $root -Directory | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1 -ExpandProperty Name
+          $major = ($version -split '\.')[0]
+          $zip = Join-Path $env:RUNNER_TEMP "edgedriver.zip"
+          $found = $false
+          foreach ($candidate in @($version, "$major.0.0.0", "LATEST_STABLE")) {
+            try {
+              Invoke-WebRequest -Uri "https://msedgedriver.microsoft.com/$candidate/edgedriver_win64.zip" -OutFile $zip
+              Write-Host "msedgedriver $candidate"
+              $found = $true
+              break
+            } catch { Write-Host "no msedgedriver for $candidate" }
+          }
+          if (-not $found) { throw "Could not download msedgedriver for WebView2 $version" }
+          Expand-Archive $zip -DestinationPath (Join-Path $env:RUNNER_TEMP "msedgedriver") -Force
+          (Join-Path $env:RUNNER_TEMP "msedgedriver") | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Build the app (debug, dev-automation bridge for the dialog answers)
+        run: pnpm --filter @cadabracraft/desktop build:native
+      - name: WebDriver e2e
+        timeout-minutes: 15
+        shell: bash
+        run: pnpm test:e2e:webdriver
+        env: { CI: "1" }
   rust:
     needs: changes
     if: needs.changes.outputs.rust == 'true'
     strategy:
       fail-fast: false # one OS failing must not hide how the others do
       matrix:
-        # Windows is off for now: the first release is macOS and Linux (see release.yml), and the Windows runner is the
-        # slowest of the three. Put `windows-latest` back in this list to test it again; the steps below that only run
-        # there are still in place.
+        # Windows is back now that it ships with the first release: the Windows-only Rust code paths, the MSYS2 ffmpeg build
+        # and the `.exe` sidecars only ever run there.
         # kinhin-xcode also signs and notarizes releases (the Developer ID certificate and the notary key live there), so a pull request's
         # code never runs on it: the PR run uses a Blacksmith Mac, and the push to main and the release run use kinhin-xcode.
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["kinhin-container","blacksmith-6vcpu-macos-latest"]' || '["kinhin-container","kinhin-xcode"]') }}
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["kinhin-container","blacksmith-6vcpu-macos-latest","windows-latest"]' || '["kinhin-container","kinhin-xcode","windows-latest"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -483,7 +541,20 @@ jobs:
   # The one check branch protection requires: green when every job that ran passed (a skipped job is a job the change cannot reach).
   ci-ok:
     if: ${{ !cancelled() }} # not always(): a cancelled run (a newer push) must end at once, or its ci-ok holds the concurrency group and the new run waits
-    needs: [changes, static, unit, website, e2e, coverage, a11y, licenses, webdriver, rust]
+    needs:
+      [
+        changes,
+        static,
+        unit,
+        website,
+        e2e,
+        coverage,
+        a11y,
+        licenses,
+        webdriver,
+        webdriver-windows,
+        rust,
+      ]
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Every needed job passed or was skipped
