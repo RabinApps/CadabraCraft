@@ -320,8 +320,9 @@ fn the_small_file_check_works_against_a_loopback_server() {
 
 /// Downloads every pack of `packs` and renders a sentence with each of their voices through the engine `sherpa`, which
 /// is the app's path end to end. Only when `enabled` (`CADABRA_NET_TESTS=full`); `https_only` is false only for the
-/// loopback stand-in. Without an engine the download is still checked and the render skipped.
-fn download_packs_and_speak(enabled: bool, https_only: bool, packs: &[&Pack], sherpa: Result<PathBuf, AudioError>, min_secs: f64) {
+/// loopback stand-in. Without an engine the download is still checked and the render skipped, unless `required`
+/// (`REQUIRE_SHERPA=1`) makes the missing engine a failure.
+fn download_packs_and_speak(enabled: bool, https_only: bool, packs: &[&Pack], sherpa: Result<PathBuf, AudioError>, required: bool, min_secs: f64) {
     if !enabled {
         eprintln!("skipping: set CADABRA_NET_TESTS=full to download the voice packs");
         return;
@@ -342,6 +343,7 @@ fn download_packs_and_speak(enabled: bool, https_only: bool, packs: &[&Pack], sh
     let expected: Vec<&str> = packs.iter().flat_map(|p| p.voices.iter().copied()).collect();
     assert_eq!(crate::audio::voices::list_voices(Some(&voices)).iter().filter(|v| v.installed).count(), expected.len());
     let Ok(bin) = sherpa else {
+        assert!(!required, "REQUIRE_SHERPA=1 but the voice engine was not found");
         eprintln!("downloaded; skipping the render: no engine (SHERPA_TTS_BIN)");
         return;
     };
@@ -365,11 +367,13 @@ fn download_packs_and_speak(enabled: bool, https_only: bool, packs: &[&Pack], sh
 
 /// Downloads every pack (about 510 MB; `CADABRA_NET_PACKS=piper` limits it to one pack, 148 MB) and renders a sentence
 /// with each of their voices through the real engine, which is the app's path end to end. Opt in with
-/// `CADABRA_NET_TESTS=full`, and `SHERPA_TTS_BIN` for the rendering. CI runs it with the bundled engine.
+/// `CADABRA_NET_TESTS=full`, and `SHERPA_TTS_BIN` for the rendering (`REQUIRE_SHERPA=1` fails without it). CI runs it
+/// with the bundled engine.
 #[test]
 fn real_packs_download_and_then_speak() {
     let packs = selected_packs(std::env::var("CADABRA_NET_PACKS").ok().as_deref());
-    download_packs_and_speak(std::env::var("CADABRA_NET_TESTS").as_deref() == Ok("full"), true, &packs, crate::audio::engine::find_sherpa(), 1.0);
+    let required = std::env::var("REQUIRE_SHERPA").as_deref() == Ok("1");
+    download_packs_and_speak(std::env::var("CADABRA_NET_TESTS").as_deref() == Ok("full"), true, &packs, crate::audio::engine::find_sherpa(), required, 1.0);
 }
 
 /// The packs `CADABRA_NET_PACKS` names (all of them when it is not set).
@@ -397,8 +401,8 @@ fn the_pack_check_works_against_a_loopback_server_with_and_without_an_engine() {
         &["vits-piper-en_US-amy-low/en_US-amy-low.onnx", "vits-piper-en_US-amy-low/tokens.txt", "lexicon-en-us.txt"],
     );
     let none = || Err(AudioError::NotFound { message: "no engine".into() });
-    download_packs_and_speak(false, true, &[], none(), 1.0);
-    download_packs_and_speak(true, false, &[pack], none(), 1.0);
+    download_packs_and_speak(false, true, &[], none(), false, 1.0);
+    download_packs_and_speak(true, false, &[pack], none(), false, 1.0);
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
@@ -415,12 +419,12 @@ fn the_pack_check_works_against_a_loopback_server_with_and_without_an_engine() {
         )
         .unwrap();
         fs::set_permissions(&engine, fs::Permissions::from_mode(0o755)).unwrap();
-        download_packs_and_speak(true, false, &[pack], Ok(engine), 1.5);
+        download_packs_and_speak(true, false, &[pack], Ok(engine), false, 1.5);
     }
 }
 
 #[test]
 #[should_panic(expected = "names no pack")]
 fn an_empty_pack_selection_is_reported() {
-    download_packs_and_speak(true, false, &[], Err(AudioError::Cancelled), 1.0);
+    download_packs_and_speak(true, false, &[], Err(AudioError::Cancelled), false, 1.0);
 }

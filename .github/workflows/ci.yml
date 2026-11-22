@@ -296,7 +296,7 @@ jobs:
         run: pnpm test:e2e:webkit
         working-directory: apps/desktop
         env: { CI: "1" }
-  # Dependency licenses: the allowlist for npm and Rust, advisories, and the generated notices must be current.
+  # Dependency licenses: the allowlist for npm and Rust, advisories (npm and Rust), and the generated notices must be current.
   licenses:
     needs: changes
     if: needs.changes.outputs.licenses == 'true'
@@ -319,6 +319,10 @@ jobs:
       - run: cargo install --locked cargo-deny@0.20.2
       - run: cargo install --locked cargo-about@0.9.3 --features cli
       - run: pnpm licenses:check
+      # Known advisories in the JavaScript the app ships (`--prod`: the tree npm-licenses.mjs checks; `cargo deny check
+      # advisories` above covers Rust). High and critical fail the job; low and moderate are printed and do not, or the
+      # gate would fail on advisories nobody can fix and be worked around. Run it by hand with `pnpm licenses:npm-advisories`.
+      - run: pnpm licenses:npm-advisories
       # The perf probe and the fuzz crate have their own lockfiles that `cargo deny check` above does not see.
       - run: pnpm licenses:tools-advisories
   # The real built app driven through tauri-driver (WebKitWebDriver) under a virtual display. Linux only: tauri-driver does
@@ -508,9 +512,18 @@ jobs:
           cargo clippy --all-targets -- -D warnings
         working-directory: apps/desktop/src-tauri
       # --lib: all unit tests live in the lib; on Windows the script embeds the test manifest (see the script).
+      # TYPST_BIN: the real-Typst tests look for the sidecar next to the program, and the test executable sits in
+      # target/debug/deps, not in target/debug with the sidecars tauri-build copies there. REQUIRE_TYPST makes a typst that
+      # cannot be found or run fail the step instead of skipping those tests.
       - name: Rust tests
         shell: bash
-        run: bash ../../../scripts/cargo-test.sh
+        run: |
+          triple=$(rustc -vV | sed -n 's/^host: //p')
+          exe=""; [[ $triple == *windows* ]] && exe=".exe"
+          export TYPST_BIN="$PWD/binaries/typst-$triple$exe"
+          [[ $triple == *windows* ]] && TYPST_BIN=$(cygpath -w "$TYPST_BIN")
+          export REQUIRE_TYPST=1
+          bash ../../../scripts/cargo-test.sh
         working-directory: apps/desktop/src-tauri
       # Windows has no full ffmpeg. The two decode tests in audio/encode.rs therefore stop at their capability check, and a
       # passing test hides its stderr, so the skip never shows in the log above. This runs just those tests with their output
@@ -563,8 +576,11 @@ jobs:
         working-directory: apps/desktop/src-tauri
       # End to end on every OS: download the Piper voices (148 MB) over TLS, check their hashes, and speak a sentence into
       # Opus and FLAC with the bundled engine. It is the only place the Windows and Linux engine builds are run.
+      # REQUIRE_SHERPA: without it the test skips the render when the engine is missing and still passes, which would hide
+      # a sidecar that does not run.
       - name: Voice download and bundled engine
         shell: bash
+        env: { REQUIRE_SHERPA: "1" }
         run: |
           triple=$(rustc -vV | sed -n 's/^host: //p')
           exe=""; [[ $triple == *windows* ]] && exe=".exe"

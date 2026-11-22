@@ -880,7 +880,7 @@ All stated budgets pass. The native typing numbers sit at the frame-rate floor l
   **Rejected:** a process per chunk (a book would spend hours starting processes), running the engine in-process through a Rust crate (new dependency, a crash takes the app down, cannot be killed), a Python runtime (size and packaging).
   **Not done:**
 - Voice download, the bundled sidecar and the UI were built afterwards; see "Voice download", "Bundled voice engine" and "Audiobook export (app)".
-- Tested with a stand-in engine script (cancel, timeout, failure, garbage output, path rules) and once against the real engine and the Piper Amy voice (`SHERPA_TTS_BIN`, `CADABRA_VOICES_DIR`, `REQUIRE_SHERPA=1`; skipped when the engine is absent). Only macOS arm64 was run.
+- Tested with a stand-in engine script (cancel, timeout, failure, garbage output, path rules) and once against the real engine and the Piper Amy voice (`SHERPA_TTS_BIN`, `CADABRA_VOICES_DIR`, `REQUIRE_SHERPA=1`, which makes a missing engine fail as it does in CI; without them the test skips). Only macOS arm64 was run.
 
 ### Audio encoders (FLAC, Opus)
 
@@ -1373,7 +1373,7 @@ What Typst 0.15 does with a mark, measured with the real binary and checked by `
 
 ## Third-party notices and license checks (2026-10-29)
 
-**Decision:** the installer ships `LICENSE`, `NOTICE`, `LICENSE-CLARIFICATIONS.md` and generated notices in its `licenses/` resource folder, and Help > Licenses… shows them. A CI job (`licenses` in `ci.yml`, `pnpm licenses:check`) fails on a license outside the allowlist, on a RustSec advisory, and on notices that are out of date.
+**Decision:** the installer ships `LICENSE`, `NOTICE`, `LICENSE-CLARIFICATIONS.md` and generated notices in its `licenses/` resource folder, and Help > Licenses… shows them. A CI job (`licenses` in `ci.yml`, `pnpm licenses:check`) fails on a license outside the allowlist, on a RustSec advisory, and on notices that are out of date. A second step, `pnpm licenses:npm-advisories` (`pnpm audit --prod --audit-level=high`), fails on a high or critical npm advisory in the shipped dependency tree; low and moderate advisories are printed and do not fail, because an unfixable one would only be worked around. Rejected: gating on every severity (the same trap), and auditing dev dependencies (they never ship).
 
 - **Rust:** `cargo-deny` (`apps/desktop/src-tauri/deny.toml`) enforces the license allowlist, bans wildcard versions, allows only crates.io, and checks advisories. `cargo-about` (`about.toml`, `about.hbs`) writes `licenses/THIRD_PARTY_NOTICES-rust.txt` for the four release targets, without dev and build dependencies. The advisory ignores in `deny.toml` each carry a reason: `zip` 4.6.1 comes from `tauri-plugin-updater` and only unpacks an archive already verified against our update key; the unmaintained GTK and zbus crates sit under Tauri's Linux stack.
 - **JavaScript:** `scripts/npm-licenses.mjs` walks the production dependency tree of `apps/desktop` (`pnpm list --prod`), skips build-time branches (`@tailwindcss/vite`, the Lingui macro plugin) and per-platform native builds (so the output is the same on every OS), checks each license against an allowlist (an `OR` expression passes if one term is allowed) and writes `THIRD_PARTY_NOTICES-npm.txt` with identical license texts merged. It lists a few more packages than the bundle strictly holds (for example `@napi-rs/canvas`, an optional Node-only dependency of `pdfjs-dist`); over-listing is the safe side.

@@ -1,10 +1,11 @@
 name: External tools for the JavaScript tests
-description: EPUBCheck, the bundled Java runtime, Playwright Chromium, Ace, enwik8, veraPDF, Typst and LibreOffice, with the REQUIRE_* variables the tests read. Needs setup-js with java first.
+description: EPUBCheck, the bundled Java runtime, Playwright Chromium, Ace, enwik8, veraPDF, Typst, poppler and LibreOffice, with the REQUIRE_* variables the tests read. Needs setup-js with java first.
 runs:
   using: composite
   steps:
+    # poppler (pdfinfo, pdffonts, pdftotext) is for the real-Typst render tests, which require it when REQUIRE_TYPST is set.
     - uses: ./.github/actions/apt
-      with: { packages: libreoffice-writer, flags: --no-install-recommends }
+      with: { packages: libreoffice-writer poppler-utils, flags: --no-install-recommends }
     - if: runner.os == 'Linux'
       shell: bash
       run: echo "REQUIRE_SOFFICE=1" >> "$GITHUB_ENV"
@@ -40,16 +41,23 @@ runs:
       run: echo "REQUIRE_ACE=1" >> "$GITHUB_ENV"
     - shell: bash
       run: bash scripts/fetch-enwik8.sh
-    # PDF/UA and PDF/A validation of the real Typst output (packages/export-pdf verapdf.test.ts). Linux only; elsewhere the test skips.
+    # PDF/UA and PDF/A validation of the real Typst output (packages/export-pdf verapdf.test.ts) and the real-Typst render
+    # tests (packages/export-pdf, packages/mcp). Linux only; elsewhere the test skips (Windows and macOS have no poppler).
+    # REQUIRE_TYPST makes a missing typst or poppler fail instead of skipping. The fetched binary goes on the PATH as
+    # `typst` too: the render tests ask `typst --version` before they run, and TYPST_BIN alone is only read by the runner.
     - if: runner.os == 'Linux'
       shell: bash
       run: |
         bash scripts/fetch-verapdf.sh
         bash scripts/fetch-typst.sh
         bin=$(ls "$PWD"/apps/desktop/src-tauri/binaries/typst-* | head -n 1)
+        mkdir -p tools/bin
+        ln -sf "$bin" tools/bin/typst
         {
+          echo "REQUIRE_TYPST=1"
           echo "REQUIRE_VERAPDF=1"
           echo "VERAPDF_BIN=$PWD/tools/verapdf/verapdf"
           echo "TYPST_BIN=$bin"
           echo "TYPST_FONT_PATHS=$PWD/apps/desktop/src-tauri/binaries/fonts"
         } >> "$GITHUB_ENV"
+        echo "$PWD/tools/bin" >> "$GITHUB_PATH"
