@@ -8,17 +8,15 @@ use std::time::{Duration, Instant};
 
 pub fn is_executable(p: &Path) -> bool {
     let Ok(md) = fs::metadata(p) else { return false };
-    if !md.is_file() {
-        return false;
-    }
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
-        md.permissions().mode() & 0o111 != 0
+        md.is_file() && md.permissions().mode() & 0o111 != 0
     }
+    // Windows decides by extension (`java_names`, `find_executable`'s callers), not by a permission bit.
     #[cfg(not(unix))]
     {
-        true
+        md.is_file()
     }
 }
 

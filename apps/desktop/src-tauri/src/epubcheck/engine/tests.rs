@@ -1,4 +1,5 @@
 use super::*;
+#[cfg(unix)] // the cancel test below is the only user, and it needs a shell script
 use std::sync::atomic::Ordering;
 
 fn touch(p: &Path) {

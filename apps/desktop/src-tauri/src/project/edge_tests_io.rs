@@ -1,11 +1,15 @@
 //! Edge cases, second half: special files, a link swapped between check and use, concurrency and clock extremes.
 //! See `edge_tests.rs` for the first half and the shared helpers.
-use super::edge_tests::{at, book, temp_files, within, PAGE};
+use super::edge_tests::{at, book, temp_files, PAGE};
 use super::snapshots::SnapshotMode;
 use super::*;
 use chrono::{DateTime, Utc};
 use std::collections::HashSet;
 use std::fs;
+// Only the Unix special-file tests (fifos, sockets, device links) use these, and they do not compile on Windows.
+#[cfg(unix)]
+use super::edge_tests::within;
+#[cfg(unix)]
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 

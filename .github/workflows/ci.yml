@@ -397,17 +397,28 @@ jobs:
         shell: bash
         run: command -v tauri-driver || cargo install --locked tauri-driver@2.1.0
       # tauri-driver starts msedgedriver itself; it must match the WebView2 runtime on the runner. The full build number is
-      # the usual driver version, with the major-only version and LATEST_STABLE as fallbacks when Microsoft has not published
-      # that exact one yet.
+      # the usual driver version, then the newest driver for that major (LATEST_RELEASE_<major>) and LATEST_STABLE when
+      # Microsoft has not published that exact one yet. The Application folder also holds non-version folders (for example
+      # PlatformExperiencesHelper), and casting one of those to [version] aborts the step, so only version names are sorted.
       - name: msedgedriver matching the installed WebView2
         shell: pwsh
         run: |
           $root = Join-Path ${env:ProgramFiles(x86)} "Microsoft\EdgeWebView\Application"
-          $version = Get-ChildItem $root -Directory | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1 -ExpandProperty Name
+          $version = Get-ChildItem $root -Directory |
+            Where-Object { $_.Name -match '^\d+(\.\d+){1,3}$' } |
+            Sort-Object { [version]$_.Name } -Descending |
+            Select-Object -First 1 -ExpandProperty Name
+          if (-not $version) { throw "No WebView2 runtime version found under $root" }
           $major = ($version -split '\.')[0]
           $zip = Join-Path $env:RUNNER_TEMP "edgedriver.zip"
+          $candidates = @($version)
+          try {
+            $latest = (Invoke-WebRequest -Uri "https://msedgedriver.microsoft.com/LATEST_RELEASE_$major").Content.Trim()
+            if ($latest) { $candidates += $latest }
+          } catch { Write-Host "no LATEST_RELEASE_$major listing" }
+          $candidates += "LATEST_STABLE"
           $found = $false
-          foreach ($candidate in @($version, "$major.0.0.0", "LATEST_STABLE")) {
+          foreach ($candidate in $candidates) {
             try {
               Invoke-WebRequest -Uri "https://msedgedriver.microsoft.com/$candidate/edgedriver_win64.zip" -OutFile $zip
               Write-Host "msedgedriver $candidate"
