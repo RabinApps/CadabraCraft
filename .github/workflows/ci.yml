@@ -512,6 +512,24 @@ jobs:
         shell: bash
         run: bash ../../../scripts/cargo-test.sh
         working-directory: apps/desktop/src-tauri
+      # Windows has no full ffmpeg. The two decode tests in audio/encode.rs therefore stop at their capability check, and a
+      # passing test hides its stderr, so the skip never shows in the log above. This runs just those tests with their output
+      # visible and fails unless the capability check is what stopped them: that is the evidence for what docs/testing.md,
+      # "External-tool tests", says about the Windows decode gap (the bare `ffmpeg` is the app's own minimal M4B build, which
+      # tauri-build copies into target/ without the CPU suffix and the test program finds through its search path). If the
+      # image ever ships a full ffmpeg, the tests decode instead and this step needs replacing with a real assertion.
+      - name: "FFmpeg decode tests (Windows: the capability skip)"
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          log=target/ffmpeg-decode.log
+          bash ../../../scripts/cargo-test.sh ffmpeg_decodes -- --nocapture > "$log" 2>&1 || { cat "$log"; exit 1; }
+          grep -E '^(test |skipping)' "$log" || true
+          grep -q 'skipping: the ffmpeg found cannot write raw PCM or read these containers back' "$log" || {
+            echo "::error::the decode tests did not stop at their capability check; see above"
+            exit 1
+          }
+        working-directory: apps/desktop/src-tauri
       - name: Rust coverage (Linux)
         if: runner.os == 'Linux' && !inputs.skip-e2e
         # The tests that decode audio with ffmpeg skip when it is missing, and a skipped test takes its lines out of the
