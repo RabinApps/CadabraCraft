@@ -21,8 +21,8 @@
   },
   "devDependencies": {
     "@cadabracraft/editor-schema": "workspace:*",
-    "@tiptap/core": "^3.34.0",
-    "@tiptap/pm": "^3.34.0",
+    "@tiptap/core": "^3.35.0",
+    "@tiptap/pm": "^3.35.0",
     "@types/mdast": "^4.0.4"
   }
 }

@@ -18,8 +18,8 @@
   "devDependencies": {
     "@cadabracraft/editor-schema": "workspace:*",
     "@cadabracraft/import-docx": "workspace:*",
-    "@tiptap/core": "^3.34.0",
-    "@tiptap/pm": "^3.34.0",
+    "@tiptap/core": "^3.35.0",
+    "@tiptap/pm": "^3.35.0",
     "fast-xml-parser": "^5.12.1"
   }
 }
