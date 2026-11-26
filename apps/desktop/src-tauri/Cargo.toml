@@ -43,7 +43,7 @@ percent-encoding = "2"
 chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
 tauri-plugin-dialog = "2"
 notify = "8"
-notify-debouncer-mini = "0.7.0"
+notify-debouncer-mini = "0.8.0"
 tempfile = "3"
 flacenc = "0.5.1"
 opus-rs = "0.1.40"
