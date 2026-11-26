@@ -397,7 +397,7 @@ jobs:
       # `tauri build --no-bundle` still checks that every externalBin exists for the host triple.
       - run: bash scripts/fetch-typst.sh
       - run: bash scripts/fetch-sherpa.sh
-      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+      - uses: msys2/setup-msys2@3c51bf698df1e37b2261f53cb67797b97761185c # v2.34.0
         with:
           msystem: MINGW64
           path-type: inherit
@@ -487,7 +487,7 @@ jobs:
       # The M4B encoder is built from the pinned ffmpeg source (LGPL-only, minimal). Windows builds with MSYS2's MinGW gcc.
       - name: MSYS2 toolchain for ffmpeg
         if: runner.os == 'Windows'
-        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+        uses: msys2/setup-msys2@3c51bf698df1e37b2261f53cb67797b97761185c # v2.34.0
         with:
           msystem: MINGW64
           path-type: inherit
